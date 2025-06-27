@@ -69,10 +69,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useSessionStore } from '@entities/user-session/model/session-store'
-import { useGameStore } from '@features/gamification/model/game-store'
-import { GAME_CONFIG } from '@shared/config/game-config'
-import AchievementsPanel from '@features/achievements/ui/AchievementsPanel.vue'
+import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import { useGameStore } from '../../../features/gamification/model/game-store'
+import { GAME_CONFIG } from '../../../shared/config/game-config'
+import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
 
 // State
 const showAchievements = ref(false)
@@ -125,7 +125,7 @@ const animateXPGain = () => {
 
 // Event listeners
 sessionStore.$subscribe((mutation, state) => {
-  if (mutation.events?.some(e => e.key === 'currentXP')) {
+  if (mutation.events && Array.isArray(mutation.events) && mutation.events.some(e => e.key === 'currentXP')) {
     animateXPGain()
   }
 })

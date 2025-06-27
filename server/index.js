@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const app = express()
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 3003
 
 // Database setup
 const dbPath = join(__dirname, 'database.sqlite')
@@ -93,31 +93,28 @@ const initDatabase = () => {
     
     console.log('📊 База данных инициализирована')
     
-    // Инициализируем prepared statements после создания таблиц
-    getBubbles = db.prepare('SELECT * FROM bubbles ORDER BY year_started, name')
-    insertBubble = db.prepare(`
-      INSERT INTO bubbles (id, name, category, skill_level, year_started, year_ended, is_active, is_easter_egg, description, projects, link, size, color)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `)
-    
-    getSession = db.prepare('SELECT * FROM user_sessions WHERE id = ?')
-    insertSession = db.prepare(`
-      INSERT INTO user_sessions (id, current_xp, current_level, lives)
-      VALUES (?, ?, ?, ?)
-    `)
-    updateSession = db.prepare(`
-      UPDATE user_sessions 
-      SET current_xp = ?, current_level = ?, lives = ?, unlocked_content = ?, visited_bubbles = ?, agreement_score = ?, last_activity = CURRENT_TIMESTAMP
-      WHERE id = ?
-    `)
-    
   } catch (error) {
     console.error('❌ Ошибка инициализации БД:', error)
   }
 }
 
-// Prepared statements (будут инициализированы после создания таблиц)
-let getBubbles, insertBubble, getSession, insertSession, updateSession
+// Prepared statements
+const getBubbles = db.prepare('SELECT * FROM bubbles ORDER BY year_started, name')
+const insertBubble = db.prepare(`
+  INSERT INTO bubbles (id, name, category, skill_level, year_started, year_ended, is_active, is_easter_egg, description, projects, link, size, color)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+`)
+
+const getSession = db.prepare('SELECT * FROM user_sessions WHERE id = ?')
+const insertSession = db.prepare(`
+  INSERT INTO user_sessions (id, current_xp, current_level, lives)
+  VALUES (?, ?, ?, ?)
+`)
+const updateSession = db.prepare(`
+  UPDATE user_sessions 
+  SET current_xp = ?, current_level = ?, lives = ?, unlocked_content = ?, visited_bubbles = ?, agreement_score = ?, last_activity = CURRENT_TIMESTAMP
+  WHERE id = ?
+`)
 
 // API Routes
 
@@ -223,8 +220,8 @@ app.put('/api/session/:sessionId', (req, res) => {
 app.post('/api/seed', async (req, res) => {
   try {
     // Читаем данные из JSON файлов
-    const mockDataPath = join(__dirname, '../mockData.json')
-    const philosophyPath = join(__dirname, '../philosophyQuestions.json')
+    const mockDataPath = join(__dirname, '../src/shared/data/mockData.json')
+    const philosophyPath = join(__dirname, '../src/shared/data/philosophyQuestions.json')
     
     if (!fs.existsSync(mockDataPath)) {
       return res.status(404).json({

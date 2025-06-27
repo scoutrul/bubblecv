@@ -23,11 +23,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useD3Simulation } from '@widgets/bubble-canvas/composables/useD3Simulation'
-import { useBubbleStore } from '@entities/bubble/model/bubble-store'
-import { GAME_CONFIG } from '@shared/config/game-config'
-import TimelineSlider from '@features/timeline/ui/TimelineSlider.vue'
-import LoadingSpinner from '@shared/ui/components/LoadingSpinner.vue'
+import { useD3Simulation } from '../composables/useD3Simulation'
+import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
+import { GAME_CONFIG } from '../../../shared/config/game-config'
+import TimelineSlider from '../../../features/timeline/ui/TimelineSlider.vue'
+import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
 
 // Refs
 const svgRef = ref<SVGElement | null>(null)
@@ -60,20 +60,32 @@ watch(currentYear, (newYear: number) => {
 
 // Lifecycle
 onMounted(async () => {
+  console.log('BubbleCanvas mounted')
+  
   // Загружаем данные пузырей
-  await bubbleStore.loadBubbles()
+  try {
+    await bubbleStore.loadBubbles()
+    console.log('Bubbles loaded:', bubbleStore.bubbles.length)
+  } catch (error) {
+    console.error('Error loading bubbles:', error)
+  }
   
   // Инициализируем D3 симуляцию
   if (svgRef.value) {
+    console.log('Initializing D3 simulation')
     initSimulation(canvasWidth.value, canvasHeight.value)
     const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
+    console.log('Initial bubbles for year', currentYear.value, ':', initialBubbles.length)
     updateBubbles(initialBubbles)
+  } else {
+    console.error('SVG ref is null')
   }
   
   // Подписываемся на resize
   window.addEventListener('resize', handleResize)
   
   isLoading.value = false
+  console.log('BubbleCanvas initialization complete')
 })
 
 onUnmounted(() => {

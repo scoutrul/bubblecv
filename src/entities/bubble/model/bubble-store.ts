@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Bubble, ApiResponse } from '@shared/types'
+import type { Bubble, ApiResponse } from '../../../shared/types'
 
 export const useBubbleStore = defineStore('bubble', () => {
   // State
@@ -39,13 +39,21 @@ export const useBubbleStore = defineStore('bubble', () => {
 
     try {
       const response = await fetch('/api/bubbles')
-      const data: ApiResponse<Bubble[]> = await response.json()
+      const data: ApiResponse<any[]> = await response.json()
 
       if (!data.success) {
         throw new Error(data.error || 'Ошибка загрузки пузырей')
       }
 
-      bubbles.value = data.data || []
+      // Трансформируем данные из API в нужный формат
+      bubbles.value = (data.data || []).map((bubble: any) => ({
+        ...bubble,
+        yearStarted: bubble.year_started,
+        yearEnded: bubble.year_ended || undefined,
+        skillLevel: bubble.skill_level,
+        isActive: Boolean(bubble.is_active),
+        isEasterEgg: Boolean(bubble.is_easter_egg)
+      }))
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
       console.error('Ошибка загрузки пузырей:', err)

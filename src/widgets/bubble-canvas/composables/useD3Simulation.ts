@@ -1,9 +1,9 @@
 import { ref, type Ref } from 'vue'
 import * as d3 from 'd3'
-import type { Bubble } from '@shared/types'
-import { GAME_CONFIG } from '@shared/config/game-config'
-import { useSessionStore } from '@entities/user-session/model/session-store'
-import { useModalStore } from '@shared/stores/modal-store'
+import type { Bubble } from '../../../shared/types'
+import { GAME_CONFIG } from '../../../shared/config/game-config'
+import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import { useModalStore } from '../../../shared/stores/modal-store'
 
 interface SimulationNode extends d3.SimulationNodeDatum {
   id: string

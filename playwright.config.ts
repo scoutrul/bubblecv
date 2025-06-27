@@ -9,10 +9,10 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3004',
     trace: 'on-first-retry',
     headless: false,
-    video: 'off',
+    video: 'on',
     screenshot: 'on',
   },
   expect: {
@@ -40,8 +40,8 @@ export default defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
-    timeout: 120000,
+    url: 'http://localhost:3004',
+    reuseExistingServer: true,
+    timeout: 30000,
   },
 }); 
