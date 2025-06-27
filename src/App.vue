@@ -12,9 +12,17 @@
 </template>
 
 <script setup lang="ts">
-import BubbleCanvas from '@widgets/bubble-canvas/ui/BubbleCanvas.vue'
-import GameHUD from '@widgets/game-hud/ui/GameHUD.vue'
-import ModalManager from '@shared/ui/components/ModalManager.vue'
+import { onMounted } from '@vue/runtime-core'
+import BubbleCanvas from '@/widgets/bubble-canvas/ui/BubbleCanvas.vue'
+import GameHUD from '@/widgets/game-hud/ui/GameHUD.vue'
+import ModalManager from '@/shared/ui/components/ModalManager.vue'
+import { useBubbleStore } from '@/entities/bubble/model/bubble-store'
+
+const bubbleStore = useBubbleStore()
+
+onMounted(async () => {
+  await bubbleStore.loadBubbles()
+})
 </script>
 
 <style scoped>

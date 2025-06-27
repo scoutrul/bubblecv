@@ -46,3 +46,7 @@ lerna-debug.log*
 .temp
 .tmp
 .cache
+
+# Playwright e2e
+playwright-report/
+test-results/

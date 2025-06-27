@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useD3Simulation } from '../composables/useD3Simulation'
+import { useD3Simulation } from '@widgets/bubble-canvas/composables/useD3Simulation'
 import { useBubbleStore } from '@entities/bubble/model/bubble-store'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import TimelineSlider from '@features/timeline/ui/TimelineSlider.vue'
@@ -31,10 +31,10 @@ import LoadingSpinner from '@shared/ui/components/LoadingSpinner.vue'
 
 // Refs
 const svgRef = ref<SVGElement | null>(null)
-const canvasWidth = ref(window.innerWidth)
-const canvasHeight = ref(window.innerHeight)
-const currentYear = ref(GAME_CONFIG.CURRENT_YEAR)
-const isLoading = ref(true)
+const canvasWidth = ref<number>(window.innerWidth)
+const canvasHeight = ref<number>(window.innerHeight)
+const currentYear = ref<number>(GAME_CONFIG.CURRENT_YEAR)
+const isLoading = ref<boolean>(true)
 
 // Данные
 const startYear = GAME_CONFIG.START_YEAR
@@ -53,7 +53,7 @@ const handleResize = () => {
 }
 
 // Watchers
-watch(currentYear, (newYear) => {
+watch(currentYear, (newYear: number) => {
   const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
   updateBubbles(filteredBubbles)
 })
@@ -96,6 +96,6 @@ onUnmounted(() => {
   @apply absolute bottom-8 left-1/2 transform -translate-x-1/2;
   @apply bg-background-glass backdrop-blur-md rounded-lg p-4;
   @apply border border-border;
-  min-width: 400px;
+  width: min(400px, 90vw);
 }
 </style>
