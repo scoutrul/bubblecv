@@ -1,0 +1,48 @@
+# Зависимости
+node_modules
+.pnp
+.pnp.js
+
+# Тестирование
+coverage
+*.lcov
+
+# Продакшн билды
+dist
+dist-ssr
+*.local
+
+# Кэш и логи
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Редакторы
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Локальные файлы
+*.local
+.env
+.env.*
+!.env.example
+
+# База данных
+*.sqlite
+*.sqlite3
+
+# Временные файлы
+.temp
+.tmp
+.cache

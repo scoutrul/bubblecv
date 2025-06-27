@@ -1,0 +1,135 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Глобальные стили */
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  html, body {
+    @apply h-full overflow-hidden;
+  }
+  
+  body {
+    @apply bg-background-primary text-text-primary font-primary;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  #app {
+    @apply h-full;
+  }
+}
+
+/* Компонентные стили */
+@layer components {
+  .bubble {
+    @apply rounded-full relative cursor-pointer border-2 border-border;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.1),
+      0 2px 10px rgba(255, 255, 255, 0.1) inset;
+  }
+  
+  .bubble:hover {
+    @apply scale-110 border-border-light;
+    box-shadow: 
+      0 8px 40px rgba(0, 0, 0, 0.2),
+      0 4px 20px rgba(255, 255, 255, 0.2) inset;
+  }
+  
+  .bubble-novice { 
+    @apply w-10 h-10; 
+  }
+  
+  .bubble-intermediate { 
+    @apply w-14 h-14; 
+  }
+  
+  .bubble-confident { 
+    @apply w-18 h-18; 
+  }
+  
+  .bubble-expert { 
+    @apply w-20 h-20; 
+  }
+  
+  .bubble-master { 
+    @apply w-24 h-24; 
+  }
+  
+  .bubble-easter-egg {
+    @apply animate-breathe;
+    filter: hue-rotate(45deg);
+  }
+  
+  .content-card {
+    @apply bg-background-glass backdrop-blur-xl border border-border rounded-2xl p-6;
+    transition: all 0.3s ease;
+  }
+  
+  .content-card:hover {
+    @apply border-border-light -translate-y-0.5;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn {
+    @apply px-6 py-3 rounded-lg font-semibold text-base border-none cursor-pointer;
+    @apply inline-flex items-center gap-2 transition-all duration-300 ease-in-out;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-secondary text-white;
+  }
+  
+  .btn-primary:hover {
+    @apply scale-105 shadow-lg;
+  }
+  
+  .progress-bar {
+    @apply w-full h-3 bg-background-card rounded-full overflow-hidden border border-border;
+  }
+  
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-primary to-secondary rounded-full relative;
+    transition: width 0.5s ease;
+  }
+}
+
+/* Утилиты */
+@layer utilities {
+  .text-gradient-primary {
+    background: linear-gradient(45deg, theme('colors.primary.DEFAULT'), theme('colors.secondary.DEFAULT'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glass-effect {
+    @apply bg-background-glass backdrop-blur-xl border border-border;
+  }
+  
+  .heading-1 {
+    @apply text-5xl font-bold leading-tight tracking-tight;
+  }
+  
+  .heading-2 {
+    @apply text-3xl font-semibold leading-tight;
+  }
+  
+  .body-large {
+    @apply text-lg leading-relaxed;
+  }
+  
+  .body-normal {
+    @apply text-base leading-normal;
+  }
+  
+  .code {
+    @apply font-mono text-sm bg-background-card px-2 py-1 rounded;
+  }
+} 
