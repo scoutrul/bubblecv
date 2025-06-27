@@ -1,12 +1,15 @@
 <template>
   <div class="bubble-canvas-container">
-    <!-- SVG холст для D3.js -->
-    <svg
-      ref="svgRef"
-      class="bubble-svg"
+    <!-- Canvas холст для отрисовки пузырей -->
+    <canvas
+      ref="canvasRef"
+      class="bubble-canvas"
       :width="canvasWidth"
       :height="canvasHeight"
-    ></svg>
+      @mousemove="handleMouseMove"
+      @click="handleClick"
+      @mouseleave="handleMouseLeave"
+    ></canvas>
     
     <!-- Временная линия -->
     <TimelineSlider 
@@ -23,14 +26,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useD3Simulation } from '../composables/useD3Simulation'
+import { useCanvasSimulation } from '../composables/useCanvasSimulation'
 import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import TimelineSlider from '../../../features/timeline/ui/TimelineSlider.vue'
 import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
 
 // Refs
-const svgRef = ref<SVGElement | null>(null)
+const canvasRef = ref<HTMLCanvasElement | null>(null)
 const canvasWidth = ref<number>(window.innerWidth)
 const canvasHeight = ref<number>(window.innerHeight)
 const currentYear = ref<number>(GAME_CONFIG.CURRENT_YEAR)
@@ -43,13 +46,46 @@ const endYear = GAME_CONFIG.CURRENT_YEAR
 // Stores
 const bubbleStore = useBubbleStore()
 
-// D3 Simulation
-const { initSimulation, updateBubbles, destroySimulation } = useD3Simulation(svgRef)
+// Canvas Simulation
+const { 
+  initSimulation, 
+  updateBubbles, 
+  destroySimulation,
+  handleMouseMove: simMouseMove,
+  handleClick: simClick,
+  handleMouseLeave: simMouseLeave
+} = useCanvasSimulation(canvasRef)
 
 // Handlers
 const handleResize = () => {
   canvasWidth.value = window.innerWidth
   canvasHeight.value = window.innerHeight
+  
+  if (canvasRef.value) {
+    // Обновляем Canvas размеры с учетом DPI
+    const dpr = window.devicePixelRatio || 1
+    canvasRef.value.width = canvasWidth.value * dpr
+    canvasRef.value.height = canvasHeight.value * dpr
+    canvasRef.value.style.width = `${canvasWidth.value}px`
+    canvasRef.value.style.height = `${canvasHeight.value}px`
+    
+    const ctx = canvasRef.value.getContext('2d')
+    if (ctx) {
+      ctx.scale(dpr, dpr)
+    }
+  }
+}
+
+const handleMouseMove = (event: MouseEvent) => {
+  simMouseMove(event)
+}
+
+const handleClick = (event: MouseEvent) => {
+  simClick(event)
+}
+
+const handleMouseLeave = () => {
+  simMouseLeave()
 }
 
 // Watchers
@@ -70,15 +106,17 @@ onMounted(async () => {
     console.error('Error loading bubbles:', error)
   }
   
-  // Инициализируем D3 симуляцию
-  if (svgRef.value) {
-    console.log('Initializing D3 simulation')
+  // Настраиваем Canvas
+  if (canvasRef.value) {
+    handleResize()
+    
+    console.log('Initializing Canvas simulation')
     initSimulation(canvasWidth.value, canvasHeight.value)
     const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
     console.log('Initial bubbles for year', currentYear.value, ':', initialBubbles.length)
     updateBubbles(initialBubbles)
   } else {
-    console.error('SVG ref is null')
+    console.error('Canvas ref is null')
   }
   
   // Подписываемся на resize
@@ -99,9 +137,10 @@ onUnmounted(() => {
   @apply relative w-full h-full;
 }
 
-.bubble-svg {
+.bubble-canvas {
   @apply absolute inset-0;
   background: transparent;
+  cursor: default;
 }
 
 .timeline {
