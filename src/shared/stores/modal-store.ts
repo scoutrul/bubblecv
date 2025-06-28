@@ -29,6 +29,17 @@ export const useModalStore = defineStore('modal', () => {
     currentBubble.value = null
   }
 
+  const continueBubbleModal = () => {
+    const bubbleId = currentBubble.value?.id
+    closeBubbleModal()
+    
+    // Эмитим событие для удаления пузыря
+    if (bubbleId) {
+      // Используем кастомное событие для уведомления о необходимости удаления пузыря
+      window.dispatchEvent(new CustomEvent('bubble-continue', { detail: { bubbleId } }))
+    }
+  }
+
   // Level Up Modal Actions  
   const openLevelUpModal = (level: number) => {
     currentLevel.value = level
@@ -87,6 +98,7 @@ export const useModalStore = defineStore('modal', () => {
     // Actions
     openBubbleModal,
     closeBubbleModal,
+    continueBubbleModal,
     openLevelUpModal,
     closeLevelUpModal,
     openPhilosophyModal,

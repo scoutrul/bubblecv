@@ -40,6 +40,18 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
   
   // Сохранение позиций между фильтрациями
   const savedPositions = new Map<string, { x: number, y: number, vx: number, vy: number }>()
+  
+  // Визуальные эффекты взрыва
+  interface ExplosionEffect {
+    x: number
+    y: number
+    radius: number
+    maxRadius: number
+    opacity: number
+    startTime: number
+  }
+  
+  let explosionEffects: ExplosionEffect[] = []
 
   // Цвета по категориям технологий
   const categoryColors = {
@@ -76,9 +88,18 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     const averageAreaPerBubble = screenArea / bubbleCount
     const averageRadius = Math.sqrt(averageAreaPerBubble / Math.PI)
     
-    // Диапазон размеров на основе среднего
-    const minRadius = Math.max(25, averageRadius * 0.6)
-    const maxRadius = Math.min(80, averageRadius * 1.4)
+    // Учитываем соотношение сторон экрана для более равномерного распределения
+    const aspectRatio = width / height
+    const aspectFactor = Math.min(1.2, Math.max(0.8, aspectRatio / 1.5))
+    
+    // Диапазон размеров на основе среднего с учетом соотношения сторон
+    const baseMinRadius = Math.max(20, averageRadius * 0.5 * aspectFactor)
+    const baseMaxRadius = Math.min(100, averageRadius * 1.5 * aspectFactor)
+    
+    // Ограничиваем размеры чтобы пузыри всегда помещались на экране
+    const maxAllowedRadius = Math.min(width, height) / 8
+    const minRadius = Math.min(baseMinRadius, maxAllowedRadius * 0.3)
+    const maxRadius = Math.min(baseMaxRadius, maxAllowedRadius)
     
     return { min: minRadius, max: maxRadius }
   }
@@ -285,6 +306,100 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     })
   }
 
+  // Отрисовка зоны воздействия при ховере
+  const drawHoverEffect = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+    const pushRadius = bubble.baseRadius * 4
+    
+    context.save()
+    
+    // Полупрозрачное кольцо зоны воздействия
+    context.beginPath()
+    context.arc(bubble.x, bubble.y, pushRadius, 0, Math.PI * 2)
+    context.strokeStyle = 'rgba(255, 255, 255, 0.15)'
+    context.lineWidth = 2
+    context.setLineDash([5, 5])
+    context.stroke()
+    
+    // Градиентный эффект расходящихся волн
+    const gradient = context.createRadialGradient(
+      bubble.x, bubble.y, bubble.currentRadius,
+      bubble.x, bubble.y, pushRadius
+    )
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)')
+    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)')
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+    
+    context.beginPath()
+    context.arc(bubble.x, bubble.y, pushRadius, 0, Math.PI * 2)
+    context.fillStyle = gradient
+    context.fill()
+    
+    context.restore()
+  }
+
+  // Отрисовка эффектов взрыва
+  const drawExplosionEffects = (context: CanvasRenderingContext2D) => {
+    const currentTime = Date.now()
+    
+    // Обновляем и отрисовываем каждый эффект взрыва
+    explosionEffects = explosionEffects.filter(effect => {
+      const elapsed = currentTime - effect.startTime
+      const duration = 1000 // 1 секунда анимации
+      
+      if (elapsed > duration) {
+        return false // Удаляем завершенные эффекты
+      }
+      
+      // Прогресс анимации от 0 до 1
+      const progress = elapsed / duration
+      
+      // Радиус расширяется от 0 до maxRadius
+      effect.radius = effect.maxRadius * progress
+      
+      // Прозрачность убывает от 1 до 0
+      effect.opacity = 1 - progress
+      
+      context.save()
+      
+      // Сбрасываем линию пунктира если была установлена
+      context.setLineDash([])
+      
+      // Внешнее кольцо взрыва
+      context.beginPath()
+      context.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2)
+      context.strokeStyle = `rgba(255, 100, 100, ${effect.opacity * 0.8})`
+      context.lineWidth = 4
+      context.stroke()
+      
+      // Внутреннее кольцо взрыва
+      context.beginPath()
+      context.arc(effect.x, effect.y, effect.radius * 0.7, 0, Math.PI * 2)
+      context.strokeStyle = `rgba(255, 200, 100, ${effect.opacity * 0.6})`
+      context.lineWidth = 2
+      context.stroke()
+      
+      // Центральная вспышка
+      if (progress < 0.3) {
+        const flashOpacity = effect.opacity * (1 - progress / 0.3)
+        const flashGradient = context.createRadialGradient(
+          effect.x, effect.y, 0,
+          effect.x, effect.y, effect.radius * 0.3
+        )
+        flashGradient.addColorStop(0, `rgba(255, 255, 255, ${flashOpacity})`)
+        flashGradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
+        
+        context.beginPath()
+        context.arc(effect.x, effect.y, effect.radius * 0.3, 0, Math.PI * 2)
+        context.fillStyle = flashGradient
+        context.fill()
+      }
+      
+      context.restore()
+      
+      return true // Оставляем эффект
+    })
+  }
+
   // Рендеринг всех пузырей
   const render = () => {
     if (!ctx || !canvasRef.value) return
@@ -292,7 +407,12 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Очищаем canvas
     ctx.clearRect(0, 0, width, height)
     
-    // Сначала рисуем обычные пузыри
+    // Затем рисуем зону воздействия для hover пузыря
+    if (hoveredBubble) {
+      drawHoverEffect(ctx, hoveredBubble)
+    }
+    
+    // Затем рисуем обычные пузыри
     nodes.forEach(bubble => {
       if (!bubble.isHovered) {
         drawBubble(ctx!, bubble)
@@ -300,7 +420,7 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       }
     })
     
-    // Затем рисуем hover пузырь поверх всех
+    // Наконец рисуем hover пузырь поверх всех
     if (hoveredBubble) {
       drawBubble(ctx, hoveredBubble)
       drawText(ctx, hoveredBubble)
@@ -328,6 +448,183 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     return null
   }
 
+  // Импульсное отталкивание соседей при ховере
+  const pushNeighbors = (centerBubble: SimulationNode, pushRadius: number, pushStrength: number) => {
+    let affectedCount = 0
+    
+    nodes.forEach(bubble => {
+      if (bubble.id === centerBubble.id) return
+      
+      const dx = bubble.x - centerBubble.x
+      const dy = bubble.y - centerBubble.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Если пузырь в радиусе воздействия
+      if (distance < pushRadius && distance > 0) {
+        // Нормализуем вектор направления
+        const normalizedDx = dx / distance
+        const normalizedDy = dy / distance
+        
+        // Увеличиваем силу и делаем её более заметной
+        const force = pushStrength * (1 - distance / pushRadius) * 3
+        
+        // Применяем импульс к скорости более агрессивно
+        bubble.vx = (bubble.vx || 0) + normalizedDx * force
+        bubble.vy = (bubble.vy || 0) + normalizedDy * force
+        
+        // Также немного сдвигаем позицию для мгновенного эффекта
+        bubble.x += normalizedDx * force * 0.5
+        bubble.y += normalizedDy * force * 0.5
+        
+        // Ограничиваем максимальную скорость
+        const maxVelocity = 15 // Увеличили максимальную скорость
+        const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
+        if (currentVelocity > maxVelocity) {
+          const scale = maxVelocity / currentVelocity
+          bubble.vx = (bubble.vx || 0) * scale
+          bubble.vy = (bubble.vy || 0) * scale
+        }
+        
+        affectedCount++
+      }
+    })
+    
+    // Перезапускаем симуляцию для лучшего отклика
+    if (simulation && affectedCount > 0) {
+      simulation.alpha(0.5).restart()
+    }
+    
+    console.log(`💥 Оттолкнуто ${affectedCount} пузырей от ${centerBubble.name}`)
+  }
+
+  // Отталкивание от точки клика как от стены (взрыв)
+  const explodeFromPoint = (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number) => {
+    let affectedCount = 0
+    
+    nodes.forEach(bubble => {
+      const dx = bubble.x - clickX
+      const dy = bubble.y - clickY
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Если пузырь в радиусе взрыва
+      if (distance < explosionRadius) {
+        // Если пузырь прямо в центре клика, отталкиваем в случайном направлении
+        let normalizedDx, normalizedDy
+        if (distance < 5) {
+          const randomAngle = Math.random() * Math.PI * 2
+          normalizedDx = Math.cos(randomAngle)
+          normalizedDy = Math.sin(randomAngle)
+        } else {
+          // Нормализуем вектор направления от центра взрыва
+          normalizedDx = dx / distance
+          normalizedDy = dy / distance
+        }
+        
+        // Сила взрыва убывает с расстоянием (как от стены)
+        const force = explosionStrength * (1 - distance / explosionRadius) * 4
+        
+        // Применяем мощный импульс для эффекта взрыва
+        bubble.vx = (bubble.vx || 0) + normalizedDx * force
+        bubble.vy = (bubble.vy || 0) + normalizedDy * force
+        
+        // Немедленно сдвигаем позицию для мгновенного эффекта
+        bubble.x += normalizedDx * force * 0.8
+        bubble.y += normalizedDy * force * 0.8
+        
+        // Ограничиваем максимальную скорость для контроля
+        const maxVelocity = 20 // Высокая скорость для эффекта взрыва
+        const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
+        if (currentVelocity > maxVelocity) {
+          const scale = maxVelocity / currentVelocity
+          bubble.vx = (bubble.vx || 0) * scale
+          bubble.vy = (bubble.vy || 0) * scale
+        }
+        
+        // Убеждаемся что пузыри не выходят за границы экрана
+        const padding = bubble.currentRadius + 5
+        bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
+        bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
+        
+        affectedCount++
+      }
+    })
+    
+    // Визуальный эффект не нужен - только физическое отталкивание
+    
+    // Сильно перезапускаем симуляцию для драматичного эффекта
+    if (simulation && affectedCount > 0) {
+      simulation.alpha(0.8).restart()
+    }
+    
+    // Эффект взрыва создан
+  }
+
+  // Мощный взрыв пузыря при удалении
+  const explodeBubble = (bubble: SimulationNode) => {
+    
+    // Параметры локального взрыва - только слегка за пределы радиуса пузыря
+    const explosionRadius = bubble.baseRadius * 2.5 // Более локальный эффект
+    const explosionStrength = 30 // Очень мощный но локальный взрыв
+    
+    // Отталкиваем все соседние пузыри
+    let affectedCount = 0
+    nodes.forEach(otherBubble => {
+      if (otherBubble.id === bubble.id) return
+      
+      const dx = otherBubble.x - bubble.x
+      const dy = otherBubble.y - bubble.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Если пузырь в радиусе взрыва
+      if (distance < explosionRadius) {
+        // Нормализуем вектор направления от взрывающегося пузыря
+        let normalizedDx, normalizedDy
+        if (distance < 5) {
+          const randomAngle = Math.random() * Math.PI * 2
+          normalizedDx = Math.cos(randomAngle)
+          normalizedDy = Math.sin(randomAngle)
+        } else {
+          normalizedDx = dx / distance
+          normalizedDy = dy / distance
+        }
+        
+        // Очень мощная сила взрыва
+        const force = explosionStrength * (1 - distance / explosionRadius) * 5
+        
+        // Применяем импульс
+        otherBubble.vx = (otherBubble.vx || 0) + normalizedDx * force
+        otherBubble.vy = (otherBubble.vy || 0) + normalizedDy * force
+        
+        // Немедленный сдвиг для драматичного эффекта
+        otherBubble.x += normalizedDx * force * 1.2
+        otherBubble.y += normalizedDy * force * 1.2
+        
+        // Ограничиваем скорость
+        const maxVelocity = 30 // Очень высокая скорость для взрыва
+        const currentVelocity = Math.sqrt((otherBubble.vx || 0) ** 2 + (otherBubble.vy || 0) ** 2)
+        if (currentVelocity > maxVelocity) {
+          const scale = maxVelocity / currentVelocity
+          otherBubble.vx = (otherBubble.vx || 0) * scale
+          otherBubble.vy = (otherBubble.vy || 0) * scale
+        }
+        
+        // Границы экрана
+        const padding = otherBubble.currentRadius + 5
+        otherBubble.x = Math.max(padding, Math.min(width - padding, otherBubble.x))
+        otherBubble.y = Math.max(padding, Math.min(height - padding, otherBubble.y))
+        
+        affectedCount++
+      }
+    })
+    
+    // Мощный перезапуск симуляции
+    if (simulation && affectedCount > 0) {
+      simulation.alpha(1.0).restart() // Максимальная энергия
+    }
+    
+    // Взрыв пузыря завершен
+  }
+
   // Обработка движения мыши
   const handleMouseMove = (event: MouseEvent) => {
     if (!canvasRef.value) return
@@ -352,6 +649,13 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
         hoveredBubble.targetRadius = hoveredBubble.baseRadius * 1.2
         hoveredBubble.isHovered = true
         canvasRef.value!.style.cursor = 'pointer'
+        
+        // Отталкиваем соседей при начале ховера
+        const pushRadius = hoveredBubble.baseRadius * 4 // Увеличили радиус воздействия
+        const pushStrength = 8 // Увеличили силу отталкивания
+        pushNeighbors(hoveredBubble, pushRadius, pushStrength)
+        
+        console.log('🫧 Пузырь увеличен, соседи оттолкнуты:', hoveredBubble.name)
       } else {
         canvasRef.value!.style.cursor = 'default'
       }
@@ -393,25 +697,16 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
           clickedBubble.targetRadius = originalRadius
         }, 150)
       }, 100)
-
-      // Начисляем опыт
-      if (clickedBubble.isEasterEgg) {
-        await sessionStore.gainXP(GAME_CONFIG.XP_PER_EASTER_EGG)
-      } else {
-        await sessionStore.gainXP(GAME_CONFIG.XP_PER_BUBBLE)
-      }
-
-      // Отмечаем пузырь как посещенный
-      await sessionStore.visitBubble(clickedBubble.id)
-      clickedBubble.isVisited = true
       
       // Открываем модальное окно с деталями
       modalStore.openBubbleModal(clickedBubble)
+    } else {
+      // Клик по пустому месту - создаем взрыв отталкивания
+      const explosionRadius = Math.min(width, height) * 0.3 // 30% от размера экрана
+      const explosionStrength = 15 // Сильный взрыв
       
-      // Для простоты - удаляем пузырь сразу после клика
-      setTimeout(() => {
-        removeBubble(clickedBubble.id)
-      }, 1000)
+      // Создаем эффект взрыва от точки клика
+      explodeFromPoint(mouseX, mouseY, explosionRadius, explosionStrength)
     }
   }
 
@@ -424,14 +719,15 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     ctx = canvasRef.value.getContext('2d')
     if (!ctx) return
     
-    // Инициализируем симуляцию с улучшенной физикой
+    // Инициализируем симуляцию с улучшенной физикой для импульсов
     simulation = d3.forceSimulation<SimulationNode>()
       .force('center', d3.forceCenter(width / 2, height / 2).strength(0.005))
-      .force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.8))
-      .force('charge', d3.forceManyBody().strength(-15))
-      .force('attract', d3.forceRadial(0, width / 2, height / 2).strength(0.005))
+      .force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.7))
+      .force('charge', d3.forceManyBody().strength(-12))
+      .force('attract', d3.forceRadial(0, width / 2, height / 2).strength(0.003))
       .alpha(0.3)
       .alphaDecay(0) // Бесконечное движение
+      .velocityDecay(0.75) // Уменьшили затухание для более заметного движения
 
     // Принудительно поддерживаем симуляцию
     restartInterval = window.setInterval(() => {
@@ -442,6 +738,9 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
 
     // Запускаем анимационный цикл
     animate()
+
+    // Добавляем слушатель события удаления пузыря
+    window.addEventListener('bubble-continue', handleBubbleContinue)
 
     isInitialized.value = true
     console.log('Canvas симуляция инициализирована:', { width, height })
@@ -483,6 +782,39 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     }
   }
 
+  // Обработчик события удаления пузыря при нажатии "Продолжить"
+  const handleBubbleContinue = async (event: Event) => {
+    const customEvent = event as CustomEvent
+    const { bubbleId } = customEvent.detail
+    console.log('🫧 Исследуем пузырь:', bubbleId)
+    
+    // Находим пузырь
+    const bubble = nodes.find(node => node.id === bubbleId)
+    if (!bubble) {
+      console.warn('Пузырь не найден:', bubbleId)
+      return
+    }
+    
+    // Начисляем опыт
+    if (bubble.isEasterEgg) {
+      await sessionStore.gainXP(GAME_CONFIG.XP_PER_EASTER_EGG)
+    } else {
+      await sessionStore.gainXP(GAME_CONFIG.XP_PER_BUBBLE)
+    }
+    
+    // Отмечаем пузырь как посещенный
+    await sessionStore.visitBubble(bubble.id)
+    bubble.isVisited = true
+    
+    // Создаем мощный взрыв пузыря и сразу удаляем
+    explodeBubble(bubble)
+    
+    // Удаляем пузырь сразу - резкий эффект
+    setTimeout(() => {
+      removeBubble(bubbleId)
+    }, 50) // Минимальная задержка для применения физики
+  }
+
   const destroySimulation = () => {
     if (animationId) {
       cancelAnimationFrame(animationId)
@@ -499,15 +831,92 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       simulation = null
     }
     
+    // Удаляем слушатель события
+    window.removeEventListener('bubble-continue', handleBubbleContinue)
+    
     nodes = []
     savedPositions.clear()
     isInitialized.value = false
     console.log('Canvas симуляция остановлена')
   }
 
+  // Обновление размеров симуляции при ресайзе окна
+  const updateSimulationSize = (newWidth: number, newHeight: number) => {
+    if (!simulation) return
+    
+    width = newWidth
+    height = newHeight
+    
+    // Обновляем центральные силы с новыми размерами
+    simulation
+      .force('center', d3.forceCenter(width / 2, height / 2).strength(0.005))
+      .force('attract', d3.forceRadial(0, width / 2, height / 2).strength(0.005))
+    
+    // Пересчитываем адаптивные размеры пузырей для нового экрана
+    const currentBubbles = nodes.map(node => ({
+      id: node.id,
+      name: node.name,
+      category: node.category,
+      skillLevel: node.skillLevel,
+      yearStarted: node.yearStarted,
+      yearEnded: node.yearEnded,
+      description: node.description,
+      isActive: node.isActive,
+      isEasterEgg: node.isEasterEgg,
+      position: node.position,
+      projects: node.projects,
+      size: node.size,
+      color: node.color
+    }))
+    
+    // Пересоздаем узлы с новыми размерами (сохраняя позиции)
+    const updatedNodes = createNodes(currentBubbles)
+    
+    // Обновляем существующие узлы с новыми размерами, сохраняя позиции
+    nodes.forEach((node, index) => {
+      if (updatedNodes[index]) {
+        // Сохраняем текущие позиции
+        const currentX = node.x
+        const currentY = node.y
+        const currentVx = node.vx || 0
+        const currentVy = node.vy || 0
+        
+        // Обновляем размеры
+        node.baseRadius = updatedNodes[index].baseRadius
+        node.targetRadius = updatedNodes[index].baseRadius
+        node.currentRadius = updatedNodes[index].baseRadius
+        node.textLines = updatedNodes[index].textLines
+        
+        // Корректируем позиции если они выходят за новые границы
+        const padding = node.baseRadius + 5
+        node.x = Math.max(padding, Math.min(width - padding, currentX))
+        node.y = Math.max(padding, Math.min(height - padding, currentY))
+        node.vx = currentVx
+        node.vy = currentVy
+        
+        // Обновляем сохраненные позиции
+        savedPositions.set(node.id, {
+          x: node.x,
+          y: node.y,
+          vx: node.vx,
+          vy: node.vy
+        })
+      }
+    })
+    
+    // Обновляем collision detection с новыми радиусами
+    simulation.force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.8))
+    
+    // Мягкий перезапуск симуляции
+    simulation.alpha(0.3).restart()
+    
+    console.log('Симуляция обновлена для новых размеров:', { width, height, bubbles: nodes.length })
+  }
+
   return {
     initSimulation,
     updateBubbles,
+    updateSimulationSize,
     destroySimulation,
     handleMouseMove,
     handleClick,

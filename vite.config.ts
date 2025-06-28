@@ -17,7 +17,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3004,
+    port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:3003',
@@ -33,7 +33,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router', 'pinia'],
+          vendor: ['vue','pinia'],
           d3: ['d3'],
           gsap: ['gsap']
         }
@@ -41,7 +41,7 @@ export default defineConfig({
     }
   },
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'pinia', 'd3', 'gsap']
+    include: ['vue','pinia', 'd3', 'gsap']
   },
   define: {
     __VUE_OPTIONS_API__: false,

@@ -116,7 +116,7 @@
           </div>
           
           <button 
-            @click="$emit('close')"
+            @click="$emit('continue')"
             class="continue-button"
           >
             Продолжить исследование
@@ -138,6 +138,7 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
+  (e: 'continue'): void
 }
 
 const props = defineProps<Props>()

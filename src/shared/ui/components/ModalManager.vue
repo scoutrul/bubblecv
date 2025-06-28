@@ -5,6 +5,7 @@
       :is-open="modalStore.isBubbleModalOpen"
       :bubble="modalStore.currentBubble"
       @close="modalStore.closeBubbleModal"
+      @continue="modalStore.continueBubbleModal"
     />
     
     <!-- Level Up Modal -->

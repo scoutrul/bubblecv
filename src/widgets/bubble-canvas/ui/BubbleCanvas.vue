@@ -4,8 +4,6 @@
     <canvas
       ref="canvasRef"
       class="bubble-canvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
       @mousemove="handleMouseMove"
       @click="handleClick"
       @mouseleave="handleMouseLeave"
@@ -51,6 +49,7 @@ const {
   initSimulation, 
   updateBubbles, 
   destroySimulation,
+  updateSimulationSize,
   handleMouseMove: simMouseMove,
   handleClick: simClick,
   handleMouseLeave: simMouseLeave
@@ -58,21 +57,46 @@ const {
 
 // Handlers
 const handleResize = () => {
-  canvasWidth.value = window.innerWidth
-  canvasHeight.value = window.innerHeight
+  const newWidth = window.innerWidth
+  const newHeight = window.innerHeight
+  
+  console.log('🔄 Ресайз окна:', { 
+    от: { width: canvasWidth.value, height: canvasHeight.value },
+    к: { width: newWidth, height: newHeight }
+  })
+  
+  canvasWidth.value = newWidth
+  canvasHeight.value = newHeight
   
   if (canvasRef.value) {
-    // Обновляем Canvas размеры с учетом DPI
     const dpr = window.devicePixelRatio || 1
-    canvasRef.value.width = canvasWidth.value * dpr
-    canvasRef.value.height = canvasHeight.value * dpr
-    canvasRef.value.style.width = `${canvasWidth.value}px`
-    canvasRef.value.style.height = `${canvasHeight.value}px`
     
+    // ВАЖНО: Сначала устанавливаем CSS размеры (визуальные)
+    canvasRef.value.style.width = `${newWidth}px`
+    canvasRef.value.style.height = `${newHeight}px`
+    
+    // Затем устанавливаем внутренние размеры Canvas (разрешение буфера)
+    // Они должны соответствовать CSS размерам умноженным на DPI
+    canvasRef.value.width = newWidth * dpr
+    canvasRef.value.height = newHeight * dpr
+    
+    // Получаем контекст и настраиваем масштабирование
     const ctx = canvasRef.value.getContext('2d')
     if (ctx) {
+      // Сбрасываем все трансформации
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
+      // Масштабируем контекст для компенсации DPI
+      // Теперь координаты 1:1 соответствуют CSS пикселям
       ctx.scale(dpr, dpr)
     }
+    
+    // Обновляем симуляцию с новыми размерами
+    updateSimulationSize(newWidth, newHeight)
+    console.log('✅ Canvas обновлен:', {
+      cssSize: `${newWidth}x${newHeight}`,
+      bufferSize: `${newWidth * dpr}x${newHeight * dpr}`,
+      dpr
+    })
   }
 }
 
@@ -108,6 +132,7 @@ onMounted(async () => {
   
   // Настраиваем Canvas
   if (canvasRef.value) {
+    // Сначала правильно инициализируем Canvas размеры
     handleResize()
     
     console.log('Initializing Canvas simulation')
@@ -141,6 +166,11 @@ onUnmounted(() => {
   @apply absolute inset-0;
   background: transparent;
   cursor: default;
+  display: block;
+  /* Убираем любые возможные искажения */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 .timeline {
