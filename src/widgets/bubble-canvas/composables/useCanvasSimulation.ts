@@ -245,12 +245,13 @@ export function useCanvasSimulation(
 
   // Отрисовка реалистичного пузыря с градацией по уровню экспертизы
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
-    // Не отрисовываем скрытые пузыри
-    if (bubble.isHidden) {
-      return
-    }
     
     context.save()
+    
+    // Устанавливаем прозрачность для скрытых пузырей
+    if (bubble.isHidden) {
+      context.globalAlpha = 0.3 // Делаем скрытые пузыри полупрозрачными
+    }
     
     // Позиция и размер пузыря
     const x = bubble.x

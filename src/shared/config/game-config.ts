@@ -72,11 +72,11 @@ export const GAME_CONFIG = {
     },
     [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',
-      color: '#B45309',
+      color: '#EAB308',
       sizeMultiplier: 0.95,
       opacity: 1,
       hasGradient: true,
-      gradientColors: ['#F59E0B', '#D97706'], // Gold-Orange
+      gradientColors: ['#FEF08A', '#EAB308', '#CA8A04'], // Bright Gold
     },
   } as const,
 

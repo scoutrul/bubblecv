@@ -3,7 +3,7 @@
     {
       "id": "html",
       "label": "HTML",
-      "year": 2000,
+      "year": 2010,
       "size": 85,
       "level": "master",
       "description": "Семантическая разметка, доступность, современные стандарты HTML5",
@@ -16,7 +16,7 @@
     {
       "id": "css",
       "label": "CSS",
-      "year": 2000,
+      "year": 2010,
       "size": 80,
       "level": "master",
       "description": "Grid, Flexbox, анимации, CSS-in-JS, архитектура стилей",
@@ -29,7 +29,7 @@
     {
       "id": "javascript",
       "label": "JavaScript",
-      "year": 2001,
+      "year": 2011,
       "size": 90,
       "level": "master",
       "description": "ES2015+, асинхронность, функциональное программирование, паттерны",
@@ -42,7 +42,7 @@
     {
       "id": "jquery",
       "label": "jQuery",
-      "year": 2006,
+      "year": 2012,
       "size": 45,
       "level": "expert",
       "description": "DOM manipulation, Ajax, анимации, кроссбраузерность",
@@ -55,7 +55,7 @@
     {
       "id": "ajax",
       "label": "AJAX",
-      "year": 2007,
+      "year": 2012,
       "size": 50,
       "level": "expert",
       "description": "XMLHttpRequest, Fetch API, REST взаимодействие",
@@ -68,7 +68,7 @@
     {
       "id": "notepad",
       "label": "Notepad++",
-      "year": 2006,
+      "year": 2011,
       "size": 25,
       "level": "novice",
       "description": "Первый редактор кода, подсветка синтаксиса, базовые инструменты",
@@ -81,7 +81,7 @@
     {
       "id": "photoshop",
       "label": "Photoshop",
-      "year": 2008,
+      "year": 2010,
       "size": 40,
       "level": "intermediate",
       "description": "Верстка по макетам, нарезка спрайтов, оптимизация изображений",
@@ -167,6 +167,8 @@
       "projectLink": "https://github.com/antonshelekhov/webpack-config",
       "points": 3,
       "isEasterEgg": false,
+      "isTough": true,
+      "toughClicks": 3,
       "category": "tools"
     },
     {
@@ -469,9 +471,74 @@
       "category": "frontend"
     },
     {
+      "id": "ai-integration",
+      "label": "AI Интеграция",
+      "year": 2024,
+      "size": 70,
+      "level": "expert",
+      "description": "LLM API, prompt engineering, AI-assisted development",
+      "insight": "ИИ не заменит разработчиков, но разработчики с ИИ заменят тех, кто без него.",
+      "projectLink": null,
+      "points": 4,
+      "isEasterEgg": false,
+      "category": "ai"
+    },
+    {
+      "id": "web-components",
+      "label": "Web Components",
+      "year": 2024,
+      "size": 55,
+      "level": "intermediate",
+      "description": "Custom Elements, Shadow DOM, стандарты браузеров",
+      "insight": "Web Components - это будущее, которое уже наступило. Стандарты побеждают фреймворки.",
+      "projectLink": null,
+      "points": 3,
+      "isEasterEgg": false,
+      "category": "frontend"
+    },
+    {
+      "id": "micro-frontends",
+      "label": "Микрофронтенды",
+      "year": 2024,
+      "size": 65,
+      "level": "expert",
+      "description": "Module Federation, независимые команды, масштабирование",
+      "insight": "Микрофронтенды решают организационные проблемы техническими средствами.",
+      "projectLink": null,
+      "points": 4,
+      "isEasterEgg": false,
+      "category": "architecture"
+    },
+    {
+      "id": "quantum-computing",
+      "label": "Квантовые вычисления",
+      "year": 2025,
+      "size": 45,
+      "level": "novice",
+      "description": "Квантовые алгоритмы, будущее вычислений",
+      "insight": "Квантовые компьютеры изменят всё. Пора начинать изучать.",
+      "projectLink": null,
+      "points": 10,
+      "isEasterEgg": true,
+      "category": "future"
+    },
+    {
+      "id": "neural-interfaces",
+      "label": "Нейроинтерфейсы",
+      "year": 2025,
+      "size": 40,
+      "level": "novice",
+      "description": "Brain-computer interfaces, мысленное программирование",
+      "insight": "Когда-нибудь мы будем писать код силой мысли. Это не фантастика.",
+      "projectLink": null,
+      "points": 15,
+      "isEasterEgg": true,
+      "category": "future"
+    },
+    {
       "id": "secret-bubble",
       "label": "Секретный пузырь",
-      "year": 2000,
+      "year": 2015,
       "size": 30,
       "level": "master",
       "description": "Скрытый пузырь для настоящих исследователей",
@@ -484,10 +551,10 @@
     }
   ],
   "metadata": {
-    "totalBubbles": 36,
+    "totalBubbles": 41,
     "yearRange": {
       "start": 2000,
-      "end": 2024
+      "end": 2025
     },
     "categories": [
       "foundation",

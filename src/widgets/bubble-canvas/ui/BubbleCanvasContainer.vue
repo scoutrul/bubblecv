@@ -18,7 +18,7 @@ const bubbleStore = useBubbleStore()
 
 // Константы для временной шкалы
 const startYear = 2010
-const endYear = 2024
+const endYear = 2025
 const currentYear = ref(startYear)
 
 onMounted(async () => {

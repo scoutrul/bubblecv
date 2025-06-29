@@ -189,30 +189,24 @@ const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
   return tl
 }
 
-// Computed для отслеживания завершения текущего года
+// Computed для отслеживания завершения всех доступных пузырей до текущего года
 const isCurrentYearCompleted = computed(() => {
-  const currentYearBubbles = bubbleStore.getBubblesByYear(props.currentYear)
+  // Используем накопительный метод - все пузыри до текущего года
+  const availableBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
   
-  if (currentYearBubbles.length === 0) {
-    return false // Пустой год не считается завершённым
+  if (availableBubbles.length === 0) {
+    return true // Если нет доступных пузырей, считаем год завершённым
   }
   
-  // Получаем ID пузырей текущего года
-  const currentYearBubbleIds = currentYearBubbles.map(bubble => bubble.id)
+  // Проверяем, все ли доступные пузыри лопнуты
+  const hasUnpoppedBubbles = availableBubbles.some(bubble => !bubble.isPopped)
+  const isCompleted = !hasUnpoppedBubbles
   
-  // Считаем сколько пузырей текущего года посещено
-  const visitedBubblesFromCurrentYear = sessionStore.visitedBubbles.filter(bubbleId => 
-    currentYearBubbleIds.includes(bubbleId)
-  )
-  
-  const isCompleted = visitedBubblesFromCurrentYear.length >= currentYearBubbles.length
-  
-  console.log('🧮 Computed isCurrentYearCompleted:', {
+  console.log('🧮 Computed isCurrentYearCompleted (накопительно):', {
     currentYear: props.currentYear,
-    totalBubbles: currentYearBubbles.length,
-    visitedCount: visitedBubblesFromCurrentYear.length,
-    bubbleIds: currentYearBubbleIds,
-    visitedIds: visitedBubblesFromCurrentYear,
+    availableBubbles: availableBubbles.length,
+    unpoppedBubbles: availableBubbles.filter(b => !b.isPopped).length,
+    visitedBubbles: sessionStore.visitedBubbles.length,
     isCompleted
   })
   
@@ -245,6 +239,7 @@ const performAutoSwitch = async () => {
     // Дополнительная задержка для самого переключения
     setTimeout(() => {
       if (props.currentYear < props.endYear) {
+        // Простой переход на следующий год - логика поиска будет в BubbleCanvas
         emit('update:currentYear', props.currentYear + 1)
         
         // Сбрасываем флаг автопереключения после завершения
