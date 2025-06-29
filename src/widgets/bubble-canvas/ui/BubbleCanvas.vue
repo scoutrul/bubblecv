@@ -1,188 +1,122 @@
+<!-- eslint-disable vue/no-setup-props-destructure -->
 <template>
   <div class="bubble-canvas-container">
-    <!-- Canvas холст для отрисовки пузырей -->
-    <canvas
-      ref="canvasRef"
-      class="bubble-canvas"
-      @mousemove="handleMouseMove"
-      @click="handleClick"
-      @mouseleave="handleMouseLeave"
-    ></canvas>
-    
-    <!-- Временная линия -->
-    <TimelineSlider 
-      v-model:currentYear="currentYear"
-      :start-year="startYear"
-      :end-year="endYear"
-      class="timeline"
-    />
-    
-    <!-- Загрузочный экран -->
-    <LoadingSpinner v-if="isLoading" />
+    <canvas v-if="renderer === 'canvas'" ref="canvasRef" class="bubble-canvas"></canvas>
+    <svg v-else ref="svgRef" class="bubble-canvas"></svg>
+    <LoadingSpinner v-if="!getCurrentRenderer().initialized" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { useCanvasSimulation } from '../composables/useCanvasSimulation'
-import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
-import TimelineSlider from '../../../features/timeline/ui/TimelineSlider.vue'
+import { ref, onMounted, onBeforeUnmount, watch, computed } from 'vue'
+import { CanvasRenderer } from '../composables/useCanvasRenderer'
+import { SVGRenderer } from '../composables/useSVGRenderer'
+import type { Bubble } from '../../../shared/types'
 import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
+import type { BubbleSimulationBase } from '../composables/useBubbleSimulation'
+import type { BubbleContinueEvent } from '../composables/types/bubble.types'
 
-// Refs
+const props = defineProps<{
+  bubbles: Bubble[]
+  renderer?: 'canvas' | 'svg'
+}>()
+
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const canvasWidth = ref<number>(window.innerWidth)
-const canvasHeight = ref<number>(window.innerHeight)
-const currentYear = ref<number>(GAME_CONFIG.RESTART_YEAR)
-const isLoading = ref<boolean>(true)
+const svgRef = ref<SVGElement | null>(null)
+const canvasRenderer = new CanvasRenderer(canvasRef)
+const svgRenderer = new SVGRenderer(svgRef)
+const currentRenderer = ref<BubbleSimulationBase>(props.renderer === 'canvas' ? canvasRenderer : svgRenderer)
+const isInitialized = computed(() => {
+  const renderer = props.renderer === 'canvas' ? canvasRenderer : svgRenderer
+  return renderer.initialized
+})
 
-// Данные
-const startYear = GAME_CONFIG.START_YEAR
-const endYear = GAME_CONFIG.CURRENT_YEAR
+const getCurrentRenderer = () => props.renderer === 'canvas' ? canvasRenderer : svgRenderer
 
-// Stores
-const bubbleStore = useBubbleStore()
-
-// Canvas Simulation
-const { 
-  initSimulation, 
-  updateBubbles, 
-  destroySimulation,
-  updateSimulationSize,
-  handleMouseMove: simMouseMove,
-  handleClick: simClick,
-  handleMouseLeave: simMouseLeave
-} = useCanvasSimulation(canvasRef)
-
-// Handlers
+// Обработка изменения размера окна
 const handleResize = () => {
-  const newWidth = window.innerWidth
-  const newHeight = window.innerHeight
-  
-  console.log('🔄 Ресайз окна:', { 
-    от: { width: canvasWidth.value, height: canvasHeight.value },
-    к: { width: newWidth, height: newHeight }
-  })
-  
-  canvasWidth.value = newWidth
-  canvasHeight.value = newHeight
+  if (!canvasRef.value && !svgRef.value) return
+
+  const container = (canvasRef.value || svgRef.value)!.parentElement
+  if (!container) return
+
+  const { width, height } = container.getBoundingClientRect()
   
   if (canvasRef.value) {
-    const dpr = window.devicePixelRatio || 1
-    
-    // ВАЖНО: Сначала устанавливаем CSS размеры (визуальные)
-    canvasRef.value.style.width = `${newWidth}px`
-    canvasRef.value.style.height = `${newHeight}px`
-    
-    // Затем устанавливаем внутренние размеры Canvas (разрешение буфера)
-    // Они должны соответствовать CSS размерам умноженным на DPI
-    canvasRef.value.width = newWidth * dpr
-    canvasRef.value.height = newHeight * dpr
-    
-    // Получаем контекст и настраиваем масштабирование
-    const ctx = canvasRef.value.getContext('2d')
-    if (ctx) {
-      // Сбрасываем все трансформации
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      // Масштабируем контекст для компенсации DPI
-      // Теперь координаты 1:1 соответствуют CSS пикселям
-      ctx.scale(dpr, dpr)
-    }
-    
-    // Обновляем симуляцию с новыми размерами
-    updateSimulationSize(newWidth, newHeight)
-    console.log('✅ Canvas обновлен:', {
-      cssSize: `${newWidth}x${newHeight}`,
-      bufferSize: `${newWidth * dpr}x${newHeight * dpr}`,
-      dpr
-    })
-  }
-}
-
-const handleMouseMove = (event: MouseEvent) => {
-  simMouseMove(event)
-}
-
-const handleClick = (event: MouseEvent) => {
-  simClick(event)
-}
-
-const handleMouseLeave = () => {
-  simMouseLeave()
-}
-
-const handleGameRestart = () => {
-  currentYear.value = GAME_CONFIG.RESTART_YEAR
-}
-
-// Watchers
-watch(currentYear, (newYear: number) => {
-  const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
-  updateBubbles(filteredBubbles)
-})
-
-// Lifecycle
-onMounted(async () => {
-  console.log('BubbleCanvas mounted')
-  
-  // Загружаем данные пузырей
-  try {
-    await bubbleStore.loadBubbles()
-    console.log('Bubbles loaded:', bubbleStore.bubbles.length)
-  } catch (error) {
-    console.error('Error loading bubbles:', error)
+    canvasRef.value.width = width
+    canvasRef.value.height = height
   }
   
-  // Настраиваем Canvas
-  if (canvasRef.value) {
-    // Сначала правильно инициализируем Canvas размеры
-    handleResize()
-    
-    console.log('Initializing Canvas simulation')
-    initSimulation(canvasWidth.value, canvasHeight.value)
-    const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
-    console.log('Initial bubbles for year', currentYear.value, ':', initialBubbles.length)
-    updateBubbles(initialBubbles)
-  } else {
-    console.error('Canvas ref is null')
+  if (svgRef.value) {
+    svgRef.value.setAttribute('width', width.toString())
+    svgRef.value.setAttribute('height', height.toString())
   }
-  
-  // Подписываемся на resize и restart
+
+  getCurrentRenderer().initSimulation(width, height)
+}
+
+// Обработчик события bubble-continue
+const handleBubbleContinue = (event: CustomEvent) => {
+  getCurrentRenderer().handleBubbleContinue(event as BubbleContinueEvent)
+}
+
+// Инициализация
+onMounted(() => {
   window.addEventListener('resize', handleResize)
-  window.addEventListener('game-restart', handleGameRestart)
-  
-  isLoading.value = false
-  console.log('BubbleCanvas initialization complete')
+  window.addEventListener('bubble-continue', handleBubbleContinue)
+
+  // Инициализируем размеры
+  handleResize()
+
+  // Инициализируем симуляцию
+  if (canvasRef.value || svgRef.value) {
+    const container = (canvasRef.value || svgRef.value)!.parentElement
+    if (container) {
+      const { width, height } = container.getBoundingClientRect()
+      getCurrentRenderer().initSimulation(width, height)
+      getCurrentRenderer().updateBubbles(props.bubbles)
+    }
+  }
 })
 
-onUnmounted(() => {
+// Очистка
+onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize)
-  window.removeEventListener('game-restart', handleGameRestart)
-  destroySimulation()
+  window.removeEventListener('bubble-continue', handleBubbleContinue)
+  getCurrentRenderer().destroySimulation()
+})
+
+// Следим за изменениями пузырей
+watch(() => props.bubbles, (newBubbles) => {
+  getCurrentRenderer().updateBubbles(newBubbles)
+})
+
+// Следим за изменением рендерера
+watch(() => props.renderer, () => {
+  getCurrentRenderer().destroySimulation()
+  
+  if (canvasRef.value || svgRef.value) {
+    const container = (canvasRef.value || svgRef.value)!.parentElement
+    if (container) {
+      const { width, height } = container.getBoundingClientRect()
+      getCurrentRenderer().initSimulation(width, height)
+      getCurrentRenderer().updateBubbles(props.bubbles)
+    }
+  }
 })
 </script>
 
 <style scoped>
 .bubble-canvas-container {
-  @apply relative w-full h-full;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .bubble-canvas {
-  @apply absolute inset-0;
-  background: transparent;
-  cursor: default;
+  width: 100%;
+  height: 100%;
   display: block;
-  /* Убираем любые возможные искажения */
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
-}
-
-.timeline {
-  @apply absolute bottom-8 left-1/2 transform -translate-x-1/2;
-  @apply bg-background-glass backdrop-blur-md rounded-lg p-4;
-  @apply border border-border;
-  width: min(400px, 90vw);
 }
 </style>

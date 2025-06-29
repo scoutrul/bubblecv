@@ -1,7 +1,7 @@
 <template>
   <div class="app">
     <!-- Основная сцена с пузырями -->
-    <BubbleCanvas class="bubble-scene" />
+    <BubbleCanvas class="bubble-scene" :bubbles="bubbleStore.bubbles" />
     
     <!-- HUD интерфейс -->
     <GameHUD class="game-hud" />
