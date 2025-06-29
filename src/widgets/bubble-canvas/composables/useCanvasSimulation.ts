@@ -1,7 +1,8 @@
 import { ref, type Ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as d3 from 'd3'
-import type { Bubble } from '../../../shared/types'
+import type { Bubble, PhilosophyQuestion } from '../../../shared/types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
+import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
 import { useModalStore } from '../../../shared/stores/modal-store'
 import { useBubbleStore } from '@entities/bubble/model/bubble-store'
@@ -16,7 +17,6 @@ interface CanvasBubble extends Bubble {
   currentRadius: number
   baseRadius: number
   isHovered?: boolean
-  isVisited?: boolean
   textLines?: string[]
   textScaleFactor?: number
 }
@@ -165,7 +165,41 @@ export function useCanvasSimulation(
     return bubbles.map((bubble, index) => {
       // Используем конфигурацию уровня экспертизы для определения размера
       const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
-      const skillLevels = ['novice', 'intermediate', 'confident', 'expert', 'master']
+      
+      // Проверяем, что конфигурация найдена
+      if (!expertiseConfig) {
+        console.error(`Конфигурация для уровня навыка "${bubble.skillLevel}" не найдена для пузыря "${bubble.name}"`)
+        // Используем дефолтную конфигурацию
+        const defaultConfig = GAME_CONFIG.EXPERTISE_LEVELS[SKILL_LEVELS.INTERMEDIATE]
+        const skillIndex = SKILL_LEVELS_ARRAY.indexOf(SKILL_LEVELS.INTERMEDIATE)
+        const sizeRatio = (skillIndex + 1) / SKILL_LEVELS_ARRAY.length
+        const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
+        const baseRadius = calculatedRadius * defaultConfig.sizeMultiplier
+        
+        const savedPos = savedPositions.get(bubble.id)
+        
+        const node: SimulationNode = {
+          ...bubble,
+          radius: baseRadius,
+          baseRadius,
+          color: defaultConfig.color,
+          oscillationPhase: Math.random() * Math.PI * 2,
+          targetRadius: baseRadius,
+          currentRadius: baseRadius,
+          x: savedPos?.x ?? Math.random() * width,
+          y: savedPos?.y ?? Math.random() * height,
+          vx: savedPos?.vx ?? 0,
+          vy: savedPos?.vy ?? 0
+        }
+        
+        const textResult = wrapText(bubble.name, baseRadius, SKILL_LEVELS.INTERMEDIATE)
+        node.textLines = textResult.lines
+        node.textScaleFactor = textResult.scaleFactor
+        
+        return node
+      }
+      
+      const skillLevels = SKILL_LEVELS_ARRAY
       const skillIndex = skillLevels.indexOf(bubble.skillLevel)
       const sizeRatio = (skillIndex + 1) / skillLevels.length
       
@@ -839,7 +873,7 @@ export function useCanvasSimulation(
             title: achievement.name,
             description: achievement.description,
             icon: achievement.icon,
-            xpReward: achievement.xpReward
+            xpReward: achievement.xpReward || 0
           })
         }
         
@@ -863,14 +897,16 @@ export function useCanvasSimulation(
       // Открываем модальное окно с деталями
       if (clickedBubble.isEasterEgg) {
         // Для философских пузырей открываем философский модал
-        const philosophyQuestion = {
+        const philosophyQuestion: PhilosophyQuestion = {
           id: `question-${clickedBubble.id}`,
           question: clickedBubble.name,
-          context: clickedBubble.description,
-          agreeText: 'Я согласен с этим подходом и готов работать в этом стиле.',
-          disagreeText: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
-          livePenalty: GAME_CONFIG.PHILOSOPHY_WRONG_LIVES,
-          isEasterEgg: true
+          options: [
+            'Я согласен с этим подходом и готов работать в этом стиле.',
+            'Я предпочитаю работать по-другому и не согласен с этим подходом.'
+          ],
+          correctAnswer: 'Я согласен с этим подходом и готов работать в этом стиле.',
+          explanation: clickedBubble.description,
+          points: GAME_CONFIG.XP_PER_EASTER_EGG
         }
         modalStore.openPhilosophyModal(philosophyQuestion, clickedBubble.id)
       } else {

@@ -4,6 +4,8 @@
     <canvas
       ref="canvasRef"
       class="bubble-canvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
       @mousemove="handleMouseMove"
       @click="handleClick"
       @mouseleave="handleMouseLeave"
@@ -43,6 +45,10 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
 const bubbleStore = useBubbleStore()
 const isLoading = ref<boolean>(true)
+
+// Реактивные размеры канваса
+const canvasWidth = ref(0)
+const canvasHeight = ref(0)
 
 // Функция для проверки и обновления года
 const checkBubblesAndAdvance = () => {
@@ -122,6 +128,11 @@ onMounted(async () => {
         const { width, height } = entry.contentRect
         if (width > 0 && height > 0) {
           console.log('📏 Обновляем размеры канваса:', width, 'x', height)
+          
+          // Обновляем размеры канваса
+          canvasWidth.value = width
+          canvasHeight.value = height
+          
           updateSimulationSize(width, height)
           if (!isInitialized.value) {
             console.log('🎮 Инициализируем симуляцию...')
@@ -156,7 +167,7 @@ onMounted(async () => {
 }
 
 .bubble-canvas {
-  @apply absolute inset-0;
+  @apply absolute inset-0 w-full h-full;
   background: transparent;
   cursor: default;
   display: block;

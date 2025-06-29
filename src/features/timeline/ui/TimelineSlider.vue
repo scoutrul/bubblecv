@@ -1,5 +1,6 @@
 <template>
-  <div class="timeline-slider">
+  <div class="timeline-slider" ref="timelineRef">
+    <div class="timeline-content" :class="{ 'timeline-shake': isShaking }">
     <div class="timeline-header">
       <h3 class="text-lg font-semibold">Путешествие во времени</h3>
       
@@ -51,12 +52,15 @@
         <span class="year-label-side">{{ endYear }}</span>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { watch, ref, computed, watchEffect, nextTick } from 'vue'
 import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
+import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import { gsap } from 'gsap'
 
 interface Props {
   currentYear: number
@@ -71,6 +75,12 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const bubbleStore = useBubbleStore()
+const sessionStore = useSessionStore()
+
+// Ref для анимации shake эффекта
+const timelineRef = ref<HTMLElement | null>(null)
+const isShaking = ref(false)
+const isAutoSwitching = ref(false) // Флаг для предотвращения повторных переключений
 
 const handleYearChange = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -92,34 +102,215 @@ const goToPreviousYear = () => {
 
 const goToNextYear = () => {
   if (props.currentYear < props.endYear) {
+    // Добавляем shake эффект
+    triggerShakeEffect()
+    
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear + 1)
     })
   }
 }
 
-// Улучшенная логика автопереключения
-watch(
-  () => bubbleStore.getBubblesByYear(props.currentYear),
-  (currentBubbles) => {
-    // Проверяем есть ли непосещенные пузыри
-    const unvisitedBubbles = currentBubbles.filter(bubble => !bubble.isVisited)
+// Функция для shake эффекта
+const triggerShakeEffect = () => {
+  isShaking.value = true
+  setTimeout(() => {
+    isShaking.value = false
+  }, 600) // Длительность shake анимации
+}
+
+// 🚀 GSAP альтернатива для анимации shake (более мощная)
+const triggerGsapShakeEffect = () => {
+  if (timelineRef.value) {
+    gsap.to(timelineRef.value, {
+      x: "+=2",
+      y: "+=1", 
+      duration: 0.1,
+      repeat: 5,
+      yoyo: true,
+      ease: "power2.inOut",
+      onComplete: () => {
+        gsap.set(timelineRef.value, { x: 0, y: 0 })
+      }
+    })
+  }
+}
+
+// 🎨 GSAP анимация для смены года (более крутая чем CSS)
+const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
+  // Создаем timeline для сложной анимации
+  const tl = gsap.timeline()
+  
+  // Начальное состояние
+  gsap.set(yearElement, {
+    y: 25,
+    scale: 0.8,
+    opacity: 0,
+    color: "#667eea",
+    textShadow: "0 0 20px rgba(102, 126, 234, 0.5)"
+  })
+  
+  // Анимация появления с эффектами
+  tl.to(yearElement, {
+    y: 0,
+    scale: 1.15,
+    opacity: 1,
+    duration: 0.3,
+    ease: "back.out(1.7)"
+  })
+  .to(yearElement, {
+    scale: 0.95,
+    duration: 0.15,
+    ease: "power2.out"
+  })
+  .to(yearElement, {
+    scale: 1,
+    duration: 0.15,
+    ease: "power2.out"
+  })
+  // Плавный переход цвета
+  .to(yearElement, {
+    color: "#764ba2",
+    textShadow: "0 0 12px rgba(118, 75, 162, 0.3)",
+    duration: 0.2
+  }, "-=0.3")
+  .to(yearElement, {
+    color: "#8b9dc3",
+    textShadow: "0 0 8px rgba(102, 126, 234, 0.2)",
+    duration: 0.2
+  })
+  .to(yearElement, {
+    color: "#6b7280",
+    textShadow: "none",
+    duration: 0.3,
+    ease: "power2.out"
+  })
+  
+  return tl
+}
+
+// Computed для отслеживания завершения текущего года
+const isCurrentYearCompleted = computed(() => {
+  const currentYearBubbles = bubbleStore.getBubblesByYear(props.currentYear)
+  
+  if (currentYearBubbles.length === 0) {
+    return false // Пустой год не считается завершённым
+  }
+  
+  // Получаем ID пузырей текущего года
+  const currentYearBubbleIds = currentYearBubbles.map(bubble => bubble.id)
+  
+  // Считаем сколько пузырей текущего года посещено
+  const visitedBubblesFromCurrentYear = sessionStore.visitedBubbles.filter(bubbleId => 
+    currentYearBubbleIds.includes(bubbleId)
+  )
+  
+  const isCompleted = visitedBubblesFromCurrentYear.length >= currentYearBubbles.length
+  
+  console.log('🧮 Computed isCurrentYearCompleted:', {
+    currentYear: props.currentYear,
+    totalBubbles: currentYearBubbles.length,
+    visitedCount: visitedBubblesFromCurrentYear.length,
+    bubbleIds: currentYearBubbleIds,
+    visitedIds: visitedBubblesFromCurrentYear,
+    isCompleted
+  })
+  
+  return isCompleted
+})
+
+// Debounce функция для предотвращения множественных срабатываний
+let autoSwitchTimeout: number | null = null
+
+const performAutoSwitch = async () => {
+  if (isAutoSwitching.value || props.currentYear >= props.endYear) {
+    console.log('🚫 Автопереключение блокировано:', { 
+      isAutoSwitching: isAutoSwitching.value, 
+      isLastYear: props.currentYear >= props.endYear 
+    })
+    return
+  }
+  
+  isAutoSwitching.value = true
+  console.log('🚀 Начинаем автопереключение года...', props.currentYear, '→', props.currentYear + 1)
+  
+  // Ждём следующий tick для убеждения что все updates завершены
+  await nextTick()
+  
+  // Добавляем задержку для плавности + shake эффект
+  setTimeout(() => {
+    triggerShakeEffect()
+    // 🚀 Для использования GSAP замените на: triggerGsapShakeEffect()
     
-    // Если все пузыри посещены или их нет, переходим к следующему году
-    if ((currentBubbles.length === 0 || unvisitedBubbles.length === 0) && props.currentYear < props.endYear) {
-      // Добавляем небольшую задержку для плавности
-      setTimeout(() => {
-        goToNextYear()
-      }, 500)
-    }
-  },
-  { immediate: true } // Проверяем сразу при монтировании
-)
+    // Дополнительная задержка для самого переключения
+    setTimeout(() => {
+      if (props.currentYear < props.endYear) {
+        emit('update:currentYear', props.currentYear + 1)
+        
+        // Сбрасываем флаг автопереключения после завершения
+        setTimeout(() => {
+          isAutoSwitching.value = false
+          console.log('✅ Автопереключение завершено')
+        }, 500)
+      } else {
+        isAutoSwitching.value = false
+      }
+    }, 300)
+  }, 800)
+}
+
+// Используем watchEffect для лучшего отслеживания изменений
+watchEffect(() => {
+  // Очищаем предыдущий timeout
+  if (autoSwitchTimeout) {
+    clearTimeout(autoSwitchTimeout)
+  }
+  
+  // Проверяем завершение года с debounce
+  if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
+    console.log('⏰ Планируем автопереключение через 100ms...')
+    
+    autoSwitchTimeout = window.setTimeout(() => {
+      // Повторная проверка после задержки для уверенности
+      if (isCurrentYearCompleted.value && !isAutoSwitching.value) {
+        console.log('🎯 Условия выполнены, запускаем автопереключение!')
+        performAutoSwitch()
+      }
+    }, 100) // Небольшая задержка для debounce
+  }
+})
+
+// Сброс флага автопереключения при смене года вручную
+watch(() => props.currentYear, () => {
+  if (autoSwitchTimeout) {
+    clearTimeout(autoSwitchTimeout)
+    autoSwitchTimeout = null
+  }
+  // Небольшая задержка перед сбросом флага
+  setTimeout(() => {
+    isAutoSwitching.value = false
+  }, 200)
+})
 </script>
 
 <style scoped>
 .timeline-slider {
   @apply w-full;
+}
+
+.timeline-content {
+  @apply w-full transition-all duration-300;
+}
+
+/* Shake анимация для панели timeline - дрожание на месте */
+.timeline-shake {
+  animation: timeline-shake 0.6s ease-in-out;
+}
+
+@keyframes timeline-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-1px, -1px); }
+  20%, 40%, 60%, 80% { transform: translate(1px, 1px); }
 }
 
 .timeline-header {
@@ -154,28 +345,79 @@ watch(
 }
 
 .year-compact {
-  @apply text-sm font-medium text-text-secondary px-2 text-center absolute;
+  @apply text-sm font-medium px-2 text-center absolute;
+  color: #6b7280; /* text-text-secondary */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* Анимации для TransitionGroup */
+/* Улучшенные анимации для TransitionGroup с градиентным эффектом */
 .slide-move,
 .slide-enter-active,
 .slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .slide-enter-from {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(25px) scale(0.8);
+  color: #667eea;
+  text-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+}
+
+.slide-enter-active {
+  color: #667eea;
+  text-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
+  animation: gradient-fade 0.8s ease-out forwards, year-pulse 0.6s ease-out;
 }
 
 .slide-leave-to {
   opacity: 0;
-  transform: translateY(-20px);
+  transform: translateY(-25px) scale(1.2);
+  color: #9ca3af; /* более блеклый цвет при исчезновении */
 }
 
 .slide-leave-active {
   position: absolute;
+}
+
+/* Анимация перехода цвета от яркого к обычному */
+@keyframes gradient-fade {
+  0% {
+    color: #667eea;
+    text-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
+  }
+  25% {
+    color: #764ba2;
+    text-shadow: 0 0 12px rgba(118, 75, 162, 0.3);
+  }
+  50% {
+    color: #8b9dc3;
+    text-shadow: 0 0 8px rgba(102, 126, 234, 0.2);
+  }
+  75% {
+    color: #9ca3af;
+    text-shadow: 0 0 4px rgba(102, 126, 234, 0.1);
+  }
+  100% {
+    color: #6b7280;
+    text-shadow: none;
+  }
+}
+
+/* Анимация пульсации для нового года */
+@keyframes year-pulse {
+  0% {
+    transform: translateY(25px) scale(0.8);
+  }
+  30% {
+    transform: translateY(0) scale(1.15);
+  }
+  60% {
+    transform: translateY(0) scale(0.95);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 .slider-container {
@@ -196,9 +438,5 @@ watch(
 
 .year-slider::-webkit-slider-thumb {
   @apply appearance-none w-4 h-4 bg-primary rounded-full cursor-pointer;
-}
-
-.year-slider::-moz-range-thumb {
-  @apply w-4 h-4 bg-primary rounded-full cursor-pointer border-none;
 }
 </style> 

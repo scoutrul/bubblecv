@@ -1,15 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
-
-// Маппинг старых уровней в новые
-const skillLevelMap: Record<string, SkillLevel> = {
-  'novice': 'beginner',
-  'intermediate': 'intermediate',
-  'confident': 'advanced',
-  'expert': 'expert',
-  'master': 'expert'
-}
+import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -35,9 +27,9 @@ export const useBubbleStore = defineStore('bubble', () => {
       
       // Трансформируем данные в правильный формат
       bubbles.value = data.data.map((rawBubble: any) => {
-        // Преобразуем старый уровень в новый
-        const skillLevel = skillLevelMap[rawBubble.skill_level] || 'beginner'
-        const bubbleSize: BubbleSize = `bubble-${skillLevel}` as BubbleSize
+        // Преобразуем уровень навыка
+        const skillLevel = SKILL_LEVEL_API_MAPPING[rawBubble.skill_level] || SKILL_LEVELS.NOVICE
+        const bubbleSize: BubbleSize = SKILL_TO_BUBBLE_SIZE[skillLevel]
         
         return {
           id: rawBubble.id,
@@ -49,8 +41,9 @@ export const useBubbleStore = defineStore('bubble', () => {
           isEasterEgg: rawBubble.is_easter_egg,
           isHidden: false,
           description: rawBubble.description,
-          projects: rawBubble.projects ? JSON.parse(rawBubble.projects) : [],
+          projects: Array.isArray(rawBubble.projects) ? rawBubble.projects : (rawBubble.projects ? JSON.parse(rawBubble.projects) : []),
           isPopped: false,
+          isVisited: false,
           size: bubbleSize,
           color: rawBubble.color || '#3b82f6'
         } satisfies Bubble
@@ -84,6 +77,35 @@ export const useBubbleStore = defineStore('bubble', () => {
     }))
   }
 
+  const incrementToughBubbleClicks = (id: string): { isReady: boolean, currentClicks: number, requiredClicks: number, clicksLeft: number, bonusXP: number } => {
+    const bubble = bubbles.value.find(b => b.id === id)
+    if (!bubble || !bubble.isTough) {
+      return { isReady: false, currentClicks: 0, requiredClicks: 1, clicksLeft: 1, bonusXP: 0 }
+    }
+
+    // Инициализируем значения если их нет
+    if (bubble.currentClicks === undefined) {
+      bubble.currentClicks = 0
+    }
+    if (bubble.toughClicks === undefined) {
+      bubble.toughClicks = 3 // дефолтное значение
+    }
+
+    bubble.currentClicks++
+    
+    const isReady = bubble.currentClicks >= bubble.toughClicks
+    const clicksLeft = Math.max(0, bubble.toughClicks - bubble.currentClicks)
+    const bonusXP = isReady ? 5 : 0 // Бонус XP за разрушение крепкого пузыря
+    
+    return {
+      isReady,
+      currentClicks: bubble.currentClicks,
+      requiredClicks: bubble.toughClicks,
+      clicksLeft,
+      bonusXP
+    }
+  }
+
   return {
     bubbles,
     isLoading,
@@ -91,6 +113,7 @@ export const useBubbleStore = defineStore('bubble', () => {
     loadBubbles,
     getBubblesByYear,
     popBubble,
-    resetBubbles
+    resetBubbles,
+    incrementToughBubbleClicks
   }
 }) 

@@ -1,3 +1,6 @@
+// Импорты типов
+import type { SkillLevel, BubbleSize } from '../constants/skill-levels'
+
 // Базовые типы для бизнес-логики
 export interface Bubble {
   id: string
@@ -21,9 +24,8 @@ export interface Bubble {
   position?: Position
 }
 
-export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert'
-
-export type BubbleSize = 'bubble-beginner' | 'bubble-intermediate' | 'bubble-advanced' | 'bubble-expert'
+// Импортируем типы из констант
+export type { SkillLevel, BubbleSize } from '../constants/skill-levels'
 
 export interface Position {
   x: number
@@ -48,6 +50,7 @@ export interface Achievement {
   description: string
   icon: string
   unlockedAt?: string
+  xpReward?: number
 }
 
 export interface PhilosophyQuestion {

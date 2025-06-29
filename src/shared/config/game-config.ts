@@ -1,3 +1,5 @@
+import { SKILL_LEVELS } from '../constants/skill-levels'
+
 export const GAME_CONFIG = {
   // XP System - значительно увеличены требования
   XP_LEVELS: {
@@ -19,11 +21,11 @@ export const GAME_CONFIG = {
   
   // XP за уровни экспертизы пузырей
   XP_PER_EXPERTISE_LEVEL: {
-    novice: 1,
-    intermediate: 2, 
-    confident: 3,
-    expert: 4,
-    master: 5
+    [SKILL_LEVELS.NOVICE]: 1,
+    [SKILL_LEVELS.INTERMEDIATE]: 2, 
+    [SKILL_LEVELS.CONFIDENT]: 3,
+    [SKILL_LEVELS.EXPERT]: 4,
+    [SKILL_LEVELS.MASTER]: 5
   } as const,
   
   // Philosophy Questions XP/Lives
@@ -36,7 +38,7 @@ export const GAME_CONFIG = {
   
   // Expertise Levels - Уровни экспертизы (с уменьшенными размерами)
   EXPERTISE_LEVELS: {
-    novice: {
+    [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
       color: '#334155',
       sizeMultiplier: 0.75,
@@ -44,7 +46,7 @@ export const GAME_CONFIG = {
       hasGradient: true,
       gradientColors: ['#334155', '#475569'], // Slate
     },
-    intermediate: {
+    [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
       color: '#064E3B',
       sizeMultiplier: 0.8,
@@ -52,7 +54,7 @@ export const GAME_CONFIG = {
       hasGradient: true,
       gradientColors: ['#064E3B', '#047857'], // Deep green
     },
-    confident: {
+    [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
       color: '#92400E',
       sizeMultiplier: 0.85,
@@ -60,7 +62,7 @@ export const GAME_CONFIG = {
       hasGradient: true,
       gradientColors: ['#92400E', '#FBBF24'], // Amber
     },
-    expert: {
+    [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',
       color: '#581C87',
       sizeMultiplier: 0.9,
@@ -68,7 +70,7 @@ export const GAME_CONFIG = {
       hasGradient: true,
       gradientColors: ['#581C87', '#9333EA'], // Violet
     },
-    master: {
+    [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',
       color: '#B45309',
       sizeMultiplier: 0.95,
