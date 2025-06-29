@@ -1,210 +1,96 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import type { Bubble, ApiResponse } from '../../../shared/types'
-import { useSessionStore } from '../../user-session/model/session-store'
+import { ref } from 'vue'
+import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
+
+// Маппинг старых уровней в новые
+const skillLevelMap: Record<string, SkillLevel> = {
+  'novice': 'beginner',
+  'intermediate': 'intermediate',
+  'confident': 'advanced',
+  'expert': 'expert',
+  'master': 'expert'
+}
 
 export const useBubbleStore = defineStore('bubble', () => {
-  // State
   const bubbles = ref<Bubble[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Getters
-  const activeBubbles = computed(() => 
-    bubbles.value.filter(bubble => bubble.isActive)
-  )
-
-  const easterEggBubbles = computed(() => 
-    bubbles.value.filter(bubble => bubble.isEasterEgg)
-  )
-
-  const getBubblesByYear = computed(() => (year: number) => {
-    const sessionStore = useSessionStore()
-    const visitedBubbleIds = sessionStore.visitedBubbles
-    
-    return bubbles.value.filter(bubble => {
-      // Скрытые пузыри всегда включаем (независимо от года)
-      if (bubble.isHidden) {
-        const isNotVisited = !visitedBubbleIds.includes(bubble.id)
-        console.log('🕵️ Hidden bubble:', {
-          id: bubble.id,
-          name: bubble.name,
-          isNotVisited
-        })
-        return isNotVisited
-      }
-      
-      // Фильтрация по году для обычных пузырей
-      const isInYear = bubble.yearStarted <= year && 
-        (bubble.yearEnded === undefined || bubble.yearEnded >= year)
-      
-      // Исключаем посещенные пузыри
-      const isNotVisited = !visitedBubbleIds.includes(bubble.id)
-      
-      console.log('🔍 Filter bubble:', {
-        id: bubble.id,
-        name: bubble.name,
-        year,
-        isInYear,
-        isNotVisited,
-        visitedBubbleIds: visitedBubbleIds.length
-      })
-      
-      return isInYear && isNotVisited
-    })
-  })
-
-  const getBubbleById = computed(() => (id: string) =>
-    bubbles.value.find(bubble => bubble.id === id)
-  )
-
-  // Actions
-  const loadBubbles = async (): Promise<void> => {
+  const loadBubbles = async () => {
+    console.log('🔄 Loading bubbles...')
     isLoading.value = true
     error.value = null
-
+    
     try {
-      // Загружаем данные из локального JSON файла
-      const mockData = await import('../../../shared/data/mockData.json')
-      const rawBubbles = mockData.default.bubbles || []
+      // Загружаем данные с сервера
+      const response = await fetch('http://localhost:3003/api/bubbles')
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
       
-      // Трансформируем данные в нужный формат
-      bubbles.value = rawBubbles.map((bubble: any, index: number) => {
-        // Каждый пятый пузырь (не easter egg и не hidden) делаем "крепким"
-        const isTough = (index + 1) % 5 === 0 && !bubble.isEasterEgg && !bubble.isHidden
-        const toughClicks = isTough ? Math.floor(Math.random() * 16) + 5 : undefined // 5-20 кликов
-        
-        if (isTough) {
-          console.log('💪 Создан крепкий пузырь:', {
-            id: bubble.id,
-            name: bubble.label || bubble.name,
-            toughClicks
-          })
-        }
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to load bubbles')
+      }
+      
+      // Трансформируем данные в правильный формат
+      bubbles.value = data.data.map((rawBubble: any) => {
+        // Преобразуем старый уровень в новый
+        const skillLevel = skillLevelMap[rawBubble.skill_level] || 'beginner'
+        const bubbleSize: BubbleSize = `bubble-${skillLevel}` as BubbleSize
         
         return {
-          id: bubble.id,
-          name: bubble.label || bubble.name,
-          skillLevel: bubble.level || bubble.skillLevel,
-          yearStarted: bubble.year || bubble.yearStarted,
-          yearEnded: bubble.yearEnded,
-          isActive: true,
-          isEasterEgg: bubble.isEasterEgg || false,
-          isHidden: bubble.isHidden || false,
-          isTough,
-          toughClicks,
-          currentClicks: 0,
-          description: bubble.description || '',
-          projects: [], // Добавляем обязательное поле
-          link: bubble.projectLink || bubble.link || '',
-          size: bubble.size || 'medium',
-          color: bubble.color || '#3b82f6'
-        }
-      }) as Bubble[]
-      
-      console.log('📁 Загружены пузыри из локального файла:', bubbles.value.length)
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
-      console.error('Ошибка загрузки пузырей:', err)
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  const seedData = async (): Promise<void> => {
-    isLoading.value = true
-    error.value = null
-
-    try {
-      const response = await fetch('/api/seed', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+          id: rawBubble.id,
+          name: rawBubble.name,
+          skillLevel,
+          yearStarted: rawBubble.year_started,
+          yearEnded: rawBubble.year_ended,
+          isActive: rawBubble.is_active,
+          isEasterEgg: rawBubble.is_easter_egg,
+          isHidden: false,
+          description: rawBubble.description,
+          projects: rawBubble.projects ? JSON.parse(rawBubble.projects) : [],
+          isPopped: false,
+          size: bubbleSize,
+          color: rawBubble.color || '#3b82f6'
+        } satisfies Bubble
       })
-
-      const data: ApiResponse = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка загрузки данных')
-      }
-
-      // Перезагружаем пузыри после seeding
-      await loadBubbles()
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
-      console.error('Ошибка загрузки данных:', err)
+      
+      console.log('✅ Bubbles loaded successfully:', bubbles.value.length)
+    } catch (e) {
+      console.error('❌ Error loading bubbles:', e)
+      error.value = e instanceof Error ? e.message : 'Failed to load bubbles'
+      throw e
     } finally {
       isLoading.value = false
     }
   }
 
-  const addBubble = (bubble: Bubble): void => {
-    bubbles.value.push(bubble)
+  const getBubblesByYear = (year: number): Bubble[] => {
+    return bubbles.value.filter(bubble => bubble.yearStarted === year)
   }
 
-  const updateBubble = (id: string, updates: Partial<Bubble>): void => {
-    const index = bubbles.value.findIndex(bubble => bubble.id === id)
-    if (index !== -1) {
-      bubbles.value[index] = { ...bubbles.value[index], ...updates }
+  const popBubble = (id: string) => {
+    const bubble = bubbles.value.find(b => b.id === id)
+    if (bubble) {
+      bubble.isPopped = true
     }
   }
 
-  const removeBubble = (id: string): void => {
-    const index = bubbles.value.findIndex(bubble => bubble.id === id)
-    if (index !== -1) {
-      bubbles.value.splice(index, 1)
-    }
-  }
-
-  const incrementToughBubbleClicks = (bubbleId: string): { isReady: boolean; clicksLeft: number; bonusXP: number } => {
-    const bubble = bubbles.value.find(b => b.id === bubbleId)
-    
-    if (!bubble || !bubble.isTough) {
-      return { isReady: false, clicksLeft: 0, bonusXP: 0 }
-    }
-    
-    bubble.currentClicks = (bubble.currentClicks || 0) + 1
-    
-    const isReady = bubble.currentClicks >= (bubble.toughClicks || 0)
-    const clicksLeft = Math.max(0, (bubble.toughClicks || 0) - bubble.currentClicks)
-    const bonusXP = bubble.currentClicks // Каждый клик = +1 XP
-    
-    console.log('💪 Клик по крепкому пузырю:', {
-      bubbleId,
-      currentClicks: bubble.currentClicks,
-      toughClicks: bubble.toughClicks,
-      clicksLeft,
-      isReady,
-      bonusXP
-    })
-    
-    return { isReady, clicksLeft, bonusXP }
-  }
-
-  const clearError = (): void => {
-    error.value = null
+  const resetBubbles = () => {
+    bubbles.value = bubbles.value.map(bubble => ({
+      ...bubble,
+      isPopped: false
+    }))
   }
 
   return {
-    // State
     bubbles,
     isLoading,
     error,
-    
-    // Getters
-    activeBubbles,
-    easterEggBubbles,
-    getBubblesByYear,
-    getBubbleById,
-    
-    // Actions
     loadBubbles,
-    seedData,
-    addBubble,
-    updateBubble,
-    removeBubble,
-    incrementToughBubbleClicks,
-    clearError
+    getBubblesByYear,
+    popBubble,
+    resetBubbles
   }
 }) 

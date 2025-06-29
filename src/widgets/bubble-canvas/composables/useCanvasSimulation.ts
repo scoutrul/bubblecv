@@ -28,7 +28,10 @@ interface SimulationNode extends CanvasBubble {
   vy?: number
 }
 
-export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
+export function useCanvasSimulation(
+  canvasRef: Ref<HTMLCanvasElement | null>,
+  onBubblePopped?: () => void
+) {
   const isInitialized = ref(false)
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
@@ -686,29 +689,34 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
 
   // Обновляем функцию explodeBubble
   const explodeBubble = (bubble: SimulationNode) => {
-    // Запускаем тряску
-    shakeConfig.startTime = Date.now()
-    shakeConfig.isShaking = true
-
-    // Отталкиваем соседние пузыри
-    const explosionRadius = bubble.currentRadius * 4
-    const explosionStrength = 20
-    explodeFromPoint(bubble.x, bubble.y, explosionRadius, explosionStrength)
-
-    // Сохраняем позиции всех пузырей
-    nodes.forEach(node => {
-      savedPositions.set(node.id, {
-        x: node.x,
-        y: node.y,
-        vx: node.vx || 0,
-        vy: node.vy || 0
-      })
-    })
-
-    // Удаляем взорванный пузырь
-    const index = nodes.findIndex(node => node.id === bubble.id)
-    if (index !== -1) {
-      nodes.splice(index, 1)
+    if (!bubble || bubble.isPopped) return
+    
+    // Помечаем пузырь как лопнутый
+    bubble.isPopped = true
+    
+    // Создаем эффект взрыва
+    const explosionEffect: ExplosionEffect = {
+      x: bubble.x,
+      y: bubble.y,
+      radius: 0,
+      maxRadius: bubble.radius * 2,
+      opacity: 1,
+      startTime: performance.now()
+    }
+    explosionEffects.push(explosionEffect)
+    
+    // Сохраняем позицию перед удалением
+    savedPositions.delete(bubble.id)
+    
+    // Удаляем пузырь из симуляции
+    nodes = nodes.filter(n => n.id !== bubble.id)
+    if (simulation) {
+      simulation.nodes(nodes)
+    }
+    
+    // Вызываем callback если он предоставлен
+    if (onBubblePopped) {
+      onBubblePopped()
     }
   }
 

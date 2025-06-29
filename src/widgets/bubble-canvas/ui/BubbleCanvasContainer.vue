@@ -1,0 +1,33 @@
+<template>
+  <div class="bubble-canvas-wrapper">
+    <BubbleCanvas
+      :currentYear="currentYear"
+      :startYear="startYear"
+      :endYear="endYear"
+      @update:currentYear="currentYear = $event"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import BubbleCanvas from './BubbleCanvas.vue'
+import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
+
+const bubbleStore = useBubbleStore()
+
+// Константы для временной шкалы
+const startYear = 2010
+const endYear = 2024
+const currentYear = ref(startYear)
+
+onMounted(async () => {
+  console.log('🎯 BubbleCanvasContainer mounted')
+})
+</script>
+
+<style scoped>
+.bubble-canvas-wrapper {
+  @apply w-full h-full relative;
+}
+</style> 

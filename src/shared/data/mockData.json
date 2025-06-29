@@ -10,7 +10,8 @@
       "insight": "HTML - это не просто разметка, это основа доступного и семантического веба. Каждый тег имеет смысл.",
       "projectLink": "https://github.com/antonshelekhov/semantic-forms",
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "css",
@@ -22,7 +23,8 @@
       "insight": "CSS эволюционировал от простых стилей до мощного инструмента дизайна. Grid изменил всё.",
       "projectLink": "https://github.com/antonshelekhov/css-architecture",
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "javascript",
@@ -34,7 +36,8 @@
       "insight": "JavaScript превратился из 'игрушечного' языка в полноценную платформу. ES6 стал переломным моментом.",
       "projectLink": "https://github.com/antonshelekhov/js-patterns",
       "points": 5,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "jquery",
@@ -46,7 +49,8 @@
       "insight": "jQuery научил нас писать лаконичный код и работать с DOM. Историческая важность огромна.",
       "projectLink": null,
       "points": 2,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "ajax",
@@ -58,7 +62,8 @@
       "insight": "AJAX открыл эру динамических веб-приложений. Без него не было бы современного интернета.",
       "projectLink": null,
       "points": 2,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "notepad",
@@ -70,7 +75,8 @@
       "insight": "Notepad++ был первым шагом от блокнота к настоящему редактору кода.",
       "projectLink": null,
       "points": 1,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "tools"
     },
     {
       "id": "photoshop",
@@ -82,7 +88,8 @@
       "insight": "Photoshop был мостом между дизайном и кодом. Pixel perfect верстка - это искусство.",
       "projectLink": null,
       "points": 1,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "design"
     },
     {
       "id": "bootstrap",
@@ -94,7 +101,8 @@
       "insight": "Bootstrap демократизировал веб-дизайн. Каждый мог создать красивый сайт быстро.",
       "projectLink": null,
       "points": 2,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "nodejs",
@@ -106,7 +114,8 @@
       "insight": "Node.js объединил frontend и backend разработку. Один язык для всего стека.",
       "projectLink": "https://github.com/antonshelekhov/node-api",
       "points": 4,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "backend"
     },
     {
       "id": "gulp",
@@ -118,7 +127,8 @@
       "insight": "Gulp научил нас автоматизировать рутину. Первый шаг к современным сборщикам.",
       "projectLink": null,
       "points": 1,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "tools"
     },
     {
       "id": "angularjs",
@@ -127,10 +137,11 @@
       "size": 60,
       "level": "intermediate",
       "description": "MVC, двустороннее связывание, dependency injection",
-      "insight": "Angular показал как строить большие SPA. Концепция MVC в браузере была революционной.",
+      "insight": "Angular показал как строить большие SPA. Концепция MVC в браузере была революционная.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "sass",
@@ -142,7 +153,8 @@
       "insight": "Sass принес программирование в CSS. Переменные и миксины изменили подход к стилям.",
       "projectLink": null,
       "points": 2,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "webpack",
@@ -154,7 +166,8 @@
       "insight": "Webpack превратил хаос модулей в упорядоченную систему. Сложен, но мощен.",
       "projectLink": "https://github.com/antonshelekhov/webpack-config",
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "tools"
     },
     {
       "id": "react",
@@ -166,7 +179,8 @@
       "insight": "React изменил мышление о UI. Компоненты как функции и однонаправленный поток данных.",
       "projectLink": "https://github.com/antonshelekhov/react-components",
       "points": 5,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "redux",
@@ -178,7 +192,8 @@
       "insight": "Redux упорядочил state management. Functional подход к состоянию приложения.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "git",
@@ -190,7 +205,8 @@
       "insight": "Git - это не просто система контроля версий, это философия совместной разработки.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "tools"
     },
     {
       "id": "typescript",
@@ -198,11 +214,12 @@
       "year": 2018,
       "size": 80,
       "level": "expert",
-      "description": "Строгая типизация, generics, advanced types, конфигурация",
-      "insight": "TypeScript превратил JavaScript в enterprise-ready язык. Типы спасают от багов.",
+      "description": "Типизация, интерфейсы, дженерики, декораторы",
+      "insight": "TypeScript сделал JavaScript безопасным. Типы - это документация и защита от ошибок.",
       "projectLink": "https://github.com/antonshelekhov/ts-patterns",
       "points": 4,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "vue",
@@ -214,7 +231,8 @@
       "insight": "Vue объединил лучшее из React и Angular. Composition API - это будущее.",
       "projectLink": "https://github.com/antonshelekhov/vue-components",
       "points": 5,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "tailwind",
@@ -226,7 +244,8 @@
       "insight": "Tailwind перевернул подход к CSS. Utility-first оказался более масштабируемым.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "vite",
@@ -238,7 +257,8 @@
       "insight": "Vite показал что сборка может быть молниеносной. ESM native development.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "tools"
     },
     {
       "id": "d3",
@@ -250,7 +270,8 @@
       "insight": "D3 превращает данные в понятные истории. Математика + искусство = магия.",
       "projectLink": "https://github.com/antonshelekhov/d3-experiments",
       "points": 4,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "visualization"
     },
     {
       "id": "gsap",
@@ -262,7 +283,8 @@
       "insight": "GSAP делает анимации, которые раньше были возможны только в After Effects.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "animation"
     },
     {
       "id": "pinia",
@@ -274,7 +296,8 @@
       "insight": "Pinia - это Vuex нового поколения. Простота + мощь + типизация.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "architecture",
@@ -286,7 +309,8 @@
       "insight": "Хорошая архитектура невидима до тех пор, пока не попробуешь плохую.",
       "projectLink": "https://github.com/antonshelekhov/frontend-architecture",
       "points": 5,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "mentoring",
@@ -298,7 +322,8 @@
       "insight": "Лучший код - тот, который написала твоя команда после твоего ментора.",
       "projectLink": null,
       "points": 4,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "soft-skill"
     },
     {
       "id": "testing",
@@ -310,7 +335,8 @@
       "insight": "Тесты - это не overhead, это страховка от собственной забывчивости.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "testing"
     },
     {
       "id": "performance",
@@ -322,7 +348,8 @@
       "insight": "Каждая миллисекунда задержки стоит денег. Производительность = UX.",
       "projectLink": null,
       "points": 4,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "accessibility",
@@ -334,7 +361,8 @@
       "insight": "Доступность - это не feature, это основа. Интернет должен быть для всех.",
       "projectLink": null,
       "points": 3,
-      "isEasterEgg": false
+      "isEasterEgg": false,
+      "category": "frontend"
     },
     {
       "id": "test-assignments",
@@ -346,7 +374,8 @@
       "insight": "Портфолио и опыт говорят больше, чем искусственные задачи за выходные.",
       "projectLink": null,
       "points": 10,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "testing"
     },
     {
       "id": "work-life-balance",
@@ -358,7 +387,8 @@
       "insight": "Лучший код пишется свежей головой, а не в 2 часа ночи в пятницу.",
       "projectLink": null,
       "points": 8,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "soft-skill"
     },
     {
       "id": "code-review",
@@ -370,7 +400,8 @@
       "insight": "Code review - это не поиск ошибок, это передача знаний и улучшение кода.",
       "projectLink": null,
       "points": 7,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "soft-skill"
     },
     {
       "id": "code-quality",
@@ -382,7 +413,8 @@
       "insight": "Медленно сделанное правильно быстрее быстро сделанного неправильно.",
       "projectLink": null,
       "points": 8,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "frontend"
     },
     {
       "id": "agile-ceremonies",
@@ -394,7 +426,8 @@
       "insight": "Процесс должен служить команде, а не наоборот.",
       "projectLink": null,
       "points": 7,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "soft-skill"
     },
     {
       "id": "technical-debt",
@@ -406,7 +439,8 @@
       "insight": "Технический долг накапливает проценты как настоящий долг.",
       "projectLink": null,
       "points": 9,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "frontend"
     },
     {
       "id": "learning-time",
@@ -418,7 +452,8 @@
       "insight": "Команда, которая не развивается, деградирует.",
       "projectLink": null,
       "points": 6,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "soft-skill"
     },
     {
       "id": "documentation",
@@ -430,7 +465,8 @@
       "insight": "Документация, которая не обновляется, хуже отсутствия документации.",
       "projectLink": null,
       "points": 8,
-      "isEasterEgg": true
+      "isEasterEgg": true,
+      "category": "frontend"
     },
     {
       "id": "secret-bubble",
@@ -443,7 +479,8 @@
       "projectLink": null,
       "points": 5,
       "isEasterEgg": false,
-      "isHidden": true
+      "isHidden": true,
+      "category": "frontend"
     }
   ],
   "metadata": {

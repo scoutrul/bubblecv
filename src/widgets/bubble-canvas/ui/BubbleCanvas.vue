@@ -1,5 +1,5 @@
 <template>
-  <div class="bubble-canvas-container">
+  <div class="bubble-canvas-container" ref="containerRef">
     <!-- Canvas холст для отрисовки пузырей -->
     <canvas
       ref="canvasRef"
@@ -11,9 +11,10 @@
     
     <!-- Временная линия -->
     <TimelineSlider 
-      v-model:currentYear="currentYear"
+      :currentYear="currentYear"
       :start-year="startYear"
       :end-year="endYear"
+      @update:currentYear="emit('update:currentYear', $event)"
       class="timeline"
     />
     
@@ -26,25 +27,37 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useCanvasSimulation } from '../composables/useCanvasSimulation'
 import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
 import TimelineSlider from '../../../features/timeline/ui/TimelineSlider.vue'
 import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
 
-// Refs
+interface Props {
+  currentYear: number
+  startYear: number
+  endYear: number
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits(['update:currentYear'])
+
 const canvasRef = ref<HTMLCanvasElement | null>(null)
-const canvasWidth = ref<number>(window.innerWidth)
-const canvasHeight = ref<number>(window.innerHeight)
-const currentYear = ref<number>(GAME_CONFIG.RESTART_YEAR)
+const containerRef = ref<HTMLDivElement | null>(null)
+const bubbleStore = useBubbleStore()
 const isLoading = ref<boolean>(true)
 
-// Данные
-const startYear = GAME_CONFIG.START_YEAR
-const endYear = GAME_CONFIG.CURRENT_YEAR
+// Функция для проверки и обновления года
+const checkBubblesAndAdvance = () => {
+  const visibleBubbles = bubbleStore.getBubblesByYear(props.currentYear)
+  const hasUnpoppedBubbles = visibleBubbles.some(bubble => !bubble.isPopped)
 
-// Stores
-const bubbleStore = useBubbleStore()
+  if (!hasUnpoppedBubbles && props.currentYear < props.endYear) {
+    console.log('🎯 Все пузыри лопнуты, переключаем на следующий год')
+    setTimeout(() => {
+      emit('update:currentYear', props.currentYear + 1)
+    }, 500)
+  }
+}
 
-// Canvas Simulation
+// Инициализация канваса с передачей callback
 const { 
   initSimulation, 
   updateBubbles, 
@@ -52,129 +65,94 @@ const {
   updateSimulationSize,
   handleMouseMove: simMouseMove,
   handleClick: simClick,
-  handleMouseLeave: simMouseLeave
-} = useCanvasSimulation(canvasRef)
+  handleMouseLeave: simMouseLeave,
+  isInitialized
+} = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
 
-// Handlers
-const handleResize = () => {
-  const newWidth = window.innerWidth
-  const newHeight = window.innerHeight
-  
-  console.log('🔄 Ресайз окна:', { 
-    от: { width: canvasWidth.value, height: canvasHeight.value },
-    к: { width: newWidth, height: newHeight }
-  })
-  
-  canvasWidth.value = newWidth
-  canvasHeight.value = newHeight
-  
-  if (canvasRef.value) {
-    const dpr = window.devicePixelRatio || 1
-    
-    // ВАЖНО: Сначала устанавливаем CSS размеры (визуальные)
-    canvasRef.value.style.width = `${newWidth}px`
-    canvasRef.value.style.height = `${newHeight}px`
-    
-    // Затем устанавливаем внутренние размеры Canvas (разрешение буфера)
-    // Они должны соответствовать CSS размерам умноженным на DPI
-    canvasRef.value.width = newWidth * dpr
-    canvasRef.value.height = newHeight * dpr
-    
-    // Получаем контекст и настраиваем масштабирование
-    const ctx = canvasRef.value.getContext('2d')
-    if (ctx) {
-      // Сбрасываем все трансформации
-      ctx.setTransform(1, 0, 0, 1, 0, 0)
-      // Масштабируем контекст для компенсации DPI
-      // Теперь координаты 1:1 соответствуют CSS пикселям
-      ctx.scale(dpr, dpr)
-    }
-    
-    // Обновляем симуляцию с новыми размерами
-    updateSimulationSize(newWidth, newHeight)
-    console.log('✅ Canvas обновлен:', {
-      cssSize: `${newWidth}x${newHeight}`,
-      bufferSize: `${newWidth * dpr}x${newHeight * dpr}`,
-      dpr
-    })
-  }
-}
-
+// Обработчики событий мыши
 const handleMouseMove = (event: MouseEvent) => {
-  simMouseMove(event)
+  if (!isLoading.value) {
+    simMouseMove(event)
+  }
 }
 
 const handleClick = (event: MouseEvent) => {
-  simClick(event)
+  if (!isLoading.value) {
+    simClick(event)
+  }
 }
 
 const handleMouseLeave = () => {
-  simMouseLeave()
-}
-
-const handleGameRestart = () => {
-  currentYear.value = GAME_CONFIG.RESTART_YEAR
-}
-
-const handleGameReset = () => {
-  currentYear.value = GAME_CONFIG.RESTART_YEAR
-  const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
-  updateBubbles(initialBubbles)
-  console.log('🔄 Пузыри сброшены! Показано пузырей:', initialBubbles.length)
-}
-
-// Watchers
-watch(currentYear, (newYear: number) => {
-  const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
-  updateBubbles(filteredBubbles)
-})
-
-// Lifecycle
-onMounted(async () => {
-  console.log('BubbleCanvas mounted')
-  
-  // Загружаем данные пузырей
-  try {
-    await bubbleStore.loadBubbles()
-    console.log('Bubbles loaded:', bubbleStore.bubbles.length)
-  } catch (error) {
-    console.error('Error loading bubbles:', error)
+  if (!isLoading.value) {
+    simMouseLeave()
   }
-  
-  // Настраиваем Canvas
-  if (canvasRef.value) {
-    // Сначала правильно инициализируем Canvas размеры
-    handleResize()
+}
+
+// Следим за изменением года
+watch(() => props.currentYear, (newYear: number) => {
+  if (!isLoading.value) {
+    const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
+    updateBubbles(filteredBubbles)
     
-    console.log('Initializing Canvas simulation')
-    initSimulation(canvasWidth.value, canvasHeight.value)
-    const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
-    console.log('Initial bubbles for year', currentYear.value, ':', initialBubbles.length)
-    updateBubbles(initialBubbles)
-  } else {
-    console.error('Canvas ref is null')
+    // Если нет пузырей и не достигнут конец временной шкалы
+    if (filteredBubbles.length === 0 && newYear < props.endYear) {
+      console.log('🔄 Нет пузырей в текущем году, переключаем на следующий')
+      setTimeout(() => {
+        emit('update:currentYear', newYear + 1)
+      }, 500)
+    }
   }
-  
-  // Подписываемся на resize, restart и reset
-  window.addEventListener('resize', handleResize)
-  window.addEventListener('game-restart', handleGameRestart)
-  window.addEventListener('game-reset', handleGameReset)
-  
-  isLoading.value = false
-  console.log('BubbleCanvas initialization complete')
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize)
-  window.removeEventListener('game-restart', handleGameRestart)
-  window.removeEventListener('game-reset', handleGameReset)
-  destroySimulation()
+// Инициализация и очистка
+onMounted(async () => {
+  console.log('🎨 Инициализация BubbleCanvas...')
+  isLoading.value = true
+  
+  try {
+    // Ждем загрузки пузырей
+    if (bubbleStore.bubbles.length === 0) {
+      console.log('📦 Загружаем пузыри...')
+      await bubbleStore.loadBubbles()
+      console.log('✅ Пузыри загружены:', bubbleStore.bubbles.length)
+    }
+
+    const resizeObserver = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect
+        if (width > 0 && height > 0) {
+          console.log('📏 Обновляем размеры канваса:', width, 'x', height)
+          updateSimulationSize(width, height)
+          if (!isInitialized.value) {
+            console.log('🎮 Инициализируем симуляцию...')
+            initSimulation(width, height)
+            const initialBubbles = bubbleStore.getBubblesByYear(props.currentYear)
+            updateBubbles(initialBubbles)
+            console.log('✅ Симуляция инициализирована с', initialBubbles.length, 'пузырями')
+            isLoading.value = false
+          }
+        }
+      }
+    })
+
+    if (containerRef.value) {
+      resizeObserver.observe(containerRef.value)
+    }
+
+    onUnmounted(() => {
+      resizeObserver.disconnect()
+      destroySimulation()
+    })
+  } catch (error) {
+    console.error('❌ Ошибка инициализации:', error)
+    isLoading.value = false
+  }
 })
 </script>
 
 <style scoped>
 .bubble-canvas-container {
-  @apply relative w-full h-full;
+  @apply w-full h-full relative;
 }
 
 .bubble-canvas {

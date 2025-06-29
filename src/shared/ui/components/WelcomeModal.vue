@@ -71,7 +71,7 @@
 
       <!-- Призыв к действию -->
       <div class="call-to-action">
-        <h3 class="ready-title">Готов к исследованию?</h3>
+        <h3 class="ready-title">Готовы к исследованию?</h3>
         <p class="start-hint">Начинай с любого баббла.</p>
         
         <button @click="close" class="start-button">

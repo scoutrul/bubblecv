@@ -11,6 +11,8 @@ export interface Bubble {
   isTough?: boolean         // Крепкий пузырь - требует несколько кликов
   toughClicks?: number      // Сколько кликов нужно для активации
   currentClicks?: number    // Сколько кликов уже сделано
+  isPopped: boolean
+  isVisited: boolean       // Флаг посещения пузыря
   description: string
   projects: string[]
   link?: string
@@ -19,19 +21,9 @@ export interface Bubble {
   position?: Position
 }
 
-export type SkillLevel = 
-  | 'novice'
-  | 'intermediate'
-  | 'confident'
-  | 'expert'
-  | 'master'
+export type SkillLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert'
 
-export type BubbleSize = 
-  | 'bubble-novice'
-  | 'bubble-intermediate'
-  | 'bubble-confident'
-  | 'bubble-expert'
-  | 'bubble-master'
+export type BubbleSize = 'bubble-beginner' | 'bubble-intermediate' | 'bubble-advanced' | 'bubble-expert'
 
 export interface Position {
   x: number
@@ -41,16 +33,13 @@ export interface Position {
 // Игровые системы
 export interface UserSession {
   id: string
-  currentXP: number
-  currentLevel: number
+  startedAt: string
+  lastActiveAt: string
+  score: number
+  level: number
   lives: number
-  unlockedContent: number[]
   visitedBubbles: string[]
-  agreementScore: number
-  gameCompleted: boolean
-  hasDestroyedToughBubble?: boolean  // Флаг для достижения за первый крепкий пузырь
-  startTime: Date
-  lastActivity: Date
+  achievements: Achievement[]
 }
 
 export interface Achievement {
@@ -58,19 +47,16 @@ export interface Achievement {
   name: string
   description: string
   icon: string
-  isUnlocked: boolean
-  unlockedAt?: Date
-  xpReward: number
+  unlockedAt?: string
 }
 
 export interface PhilosophyQuestion {
   id: string
   question: string
-  context: string
-  agreeText: string
-  disagreeText: string
-  livePenalty: number
-  isEasterEgg: boolean
+  options: string[]
+  correctAnswer: string
+  explanation: string
+  points: number
 }
 
 export interface ContentLevel {
@@ -127,15 +113,32 @@ export interface LevelUpEvent {
 }
 
 // API
-export interface ApiResponse<T = any> {
+export interface ApiResponse {
   success: boolean
-  data?: T
   error?: string
-  timestamp: string
+  data?: any
 }
 
 export interface BubbleData {
   bubbles: Bubble[]
   philosophyQuestions: PhilosophyQuestion[]
   contentLevels: ContentLevel[]
+}
+
+// Типы для игровой механики
+export interface GameState {
+  score: number
+  level: number
+  lives: number
+  isGameOver: boolean
+  isPaused: boolean
+}
+
+// Типы для модальных окон
+export type ModalType = 'welcome' | 'bubble' | 'achievement' | 'gameOver' | 'levelUp' | 'philosophy'
+
+export interface ModalState {
+  isOpen: boolean
+  type: ModalType | null
+  data?: any
 } 

@@ -1,7 +1,7 @@
 <template>
   <div class="loading-spinner">
     <div class="spinner"></div>
-    <p class="loading-text">Загружаем вселенную пузырей...</p>
+    <p class="loading-text">Загружаем вселенную...</p>
   </div>
 </template>
 

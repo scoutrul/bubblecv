@@ -16,7 +16,11 @@
           </svg>
         </button>
         
-        <span class="year-compact">{{ currentYear }}</span>
+        <div class="year-display">
+          <TransitionGroup name="slide" tag="div" class="year-wrapper">
+            <span :key="currentYear" class="year-compact">{{ currentYear }}</span>
+          </TransitionGroup>
+        </div>
         
         <button 
           @click="goToNextYear" 
@@ -51,6 +55,9 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue'
+import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
+
 interface Props {
   currentYear: number
   startYear: number
@@ -63,23 +70,51 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const bubbleStore = useBubbleStore()
 
 const handleYearChange = (event: Event) => {
   const target = event.target as HTMLInputElement
-  emit('update:currentYear', parseInt(target.value))
+  const newYear = parseInt(target.value)
+  
+  // Анимируем смену года
+  requestAnimationFrame(() => {
+    emit('update:currentYear', newYear)
+  })
 }
 
 const goToPreviousYear = () => {
   if (props.currentYear > props.startYear) {
-    emit('update:currentYear', props.currentYear - 1)
+    requestAnimationFrame(() => {
+      emit('update:currentYear', props.currentYear - 1)
+    })
   }
 }
 
 const goToNextYear = () => {
   if (props.currentYear < props.endYear) {
-    emit('update:currentYear', props.currentYear + 1)
+    requestAnimationFrame(() => {
+      emit('update:currentYear', props.currentYear + 1)
+    })
   }
 }
+
+// Улучшенная логика автопереключения
+watch(
+  () => bubbleStore.getBubblesByYear(props.currentYear),
+  (currentBubbles) => {
+    // Проверяем есть ли непосещенные пузыри
+    const unvisitedBubbles = currentBubbles.filter(bubble => !bubble.isVisited)
+    
+    // Если все пузыри посещены или их нет, переходим к следующему году
+    if ((currentBubbles.length === 0 || unvisitedBubbles.length === 0) && props.currentYear < props.endYear) {
+      // Добавляем небольшую задержку для плавности
+      setTimeout(() => {
+        goToNextYear()
+      }, 500)
+    }
+  },
+  { immediate: true } // Проверяем сразу при монтировании
+)
 </script>
 
 <style scoped>
@@ -110,8 +145,37 @@ const goToNextYear = () => {
   @apply w-3 h-3;
 }
 
+.year-display {
+  @apply relative w-[4rem] h-[1.5rem] overflow-hidden;
+}
+
+.year-wrapper {
+  @apply absolute inset-0 flex items-center justify-center;
+}
+
 .year-compact {
-  @apply text-sm font-medium text-text-secondary px-2 min-w-[3rem] text-center;
+  @apply text-sm font-medium text-text-secondary px-2 text-center absolute;
+}
+
+/* Анимации для TransitionGroup */
+.slide-move,
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-leave-active {
+  position: absolute;
 }
 
 .slider-container {
@@ -137,6 +201,4 @@ const goToNextYear = () => {
 .year-slider::-moz-range-thumb {
   @apply w-4 h-4 bg-primary rounded-full cursor-pointer border-none;
 }
-
-
 </style> 
