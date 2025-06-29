@@ -1,11 +1,11 @@
 export const GAME_CONFIG = {
-  // XP System
+  // XP System - обновлено на основе анализа данных
   XP_LEVELS: {
-    LEVEL_1: 25,
-    LEVEL_2: 50,
-    LEVEL_3: 75,
-    LEVEL_4: 100,
-    LEVEL_5: 125
+    LEVEL_1: 22,   // Уровень 1: 0-22 XP
+    LEVEL_2: 44,   // Уровень 2: 22-44 XP  
+    LEVEL_3: 66,   // Уровень 3: 44-66 XP
+    LEVEL_4: 88,   // Уровень 4: 66-88 XP
+    LEVEL_5: 110   // Уровень 5: 88-110 XP (максимум 108 от пузырей + философия)
   } as const,
   
   // Lives System
@@ -75,7 +75,7 @@ export const GAME_CONFIG = {
   PHILOSOPHY_BUBBLE: {
     hasGradient: true,
     gradientColors: ['#FF0080', '#FF4080', '#FF8080', '#B3FF80', '#FFFFFF00'],
-    sizeMultiplier: 0.6,           // Чуть больше обычных пузырей
+    sizeMultiplier: 0.1,           // Чуть больше обычных пузырей
     opacity: 0.95,
     name: 'Философский вопрос'
   } as const,

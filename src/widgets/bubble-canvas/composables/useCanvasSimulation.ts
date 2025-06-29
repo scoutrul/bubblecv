@@ -1,9 +1,12 @@
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import * as d3 from 'd3'
 import type { Bubble } from '../../../shared/types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
 import { useModalStore } from '../../../shared/stores/modal-store'
+import { useBubbleStore } from '@entities/bubble/model/bubble-store'
+import { useGameStore } from '@features/gamification/model/game-store'
+import philosophyQuestions from '@shared/data/philosophyQuestions.json'
 
 interface CanvasBubble extends Bubble {
   radius: number
@@ -29,6 +32,7 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
   const isInitialized = ref(false)
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
+  const gameStore = useGameStore()
   
   let simulation: d3.Simulation<SimulationNode, undefined> | null = null
   let nodes: SimulationNode[] = []
@@ -880,15 +884,23 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Находим пузырь
     const bubble = nodes.find(node => node.id === bubbleId)
     if (!bubble) {
-      console.warn('Пузырь не найден:', bubbleId)
+      console.warn('❌ Пузырь не найден:', bubbleId)
       return
     }
+    
+    console.log('🔍 Найден пузырь:', {
+      id: bubble.id,
+      skillLevel: bubble.skillLevel,
+      isEasterEgg: bubble.isEasterEgg,
+      isPhilosophyNegative
+    })
     
     // Начисляем опыт в зависимости от уровня экспертизы
     let leveledUp = false
     let xpGained = 0
     
     if (bubble.isEasterEgg) {
+      console.log('🎯 Это философский пузырь (Easter Egg)')
       if (isPhilosophyNegative) {
         // Отрицательный ответ на философский вопрос - показываем потерю жизни
         createLifeLossFloatingText(bubble.x, bubble.y)
@@ -896,27 +908,73 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       } else {
         // Положительный ответ - обычный XP (зеленый цвет)
         xpGained = GAME_CONFIG.XP_PER_EASTER_EGG
+        console.log('💰 Начисляем XP за философский пузырь:', xpGained)
         leveledUp = await sessionStore.gainXP(xpGained)
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
         console.log('✨ Philosophy positive: showing XP gain animation')
       }
     } else {
-      const xpConfig = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[bubble.skillLevel]
+      console.log('🎯 Это обычный пузырь')
+      const expertiseLevel = bubble.skillLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL
+      const xpConfig = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel]
       xpGained = xpConfig || 1
-      leveledUp = await sessionStore.gainBubbleXP(bubble.skillLevel)
+      
+      console.log('💰 Начисляем XP за обычный пузырь:', {
+        expertiseLevel,
+        xpConfig,
+        xpGained
+      })
+      
+      leveledUp = await sessionStore.gainBubbleXP(expertiseLevel)
       
       // Создаём визуальный эффект получения XP при исчезновении (зеленый цвет)
       if (xpGained > 0) {
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
+        console.log('✨ Показываем анимацию получения XP:', xpGained)
       }
     }
 
+    console.log('📊 Результат начисления XP:', {
+      bubbleId,
+      xpGained,
+      leveledUp,
+      currentXP: sessionStore.currentXP,
+      currentLevel: sessionStore.currentLevel
+    })
+
     // Показываем Level Up модал если уровень повысился
     if (leveledUp) {
-      modalStore.openLevelUpModal(sessionStore.currentLevel)
+      console.log('🎉 LEVEL UP! Показываем модал для уровня:', sessionStore.currentLevel)
+      
+      // Получаем иконку для уровня (такую же как в LevelDisplay)
+      const getLevelIcon = (level: number): string => {
+        switch (level) {
+          case 1: return '👋'
+          case 2: return '🤔'
+          case 3: return '📚'
+          case 4: return '🤝'
+          case 5: return '🤜🤛'
+          default: return '⭐'
+        }
+      }
+      
+      // Получаем данные нового уровня из contentLevels
+      const levelData = gameStore.getLevelByNumber(sessionStore.currentLevel)
+      const levelUpData = {
+        level: sessionStore.currentLevel,
+        title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
+        description: levelData?.description || 'Новый уровень разблокирован!',
+        icon: getLevelIcon(sessionStore.currentLevel),
+        currentXP: sessionStore.currentXP,
+        xpGained,
+        unlockedFeatures: (levelData as any)?.unlockedFeatures || []
+      }
+      
+      modalStore.openLevelUpModal(sessionStore.currentLevel, levelUpData)
     }
     
     // Отмечаем пузырь как посещенный
+    console.log('✅ Отмечаем пузырь как посещенный:', bubbleId)
     await sessionStore.visitBubble(bubble.id)
     bubble.isVisited = true
     

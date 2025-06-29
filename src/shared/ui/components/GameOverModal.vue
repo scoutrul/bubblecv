@@ -72,8 +72,9 @@ const handleRestart = async () => {
 
 <style scoped>
 .modal-overlay {
-  @apply fixed inset-0 z-50 flex items-center justify-center;
+  @apply fixed inset-0 flex items-center justify-center;
   @apply bg-black/80 backdrop-blur-sm;
+  z-index: 2000;
 }
 
 .modal-content {

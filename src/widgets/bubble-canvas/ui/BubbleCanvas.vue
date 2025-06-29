@@ -116,6 +116,13 @@ const handleGameRestart = () => {
   currentYear.value = GAME_CONFIG.RESTART_YEAR
 }
 
+const handleGameReset = () => {
+  currentYear.value = GAME_CONFIG.RESTART_YEAR
+  const initialBubbles = bubbleStore.getBubblesByYear(currentYear.value)
+  updateBubbles(initialBubbles)
+  console.log('🔄 Пузыри сброшены! Показано пузырей:', initialBubbles.length)
+}
+
 // Watchers
 watch(currentYear, (newYear: number) => {
   const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
@@ -148,9 +155,10 @@ onMounted(async () => {
     console.error('Canvas ref is null')
   }
   
-  // Подписываемся на resize и restart
+  // Подписываемся на resize, restart и reset
   window.addEventListener('resize', handleResize)
   window.addEventListener('game-restart', handleGameRestart)
+  window.addEventListener('game-reset', handleGameReset)
   
   isLoading.value = false
   console.log('BubbleCanvas initialization complete')
@@ -159,6 +167,7 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('game-restart', handleGameRestart)
+  window.removeEventListener('game-reset', handleGameReset)
   destroySimulation()
 })
 </script>

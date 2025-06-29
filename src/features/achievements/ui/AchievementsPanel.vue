@@ -21,8 +21,9 @@ defineEmits<{
 
 <style scoped>
 .achievements-panel {
-  @apply absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto;
-  z-index: 100;
+  @apply absolute bottom-[4rem] right-[1rem] mb-2 w-80 max-h-96 overflow-y-auto;
+  z-index: 1500;
+  pointer-events: auto;
 }
 
 .panel-header {
@@ -31,6 +32,8 @@ defineEmits<{
 
 .close-btn {
   @apply w-6 h-6 flex items-center justify-center rounded hover:bg-background-secondary;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .achievement-placeholder {

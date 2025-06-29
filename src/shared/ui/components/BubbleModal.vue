@@ -223,7 +223,7 @@ const handleOverlayClick = (event: MouseEvent) => {
 .modal-overlay {
   @apply fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm;
   @apply flex items-center justify-center p-4;
-  z-index: 1000;
+  z-index: 2000;
   animation: fadeIn 0.3s ease-out;
 }
 

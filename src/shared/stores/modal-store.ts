@@ -2,9 +2,24 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Bubble, PhilosophyQuestion } from '@shared/types'
 import { useSessionStore } from '@/entities/user-session/model/session-store'
+import { useGameStore } from '@/features/gamification/model/game-store'
+
+interface LevelUpData {
+  level: number
+  title: string
+  description: string
+  icon: string
+  currentXP: number
+  xpGained: number
+  unlockedFeatures: string[]
+}
 
 export const useModalStore = defineStore('modal', () => {
   const sessionStore = useSessionStore()
+  const gameStore = useGameStore()
+  
+  // Welcome Modal
+  const isWelcomeOpen = ref(false)
   
   // Bubble Modal
   const isBubbleModalOpen = ref(false)
@@ -13,6 +28,15 @@ export const useModalStore = defineStore('modal', () => {
   // Level Up Modal
   const isLevelUpModalOpen = ref(false)
   const currentLevel = ref(1)
+  const levelUpData = ref<LevelUpData>({
+    level: 1,
+    title: '',
+    description: '',
+    icon: '👋',
+    currentXP: 0,
+    xpGained: 0,
+    unlockedFeatures: []
+  })
   
   // Philosophy Question Modal
   const isPhilosophyModalOpen = ref(false)
@@ -22,6 +46,22 @@ export const useModalStore = defineStore('modal', () => {
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
   const gameOverStats = ref<{ currentXP: number; currentLevel: number } | null>(null)
+
+  // Welcome Modal Actions
+  const openWelcome = () => {
+    isWelcomeOpen.value = true
+  }
+
+  const closeWelcome = () => {
+    isWelcomeOpen.value = false
+    // Сохраняем что welcome модалка была показана
+    localStorage.setItem('bubbleme-welcome-shown', 'true')
+  }
+
+  // Проверяем нужно ли показать welcome модалку
+  const shouldShowWelcome = () => {
+    return !localStorage.getItem('bubbleme-welcome-shown')
+  }
 
   // Bubble Modal Actions
   const openBubbleModal = (bubble: Bubble) => {
@@ -46,8 +86,21 @@ export const useModalStore = defineStore('modal', () => {
   }
 
   // Level Up Modal Actions  
-  const openLevelUpModal = (level: number) => {
+  const openLevelUpModal = (level: number, data?: Partial<LevelUpData>) => {
     currentLevel.value = level
+    
+    if (data) {
+      levelUpData.value = {
+        level: data.level || level,
+        title: data.title || '',
+        description: data.description || '',
+        icon: data.icon || '👋',
+        currentXP: data.currentXP || 0,
+        xpGained: data.xpGained || 0,
+        unlockedFeatures: data.unlockedFeatures || []
+      }
+    }
+    
     isLevelUpModalOpen.value = true
   }
 
@@ -81,7 +134,33 @@ export const useModalStore = defineStore('modal', () => {
       // Правильный ответ - дать XP
       const leveledUp = await sessionStore.gainPhilosophyXP()
       if (leveledUp) {
-        openLevelUpModal(sessionStore.currentLevel)
+        // Получаем иконку для уровня
+        const getLevelIcon = (level: number): string => {
+          switch (level) {
+            case 1: return '👋'
+            case 2: return '🤔'
+            case 3: return '📚'
+            case 4: return '🤝'
+            case 5: return '🤜🤛'
+            default: return '⭐'
+          }
+        }
+        
+        // Получаем данные уровня из contentLevels
+        const levelData = gameStore.getLevelByNumber(sessionStore.currentLevel)
+        
+        // Создаем данные для level-up модалки
+        const levelUpData = {
+          level: sessionStore.currentLevel,
+          title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
+          description: levelData?.description || 'Новый уровень разблокирован за правильный ответ на философский вопрос!',
+          icon: getLevelIcon(sessionStore.currentLevel),
+          currentXP: sessionStore.currentXP,
+          xpGained: 10, // XP за философский пузырь
+          unlockedFeatures: (levelData as any)?.unlockedFeatures || []
+        }
+        
+        openLevelUpModal(sessionStore.currentLevel, levelUpData)
       }
       console.log('✅ Philosophy: Gained XP for agreeing')
     } else {
@@ -133,16 +212,21 @@ export const useModalStore = defineStore('modal', () => {
 
   return {
     // State
+    isWelcomeOpen,
     isBubbleModalOpen,
     currentBubble,
     isLevelUpModalOpen,
     currentLevel,
+    levelUpData,
     isPhilosophyModalOpen,
     currentQuestion,
     isGameOverModalOpen,
     gameOverStats,
     
     // Actions
+    openWelcome,
+    closeWelcome,
+    shouldShowWelcome,
     openBubbleModal,
     closeBubbleModal,
     continueBubbleModal,

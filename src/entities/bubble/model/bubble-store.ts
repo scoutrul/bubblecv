@@ -57,22 +57,28 @@ export const useBubbleStore = defineStore('bubble', () => {
     error.value = null
 
     try {
-      const response = await fetch('/api/bubbles')
-      const data: ApiResponse<any[]> = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка загрузки пузырей')
-      }
-
-      // Трансформируем данные из API в нужный формат
-      bubbles.value = (data.data || []).map((bubble: any) => ({
-        ...bubble,
-        yearStarted: bubble.year_started,
-        yearEnded: bubble.year_ended || undefined,
-        skillLevel: bubble.skill_level,
-        isActive: Boolean(bubble.is_active),
-        isEasterEgg: Boolean(bubble.is_easter_egg)
-      }))
+      // Загружаем данные из локального JSON файла
+      const mockData = await import('../../../shared/data/mockData.json')
+      const rawBubbles = mockData.default.bubbles || []
+      
+      // Трансформируем данные в нужный формат
+      bubbles.value = rawBubbles.map((bubble: any) => ({
+        id: bubble.id,
+        name: bubble.label || bubble.name,
+        category: bubble.category,
+        skillLevel: bubble.level || bubble.skillLevel,
+        yearStarted: bubble.year || bubble.yearStarted,
+        yearEnded: bubble.yearEnded,
+        isActive: true,
+        isEasterEgg: bubble.isEasterEgg || false,
+        description: bubble.description || '',
+        projects: [], // Добавляем обязательное поле
+        link: bubble.projectLink || bubble.link || '',
+        size: bubble.size || 'medium',
+        color: bubble.color || '#3b82f6'
+      })) as Bubble[]
+      
+      console.log('📁 Загружены пузыри из локального файла:', bubbles.value.length)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
       console.error('Ошибка загрузки пузырей:', err)

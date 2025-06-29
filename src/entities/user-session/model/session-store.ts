@@ -102,42 +102,7 @@ export const useSessionStore = defineStore('session', () => {
     try {
       const id = sessionId || generateSessionId()
       
-      // Пытаемся загрузить с сервера
-      try {
-        const response = await fetch(`/api/session/${id}`)
-        const data: ApiResponse<UserSession> = await response.json()
-
-        if (data.success && data.data) {
-          session.value = {
-            ...data.data,
-            startTime: new Date(data.data.startTime),
-            lastActivity: new Date(data.data.lastActivity)
-          } as UserSession
-          console.log('Сессия загружена с сервера')
-          return
-        }
-      } catch (serverError) {
-        console.log('Сервер недоступен, проверяем localStorage')
-      }
-      
-      // Пытаемся загрузить из localStorage
-      try {
-        const localSession = localStorage.getItem('bubbleme_session')
-        if (localSession) {
-          const parsedSession = JSON.parse(localSession)
-          session.value = {
-            ...parsedSession,
-            startTime: new Date(parsedSession.startTime),
-            lastActivity: new Date(parsedSession.lastActivity)
-          }
-          console.log('Сессия загружена из localStorage')
-          return
-        }
-      } catch (localError) {
-        console.log('Не удалось загрузить из localStorage')
-      }
-      
-      // Если ничего не загрузилось, создаём новую локальную сессию
+      // ВСЕГДА создаём новую сессию без сохранения
       session.value = {
         id,
         currentXP: 0,
@@ -150,60 +115,45 @@ export const useSessionStore = defineStore('session', () => {
         startTime: new Date(),
         lastActivity: new Date()
       }
-      console.log('Создана новая локальная сессия:', session.value)
+      
+      console.log('🎮 Создана новая игровая сессия:', {
+        id: session.value.id,
+        currentXP: session.value.currentXP,
+        currentLevel: session.value.currentLevel,
+        lives: session.value.lives
+      })
 
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
-      console.error('Ошибка загрузки сессии:', err)
+      console.error('Ошибка создания сессии:', err)
     } finally {
       isLoading.value = false
     }
   }
 
   const saveSession = async (): Promise<void> => {
-    if (!session.value) return
-
-    try {
-      // Пытаемся сохранить на сервере
-      const response = await fetch(`/api/session/${session.value.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          currentXP: session.value.currentXP,
-          currentLevel: session.value.currentLevel,
-          lives: session.value.lives,
-          unlockedContent: session.value.unlockedContent,
-          visitedBubbles: session.value.visitedBubbles,
-          agreementScore: session.value.agreementScore
-        })
-      })
-
-      const data: ApiResponse = await response.json()
-
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка сохранения сессии')
-      }
-
-      console.log('Сессия сохранена на сервере')
-
-    } catch (err) {
-      // Если сервер недоступен, сохраняем локально в localStorage
-      try {
-        localStorage.setItem('bubbleme_session', JSON.stringify(session.value))
-        console.log('Сессия сохранена локально')
-      } catch (localErr) {
-        console.warn('Не удалось сохранить сессию локально:', localErr)
-      }
-    }
+    // Больше не сохраняем сессии - игра сбрасывается при обновлении
+    console.log('🎮 Сохранение отключено - игра сбрасывается при обновлении страницы')
   }
 
   const gainXP = async (amount: number): Promise<boolean> => {
-    if (!session.value) return false
+    console.log('🚀 gainXP вызван:', { amount, sessionExists: !!session.value })
+    
+    if (!session.value) {
+      console.error('❌ Session не существует! Не можем начислить XP')
+      return false
+    }
 
     const oldLevel = session.value.currentLevel
     const oldXP = session.value.currentXP
+    
+    console.log('📊 Состояние ДО начисления XP:', {
+      oldXP,
+      oldLevel,
+      amount,
+      sessionId: session.value.id
+    })
+    
     session.value.currentXP += amount
     
     console.log('✨ Gaining XP:', { 
@@ -217,32 +167,43 @@ export const useSessionStore = defineStore('session', () => {
     
     // Проверяем повышение уровня
     if (canLevelUp.value) {
-      session.value.currentLevel += 1
+      const newLevel = session.value.currentLevel + 1
+      session.value.currentLevel = newLevel
       
       console.log('🎉 LEVEL UP!', { 
         oldLevel, 
-        newLevel: session.value.currentLevel,
+        newLevel: newLevel,
         currentXP: session.value.currentXP
       })
       
       // Разблокируем контент
-      if (!session.value.unlockedContent.includes(session.value.currentLevel)) {
-        session.value.unlockedContent.push(session.value.currentLevel)
+      if (!session.value.unlockedContent.includes(newLevel)) {
+        session.value.unlockedContent.push(newLevel)
+        console.log('🔓 Разблокирован контент для уровня:', newLevel)
       }
       
+      console.log('💾 Сохраняем сессию после level up...')
       await saveSession()
+      console.log('✅ Сессия сохранена после level up')
       return true // Произошло повышение уровня
     }
     
+    console.log('💾 Сохраняем сессию после получения XP...')
     await saveSession()
+    console.log('✅ Сессия сохранена после получения XP')
     return false
   }
 
   // Получить XP за уровень экспертизы пузыря
   const gainBubbleXP = async (expertiseLevel: string): Promise<boolean> => {
+    console.log('🫧 gainBubbleXP вызван:', { expertiseLevel })
+    
     const xpAmount = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
     console.log('🫧 Bubble XP:', { expertiseLevel, xpAmount })
-    return await gainXP(xpAmount)
+    
+    const result = await gainXP(xpAmount)
+    console.log('🫧 gainBubbleXP результат:', result)
+    return result
   }
 
   // Получить XP за правильный ответ на философский вопрос
@@ -298,19 +259,30 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const resetSession = async (): Promise<void> => {
-    if (!session.value) return
+    const id = generateSessionId()
+    
+    session.value = {
+      id,
+      currentXP: 0,
+      currentLevel: 1,
+      lives: GAME_CONFIG.MAX_LIVES,
+      unlockedContent: [],
+      visitedBubbles: [],
+      agreementScore: 0,
+      gameCompleted: false,
+      startTime: new Date(),
+      lastActivity: new Date()
+    }
 
-    session.value.currentXP = 0
-    session.value.currentLevel = 1
-    session.value.lives = GAME_CONFIG.MAX_LIVES
-    session.value.unlockedContent = []
-    session.value.visitedBubbles = []
-    session.value.agreementScore = 0
-    session.value.gameCompleted = false
-    session.value.startTime = new Date()
-    session.value.lastActivity = new Date()
-
-    await saveSession()
+    console.log('🔄 Игра сброшена! Новая сессия:', {
+      id: session.value.id,
+      currentXP: session.value.currentXP,
+      currentLevel: session.value.currentLevel,
+      lives: session.value.lives
+    })
+    
+    // Уведомляем компоненты о сбросе игры
+    window.dispatchEvent(new CustomEvent('game-reset'))
   }
 
   const clearError = (): void => {

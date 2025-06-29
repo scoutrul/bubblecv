@@ -161,8 +161,16 @@ app.get('/api/session/:sessionId', (req, res) => {
     
     if (!session) {
       // Создаем новую сессию
-      insertSession.run(sessionId, 0, 1, 3)
+      console.log('🆕 Создаем новую сессию:', sessionId)
+      console.log('📝 Вставляем:', { sessionId, xp: 0, level: 1, lives: 3 })
+      
+      const result = insertSession.run(sessionId, 0, 1, 3)
+      console.log('📊 Результат вставки:', result)
+      
       session = getSession.get(sessionId)
+      console.log('📋 Получена сессия из БД:', session)
+    } else {
+      console.log('♻️ Сессия уже существует:', sessionId)
     }
     
     res.json({

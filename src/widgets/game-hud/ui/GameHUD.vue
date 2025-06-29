@@ -1,61 +1,40 @@
 <template>
   <div class="game-hud">
-    <!-- Левая секция: жизни -->
-    <div class="left-section">
-      <div class="stat-item">
-        <div class="stat-header">
-          <span class="stat-title">Жизни</span>
-          <div class="hearts-container">
-            <div 
-              v-for="life in maxLives"
-              :key="life"
-              class="life-heart"
-              :class="{ 'life-lost': life > currentLives }"
-            >
-              ❤️
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Центральная секция: опыт -->
-    <div class="center-section">
-      <div class="stat-item">
-        <div class="stat-header">
-          <span class="stat-title">Опыт</span>
-          <span class="stat-value">{{ currentXP }} / {{ nextLevelXP }}</span>
-        </div>
-        
-        <div class="progress-bar">
-          <div 
-            class="progress-fill"
-            :style="{ width: xpPercentage + '%' }"
-          >
-            <div class="progress-shine" v-if="isXPAnimating"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Правая секция: уровень и достижения -->
-    <div class="right-section">
-      <!-- Информация об уровне -->
-      <div class="level-info">
-        <h3 class="level-title">Уровень {{ currentLevel }}</h3>
-        <p class="level-subtitle">{{ currentLevelTitle }}</p>
+    <!-- Верхняя панель: жизни, опыт, уровень -->
+    <div class="top-panel">
+      <!-- Левая секция: жизни -->
+      <div class="panel-section">
+        <LivesDisplay 
+          :current-lives="currentLives"
+          :max-lives="maxLives"
+        />
       </div>
       
-      <!-- Достижения -->
-      <div class="achievements-section">
-        <button 
-          @click="showAchievements = !showAchievements"
-          class="achievements-toggle"
-        >
-          🏆 Достижения
-          <span class="achievement-badge">{{ unlockedAchievements }}</span>
-        </button>
+      <!-- Центральная секция: опыт -->
+      <div class="panel-section center">
+        <XPDisplay 
+          :current-x-p="currentXP"
+          :next-level-x-p="nextLevelXP"
+          :xp-percentage="xpPercentage"
+          :is-animating="isXPAnimating"
+        />
       </div>
+      
+      <!-- Правая секция: уровень -->
+      <div class="panel-section">
+        <LevelDisplay 
+          :current-level="currentLevel"
+          :level-title="currentLevelTitle"
+        />
+      </div>
+    </div>
+    
+    <!-- Достижения в нижнем правом углу -->
+    <div class="achievements-corner">
+      <AchievementsToggle 
+        :unlocked-count="unlockedAchievements"
+        @toggle="showAchievements = !showAchievements"
+      />
     </div>
     
     <!-- Панель достижений -->
@@ -67,11 +46,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
 import { useGameStore } from '../../../features/gamification/model/game-store'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
+import LivesDisplay from './components/LivesDisplay.vue'
+import XPDisplay from './components/XPDisplay.vue'
+import LevelDisplay from './components/LevelDisplay.vue'
+import AchievementsToggle from './components/AchievementsToggle.vue'
 
 // State
 const showAchievements = ref(false)
@@ -82,12 +65,32 @@ const sessionStore = useSessionStore()
 const gameStore = useGameStore()
 
 // Computed
-const currentLevel = computed(() => sessionStore.currentLevel)
-const currentXP = computed(() => sessionStore.currentXP)
+const currentLevel = computed(() => {
+  const level = sessionStore.currentLevel
+  console.log('🎯 GameHUD currentLevel computed:', level)
+  return level
+})
+
+const currentXP = computed(() => {
+  const xp = sessionStore.currentXP
+  console.log('💰 GameHUD currentXP computed:', xp)
+  return xp
+})
+
 const currentLives = computed(() => sessionStore.lives)
 const maxLives = computed(() => GAME_CONFIG.MAX_LIVES)
-const xpPercentage = computed(() => sessionStore.xpProgress)
-const nextLevelXP = computed(() => sessionStore.nextLevelXP)
+
+const xpPercentage = computed(() => {
+  const percentage = sessionStore.xpProgress
+  console.log('📊 GameHUD xpPercentage computed:', percentage)
+  return percentage
+})
+
+const nextLevelXP = computed(() => {
+  const nextXP = sessionStore.nextLevelXP
+  console.log('🎯 GameHUD nextLevelXP computed:', nextXP)
+  return nextXP
+})
 
 const currentLevelTitle = computed(() => {
   const level = gameStore.getLevelByNumber(currentLevel.value)
@@ -106,116 +109,43 @@ const animateXPGain = () => {
   }, GAME_CONFIG.ANIMATION.XP_GAIN)
 }
 
-// Event listeners
-sessionStore.$subscribe((mutation, state) => {
-  if (mutation.events && Array.isArray(mutation.events) && mutation.events.some(e => e.key === 'currentXP')) {
+// Watch for XP changes to trigger animation
+watch(() => sessionStore.currentXP, (newXP, oldXP) => {
+  if (newXP > oldXP) {
+    console.log('🎯 XP increased:', { oldXP, newXP, difference: newXP - oldXP })
     animateXPGain()
   }
-})
+}, { immediate: false })
 </script>
 
 <style scoped>
 .game-hud {
-  @apply fixed top-0 left-0 right-0 z-10;
-  @apply flex justify-between items-start;
+  @apply relative w-full h-full pointer-events-none;
+}
+
+/* Верхняя панель */
+.top-panel {
+  @apply fixed top-0 left-0 right-0;
+  @apply flex justify-between items-center;
   @apply p-4 bg-gradient-to-b from-background-primary/90 to-transparent;
+  @apply pointer-events-auto;
+  z-index: 1000;
 }
 
-/* Левая секция: жизни */
-.left-section {
-  @apply flex-shrink-0;
+/* Секции панели */
+.panel-section {
+  @apply flex items-center justify-center;
+  @apply min-w-0; /* Предотвращает переполнение */
 }
 
-/* Центральная секция: опыт */
-.center-section {
-  @apply flex-1 flex justify-center;
-  @apply px-8; /* Отступы от краев */
+.panel-section.center {
+  @apply flex-1 px-8; /* Центральная секция занимает доступное пространство */
 }
 
-/* Правая секция: уровень и достижения */
-.right-section {
-  @apply flex-shrink-0 flex flex-col items-end gap-2;
-}
-
-.stat-item {
-  @apply min-w-0; /* Prevent flex overflow */
-}
-
-.stat-header {
-  @apply flex items-center gap-2;
-}
-
-.stat-title {
-  @apply text-sm font-semibold text-primary;
-}
-
-.stat-value {
-  @apply text-xs text-text-secondary;
-}
-
-/* Стили для прогресс-бара опыта */
-.progress-bar {
-  @apply w-48 h-2 bg-background-secondary rounded-full overflow-hidden mt-1;
-  @apply relative;
-}
-
-.progress-fill {
-  @apply h-full bg-gradient-to-r from-primary to-secondary rounded-full;
-  @apply transition-all duration-500 ease-out;
-  @apply relative overflow-hidden;
-}
-
-.progress-shine {
-  @apply absolute inset-0 animate-shine;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.4),
-    transparent
-  );
-}
-
-/* Стили для жизней */
-.hearts-container {
-  @apply flex gap-1;
-}
-
-.life-heart {
-  @apply text-sm transition-all duration-300;
-}
-
-.life-lost {
-  @apply opacity-30 grayscale;
-}
-
-/* Стили для информации об уровне */
-.level-info {
-  @apply text-right mb-2;
-}
-
-.level-title {
-  @apply text-sm font-semibold text-primary;
-}
-
-.level-subtitle {
-  @apply text-xs text-text-secondary mt-1;
-}
-
-/* Стили для достижений */
-.achievements-section {
-  @apply flex-shrink-0;
-}
-
-.achievements-toggle {
-  @apply flex items-center gap-2 px-3 py-2;
-  @apply bg-background-card hover:bg-background-secondary;
-  @apply border border-border hover:border-border-light;
-  @apply rounded-lg transition-all duration-200;
-  @apply text-sm font-medium;
-}
-
-.achievement-badge {
-  @apply text-xs bg-primary text-white rounded-full;
-  @apply px-2 py-0.5 min-w-[1.25rem] text-center;
+/* Достижения в углу */
+.achievements-corner {
+  @apply fixed bottom-4 right-4;
+  @apply pointer-events-auto;
+  z-index: 1000;
 }
 </style> 
