@@ -5,15 +5,6 @@
     @click="handleOverlayClick"
   >
     <div class="level-up-modal" @click.stop>
-      <!-- Закрытие -->
-      <button 
-        @click="close"
-        class="close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
-
       <!-- Заголовок с анимацией -->
       <div class="level-up-header">
         <div class="level-icon-large">{{ levelData.icon }}</div>
@@ -51,10 +42,10 @@
         </ul>
       </div>
 
-      <!-- Кнопка продолжить -->
-      <button @click="close" class="continue-button">
-        Продолжить
-      </button>
+      <!-- Подсказка для закрытия -->
+      <div class="click-outside-hint">
+        <span>Кликните вне окна для продолжения</span>
+      </div>
     </div>
   </div>
 </template>
@@ -130,27 +121,6 @@ const handleOverlayClick = () => {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.4s ease-out;
   position: relative;
-}
-
-.close-button {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  width: 2rem;
-  height: 2rem;
-  color: var(--text-secondary, #64748b);
-  font-size: 1.5rem;
-  font-weight: bold;
-  line-height: 1;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.close-button:hover {
-  color: var(--text-primary, #f1f5f9);
-  transform: scale(1.1);
 }
 
 .level-up-header {
@@ -265,25 +235,10 @@ const handleOverlayClick = () => {
   color: var(--accent, #8b5cf6);
 }
 
-.continue-button {
-  width: 100%;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  background: linear-gradient(to right, var(--primary, #3b82f6), var(--accent, #8b5cf6));
-  color: white;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.continue-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
-}
-
-.continue-button:active {
-  transform: scale(0.95);
+.click-outside-hint {
+  text-align: center;
+  color: var(--text-secondary, #64748b);
+  font-size: 0.875rem;
 }
 
 /* Анимации */

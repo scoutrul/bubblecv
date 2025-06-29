@@ -2,12 +2,15 @@
 export interface Bubble {
   id: string
   name: string
-  category: BubbleCategory
   skillLevel: SkillLevel
   yearStarted: number
   yearEnded?: number
   isActive: boolean
   isEasterEgg: boolean
+  isHidden?: boolean
+  isTough?: boolean         // Крепкий пузырь - требует несколько кликов
+  toughClicks?: number      // Сколько кликов нужно для активации
+  currentClicks?: number    // Сколько кликов уже сделано
   description: string
   projects: string[]
   link?: string
@@ -15,14 +18,6 @@ export interface Bubble {
   color: string
   position?: Position
 }
-
-export type BubbleCategory = 
-  | 'foundation'
-  | 'framework' 
-  | 'language'
-  | 'tooling'
-  | 'philosophy'
-  | 'skill'
 
 export type SkillLevel = 
   | 'novice'
@@ -53,6 +48,7 @@ export interface UserSession {
   visitedBubbles: string[]
   agreementScore: number
   gameCompleted: boolean
+  hasDestroyedToughBubble?: boolean  // Флаг для достижения за первый крепкий пузырь
   startTime: Date
   lastActivity: Date
 }

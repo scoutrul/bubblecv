@@ -23,7 +23,18 @@ export const useBubbleStore = defineStore('bubble', () => {
     const visitedBubbleIds = sessionStore.visitedBubbles
     
     return bubbles.value.filter(bubble => {
-      // Фильтрация по году
+      // Скрытые пузыри всегда включаем (независимо от года)
+      if (bubble.isHidden) {
+        const isNotVisited = !visitedBubbleIds.includes(bubble.id)
+        console.log('🕵️ Hidden bubble:', {
+          id: bubble.id,
+          name: bubble.name,
+          isNotVisited
+        })
+        return isNotVisited
+      }
+      
+      // Фильтрация по году для обычных пузырей
       const isInYear = bubble.yearStarted <= year && 
         (bubble.yearEnded === undefined || bubble.yearEnded >= year)
       
@@ -43,10 +54,6 @@ export const useBubbleStore = defineStore('bubble', () => {
     })
   })
 
-  const getBubblesByCategory = computed(() => (category: string) =>
-    bubbles.value.filter(bubble => bubble.category === category)
-  )
-
   const getBubbleById = computed(() => (id: string) =>
     bubbles.value.find(bubble => bubble.id === id)
   )
@@ -62,21 +69,38 @@ export const useBubbleStore = defineStore('bubble', () => {
       const rawBubbles = mockData.default.bubbles || []
       
       // Трансформируем данные в нужный формат
-      bubbles.value = rawBubbles.map((bubble: any) => ({
-        id: bubble.id,
-        name: bubble.label || bubble.name,
-        category: bubble.category,
-        skillLevel: bubble.level || bubble.skillLevel,
-        yearStarted: bubble.year || bubble.yearStarted,
-        yearEnded: bubble.yearEnded,
-        isActive: true,
-        isEasterEgg: bubble.isEasterEgg || false,
-        description: bubble.description || '',
-        projects: [], // Добавляем обязательное поле
-        link: bubble.projectLink || bubble.link || '',
-        size: bubble.size || 'medium',
-        color: bubble.color || '#3b82f6'
-      })) as Bubble[]
+      bubbles.value = rawBubbles.map((bubble: any, index: number) => {
+        // Каждый пятый пузырь (не easter egg и не hidden) делаем "крепким"
+        const isTough = (index + 1) % 5 === 0 && !bubble.isEasterEgg && !bubble.isHidden
+        const toughClicks = isTough ? Math.floor(Math.random() * 16) + 5 : undefined // 5-20 кликов
+        
+        if (isTough) {
+          console.log('💪 Создан крепкий пузырь:', {
+            id: bubble.id,
+            name: bubble.label || bubble.name,
+            toughClicks
+          })
+        }
+        
+        return {
+          id: bubble.id,
+          name: bubble.label || bubble.name,
+          skillLevel: bubble.level || bubble.skillLevel,
+          yearStarted: bubble.year || bubble.yearStarted,
+          yearEnded: bubble.yearEnded,
+          isActive: true,
+          isEasterEgg: bubble.isEasterEgg || false,
+          isHidden: bubble.isHidden || false,
+          isTough,
+          toughClicks,
+          currentClicks: 0,
+          description: bubble.description || '',
+          projects: [], // Добавляем обязательное поле
+          link: bubble.projectLink || bubble.link || '',
+          size: bubble.size || 'medium',
+          color: bubble.color || '#3b82f6'
+        }
+      }) as Bubble[]
       
       console.log('📁 Загружены пузыри из локального файла:', bubbles.value.length)
     } catch (err) {
@@ -133,6 +157,31 @@ export const useBubbleStore = defineStore('bubble', () => {
     }
   }
 
+  const incrementToughBubbleClicks = (bubbleId: string): { isReady: boolean; clicksLeft: number; bonusXP: number } => {
+    const bubble = bubbles.value.find(b => b.id === bubbleId)
+    
+    if (!bubble || !bubble.isTough) {
+      return { isReady: false, clicksLeft: 0, bonusXP: 0 }
+    }
+    
+    bubble.currentClicks = (bubble.currentClicks || 0) + 1
+    
+    const isReady = bubble.currentClicks >= (bubble.toughClicks || 0)
+    const clicksLeft = Math.max(0, (bubble.toughClicks || 0) - bubble.currentClicks)
+    const bonusXP = bubble.currentClicks // Каждый клик = +1 XP
+    
+    console.log('💪 Клик по крепкому пузырю:', {
+      bubbleId,
+      currentClicks: bubble.currentClicks,
+      toughClicks: bubble.toughClicks,
+      clicksLeft,
+      isReady,
+      bonusXP
+    })
+    
+    return { isReady, clicksLeft, bonusXP }
+  }
+
   const clearError = (): void => {
     error.value = null
   }
@@ -147,7 +196,6 @@ export const useBubbleStore = defineStore('bubble', () => {
     activeBubbles,
     easterEggBubbles,
     getBubblesByYear,
-    getBubblesByCategory,
     getBubbleById,
     
     // Actions
@@ -156,6 +204,7 @@ export const useBubbleStore = defineStore('bubble', () => {
     addBubble,
     updateBubble,
     removeBubble,
+    incrementToughBubbleClicks,
     clearError
   }
 }) 

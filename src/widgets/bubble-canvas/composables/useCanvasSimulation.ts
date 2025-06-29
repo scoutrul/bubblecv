@@ -33,6 +33,7 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
   const gameStore = useGameStore()
+  const bubbleStore = useBubbleStore()
   
   let simulation: d3.Simulation<SimulationNode, undefined> | null = null
   let nodes: SimulationNode[] = []
@@ -207,6 +208,11 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
 
   // Отрисовка реалистичного пузыря с градацией по уровню экспертизы
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+    // Не отрисовываем скрытые пузыри
+    if (bubble.isHidden) {
+      return
+    }
+    
     context.save()
     
     // Позиция и размер пузыря
@@ -262,11 +268,18 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.fill()
     }
     
+    // Убираем обводку с крепких пузырей по просьбе пользователя
+    
     context.restore()
   }
 
   // Отрисовка текста с адаптивным размером
   const drawText = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+    // Не отображаем текст для философских и скрытых пузырей
+    if (bubble.isEasterEgg || bubble.isHidden) {
+      return
+    }
+    
     if (!bubble.textLines) {
       // Если текстовые строки не заданы, создаем их с учетом масштаба
       const { lines, scaleFactor } = wrapText(bubble.name, bubble.baseRadius, bubble.skillLevel)
@@ -761,6 +774,73 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     if (clickedBubble && !clickedBubble.isVisited) {
       console.log('Пузырь нажат:', clickedBubble.name)
       
+      // Обработка крепких пузырей
+      if (clickedBubble.isTough) {
+        const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
+        
+        // Показываем +1 XP за каждый клик
+        createXPFloatingText(clickedBubble.x, clickedBubble.y, 1, '#fbbf24')
+        await sessionStore.gainXP(1)
+        
+        if (!result.isReady) {
+          console.log(`💪 Крепкий пузырь: ${result.clicksLeft} кликов осталось`)
+          
+          // Анимация клика для крепкого пузыря
+          const originalRadius = clickedBubble.targetRadius
+          clickedBubble.targetRadius = originalRadius * 0.95
+          setTimeout(() => {
+            clickedBubble.targetRadius = originalRadius * 1.1
+            setTimeout(() => {
+              clickedBubble.targetRadius = originalRadius
+            }, 100)
+          }, 50)
+          
+          return // Не открываем модал пока пузырь не готов
+        } else {
+          console.log('💪 Крепкий пузырь разрушен! Получен бонус XP:', result.bonusXP)
+          
+          // Разблокируем достижение за первый крепкий пузырь
+          await sessionStore.unlockFirstToughBubbleAchievement()
+          
+          // Пузырь готов - продолжаем обычную логику открытия модалки
+        }
+      }
+      
+      // Специальная обработка для скрытого пузыря
+      if (clickedBubble.isHidden) {
+        console.log('🕵️ Найден секретный пузырь!')
+        
+        // Отмечаем пузырь как посещенный
+        clickedBubble.isVisited = true
+        await sessionStore.visitBubble(clickedBubble.id)
+        
+        // Создаем мощный эффект взрыва
+        const explosionRadius = clickedBubble.baseRadius * 8
+        const explosionStrength = 25
+        explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength)
+        
+        // Начисляем XP за секретный пузырь
+        const secretXP = 10
+        await sessionStore.gainXP(secretXP)
+        createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700') // Золотой цвет для секретного XP
+        
+        // Разблокируем достижение
+        const achievement = gameStore.unlockAchievement('secret-bubble-discoverer')
+        if (achievement) {
+          modalStore.openAchievementModal({
+            title: achievement.name,
+            description: achievement.description,
+            icon: achievement.icon,
+            xpReward: achievement.xpReward
+          })
+        }
+        
+        // Удаляем пузырь со сцены
+        removeBubble(clickedBubble.id)
+        
+        return
+      }
+      
       // Анимация клика - плавное изменение размера
       const originalRadius = clickedBubble.targetRadius
       clickedBubble.targetRadius = originalRadius * 0.9
@@ -1097,11 +1177,14 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.textAlign = 'center'
       context.textBaseline = 'middle'
       context.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`
-      context.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`
-      context.lineWidth = 2
       
-      // Обводка для лучшей видимости
-      context.strokeText(text.text, text.x, text.y + yOffset)
+      // Убираем обводку для XP текста, оставляем только для потери жизни
+      if (text.type === 'life') {
+        context.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.8})`
+        context.lineWidth = 2
+        context.strokeText(text.text, text.x, text.y + yOffset)
+      }
+      
       context.fillText(text.text, text.x, text.y + yOffset)
       
       context.restore()

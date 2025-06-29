@@ -34,13 +34,107 @@ export const useGameStore = defineStore('game', () => {
     return contentLevels.value.find(l => l.level === level)
   }
 
-  // Инициализируем уровни при создании store
+  // Система достижений
+  const initializeAchievements = () => {
+    achievements.value = [
+      {
+        id: 'secret-bubble-discoverer',
+        name: 'Секретный исследователь',
+        description: 'Вы нашли скрытый пузырь! Настоящие таланты умеют находить возможности там, где их не видят другие.',
+        icon: '🕵️',
+        isUnlocked: false,
+        xpReward: 10
+      },
+      {
+        id: 'philosophy-master',
+        name: 'Философ',
+        description: 'Правильно ответили на первый философский вопрос! Мудрость приходит к тем, кто готов размышлять.',
+        icon: '🤔',
+        isUnlocked: false,
+        xpReward: 10
+      },
+      {
+        id: 'on-the-edge',
+        name: 'На краю',
+        description: 'У вас осталась всего одна жизнь! Иногда лучшие решения принимаются под давлением.',
+        icon: '🔥',
+        isUnlocked: false,
+        xpReward: 10
+      },
+      {
+        id: 'first-level-master',
+        name: 'Первопроходец',
+        description: 'Достигли 1-го уровня! Путешествие в тысячу миль начинается с первого шага.',
+        icon: '🚀',
+        isUnlocked: false,
+        xpReward: 10
+      },
+      // Достижения за количество исследованных пузырей
+      {
+        id: 'bubble-explorer-10',
+        name: 'Исследователь',
+        description: 'Изучили 10 пузырей технологий! Любопытство - двигатель прогресса.',
+        icon: '🔍',
+        isUnlocked: false,
+        xpReward: 10
+      },
+      {
+        id: 'bubble-explorer-30',
+        name: 'Эксперт по технологиям',
+        description: 'Изучили 30 пузырей! Широкий кругозор - основа мастерства.',
+        icon: '🎯',
+        isUnlocked: false,
+        xpReward: 15
+      },
+      {
+        id: 'bubble-explorer-50',
+        name: 'Мастер всех технологий',
+        description: 'Изучили 50 пузырей! Вы настоящий гуру в мире разработки.',
+        icon: '🏆',
+        isUnlocked: false,
+        xpReward: 20
+      },
+      // Достижение за финальный уровень
+      {
+        id: 'final-level-master',
+        name: 'Финалист',
+        description: 'Достигли максимального уровня! Вы прошли весь путь развития и стали настоящим экспертом.',
+        icon: '🎖️',
+        isUnlocked: false,
+        xpReward: 25
+      },
+      // Достижение за первый крепкий пузырь
+      {
+        id: 'first-tough-bubble',
+        name: 'Упорство',
+        description: 'Разбили первый крепкий пузырь! Настойчивость - ключ к успеху в разработке.',
+        icon: '💪',
+        isUnlocked: false,
+        xpReward: 15
+      }
+    ]
+  }
+
+  const unlockAchievement = (achievementId: string): Achievement | null => {
+    const achievement = achievements.value.find(a => a.id === achievementId)
+    if (achievement && !achievement.isUnlocked) {
+      achievement.isUnlocked = true
+      achievement.unlockedAt = new Date()
+      console.log('🏆 Достижение разблокировано:', achievement.name)
+      return achievement
+    }
+    return null
+  }
+
+  // Инициализируем уровни и достижения при создании store
   loadContentLevels()
+  initializeAchievements()
 
   return {
     achievements,
     contentLevels,
     getLevelByNumber,
-    loadContentLevels
+    loadContentLevels,
+    unlockAchievement
   }
 }) 

@@ -15,23 +15,15 @@
             <div 
               class="bubble-icon"
               :style="{ backgroundColor: getBubbleColor() }"
-            ></div>
+            >
+              <span class="text-white font-bold text-lg">
+                {{ bubble?.name?.[0]?.toUpperCase() }}
+              </span>
+            </div>
             <div>
-              <h2 class="text-2xl font-bold text-gradient-primary">
-                {{ bubble?.name }}
-              </h2>
-              <p class="text-text-secondary">
-                {{ getCategoryLabel(bubble?.category) }}
-              </p>
+              <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
             </div>
           </div>
-          
-          <button 
-            @click="$emit('close')"
-            class="close-button"
-          >
-            ✕
-          </button>
         </div>
 
         <!-- Content -->
@@ -115,12 +107,9 @@
             </span>
           </div>
           
-          <button 
-            @click="$emit('continue')"
-            class="continue-button"
-          >
-            Принять
-          </button>
+          <div class="click-outside-hint">
+            <span class="hint-text">Кликните вне окна для продолжения</span>
+          </div>
         </div>
       </div>
     </div>
@@ -144,31 +133,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-
-const getCategoryLabel = (category?: string) => {
-  const labels = {
-    'foundation': 'Основы веб-разработки',
-    'framework': 'Фреймворк',
-    'language': 'Язык программирования',
-    'tooling': 'Инструментарий',
-    'philosophy': 'Философия разработки',
-    'skill': 'Навык',
-    'library': 'Библиотека',
-    'runtime': 'Среда выполнения',
-    'preprocessor': 'Препроцессор',
-    'optimization': 'Оптимизация',
-    'quality': 'Качество кода',
-    'state-management': 'Управление состоянием',
-    'inclusive': 'Инклюзивность',
-    'visualization': 'Визуализация данных',
-    'animation': 'Анимации',
-    'technique': 'Техника',
-    'design': 'Дизайн',
-    'tool': 'Инструмент',
-    'soft-skill': 'Мягкий навык'
-  }
-  return labels[category as keyof typeof labels] || category
-}
 
 const getSkillLevelLabel = (level?: string) => {
   const labels = {
@@ -214,7 +178,7 @@ const getBubbleColor = () => {
 
 const handleOverlayClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {
-    emit('close')
+    emit('continue')
   }
 }
 </script>
@@ -243,14 +207,6 @@ const handleOverlayClick = (event: MouseEvent) => {
   @apply w-12 h-12 rounded-full;
   @apply flex items-center justify-center;
   @apply shadow-lg;
-}
-
-.close-button {
-  @apply w-8 h-8 rounded-full;
-  @apply bg-background-secondary hover:bg-background-card;
-  @apply flex items-center justify-center;
-  @apply text-text-secondary hover:text-text-primary;
-  @apply transition-all duration-200;
 }
 
 .modal-content {
@@ -360,10 +316,12 @@ const handleOverlayClick = (event: MouseEvent) => {
   @apply text-primary font-bold text-lg;
 }
 
-.continue-button {
-  @apply px-6 py-2 bg-primary hover:bg-primary-dark;
-  @apply text-white rounded-lg font-medium;
-  @apply transition-colors duration-200;
+.click-outside-hint {
+  @apply text-text-secondary text-sm;
+}
+
+.hint-text {
+  @apply text-text-secondary;
 }
 
 @keyframes fadeIn {

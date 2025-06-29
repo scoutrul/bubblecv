@@ -46,6 +46,10 @@ export const useModalStore = defineStore('modal', () => {
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
   const gameOverStats = ref<{ currentXP: number; currentLevel: number } | null>(null)
+  
+  // Achievement Modal
+  const isAchievementModalOpen = ref(false)
+  const achievementData = ref<{ title: string; description: string; icon: string; xpReward: number } | null>(null)
 
   // Welcome Modal Actions
   const openWelcome = () => {
@@ -210,6 +214,17 @@ export const useModalStore = defineStore('modal', () => {
     window.dispatchEvent(new CustomEvent('game-restart'))
   }
 
+  // Achievement Modal Actions
+  const openAchievementModal = (achievement: { title: string; description: string; icon: string; xpReward: number }) => {
+    achievementData.value = achievement
+    isAchievementModalOpen.value = true
+  }
+
+  const closeAchievementModal = () => {
+    isAchievementModalOpen.value = false
+    achievementData.value = null
+  }
+
   return {
     // State
     isWelcomeOpen,
@@ -222,6 +237,8 @@ export const useModalStore = defineStore('modal', () => {
     currentQuestion,
     isGameOverModalOpen,
     gameOverStats,
+    isAchievementModalOpen,
+    achievementData,
     
     // Actions
     openWelcome,
@@ -237,6 +254,8 @@ export const useModalStore = defineStore('modal', () => {
     handlePhilosophyAnswer,
     openGameOverModal,
     closeGameOverModal,
-    restartGame
+    restartGame,
+    openAchievementModal,
+    closeAchievementModal
   }
 }) 

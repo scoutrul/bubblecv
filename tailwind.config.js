@@ -37,32 +37,6 @@ export default {
           DEFAULT: 'rgba(255, 255, 255, 0.1)',
           light: 'rgba(255, 255, 255, 0.2)',
           dark: 'rgba(255, 255, 255, 0.05)'
-        },
-        category: {
-          foundation: {
-            from: '#FF6B6B',
-            to: '#ee5a52'
-          },
-          framework: {
-            from: '#4ECDC4',
-            to: '#44a08d'
-          },
-          language: {
-            from: '#45B7D1',
-            to: '#96c93d'
-          },
-          tooling: {
-            from: '#F9CA24',
-            to: '#f0932b'
-          },
-          philosophy: {
-            from: '#6C5CE7',
-            to: '#a55eea'
-          },
-          skill: {
-            from: '#FD79A8',
-            to: '#fdcb6e'
-          }
         }
       },
       fontFamily: {

@@ -78,7 +78,8 @@ export const useSessionStore = defineStore('session', () => {
     if (currentLevel.value >= maxLevel) return false
     
     // XP необходимый для следующего уровня
-    const requiredXPForNextLevel = levels[currentLevel.value - 1] // текущий индекс в массиве
+    // Если мы на уровне 4, нам нужен XP для уровня 5, который в массиве под индексом 4
+    const requiredXPForNextLevel = levels[currentLevel.value] // следующий уровень в массиве
     const canLevel = currentXP.value >= requiredXPForNextLevel
     
     console.log('🔄 Can Level Up Check:', {
@@ -86,7 +87,8 @@ export const useSessionStore = defineStore('session', () => {
       currentXP: currentXP.value,
       requiredXPForNextLevel,
       canLevel,
-      maxLevel
+      maxLevel,
+      levels
     })
     
     return canLevel
@@ -107,11 +109,12 @@ export const useSessionStore = defineStore('session', () => {
         id,
         currentXP: 0,
         currentLevel: 1,
-        lives: GAME_CONFIG.MAX_LIVES,
+        lives: GAME_CONFIG.INITIAL_LIVES, // Стартуем с 3 жизнями
         unlockedContent: [],
         visitedBubbles: [],
         agreementScore: 0,
         gameCompleted: false,
+        hasDestroyedToughBubble: false,
         startTime: new Date(),
         lastActivity: new Date()
       }
@@ -182,6 +185,52 @@ export const useSessionStore = defineStore('session', () => {
         console.log('🔓 Разблокирован контент для уровня:', newLevel)
       }
       
+      // Проверяем достижение за достижение первого уровня
+      if (newLevel === 2) { // Достигли уровня 2 (первое повышение)
+        const { useGameStore } = await import('../../../features/gamification/model/game-store')
+        const { useModalStore } = await import('../../../shared/stores/modal-store')
+        const gameStore = useGameStore()
+        const modalStore = useModalStore()
+        
+        const achievement = gameStore.unlockAchievement('first-level-master')
+        if (achievement) {
+          console.log('🚀 Разблокировано достижение "Первопроходец"!')
+          
+          // Начисляем XP за достижение
+          session.value.currentXP += achievement.xpReward
+          
+          modalStore.openAchievementModal({
+            title: achievement.name,
+            description: achievement.description,
+            icon: achievement.icon,
+            xpReward: achievement.xpReward
+          })
+        }
+      }
+      
+      // Проверяем достижение за финальный уровень
+      if (newLevel === 5) { // Достигли максимального уровня
+        const { useGameStore } = await import('../../../features/gamification/model/game-store')
+        const { useModalStore } = await import('../../../shared/stores/modal-store')
+        const gameStore = useGameStore()
+        const modalStore = useModalStore()
+        
+        const achievement = gameStore.unlockAchievement('final-level-master')
+        if (achievement) {
+          console.log('🎖️ Разблокировано достижение "Финалист"!')
+          
+          // Начисляем XP за достижение
+          session.value.currentXP += achievement.xpReward
+          
+          modalStore.openAchievementModal({
+            title: achievement.name,
+            description: achievement.description,
+            icon: achievement.icon,
+            xpReward: achievement.xpReward
+          })
+        }
+      }
+      
       console.log('💾 Сохраняем сессию после level up...')
       await saveSession()
       console.log('✅ Сессия сохранена после level up')
@@ -208,6 +257,27 @@ export const useSessionStore = defineStore('session', () => {
 
   // Получить XP за правильный ответ на философский вопрос
   const gainPhilosophyXP = async (): Promise<boolean> => {
+    // Проверяем достижение "Философ" (если еще не разблокировано)
+    const { useGameStore } = await import('../../../features/gamification/model/game-store')
+    const { useModalStore } = await import('../../../shared/stores/modal-store')
+    const gameStore = useGameStore()
+    const modalStore = useModalStore()
+    
+    const achievement = gameStore.unlockAchievement('philosophy-master')
+    if (achievement) {
+      console.log('🤔 Разблокировано достижение "Философ"!')
+      
+      // Начисляем XP за достижение
+      await gainXP(achievement.xpReward)
+      
+      modalStore.openAchievementModal({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+    }
+    
     return await gainXP(GAME_CONFIG.PHILOSOPHY_CORRECT_XP)
   }
 
@@ -223,6 +293,29 @@ export const useSessionStore = defineStore('session', () => {
     session.value.lives = Math.max(0, session.value.lives - amount)
     
     console.log('💔 Lost lives:', { amount, remainingLives: session.value.lives })
+    
+    // Проверяем достижение "На краю" (осталась 1 жизнь)
+    if (session.value.lives === 1) {
+      const { useGameStore } = await import('../../../features/gamification/model/game-store')
+      const { useModalStore } = await import('../../../shared/stores/modal-store')
+      const gameStore = useGameStore()
+      const modalStore = useModalStore()
+      
+      const achievement = gameStore.unlockAchievement('on-the-edge')
+      if (achievement) {
+        console.log('🔥 Разблокировано достижение "На краю"!')
+        
+        // Начисляем XP за достижение
+        await gainXP(achievement.xpReward)
+        
+        modalStore.openAchievementModal({
+          title: achievement.name,
+          description: achievement.description,
+          icon: achievement.icon,
+          xpReward: achievement.xpReward
+        })
+      }
+    }
     
     if (session.value.lives === 0) {
       session.value.gameCompleted = true
@@ -247,6 +340,40 @@ export const useSessionStore = defineStore('session', () => {
 
     if (!session.value.visitedBubbles.includes(bubbleId)) {
       session.value.visitedBubbles.push(bubbleId)
+      
+      const bubblesCount = session.value.visitedBubbles.length
+      console.log('🫧 Посещен пузырь:', { bubbleId, totalBubbles: bubblesCount })
+      
+      // Проверяем достижения за количество исследованных пузырей
+      const { useGameStore } = await import('../../../features/gamification/model/game-store')
+      const { useModalStore } = await import('../../../shared/stores/modal-store')
+      const gameStore = useGameStore()
+      const modalStore = useModalStore()
+      
+      let achievement = null
+      
+      if (bubblesCount === 10) {
+        achievement = gameStore.unlockAchievement('bubble-explorer-10')
+      } else if (bubblesCount === 30) {
+        achievement = gameStore.unlockAchievement('bubble-explorer-30')
+      } else if (bubblesCount === 50) {
+        achievement = gameStore.unlockAchievement('bubble-explorer-50')
+      }
+      
+      if (achievement) {
+        console.log('🔍 Разблокировано достижение за исследование:', achievement.name)
+        
+        // Начисляем XP за достижение
+        await gainXP(achievement.xpReward)
+        
+        modalStore.openAchievementModal({
+          title: achievement.name,
+          description: achievement.description,
+          icon: achievement.icon,
+          xpReward: achievement.xpReward
+        })
+      }
+      
       await saveSession()
     }
   }
@@ -265,11 +392,12 @@ export const useSessionStore = defineStore('session', () => {
       id,
       currentXP: 0,
       currentLevel: 1,
-      lives: GAME_CONFIG.MAX_LIVES,
+      lives: GAME_CONFIG.MAX_LIVES, // При ресете восстанавливаем все 5 жизней
       unlockedContent: [],
       visitedBubbles: [],
       agreementScore: 0,
       gameCompleted: false,
+      hasDestroyedToughBubble: false,
       startTime: new Date(),
       lastActivity: new Date()
     }
@@ -283,6 +411,34 @@ export const useSessionStore = defineStore('session', () => {
     
     // Уведомляем компоненты о сбросе игры
     window.dispatchEvent(new CustomEvent('game-reset'))
+  }
+
+  const unlockFirstToughBubbleAchievement = async (): Promise<void> => {
+    if (!session.value || session.value.hasDestroyedToughBubble) return
+    
+    session.value.hasDestroyedToughBubble = true
+    
+    const { useGameStore } = await import('../../../features/gamification/model/game-store')
+    const { useModalStore } = await import('../../../shared/stores/modal-store')
+    const gameStore = useGameStore()
+    const modalStore = useModalStore()
+    
+    const achievement = gameStore.unlockAchievement('first-tough-bubble')
+    if (achievement) {
+      console.log('💪 Разблокировано достижение "Упорство"!')
+      
+      // Начисляем XP за достижение
+      await gainXP(achievement.xpReward)
+      
+      modalStore.openAchievementModal({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+    }
+    
+    await saveSession()
   }
 
   const clearError = (): void => {
@@ -319,6 +475,7 @@ export const useSessionStore = defineStore('session', () => {
     visitBubble,
     updateAgreementScore,
     resetSession,
+    unlockFirstToughBubbleAchievement,
     clearError
   }
 }) 

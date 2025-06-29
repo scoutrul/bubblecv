@@ -5,6 +5,19 @@
         <div class="skull-icon">💀</div>
         <h2 class="game-over-title">GAME OVER</h2>
         <p class="game-over-subtitle">Все жизни потеряны!</p>
+        
+        <div class="philosophy-message">
+          <p class="philosophy-text">
+            🤔 <strong>Наши цели и ценности не совпадают.</strong>
+          </p>
+          <p class="philosophy-subtext">
+            Видимо, мы по-разному смотрим на разработку и командную работу. 
+            Эффективное сотрудничество в таких условиях будет затруднительно.
+          </p>
+          <p class="retry-suggestion">
+            💡 <em>Попробуйте пройти игру заново, возможно, стоит быть более лояльным к философии команды...</em>
+          </p>
+        </div>
       </div>
       
       <div class="game-over-stats">
@@ -103,6 +116,26 @@ const handleRestart = async () => {
 
 .game-over-subtitle {
   @apply text-text-secondary;
+}
+
+.philosophy-message {
+  @apply mt-6 p-4 rounded-lg;
+  @apply bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800;
+  @apply text-left space-y-3;
+}
+
+.philosophy-text {
+  @apply text-amber-800 dark:text-amber-200 text-sm;
+  @apply flex items-center gap-2;
+}
+
+.philosophy-subtext {
+  @apply text-amber-700 dark:text-amber-300 text-xs leading-relaxed;
+}
+
+.retry-suggestion {
+  @apply text-amber-600 dark:text-amber-400 text-xs;
+  @apply border-t border-amber-200 dark:border-amber-700 pt-3 mt-3;
 }
 
 .game-over-stats {

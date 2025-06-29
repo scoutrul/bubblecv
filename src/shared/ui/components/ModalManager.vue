@@ -42,6 +42,9 @@
       :unlocked-features="modalStore.levelUpData.unlockedFeatures"
       @close="modalStore.closeLevelUpModal"
     />
+
+    <!-- Achievement Modal -->
+    <AchievementModal />
   </div>
 </template>
 
@@ -52,6 +55,7 @@ import PhilosophyModal from './PhilosophyModal.vue'
 import BubbleModal from './BubbleModal.vue'
 import GameOverModal from './GameOverModal.vue'
 import LevelUpModal from './LevelUpModal.vue'
+import AchievementModal from './AchievementModal.vue'
 
 const modalStore = useModalStore()
 </script> 

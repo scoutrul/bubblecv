@@ -34,18 +34,16 @@ const initDatabase = () => {
       CREATE TABLE IF NOT EXISTS bubbles (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        category TEXT NOT NULL,
         skill_level TEXT NOT NULL,
         year_started INTEGER NOT NULL,
         year_ended INTEGER,
-        is_active BOOLEAN DEFAULT 1,
-        is_easter_egg BOOLEAN DEFAULT 0,
+        is_active BOOLEAN DEFAULT true,
+        is_easter_egg BOOLEAN DEFAULT false,
         description TEXT,
-        projects TEXT, -- JSON array
+        projects TEXT,
         link TEXT,
-        size TEXT NOT NULL,
-        color TEXT NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        size TEXT,
+        color TEXT DEFAULT '#3b82f6'
       );
       
       CREATE TABLE IF NOT EXISTS user_sessions (
@@ -101,8 +99,8 @@ const initDatabase = () => {
 // Prepared statements
 const getBubbles = db.prepare('SELECT * FROM bubbles ORDER BY year_started, name')
 const insertBubble = db.prepare(`
-  INSERT INTO bubbles (id, name, category, skill_level, year_started, year_ended, is_active, is_easter_egg, description, projects, link, size, color)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO bubbles (id, name, skill_level, year_started, year_ended, is_active, is_easter_egg, description, projects, link, size, color)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `)
 
 const getSession = db.prepare('SELECT * FROM user_sessions WHERE id = ?')
@@ -251,7 +249,6 @@ app.post('/api/seed', async (req, res) => {
       insertBubble.run(
         bubble.id,
         bubble.label || bubble.name, // Используем label из JSON
-        bubble.category,
         bubble.level || bubble.skillLevel, // level в JSON
         bubble.year || bubble.yearStarted, // year в JSON
         bubble.yearEnded || null,

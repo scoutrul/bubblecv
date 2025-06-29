@@ -3,7 +3,6 @@
     v-if="isOpen && question"
     class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     style="z-index: 2000;"
-    @click.self="$emit('close')"
   >
     <div class="bg-surface border border-border rounded-2xl p-8 max-w-2xl w-full mx-4">
       <!-- Header -->

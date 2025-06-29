@@ -10,6 +10,7 @@ export const GAME_CONFIG = {
   
   // Lives System
   MAX_LIVES: 5,
+  INITIAL_LIVES: 3,  // Стартовые жизни при первом запуске
   LIVES_PENALTY: 1,
   
   // Bubble Experience - опыт за уровни экспертизы
@@ -33,49 +34,55 @@ export const GAME_CONFIG = {
   RESTART_YEAR: 2015,             // С какого года начинается игра заново
   GAME_OVER_BLOCK_BUBBLES: true,  // Блокировать пузыри при Game Over
   
-  // Expertise Levels - Уровни экспертизы (с восстановленными градиентами)
+  // Expertise Levels - Уровни экспертизы (с уменьшенными размерами)
   EXPERTISE_LEVELS: {
     novice: {
-      color: '#D0F0FF',             // Яркий голубой
-      sizeMultiplier: 0.95,
+      name: 'Новичок',
+      color: '#334155',
+      sizeMultiplier: 0.75,
       opacity: 0.85,
-      name: 'Новичок'
+      hasGradient: true,
+      gradientColors: ['#334155', '#475569'], // Slate
     },
     intermediate: {
-      color: '#D2FFD2',             // Ярко-зелёный
-      sizeMultiplier: 0.97,
+      name: 'С опытом',
+      color: '#064E3B',
+      sizeMultiplier: 0.8,
       opacity: 0.9,
-      name: 'С опытом'
+      hasGradient: true,
+      gradientColors: ['#064E3B', '#047857'], // Deep green
     },
     confident: {
-      color: '#FFF2CC',             // Золотисто-жёлтый
-      sizeMultiplier: 1.0,
-      opacity: 0.95,
-      name: 'Уверенный'
+      name: 'Уверенный',
+      color: '#92400E',
+      sizeMultiplier: 0.85,
+      opacity: 0.93,
+      hasGradient: true,
+      gradientColors: ['#92400E', '#FBBF24'], // Amber
     },
     expert: {
-      color: '#E5CCFF',             // Сиреневый/аметист
-      sizeMultiplier: 1,
-      opacity: 0.95,
       name: 'Эксперт',
+      color: '#581C87',
+      sizeMultiplier: 0.9,
+      opacity: 0.95,
       hasGradient: true,
-      gradientColors: ['#E5CCFF', '#D8B4FE', '#C084FC']
+      gradientColors: ['#581C87', '#9333EA'], // Violet
     },
     master: {
-      color: '#FFC9DE',             // Розово-лососевый
-      sizeMultiplier: 1,
-      opacity: 0.95,
       name: 'Мастер',
+      color: '#B45309',
+      sizeMultiplier: 0.95,
+      opacity: 1,
       hasGradient: true,
-      gradientColors: ['#FFC9DE', '#FBBF24', '#F59E0B']
-    }
+      gradientColors: ['#F59E0B', '#D97706'], // Gold-Orange
+    },
   } as const,
 
-  // Philosophy Bubbles - Визуализация философских пузырей
+  // Philosophy Bubbles - Визуализация философских пузырей (исправленный размер)
   PHILOSOPHY_BUBBLE: {
     hasGradient: true,
     gradientColors: ['#FF0080', '#FF4080', '#FF8080', '#B3FF80', '#FFFFFF00'],
-    sizeMultiplier: 0.1,           // Чуть больше обычных пузырей
+    sizeMultiplier: 0.9,           // Чуть меньше обычных пузырей (было -0.9)
     opacity: 0.95,
     name: 'Философский вопрос'
   } as const,
