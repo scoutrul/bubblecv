@@ -34,7 +34,7 @@ import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const canvasWidth = ref<number>(window.innerWidth)
 const canvasHeight = ref<number>(window.innerHeight)
-const currentYear = ref<number>(GAME_CONFIG.CURRENT_YEAR)
+const currentYear = ref<number>(GAME_CONFIG.RESTART_YEAR)
 const isLoading = ref<boolean>(true)
 
 // Данные
@@ -112,6 +112,10 @@ const handleMouseLeave = () => {
   simMouseLeave()
 }
 
+const handleGameRestart = () => {
+  currentYear.value = GAME_CONFIG.RESTART_YEAR
+}
+
 // Watchers
 watch(currentYear, (newYear: number) => {
   const filteredBubbles = bubbleStore.getBubblesByYear(newYear)
@@ -144,8 +148,9 @@ onMounted(async () => {
     console.error('Canvas ref is null')
   }
   
-  // Подписываемся на resize
+  // Подписываемся на resize и restart
   window.addEventListener('resize', handleResize)
+  window.addEventListener('game-restart', handleGameRestart)
   
   isLoading.value = false
   console.log('BubbleCanvas initialization complete')
@@ -153,6 +158,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  window.removeEventListener('game-restart', handleGameRestart)
   destroySimulation()
 })
 </script>

@@ -146,11 +146,15 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     const sizes = calculateAdaptiveSizes(bubbles.length)
     
     return bubbles.map((bubble, index) => {
-      // Используем уровень навыков для определения относительного размера
+      // Используем конфигурацию уровня экспертизы для определения размера
+      const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
       const skillLevels = ['novice', 'intermediate', 'confident', 'expert', 'master']
       const skillIndex = skillLevels.indexOf(bubble.skillLevel)
       const sizeRatio = (skillIndex + 1) / skillLevels.length
-      const baseRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
+      
+      // Применяем множитель размера из конфигурации
+      const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
+      const baseRadius = calculatedRadius * expertiseConfig.sizeMultiplier
       
       // Восстанавливаем сохраненные позиции
       const savedPos = savedPositions.get(bubble.id)
@@ -176,28 +180,64 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     })
   }
 
-  // Отрисовка реалистичного пузыря
+  // Отрисовка реалистичного пузыря с градацией по уровню экспертизы
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
     context.save()
     
-    const opacity = bubble.isVisited ? 0.3 : (bubble.isHovered ? 1 : 0.8)
+    // Получаем конфигурацию для уровня экспертизы
+    const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
     
-    // Тень
-    context.shadowColor = `rgba(0, 0, 0, ${opacity * 0.3})`
-    context.shadowBlur = bubble.isHovered ? 20 : 10
+    const opacity = bubble.isVisited ? 0.3 : (bubble.isHovered ? 1 : expertiseConfig.opacity)
+    
+    // Тень с учетом уровня экспертизы
+    const shadowOpacity = opacity * (0.2 + expertiseConfig.glowIntensity * 0.3)
+    context.shadowColor = `rgba(0, 0, 0, ${shadowOpacity})`
+    context.shadowBlur = bubble.isHovered ? 25 : (10 + expertiseConfig.glowIntensity * 15)
     context.shadowOffsetX = 3
     context.shadowOffsetY = 3
     
-    // Основной градиент пузыря
-    const mainGradient = context.createRadialGradient(
-      bubble.x, bubble.y, 0,
-      bubble.x, bubble.y, bubble.currentRadius
-    )
+    // Эффект свечения для высоких уровней
+    if (expertiseConfig.glowIntensity > 0) {
+      const glowGradient = context.createRadialGradient(
+        bubble.x, bubble.y, bubble.currentRadius * 0.8,
+        bubble.x, bubble.y, bubble.currentRadius * (1.5 + expertiseConfig.glowIntensity)
+      )
+      const glowColor = d3.color(expertiseConfig.shadowColor)!
+      glowGradient.addColorStop(0, glowColor.copy({ opacity: expertiseConfig.glowIntensity * 0.3 }).toString())
+      glowGradient.addColorStop(1, glowColor.copy({ opacity: 0 }).toString())
+      
+      context.fillStyle = glowGradient
+      context.beginPath()
+      context.arc(bubble.x, bubble.y, bubble.currentRadius * (1.5 + expertiseConfig.glowIntensity), 0, 2 * Math.PI)
+      context.fill()
+    }
     
-    const baseColor = d3.color(bubble.color)!
-    mainGradient.addColorStop(0, baseColor.brighter(0.3).toString())
-    mainGradient.addColorStop(0.7, baseColor.toString())
-    mainGradient.addColorStop(1, baseColor.darker(0.5).toString())
+    // Основной градиент пузыря с использованием цветов из конфигурации
+    let mainGradient: CanvasGradient
+    
+    if ('hasGradient' in expertiseConfig && expertiseConfig.hasGradient && 'gradientColors' in expertiseConfig && expertiseConfig.gradientColors) {
+      // Градиентная заливка для мастер-уровня
+      mainGradient = context.createRadialGradient(
+        bubble.x - bubble.currentRadius * 0.3, bubble.y - bubble.currentRadius * 0.3, 0,
+        bubble.x, bubble.y, bubble.currentRadius
+      )
+      const color1 = d3.color(expertiseConfig.gradientColors[0])!
+      const color2 = d3.color(expertiseConfig.gradientColors[1])!
+      mainGradient.addColorStop(0, color1.brighter(0.4).toString())
+      mainGradient.addColorStop(0.4, color1.toString())
+      mainGradient.addColorStop(0.7, color2.toString())
+      mainGradient.addColorStop(1, color2.darker(0.3).toString())
+    } else {
+      // Стандартный градиент с цветами уровня экспертизы
+      mainGradient = context.createRadialGradient(
+        bubble.x, bubble.y, 0,
+        bubble.x, bubble.y, bubble.currentRadius
+      )
+      const baseColor = d3.color(expertiseConfig.color)!
+      mainGradient.addColorStop(0, baseColor.brighter(0.3).toString())
+      mainGradient.addColorStop(0.7, baseColor.toString())
+      mainGradient.addColorStop(1, baseColor.darker(0.5).toString())
+    }
     
     // Основной круг
     context.beginPath()
@@ -228,11 +268,12 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     context.fillStyle = highlightGradient
     context.fill()
     
-    // Тонкая граница
+    // Граница с учетом уровня экспертизы
     context.beginPath()
     context.arc(bubble.x, bubble.y, bubble.currentRadius, 0, Math.PI * 2)
-    context.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.3})`
-    context.lineWidth = 1
+    const borderColor = d3.color(expertiseConfig.borderColor)!
+    context.strokeStyle = borderColor.copy({ opacity: opacity * 0.8 }).toString()
+    context.lineWidth = expertiseConfig.borderWidth
     context.stroke()
     
     context.restore()
@@ -274,9 +315,19 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     const time = Date.now() * 0.0008
     
     nodes.forEach((bubble, index) => {
+      const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
+      
       // Живые колебания радиуса (дыхание) - только не на Windows
       if (!isWindows()) {
-        const oscillation = Math.sin(time * 2 + bubble.oscillationPhase) * 0.05
+        let oscillation = Math.sin(time * 2 + bubble.oscillationPhase) * 0.05
+        
+        // Эффект пульсации для мастер-уровня
+        if ('hasPulse' in expertiseConfig && expertiseConfig.hasPulse) {
+          const pulseSpeed = time * (GAME_CONFIG.ANIMATION.MASTER_PULSE / 3000)
+          const pulseAmplitude = 0.15 // Более заметная пульсация
+          oscillation += Math.sin(pulseSpeed + bubble.oscillationPhase) * pulseAmplitude
+        }
+        
         bubble.currentRadius = bubble.targetRadius * (1 + oscillation)
       } else {
         bubble.currentRadius = bubble.targetRadius
@@ -312,15 +363,7 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
     
     context.save()
     
-    // Полупрозрачное кольцо зоны воздействия
-    context.beginPath()
-    context.arc(bubble.x, bubble.y, pushRadius, 0, Math.PI * 2)
-    context.strokeStyle = 'rgba(255, 255, 255, 0.15)'
-    context.lineWidth = 2
-    context.setLineDash([5, 5])
-    context.stroke()
-    
-    // Градиентный эффект расходящихся волн
+    // Градиентный эффект расходящихся волн (без пунктирной линии)
     const gradient = context.createRadialGradient(
       bubble.x, bubble.y, bubble.currentRadius,
       bubble.x, bubble.y, pushRadius
@@ -699,7 +742,21 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       }, 100)
       
       // Открываем модальное окно с деталями
-      modalStore.openBubbleModal(clickedBubble)
+      if (clickedBubble.isEasterEgg) {
+        // Для философских пузырей открываем философский модал
+        const philosophyQuestion = {
+          id: `question-${clickedBubble.id}`,
+          question: clickedBubble.name,
+          context: clickedBubble.description,
+          agreeText: 'Я согласен с этим подходом и готов работать в этом стиле.',
+          disagreeText: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
+          livePenalty: GAME_CONFIG.PHILOSOPHY_WRONG_LIVES,
+          isEasterEgg: true
+        }
+        modalStore.openPhilosophyModal(philosophyQuestion)
+      } else {
+        modalStore.openBubbleModal(clickedBubble)
+      }
     } else {
       // Клик по пустому месту - создаем взрыв отталкивания
       const explosionRadius = Math.min(width, height) * 0.3 // 30% от размера экрана
@@ -795,11 +852,17 @@ export function useCanvasSimulation(canvasRef: Ref<HTMLCanvasElement | null>) {
       return
     }
     
-    // Начисляем опыт
+    // Начисляем опыт в зависимости от уровня экспертизы
+    let leveledUp = false
     if (bubble.isEasterEgg) {
-      await sessionStore.gainXP(GAME_CONFIG.XP_PER_EASTER_EGG)
+      leveledUp = await sessionStore.gainXP(GAME_CONFIG.XP_PER_EASTER_EGG)
     } else {
-      await sessionStore.gainXP(GAME_CONFIG.XP_PER_BUBBLE)
+      leveledUp = await sessionStore.gainBubbleXP(bubble.skillLevel)
+    }
+    
+    // Показываем Level Up модал если уровень повысился
+    if (leveledUp) {
+      modalStore.openLevelUpModal(sessionStore.currentLevel)
     }
     
     // Отмечаем пузырь как посещенный

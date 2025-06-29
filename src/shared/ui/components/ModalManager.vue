@@ -17,7 +17,7 @@
     
     <!-- Philosophy Question Modal -->
     <PhilosophyModal 
-      v-if="modalStore.isPhilosophyModalOpen"
+      :is-open="modalStore.isPhilosophyModalOpen"
       :question="modalStore.currentQuestion"
       @close="modalStore.closePhilosophyModal"
       @answer="modalStore.handlePhilosophyAnswer"
@@ -25,7 +25,9 @@
     
     <!-- Game Over Modal -->
     <GameOverModal 
-      v-if="modalStore.isGameOverModalOpen"
+      :is-open="modalStore.isGameOverModalOpen"
+      :current-x-p="modalStore.gameOverStats?.currentXP || 0"
+      :current-level="modalStore.gameOverStats?.currentLevel || 1"
       @close="modalStore.closeGameOverModal"
       @restart="modalStore.restartGame"
     />

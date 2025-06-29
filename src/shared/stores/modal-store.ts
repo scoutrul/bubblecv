@@ -1,8 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Bubble, PhilosophyQuestion } from '@shared/types'
+import { useSessionStore } from '@/entities/user-session/model/session-store'
 
 export const useModalStore = defineStore('modal', () => {
+  const sessionStore = useSessionStore()
+  
   // Bubble Modal
   const isBubbleModalOpen = ref(false)
   const currentBubble = ref<Bubble | null>(null)
@@ -17,6 +20,7 @@ export const useModalStore = defineStore('modal', () => {
   
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
+  const gameOverStats = ref<{ currentXP: number; currentLevel: number } | null>(null)
 
   // Bubble Modal Actions
   const openBubbleModal = (bubble: Bubble) => {
@@ -64,25 +68,43 @@ export const useModalStore = defineStore('modal', () => {
   const handlePhilosophyAnswer = async (answer: 'agree' | 'disagree') => {
     if (!currentQuestion.value) return
     
-    // TODO: Implement philosophy answer logic
-    console.log('Philosophy answer:', answer, currentQuestion.value)
+    if (answer === 'agree') {
+      // Правильный ответ - дать XP
+      const leveledUp = await sessionStore.gainPhilosophyXP()
+      if (leveledUp) {
+        openLevelUpModal(sessionStore.currentLevel)
+      }
+    } else {
+      // Неправильный ответ - забрать жизнь
+      const gameOver = await sessionStore.losePhilosophyLife()
+      if (gameOver) {
+        openGameOverModal({
+          currentXP: sessionStore.currentXP,
+          currentLevel: sessionStore.currentLevel
+        })
+      }
+    }
     
     closePhilosophyModal()
   }
 
   // Game Over Modal Actions
-  const openGameOverModal = () => {
+  const openGameOverModal = (stats: { currentXP: number; currentLevel: number }) => {
+    gameOverStats.value = stats
     isGameOverModalOpen.value = true
   }
 
   const closeGameOverModal = () => {
     isGameOverModalOpen.value = false
+    gameOverStats.value = null
   }
 
-  const restartGame = () => {
-    // TODO: Implement game restart logic
-    console.log('Restarting game...')
+  const restartGame = async () => {
+    await sessionStore.resetSession()
     closeGameOverModal()
+    
+    // Эмитим событие для перезагрузки с 2015 года
+    window.dispatchEvent(new CustomEvent('game-restart'))
   }
 
   return {
@@ -94,6 +116,7 @@ export const useModalStore = defineStore('modal', () => {
     isPhilosophyModalOpen,
     currentQuestion,
     isGameOverModalOpen,
+    gameOverStats,
     
     // Actions
     openBubbleModal,

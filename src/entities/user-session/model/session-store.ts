@@ -63,11 +63,13 @@ export const useSessionStore = defineStore('session', () => {
         throw new Error(data.error || 'Ошибка загрузки сессии')
       }
 
-      session.value = {
-        ...data.data,
-        startTime: new Date(data.data.start_time),
-        lastActivity: new Date(data.data.last_activity)
-      } as UserSession
+      if (data.data) {
+        session.value = {
+          ...data.data,
+          startTime: new Date(data.data.startTime),
+          lastActivity: new Date(data.data.lastActivity)
+        } as UserSession
+      }
 
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
@@ -129,6 +131,23 @@ export const useSessionStore = defineStore('session', () => {
     
     await saveSession()
     return false
+  }
+
+  // Получить XP за уровень экспертизы пузыря
+  const gainBubbleXP = async (expertiseLevel: string): Promise<boolean> => {
+    const xpAmount = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
+    return await gainXP(xpAmount)
+  }
+
+  // Получить XP за правильный ответ на философский вопрос
+  const gainPhilosophyXP = async (): Promise<boolean> => {
+    return await gainXP(GAME_CONFIG.PHILOSOPHY_CORRECT_XP)
+  }
+
+  // Потерять жизнь за неправильный ответ на философский вопрос
+  const losePhilosophyLife = async (): Promise<boolean> => {
+    await loseLives(GAME_CONFIG.PHILOSOPHY_WRONG_LIVES)
+    return lives.value === 0 // Возвращаем true если Game Over
   }
 
   const loseLives = async (amount: number = 1): Promise<void> => {
@@ -202,6 +221,9 @@ export const useSessionStore = defineStore('session', () => {
     loadSession,
     saveSession,
     gainXP,
+    gainBubbleXP,
+    gainPhilosophyXP,
+    losePhilosophyLife,
     loseLives,
     visitBubble,
     updateAgreementScore,

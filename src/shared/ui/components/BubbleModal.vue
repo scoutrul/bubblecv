@@ -111,7 +111,7 @@
         <div class="modal-footer">
           <div class="xp-reward">
             <span class="xp-text">
-              + {{ bubble?.isEasterEgg ? '10' : '5' }} XP
+              + {{ bubbleXP }} XP
             </span>
           </div>
           
@@ -119,7 +119,7 @@
             @click="$emit('continue')"
             class="continue-button"
           >
-            Продолжить исследование
+            Принять
           </button>
         </div>
       </div>
@@ -130,6 +130,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Bubble } from '@shared/types'
+import { GAME_CONFIG } from '@shared/config/game-config'
 
 interface Props {
   isOpen: boolean
@@ -191,6 +192,12 @@ const getExperienceYears = () => {
   const endYear = props.bubble.yearEnded || currentYear
   return endYear - props.bubble.yearStarted
 }
+
+const bubbleXP = computed(() => {
+  if (!props.bubble) return 0
+  if (props.bubble.isEasterEgg) return GAME_CONFIG.XP_PER_EASTER_EGG
+  return GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[props.bubble.skillLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
+})
 
 const handleOverlayClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {
