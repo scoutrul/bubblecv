@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Bubble, ApiResponse } from '../../../shared/types'
+import { useSessionStore } from '../../user-session/model/session-store'
 
 export const useBubbleStore = defineStore('bubble', () => {
   // State
@@ -17,12 +18,30 @@ export const useBubbleStore = defineStore('bubble', () => {
     bubbles.value.filter(bubble => bubble.isEasterEgg)
   )
 
-  const getBubblesByYear = computed(() => (year: number) => 
-    bubbles.value.filter(bubble => 
-      bubble.yearStarted <= year && 
-      (bubble.yearEnded === undefined || bubble.yearEnded >= year)
-    )
-  )
+  const getBubblesByYear = computed(() => (year: number) => {
+    const sessionStore = useSessionStore()
+    const visitedBubbleIds = sessionStore.visitedBubbles
+    
+    return bubbles.value.filter(bubble => {
+      // Фильтрация по году
+      const isInYear = bubble.yearStarted <= year && 
+        (bubble.yearEnded === undefined || bubble.yearEnded >= year)
+      
+      // Исключаем посещенные пузыри
+      const isNotVisited = !visitedBubbleIds.includes(bubble.id)
+      
+      console.log('🔍 Filter bubble:', {
+        id: bubble.id,
+        name: bubble.name,
+        year,
+        isInYear,
+        isNotVisited,
+        visitedBubbleIds: visitedBubbleIds.length
+      })
+      
+      return isInYear && isNotVisited
+    })
+  })
 
   const getBubblesByCategory = computed(() => (category: string) =>
     bubbles.value.filter(bubble => bubble.category === category)

@@ -17,6 +17,7 @@ export const useModalStore = defineStore('modal', () => {
   // Philosophy Question Modal
   const isPhilosophyModalOpen = ref(false)
   const currentQuestion = ref<PhilosophyQuestion | null>(null)
+  const philosophyBubbleId = ref<string | null>(null)
   
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
@@ -55,18 +56,26 @@ export const useModalStore = defineStore('modal', () => {
   }
 
   // Philosophy Question Modal Actions
-  const openPhilosophyModal = (question: PhilosophyQuestion) => {
+  const openPhilosophyModal = (question: PhilosophyQuestion, bubbleId?: string) => {
     currentQuestion.value = question
+    philosophyBubbleId.value = bubbleId || null
     isPhilosophyModalOpen.value = true
+    console.log('🤔 Opening philosophy modal for bubble:', bubbleId)
   }
 
   const closePhilosophyModal = () => {
     isPhilosophyModalOpen.value = false
     currentQuestion.value = null
+    philosophyBubbleId.value = null
   }
 
   const handlePhilosophyAnswer = async (answer: 'agree' | 'disagree') => {
     if (!currentQuestion.value) return
+    
+    const bubbleId = philosophyBubbleId.value
+    const isNegativeAnswer = answer === 'disagree'
+    
+    console.log('🤔 Philosophy answer:', { answer, bubbleId, isNegativeAnswer })
     
     if (answer === 'agree') {
       // Правильный ответ - дать XP
@@ -74,8 +83,9 @@ export const useModalStore = defineStore('modal', () => {
       if (leveledUp) {
         openLevelUpModal(sessionStore.currentLevel)
       }
+      console.log('✅ Philosophy: Gained XP for agreeing')
     } else {
-      // Неправильный ответ - забрать жизнь
+      // Неправильный ответ - забрать жизнь (без XP)
       const gameOver = await sessionStore.losePhilosophyLife()
       if (gameOver) {
         openGameOverModal({
@@ -83,9 +93,23 @@ export const useModalStore = defineStore('modal', () => {
           currentLevel: sessionStore.currentLevel
         })
       }
+      console.log('❌ Philosophy: Lost life for disagreeing')
     }
     
     closePhilosophyModal()
+    
+    // Пузырь всегда лопается независимо от ответа
+    if (bubbleId) {
+      console.log('💥 Dispatching bubble-continue for philosophy bubble:', bubbleId)
+      window.dispatchEvent(new CustomEvent('bubble-continue', { 
+        detail: { 
+          bubbleId, 
+          isPhilosophyNegative: isNegativeAnswer 
+        } 
+      }))
+    } else {
+      console.warn('⚠️ No bubbleId found for philosophy question!')
+    }
   }
 
   // Game Over Modal Actions

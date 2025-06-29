@@ -14,7 +14,7 @@
           <div class="flex items-center gap-3">
             <div 
               class="bubble-icon"
-              :style="{ backgroundColor: bubble?.color || '#667eea' }"
+              :style="{ backgroundColor: getBubbleColor() }"
             ></div>
             <div>
               <h2 class="text-2xl font-bold text-gradient-primary">
@@ -198,6 +198,19 @@ const bubbleXP = computed(() => {
   if (props.bubble.isEasterEgg) return GAME_CONFIG.XP_PER_EASTER_EGG
   return GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[props.bubble.skillLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
 })
+
+const getBubbleColor = () => {
+  if (!props.bubble) return '#667eea'
+  
+  // Для философских пузырей используем градиент (берем первый цвет)
+  if (props.bubble.isEasterEgg) {
+    return GAME_CONFIG.PHILOSOPHY_BUBBLE.gradientColors[0]
+  }
+  
+  // Для обычных пузырей используем цвет из уровня экспертизы
+  const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[props.bubble.skillLevel as keyof typeof GAME_CONFIG.EXPERTISE_LEVELS]
+  return expertiseConfig?.color || '#667eea'
+}
 
 const handleOverlayClick = (event: MouseEvent) => {
   if (event.target === event.currentTarget) {

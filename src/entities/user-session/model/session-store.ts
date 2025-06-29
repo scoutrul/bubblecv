@@ -24,27 +24,72 @@ export const useSessionStore = defineStore('session', () => {
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
 
   const xpProgress = computed(() => {
-    const levels = Object.values(GAME_CONFIG.XP_LEVELS)
-    const currentLevelXP = levels[currentLevel.value - 1] || 100
+    const levels = Object.values(GAME_CONFIG.XP_LEVELS) // [25, 50, 75, 100, 125]
+    const currentLevelIndex = currentLevel.value - 1 // 0-based index
     
-    if (currentLevel.value === 1) {
-      return (currentXP.value / currentLevelXP) * 100
-    }
+    // XP нужный для текущего уровня
+    const currentLevelRequiredXP = levels[currentLevelIndex] || 25
     
-    const prevLevelXP = levels[currentLevel.value - 2] || 0
-    const range = currentLevelXP - prevLevelXP
-    const progress = currentXP.value - prevLevelXP
+    // XP нужный для предыдущего уровня (0 для первого уровня)
+    const prevLevelRequiredXP = currentLevelIndex > 0 ? levels[currentLevelIndex - 1] : 0
     
-    return Math.min((progress / range) * 100, 100)
+    // Сколько XP нужно набрать между уровнями
+    const xpRangeForLevel = currentLevelRequiredXP - prevLevelRequiredXP
+    
+    // Сколько XP уже набрано сверх предыдущего уровня
+    const xpAbovePrevLevel = Math.max(0, currentXP.value - prevLevelRequiredXP)
+    
+    // Процент прогресса для текущего уровня
+    const progress = Math.min((xpAbovePrevLevel / xpRangeForLevel) * 100, 100)
+    
+    console.log('📊 XP Progress:', { 
+      currentLevel: currentLevel.value,
+      currentXP: currentXP.value,
+      currentLevelRequiredXP,
+      prevLevelRequiredXP,
+      xpRangeForLevel,
+      xpAbovePrevLevel,
+      progress: Math.round(progress)
+    })
+    
+    return Math.max(0, Math.min(progress, 100))
   })
 
   const nextLevelXP = computed(() => {
     const levels = Object.values(GAME_CONFIG.XP_LEVELS)
-    return levels[currentLevel.value - 1] || 100
+    const nextLevelIndex = currentLevel.value // index for next level (0-based + 1)
+    const nextXP = levels[nextLevelIndex] || levels[levels.length - 1]
+    
+    console.log('🎯 Next Level XP:', { 
+      currentLevel: currentLevel.value, 
+      nextLevelIndex, 
+      nextXP,
+      currentXP: currentXP.value
+    })
+    
+    return nextXP
   })
 
   const canLevelUp = computed(() => {
-    return currentXP.value >= nextLevelXP.value && currentLevel.value < 4
+    const levels = Object.values(GAME_CONFIG.XP_LEVELS)
+    const maxLevel = levels.length
+    
+    // Не можем повыситься если уже максимальный уровень
+    if (currentLevel.value >= maxLevel) return false
+    
+    // XP необходимый для следующего уровня
+    const requiredXPForNextLevel = levels[currentLevel.value - 1] // текущий индекс в массиве
+    const canLevel = currentXP.value >= requiredXPForNextLevel
+    
+    console.log('🔄 Can Level Up Check:', {
+      currentLevel: currentLevel.value,
+      currentXP: currentXP.value,
+      requiredXPForNextLevel,
+      canLevel,
+      maxLevel
+    })
+    
+    return canLevel
   })
 
   const isAlive = computed(() => lives.value > 0)
@@ -56,20 +101,56 @@ export const useSessionStore = defineStore('session', () => {
 
     try {
       const id = sessionId || generateSessionId()
-      const response = await fetch(`/api/session/${id}`)
-      const data: ApiResponse<UserSession> = await response.json()
+      
+      // Пытаемся загрузить с сервера
+      try {
+        const response = await fetch(`/api/session/${id}`)
+        const data: ApiResponse<UserSession> = await response.json()
 
-      if (!data.success) {
-        throw new Error(data.error || 'Ошибка загрузки сессии')
+        if (data.success && data.data) {
+          session.value = {
+            ...data.data,
+            startTime: new Date(data.data.startTime),
+            lastActivity: new Date(data.data.lastActivity)
+          } as UserSession
+          console.log('Сессия загружена с сервера')
+          return
+        }
+      } catch (serverError) {
+        console.log('Сервер недоступен, проверяем localStorage')
       }
-
-      if (data.data) {
-        session.value = {
-          ...data.data,
-          startTime: new Date(data.data.startTime),
-          lastActivity: new Date(data.data.lastActivity)
-        } as UserSession
+      
+      // Пытаемся загрузить из localStorage
+      try {
+        const localSession = localStorage.getItem('bubbleme_session')
+        if (localSession) {
+          const parsedSession = JSON.parse(localSession)
+          session.value = {
+            ...parsedSession,
+            startTime: new Date(parsedSession.startTime),
+            lastActivity: new Date(parsedSession.lastActivity)
+          }
+          console.log('Сессия загружена из localStorage')
+          return
+        }
+      } catch (localError) {
+        console.log('Не удалось загрузить из localStorage')
       }
+      
+      // Если ничего не загрузилось, создаём новую локальную сессию
+      session.value = {
+        id,
+        currentXP: 0,
+        currentLevel: 1,
+        lives: GAME_CONFIG.MAX_LIVES,
+        unlockedContent: [],
+        visitedBubbles: [],
+        agreementScore: 0,
+        gameCompleted: false,
+        startTime: new Date(),
+        lastActivity: new Date()
+      }
+      console.log('Создана новая локальная сессия:', session.value)
 
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
@@ -83,6 +164,7 @@ export const useSessionStore = defineStore('session', () => {
     if (!session.value) return
 
     try {
+      // Пытаемся сохранить на сервере
       const response = await fetch(`/api/session/${session.value.id}`, {
         method: 'PUT',
         headers: {
@@ -104,9 +186,16 @@ export const useSessionStore = defineStore('session', () => {
         throw new Error(data.error || 'Ошибка сохранения сессии')
       }
 
+      console.log('Сессия сохранена на сервере')
+
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Ошибка сохранения'
-      console.error('Ошибка сохранения сессии:', err)
+      // Если сервер недоступен, сохраняем локально в localStorage
+      try {
+        localStorage.setItem('bubbleme_session', JSON.stringify(session.value))
+        console.log('Сессия сохранена локально')
+      } catch (localErr) {
+        console.warn('Не удалось сохранить сессию локально:', localErr)
+      }
     }
   }
 
@@ -114,11 +203,27 @@ export const useSessionStore = defineStore('session', () => {
     if (!session.value) return false
 
     const oldLevel = session.value.currentLevel
+    const oldXP = session.value.currentXP
     session.value.currentXP += amount
+    
+    console.log('✨ Gaining XP:', { 
+      amount, 
+      oldXP, 
+      newXP: session.value.currentXP, 
+      oldLevel, 
+      canLevelUp: canLevelUp.value,
+      nextLevelXP: nextLevelXP.value
+    })
     
     // Проверяем повышение уровня
     if (canLevelUp.value) {
       session.value.currentLevel += 1
+      
+      console.log('🎉 LEVEL UP!', { 
+        oldLevel, 
+        newLevel: session.value.currentLevel,
+        currentXP: session.value.currentXP
+      })
       
       // Разблокируем контент
       if (!session.value.unlockedContent.includes(session.value.currentLevel)) {
@@ -136,6 +241,7 @@ export const useSessionStore = defineStore('session', () => {
   // Получить XP за уровень экспертизы пузыря
   const gainBubbleXP = async (expertiseLevel: string): Promise<boolean> => {
     const xpAmount = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
+    console.log('🫧 Bubble XP:', { expertiseLevel, xpAmount })
     return await gainXP(xpAmount)
   }
 
@@ -155,8 +261,21 @@ export const useSessionStore = defineStore('session', () => {
 
     session.value.lives = Math.max(0, session.value.lives - amount)
     
+    console.log('💔 Lost lives:', { amount, remainingLives: session.value.lives })
+    
     if (session.value.lives === 0) {
       session.value.gameCompleted = true
+      
+      // Показываем Game Over модал через modal store
+      const { useModalStore } = await import('../../../shared/stores/modal-store')
+      const modalStore = useModalStore()
+      
+      modalStore.openGameOverModal({
+        currentXP: session.value.currentXP,
+        currentLevel: session.value.currentLevel
+      })
+      
+      console.log('💀 GAME OVER! Opening modal...')
     }
     
     await saveSession()

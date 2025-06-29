@@ -4,7 +4,8 @@ export const GAME_CONFIG = {
     LEVEL_1: 25,
     LEVEL_2: 50,
     LEVEL_3: 75,
-    LEVEL_4: 100
+    LEVEL_4: 100,
+    LEVEL_5: 125
   } as const,
   
   // Lives System
@@ -32,63 +33,51 @@ export const GAME_CONFIG = {
   RESTART_YEAR: 2015,             // С какого года начинается игра заново
   GAME_OVER_BLOCK_BUBBLES: true,  // Блокировать пузыри при Game Over
   
-  // Expertise Levels - Уровни экспертизы с визуальной градацией
+  // Expertise Levels - Уровни экспертизы (с восстановленными градиентами)
   EXPERTISE_LEVELS: {
     novice: {
       color: '#D0F0FF',             // Яркий голубой
-      borderColor: '#00BFFF',       // Насыщенный голубой
-      shadowColor: '#00BFFF33',     // Полупрозрачная голубая тень
-      glowIntensity: 0.1,           // Лёгкое сияние
       sizeMultiplier: 0.95,
-      borderWidth: 2,
       opacity: 0.85,
       name: 'Новичок'
     },
     intermediate: {
       color: '#D2FFD2',             // Ярко-зелёный
-      borderColor: '#32CD32',       // Сочный лайм
-      shadowColor: '#32CD3233',     // Лаймовая тень
-      glowIntensity: 0.1,
       sizeMultiplier: 0.97,
-      borderWidth: 2,
       opacity: 0.9,
       name: 'С опытом'
     },
     confident: {
       color: '#FFF2CC',             // Золотисто-жёлтый
-      borderColor: '#FFB800',       // Золотой
-      shadowColor: '#FFB80044',     // Теплая тень
-      glowIntensity: 0.2,
       sizeMultiplier: 1.0,
-      borderWidth: 2,
       opacity: 0.95,
       name: 'Уверенный'
     },
     expert: {
       color: '#E5CCFF',             // Сиреневый/аметист
-      borderColor: '#9D4DFF',       // Яркий фиолетовый
-      shadowColor: '#9D4DFF55',
-      glowIntensity: 0.3,
       sizeMultiplier: 1,
-      borderWidth: 1,
       opacity: 0.95,
       name: 'Эксперт',
       hasGradient: true,
-      gradientColors: ['#D9B3FF', '#9D4DFF']
+      gradientColors: ['#E5CCFF', '#D8B4FE', '#C084FC']
     },
     master: {
       color: '#FFC9DE',             // Розово-лососевый
-      borderColor: '#FFD700',       // Ярко-розовый
-      shadowColor: '#FF3B6A66',
-      glowIntensity: 0.3,
       sizeMultiplier: 1,
-      borderWidth: 0,
       opacity: 0.95,
       name: 'Мастер',
       hasGradient: true,
-      gradientColors: ['#FFC9DE', '#FFD700'], // Розовый к золоту
-      hasPulse: true
+      gradientColors: ['#FFC9DE', '#FBBF24', '#F59E0B']
     }
+  } as const,
+
+  // Philosophy Bubbles - Визуализация философских пузырей
+  PHILOSOPHY_BUBBLE: {
+    hasGradient: true,
+    gradientColors: ['#FF0080', '#FF4080', '#FF8080', '#B3FF80', '#FFFFFF00'],
+    sizeMultiplier: 0.6,           // Чуть больше обычных пузырей
+    opacity: 0.95,
+    name: 'Философский вопрос'
   } as const,
   
   // Animation Durations (ms)

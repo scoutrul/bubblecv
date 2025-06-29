@@ -39,28 +39,7 @@ export function useD3Simulation(svgRef: Ref<SVGElement | null>) {
     'bubble-master': 52
   }
 
-  // Цвета по категориям технологий (более яркие для лучшего вида)
-  const categoryColors = {
-    'foundation': '#3b82f6',
-    'framework': '#8b5cf6', 
-    'language': '#ec4899',
-    'tooling': '#0ea5e9',
-    'philosophy': '#10b981',
-    'skill': '#f59e0b',
-    'library': '#6366f1',
-    'runtime': '#06b6d4',
-    'preprocessor': '#a855f7',
-    'optimization': '#059669',
-    'quality': '#dc2626',
-    'state-management': '#7c3aed',
-    'inclusive': '#2563eb',
-    'visualization': '#0891b2',
-    'animation': '#be185d',
-    'technique': '#16a34a',
-    'design': '#ea580c',
-    'tool': '#9333ea',
-    'soft-skill': '#4f46e5'
-  }
+
 
   // Проверка Windows для отключения анимации дыхания
   const isWindows = (): boolean => {
@@ -72,11 +51,22 @@ export function useD3Simulation(svgRef: Ref<SVGElement | null>) {
     return bubbles.map((bubble, index) => {
       const baseRadius = bubbleSizes[bubble.size as keyof typeof bubbleSizes] || 30
       
+      // Определяем цвет на основе уровня экспертизы
+      let bubbleColor: string
+      if (bubble.isEasterEgg) {
+        // Для философских пузырей берем основной цвет из конфига
+        bubbleColor = GAME_CONFIG.PHILOSOPHY_BUBBLE.gradientColors[0]
+      } else {
+        // Для обычных пузырей используем цвет из уровня экспертизы
+        const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
+        bubbleColor = expertiseConfig?.color || '#667eea'
+      }
+      
       return {
         ...bubble,
         radius: baseRadius,
         baseRadius,
-        color: categoryColors[bubble.category as keyof typeof categoryColors] || '#667eea',
+        color: bubbleColor,
         oscillationPhase: Math.random() * Math.PI * 2,
         targetRadius: baseRadius,
         currentRadius: baseRadius,

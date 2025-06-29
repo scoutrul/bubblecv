@@ -1,63 +1,30 @@
 <template>
-  <div 
-    v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-    @click.self="$emit('close')"
-  >
-    <div class="bg-surface border border-border rounded-2xl p-8 max-w-md w-full mx-4 text-center">
-      <!-- Иконка черепа или крестика -->
-      <div class="mb-6">
-        <div class="w-20 h-20 mx-auto bg-red-500/20 rounded-full flex items-center justify-center">
-          <svg class="w-10 h-10 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                  d="M6 18L18 6M6 6l12 12"></path>
-          </svg>
+  <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
+    <div class="modal-content game-over-modal">
+      <div class="game-over-header">
+        <div class="skull-icon">💀</div>
+        <h2 class="game-over-title">GAME OVER</h2>
+        <p class="game-over-subtitle">Все жизни потеряны!</p>
+      </div>
+      
+      <div class="game-over-stats">
+        <div class="stat-row">
+          <span class="stat-label">Достигнутый уровень:</span>
+          <span class="stat-value">{{ currentLevel }}</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Набрано опыта:</span>
+          <span class="stat-value">{{ currentXP }} XP</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">Исследовано пузырей:</span>
+          <span class="stat-value">{{ visitedBubblesCount }}</span>
         </div>
       </div>
-
-      <!-- Заголовок -->
-      <h2 class="text-2xl font-bold text-text-primary mb-4">
-        Game Over
-      </h2>
-
-      <!-- Основное сообщение -->
-      <p class="text-text-secondary mb-6 leading-relaxed">
-        К сожалению, мы с вами не сработаемся. 
-        <br>
-        Но не расстраивайтесь - каждая неудача делает нас сильнее!
-      </p>
-
-      <!-- Статистика -->
-      <div class="bg-background/50 rounded-lg p-4 mb-6">
-        <div class="grid grid-cols-2 gap-4 text-sm">
-          <div>
-            <div class="text-text-muted">Набрано XP</div>
-            <div class="text-text-primary font-semibold">{{ currentXP }}</div>
-          </div>
-          <div>
-            <div class="text-text-muted">Достигнут уровень</div>
-            <div class="text-text-primary font-semibold">{{ currentLevel }}</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Кнопки -->
-      <div class="flex flex-col gap-3">
-        <button
-          @click="$emit('restart')"
-          class="px-6 py-3 bg-primary text-white rounded-lg font-medium
-                 hover:bg-primary-dark transition-colors duration-200
-                 focus:outline-none focus:ring-2 focus:ring-primary/50"
-        >
-          🔄 Начать заново с {{ restartYear }} года
-        </button>
-        
-        <button
-          @click="$emit('close')"
-          class="px-6 py-2 text-text-secondary hover:text-text-primary
-                 transition-colors duration-200"
-        >
-          Просмотреть результаты
+      
+      <div class="game-over-actions">
+        <button @click="handleRestart" class="restart-button">
+          🔄 Начать заново
         </button>
       </div>
     </div>
@@ -65,24 +32,107 @@
 </template>
 
 <script setup lang="ts">
-import { GAME_CONFIG } from '../../config/game-config'
+import { computed } from 'vue'
+import { useSessionStore } from '../../../entities/user-session/model/session-store'
 
 interface Props {
-  isOpen: boolean
-  currentXP: number
-  currentLevel: number
+  isVisible: boolean
 }
 
-defineProps<Props>()
+interface Emits {
+  (e: 'close'): void
+  (e: 'restart'): void
+}
 
-defineEmits<{
-  close: []
-  restart: []
-}>()
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 
-const restartYear = GAME_CONFIG.RESTART_YEAR
+const sessionStore = useSessionStore()
+
+const currentLevel = computed(() => sessionStore.currentLevel)
+const currentXP = computed(() => sessionStore.currentXP)
+const visitedBubblesCount = computed(() => sessionStore.visitedBubbles.length)
+
+const handleOverlayClick = (event: MouseEvent) => {
+  if (event.target === event.currentTarget) {
+    emit('close')
+  }
+}
+
+const handleRestart = async () => {
+  await sessionStore.resetSession()
+  
+  // Отправляем событие рестарта игры
+  window.dispatchEvent(new CustomEvent('game-restart'))
+  
+  emit('restart')
+  emit('close')
+}
 </script>
 
 <style scoped>
-/* Дополнительные стили если нужны */
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center;
+  @apply bg-black/80 backdrop-blur-sm;
+}
+
+.modal-content {
+  @apply bg-background-card border border-border rounded-lg shadow-xl;
+  @apply p-6 max-w-md w-full mx-4;
+  @apply transform transition-all duration-300;
+}
+
+.game-over-modal {
+  @apply text-center;
+}
+
+.game-over-header {
+  @apply mb-6;
+}
+
+.skull-icon {
+  @apply text-6xl mb-4;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.game-over-title {
+  @apply text-3xl font-bold text-red-500 mb-2;
+  text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.game-over-subtitle {
+  @apply text-text-secondary;
+}
+
+.game-over-stats {
+  @apply space-y-3 mb-6;
+  @apply bg-background-secondary rounded-lg p-4;
+}
+
+.stat-row {
+  @apply flex justify-between items-center;
+}
+
+.stat-label {
+  @apply text-text-secondary;
+}
+
+.stat-value {
+  @apply font-semibold text-primary;
+}
+
+.game-over-actions {
+  @apply space-y-3;
+}
+
+.restart-button {
+  @apply w-full py-3 px-6 rounded-lg font-semibold;
+  @apply bg-primary text-white hover:bg-primary-dark;
+  @apply transition-all duration-200 transform hover:scale-105;
+  @apply shadow-lg hover:shadow-xl;
+}
+
+.restart-button:hover {
+  box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+}
 </style> 

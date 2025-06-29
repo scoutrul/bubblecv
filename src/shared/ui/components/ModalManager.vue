@@ -25,9 +25,7 @@
     
     <!-- Game Over Modal -->
     <GameOverModal 
-      :is-open="modalStore.isGameOverModalOpen"
-      :current-x-p="modalStore.gameOverStats?.currentXP || 0"
-      :current-level="modalStore.gameOverStats?.currentLevel || 1"
+      :is-visible="modalStore.isGameOverModalOpen"
       @close="modalStore.closeGameOverModal"
       @restart="modalStore.restartGame"
     />
