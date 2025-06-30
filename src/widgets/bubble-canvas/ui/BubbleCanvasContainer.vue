@@ -21,8 +21,8 @@ const startYear = 2010
 const endYear = 2025
 const currentYear = ref(startYear)
 
-onMounted(async () => {
-  console.log('🎯 BubbleCanvasContainer mounted')
+onMounted(() => {
+  // Удалить все строки с console.log(...)
 })
 </script>
 

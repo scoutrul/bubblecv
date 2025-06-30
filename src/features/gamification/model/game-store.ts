@@ -64,7 +64,7 @@ export const useGameStore = defineStore('game', () => {
       {
         id: 'first-level-master',
         name: 'Первопроходец',
-        description: 'Достигли 1-го уровня! Путешествие в тысячу миль начинается с первого шага.',
+        description: 'Вы прошли первый уровень! Путешествие в тысячу миль начинается с первого шага.',
         icon: '🚀',
         isUnlocked: false,
         xpReward: 10
@@ -119,7 +119,7 @@ export const useGameStore = defineStore('game', () => {
     const achievement = achievements.value.find(a => a.id === achievementId)
     if (achievement && !achievement.isUnlocked) {
       achievement.isUnlocked = true
-      achievement.unlockedAt = new Date()
+      achievement.unlockedAt = new Date().toISOString()
       console.log('🏆 Достижение разблокировано:', achievement.name)
       return achievement
     }

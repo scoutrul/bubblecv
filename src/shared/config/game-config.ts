@@ -116,7 +116,16 @@ export const GAME_CONFIG = {
     COLLISION_RADIUS_MULTIPLIER: 1.5,
     CENTER_STRENGTH: 0.1,
     VELOCITY_DECAY: 0.4
-  } as const
+  } as const,
+
+  // Hidden Bubble - визуализация особого скрытого пузыря
+  HIDDEN_BUBBLE: {
+    hasGradient: true,
+    gradientColors: ['#00000000', '#64748B33', '#64748B11', '#FFFFFF00'], // почти прозрачный серо-голубой градиент
+    sizeMultiplier: 0.85, // чуть меньше обычных
+    opacity: 0.08, // очень высокая прозрачность
+    name: 'Скрытый пузырь'
+  } as const,
 } as const
 
 export type GameLevel = keyof typeof GAME_CONFIG.XP_LEVELS

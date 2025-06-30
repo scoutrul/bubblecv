@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
-import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
+import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
+import { GAME_CONFIG } from '../../../shared/config/game-config'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -61,9 +62,11 @@ export const useBubbleStore = defineStore('bubble', () => {
           } satisfies Bubble
         })
         
-        console.log('✅ Загружено пузырей:', bubbles.value.length)
+        // Добавляем первый скрытый пузырь, если его нет
+        if (!bubbles.value.some(b => b.bubbleType === 'hidden')) {
+          bubbles.value.push(createHiddenBubble(0))
+        }
       } catch (e) {
-        console.error('❌ Ошибка загрузки пузырей:', e)
         error.value = e instanceof Error ? e.message : 'Failed to load bubbles'
         throw e
       } finally {
@@ -122,6 +125,13 @@ export const useBubbleStore = defineStore('bubble', () => {
     if (bubble) {
       bubble.isPopped = true
     }
+
+    // После лопания пузыря, если число лопнувших кратно 10, добавляем новый скрытый пузырь
+    const poppedCount = bubbles.value.filter(b => b.isPopped && b.bubbleType !== 'hidden').length
+    if (poppedCount > 0 && poppedCount % 10 === 0) {
+      const hiddenCount = bubbles.value.filter(b => b.bubbleType === 'hidden').length
+      bubbles.value.push(createHiddenBubble(hiddenCount))
+    }
   }
 
   const resetBubbles = () => {
@@ -158,6 +168,26 @@ export const useBubbleStore = defineStore('bubble', () => {
       clicksLeft,
       bonusXP
     }
+  }
+
+  // Генерация скрытого пузыря
+  function createHiddenBubble(index: number = 0): Bubble {
+    return {
+      id: `hidden-bubble-${index}`,
+      name: 'Скрытый пузырь',
+      skillLevel: SKILL_LEVELS.NOVICE,
+      yearStarted: 2000, // вне зависимости от года
+      isActive: true,
+      isEasterEgg: false,
+      isHidden: true,
+      description: 'Этот пузырь почти невидим. Найдите его!',
+      projects: [],
+      isPopped: false,
+      isVisited: false,
+      size: BUBBLE_SIZES.NOVICE,
+      color: '#64748B11',
+      bubbleType: 'hidden'
+    } as Bubble & { bubbleType: 'hidden' }
   }
 
   return {

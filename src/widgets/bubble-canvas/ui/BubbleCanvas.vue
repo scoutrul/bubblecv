@@ -59,18 +59,13 @@ const checkBubblesAndAdvance = () => {
   const hasUnpoppedBubbles = visibleBubbles.some(bubble => !bubble.isPopped)
 
   if (!hasUnpoppedBubbles && props.currentYear < props.endYear) {
-    console.log('🎯 Все доступные пузыри лопнуты, ищем следующий год с новыми пузырями')
-    
     // Ищем следующий год с новыми пузырями
     const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(props.currentYear, sessionStore.visitedBubbles)
     
     if (nextYearWithBubbles !== null) {
-      console.log(`🚀 Переходим к году ${nextYearWithBubbles}`)
       setTimeout(() => {
         emit('update:currentYear', nextYearWithBubbles)
       }, 500)
-    } else {
-      console.log('🏁 Все пузыри завершены, остаёмся на текущем году')
     }
   }
 }
@@ -112,10 +107,6 @@ watch(() => props.currentYear, (newYear: number) => {
     // Используем накопительный метод - показываем все пузыри до текущего года
     const filteredBubbles = bubbleStore.getBubblesUpToYear(newYear, sessionStore.visitedBubbles)
     updateBubbles(filteredBubbles)
-    
-    console.log(`📅 Год ${newYear}: показываем ${filteredBubbles.length} пузырей (накопительно)`)
-    
-    // Убираем автопереход отсюда - логика только в checkBubblesAndAdvance()
   }
 })
 
@@ -123,7 +114,6 @@ watch(() => props.currentYear, (newYear: number) => {
 watchEffect(() => {
   // Ждём когда пузыри загрузятся в App.vue
   if (bubbleStore.bubbles.length > 0 && isLoading.value) {
-    console.log('✅ Пузыри загружены, инициализируем canvas...')
     initializeCanvas()
   }
 })
@@ -134,20 +124,16 @@ const initializeCanvas = () => {
     for (const entry of entries) {
       const { width, height } = entry.contentRect
       if (width > 0 && height > 0) {
-        console.log('📏 Обновляем размеры канваса:', width, 'x', height)
-        
         // Обновляем размеры канваса
         canvasWidth.value = width
         canvasHeight.value = height
         
         if (!isInitialized.value) {
           // Первичная инициализация
-          console.log('🎮 Инициализируем симуляцию...')
           initSimulation(width, height)
           // Используем накопительный метод для начальной загрузки
           const initialBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
           updateBubbles(initialBubbles)
-          console.log('✅ Симуляция инициализирована с', initialBubbles.length, 'пузырями (накопительно)')
           isLoading.value = false
         } else {
           // Просто обновляем размеры без пересоздания симуляции
@@ -169,12 +155,10 @@ const initializeCanvas = () => {
 
 // Инициализация и очистка
 onMounted(() => {
-  console.log('🎨 Инициализация BubbleCanvas...')
   isLoading.value = true
   
   // Если пузыри уже загружены, инициализируем сразу
   if (bubbleStore.bubbles.length > 0) {
-    console.log('✅ Пузыри уже загружены, инициализируем canvas...')
     initializeCanvas()
   }
   // Иначе ждём через watchEffect

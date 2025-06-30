@@ -1,12 +1,11 @@
-import { ref, type Ref } from 'vue'
-import type { Bubble, PhilosophyQuestion } from '../../../shared/types'
+import { type Ref } from 'vue'
+import type { PhilosophyQuestion } from '../../../shared/types'
 import type { SimulationNode } from './types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
 import { useModalStore } from '../../../shared/stores/modal-store'
 import { useBubbleStore } from '@entities/bubble/model/bubble-store'
 import { useGameStore } from '@features/gamification/model/game-store'
-import philosophyQuestions from '@shared/data/philosophyQuestions.json'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,

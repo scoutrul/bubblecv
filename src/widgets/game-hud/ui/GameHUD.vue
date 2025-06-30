@@ -67,13 +67,11 @@ const gameStore = useGameStore()
 // Computed
 const currentLevel = computed(() => {
   const level = sessionStore.currentLevel
-  console.log('🎯 GameHUD currentLevel computed:', level)
   return level
 })
 
 const currentXP = computed(() => {
   const xp = sessionStore.currentXP
-  console.log('💰 GameHUD currentXP computed:', xp)
   return xp
 })
 
@@ -82,13 +80,11 @@ const maxLives = computed(() => GAME_CONFIG.MAX_LIVES)
 
 const xpPercentage = computed(() => {
   const percentage = sessionStore.xpProgress
-  console.log('📊 GameHUD xpPercentage computed:', percentage)
   return percentage
 })
 
 const nextLevelXP = computed(() => {
   const nextXP = sessionStore.nextLevelXP
-  console.log('🎯 GameHUD nextLevelXP computed:', nextXP)
   return nextXP
 })
 
@@ -112,7 +108,6 @@ const animateXPGain = () => {
 // Watch for XP changes to trigger animation
 watch(() => sessionStore.currentXP, (newXP, oldXP) => {
   if (newXP > oldXP) {
-    console.log('🎯 XP increased:', { oldXP, newXP, difference: newXP - oldXP })
     animateXPGain()
   }
 }, { immediate: false })

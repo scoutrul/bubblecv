@@ -22,6 +22,7 @@ export interface Bubble {
   size: BubbleSize
   color: string
   position?: Position
+  bubbleType?: 'regular' | 'philosophy' | 'hidden'
 }
 
 // Импортируем типы из констант
@@ -53,6 +54,7 @@ export interface Achievement {
   description: string
   icon: string
   unlockedAt?: string
+  isUnlocked: boolean
   xpReward: number
 }
 

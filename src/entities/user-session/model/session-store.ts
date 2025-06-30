@@ -69,15 +69,6 @@ export const useSessionStore = defineStore('session', () => {
     const requiredXPForNextLevel = levels[currentLevel.value] // следующий уровень в массиве
     const canLevel = currentXP.value >= requiredXPForNextLevel
     
-    console.log('🔄 Can Level Up Check:', {
-      currentLevel: currentLevel.value,
-      currentXP: currentXP.value,
-      requiredXPForNextLevel,
-      canLevel,
-      maxLevel,
-      levels
-    })
-    
     return canLevel
   })
 
@@ -105,84 +96,47 @@ export const useSessionStore = defineStore('session', () => {
         startTime: new Date(),
         lastActivity: new Date()
       }
-      
-      console.log('🎮 Создана новая игровая сессия:', {
-        id: session.value.id,
-        currentXP: session.value.currentXP,
-        currentLevel: session.value.currentLevel,
-        lives: session.value.lives
-      })
 
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
-      console.error('Ошибка создания сессии:', err)
     } finally {
       isLoading.value = false
     }
   }
 
-  const saveSession = async (): Promise<void> => {
-    // Больше не сохраняем сессии - игра сбрасывается при обновлении
-    console.log('🎮 Сохранение отключено - игра сбрасывается при обновлении страницы')
-  }
-
   const gainXP = async (amount: number): Promise<boolean> => {
-    console.log('🚀 gainXP вызван:', { amount, sessionExists: !!session.value })
-    
     if (!session.value) {
-      console.error('❌ Session не существует! Не можем начислить XP')
       return false
     }
 
     const oldLevel = session.value.currentLevel
     const oldXP = session.value.currentXP
     
-    console.log('📊 Состояние ДО начисления XP:', {
-      oldXP,
-      oldLevel,
-      amount,
-      sessionId: session.value.id
-    })
-    
     session.value.currentXP += amount
-    
-    console.log('✨ Gaining XP:', { 
-      amount, 
-      oldXP, 
-      newXP: session.value.currentXP, 
-      oldLevel, 
-      canLevelUp: canLevelUp.value,
-      nextLevelXP: nextLevelXP.value
-    })
     
     // Проверяем повышение уровня
     if (canLevelUp.value) {
       const newLevel = session.value.currentLevel + 1
       session.value.currentLevel = newLevel
-      
-      console.log('🎉 LEVEL UP!', { 
-        oldLevel, 
-        newLevel: newLevel,
-        currentXP: session.value.currentXP
-      })
+
+      // Показываем модальное окно о повышении уровня
+      const { useModalStore } = await import('../../../shared/stores/modal-store')
+      const modalStore = useModalStore()
+      modalStore.openLevelUpModal(newLevel)
       
       // Проверяем достижение за достижение первого уровня
       if (newLevel === 2) { // Достигли уровня 2 (первое повышение)
         const { useGameStore } = await import('../../../features/gamification/model/game-store')
-        const { useModalStore } = await import('../../../shared/stores/modal-store')
         const gameStore = useGameStore()
-        const modalStore = useModalStore()
         
         const achievement = gameStore.unlockAchievement('first-level-master')
         if (achievement) {
-          console.log('🚀 Разблокировано достижение "Первопроходец"!')
-          
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
           
           modalStore.openAchievementModal({
             title: achievement.name,
-            description: achievement.description,
+            description: 'Вы прошли первый уровень! Путешествие в тысячу миль начинается с первого шага.',
             icon: achievement.icon,
             xpReward: achievement.xpReward
           })
@@ -192,14 +146,10 @@ export const useSessionStore = defineStore('session', () => {
       // Проверяем достижение за финальный уровень
       if (newLevel === 5) { // Достигли максимального уровня
         const { useGameStore } = await import('../../../features/gamification/model/game-store')
-        const { useModalStore } = await import('../../../shared/stores/modal-store')
         const gameStore = useGameStore()
-        const modalStore = useModalStore()
         
         const achievement = gameStore.unlockAchievement('final-level-master')
         if (achievement) {
-          console.log('🎖️ Разблокировано достижение "Финалист"!')
-          
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
           
@@ -212,27 +162,17 @@ export const useSessionStore = defineStore('session', () => {
         }
       }
       
-      console.log('💾 Сохраняем сессию после level up...')
-      await saveSession()
-      console.log('✅ Сессия сохранена после level up')
       return true // Произошло повышение уровня
     }
     
-    console.log('💾 Сохраняем сессию после получения XP...')
-    await saveSession()
-    console.log('✅ Сессия сохранена после получения XP')
-    return false
+    return false // Уровень не повысился
   }
 
   // Получить XP за уровень экспертизы пузыря
   const gainBubbleXP = async (expertiseLevel: string): Promise<boolean> => {
-    console.log('🫧 gainBubbleXP вызван:', { expertiseLevel })
-    
     const xpAmount = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
-    console.log('🫧 Bubble XP:', { expertiseLevel, xpAmount })
     
     const result = await gainXP(xpAmount)
-    console.log('🫧 gainBubbleXP результат:', result)
     return result
   }
 
@@ -246,8 +186,6 @@ export const useSessionStore = defineStore('session', () => {
     
     const achievement = gameStore.unlockAchievement('philosophy-master')
     if (achievement) {
-      console.log('🤔 Разблокировано достижение "Философ"!')
-      
       // Начисляем XP за достижение
       await gainXP(achievement.xpReward)
       
@@ -273,8 +211,6 @@ export const useSessionStore = defineStore('session', () => {
 
     session.value.lives = Math.max(0, session.value.lives - amount)
     
-    console.log('💔 Lost lives:', { amount, remainingLives: session.value.lives })
-    
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
       const { useGameStore } = await import('../../../features/gamification/model/game-store')
@@ -284,8 +220,6 @@ export const useSessionStore = defineStore('session', () => {
       
       const achievement = gameStore.unlockAchievement('on-the-edge')
       if (achievement) {
-        console.log('🔥 Разблокировано достижение "На краю"!')
-        
         // Начисляем XP за достижение
         await gainXP(achievement.xpReward)
         
@@ -309,11 +243,7 @@ export const useSessionStore = defineStore('session', () => {
         currentXP: session.value.currentXP,
         currentLevel: session.value.currentLevel
       })
-      
-      console.log('💀 GAME OVER! Opening modal...')
     }
-    
-    await saveSession()
   }
 
   const visitBubble = async (bubbleId: string): Promise<void> => {
@@ -321,18 +251,15 @@ export const useSessionStore = defineStore('session', () => {
 
     if (!session.value.visitedBubbles.includes(bubbleId)) {
       session.value.visitedBubbles.push(bubbleId)
-      
       const bubblesCount = session.value.visitedBubbles.length
-      console.log('🫧 Посещен пузырь:', { bubbleId, totalBubbles: bubblesCount })
-      
-      // Проверяем достижения за количество исследованных пузырей
+
+      // Добавлено: импорт и инициализация gameStore и modalStore
       const { useGameStore } = await import('../../../features/gamification/model/game-store')
       const { useModalStore } = await import('../../../shared/stores/modal-store')
       const gameStore = useGameStore()
       const modalStore = useModalStore()
-      
+
       let achievement = null
-      
       if (bubblesCount === 10) {
         achievement = gameStore.unlockAchievement('bubble-explorer-10')
       } else if (bubblesCount === 30) {
@@ -340,13 +267,9 @@ export const useSessionStore = defineStore('session', () => {
       } else if (bubblesCount === 50) {
         achievement = gameStore.unlockAchievement('bubble-explorer-50')
       }
-      
+
       if (achievement) {
-        console.log('🔍 Разблокировано достижение за исследование:', achievement.name)
-        
-        // Начисляем XP за достижение
         await gainXP(achievement.xpReward)
-        
         modalStore.openAchievementModal({
           title: achievement.name,
           description: achievement.description,
@@ -354,8 +277,6 @@ export const useSessionStore = defineStore('session', () => {
           xpReward: achievement.xpReward
         })
       }
-      
-      await saveSession()
     }
   }
 
@@ -363,7 +284,6 @@ export const useSessionStore = defineStore('session', () => {
     if (!session.value) return
 
     session.value.agreementScore += score
-    await saveSession()
   }
 
   const resetSession = async (): Promise<void> => {
@@ -382,13 +302,6 @@ export const useSessionStore = defineStore('session', () => {
       startTime: new Date(),
       lastActivity: new Date()
     }
-
-    console.log('🔄 Игра сброшена! Новая сессия:', {
-      id: session.value.id,
-      currentXP: session.value.currentXP,
-      currentLevel: session.value.currentLevel,
-      lives: session.value.lives
-    })
     
     // Уведомляем компоненты о сбросе игры
     window.dispatchEvent(new CustomEvent('game-reset'))
@@ -406,8 +319,6 @@ export const useSessionStore = defineStore('session', () => {
     
     const achievement = gameStore.unlockAchievement('first-tough-bubble')
     if (achievement) {
-      console.log('💪 Разблокировано достижение "Упорство"!')
-      
       // Начисляем XP за достижение
       await gainXP(achievement.xpReward)
       
@@ -418,8 +329,6 @@ export const useSessionStore = defineStore('session', () => {
         xpReward: achievement.xpReward
       })
     }
-    
-    await saveSession()
   }
 
   const clearError = (): void => {
@@ -447,7 +356,6 @@ export const useSessionStore = defineStore('session', () => {
     
     // Actions
     loadSession,
-    saveSession,
     gainXP,
     gainBubbleXP,
     gainPhilosophyXP,

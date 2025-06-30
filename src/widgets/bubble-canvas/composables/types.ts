@@ -10,6 +10,7 @@ export interface CanvasBubble extends Bubble {
   isHovered?: boolean
   textLines?: string[]
   textScaleFactor?: number
+  bubbleType?: 'regular' | 'philosophy' | 'hidden'
 }
 
 export interface SimulationNode extends CanvasBubble {

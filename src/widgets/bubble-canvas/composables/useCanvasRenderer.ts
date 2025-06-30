@@ -7,9 +7,32 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
     context.save()
     
-    // Устанавливаем прозрачность для скрытых пузырей
+    // Особая отрисовка для скрытого пузыря
+    if (bubble.bubbleType === 'hidden') {
+      const hiddenConfig = GAME_CONFIG.HIDDEN_BUBBLE
+      context.globalAlpha = hiddenConfig.opacity
+      const x = bubble.x
+      const y = bubble.y
+      const radius = bubble.currentRadius * hiddenConfig.sizeMultiplier
+      if (hiddenConfig.hasGradient && hiddenConfig.gradientColors) {
+        const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
+        hiddenConfig.gradientColors.forEach((color, index) => {
+          const stop = index / (hiddenConfig.gradientColors.length - 1)
+          gradient.addColorStop(stop, color)
+        })
+        context.fillStyle = gradient
+      } else {
+        context.fillStyle = '#64748B11' // fallback
+      }
+      context.beginPath()
+      context.arc(x, y, radius, 0, Math.PI * 2)
+      context.fill()
+      context.restore()
+      return
+    }
+    // Устанавливаем прозрачность для скрытых пузырей (legacy)
     if (bubble.isHidden) {
-      context.globalAlpha = 0.3 // Делаем скрытые пузыри полупрозрачными
+      context.globalAlpha = 0.1
     }
     
     // Позиция и размер пузыря
