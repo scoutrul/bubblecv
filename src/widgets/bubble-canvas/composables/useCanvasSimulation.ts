@@ -44,7 +44,7 @@ export function useCanvasSimulation(
   // Отрисовка всего канваса
   const render = () => {
     if (!canvasRef.value) return
-
+    
     // Получаем смещение тряски
     const shakeOffset = canvasEffects.calculateShakeOffset()
     
