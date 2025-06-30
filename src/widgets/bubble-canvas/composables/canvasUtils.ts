@@ -1,4 +1,4 @@
-import { SKILL_LEVELS } from '../../../shared/constants/skill-levels'
+import { SKILL_LEVELS, SKILL_LEVEL_SCALE_MAP, type SkillLevel } from '../../../shared/constants/skill-levels'
 
 // Проверка Windows для отключения анимации дыхания
 export const isWindows = (): boolean => {
@@ -29,15 +29,16 @@ export const calculateAdaptiveSizes = (bubbleCount: number, width: number, heigh
 }
 
 // Умная обрезка текста на несколько строк с адаптивным размером
-export const wrapText = (text: string, radius: number, skillLevel: string): { lines: string[], scaleFactor: number } => {
+export const wrapText = (text: string, radius: number, skillLevel?: SkillLevel): { lines: string[], scaleFactor: number } => {
   // Добавляем отступы по краям (20% от радиуса с каждой стороны)
   const padding = radius * 0.2
   const maxWidth = (radius * 2 - padding * 2) * 0.8
 
   // Базовый масштаб в зависимости от уровня навыка
   let baseScale = 1.0
-  if (skillLevel === 'novice') baseScale = 0.85
-  else if (skillLevel === 'intermediate') baseScale = 0.9
+  if (skillLevel && SKILL_LEVEL_SCALE_MAP[skillLevel]) {
+    baseScale = SKILL_LEVEL_SCALE_MAP[skillLevel]
+  }
   
   // Дополнительное уменьшение масштаба для длинных слов
   const longestWord = text.split(' ').reduce((max, word) => 
@@ -102,4 +103,31 @@ export const hexToRgb = (hex: string) => {
     g: parseInt(result[2], 16),
     b: parseInt(result[3], 16)
   } : { r: 102, g: 126, b: 234 }
+}
+
+export const calculateBubbleScale = (
+  text: string,
+  skillLevel?: SkillLevel,
+  isHighlighted: boolean = false
+): number => {
+  // Базовый масштаб в зависимости от уровня навыка
+  let baseScale = 1.0
+  if (skillLevel && SKILL_LEVEL_SCALE_MAP[skillLevel]) {
+    baseScale = SKILL_LEVEL_SCALE_MAP[skillLevel]
+  }
+  
+  // Дополнительное уменьшение масштаба для длинных слов
+  const longestWord = text.split(' ').reduce((max, word) => 
+    word.length > max.length ? word : max
+  , '')
+  
+  // Если самое длинное слово больше 8 символов, начинаем уменьшать масштаб
+  const longWordScale = longestWord.length > 8 
+    ? Math.max(0.7, 1 - (longestWord.length - 8) * 0.05)
+    : 1.0
+  
+  // Итоговый масштаб
+  const scaleFactor = baseScale * longWordScale
+  
+  return scaleFactor
 } 

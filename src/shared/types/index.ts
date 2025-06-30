@@ -11,22 +11,23 @@ export interface Bubble {
   isActive: boolean
   isEasterEgg: boolean
   isHidden: boolean
+  description: string
+  projects: string[]
+  isPopped: boolean
+  isVisited: boolean
+  size: BubbleSize
+  color: string
+  bubbleType?: 'hidden' | 'philosophy' | 'regular'
   isTough: boolean
   toughClicks: number
   currentClicks: number
-  isPopped: boolean
-  isVisited: boolean
-  description: string
-  projects: string[]
   link?: string
-  size: BubbleSize
-  color: string
-  position?: Position
-  bubbleType?: 'regular' | 'philosophy' | 'hidden'
+  x?: number
+  y?: number
 }
 
 // Импортируем типы из констант
-export type { SkillLevel, BubbleSize } from '../constants/skill-levels'
+export type { SkillLevel, BubbleSize }
 
 export interface Position {
   x: number

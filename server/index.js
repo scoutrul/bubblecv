@@ -6,6 +6,7 @@ import Database from 'better-sqlite3'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import fs from 'fs'
+import { SKILL_LEVEL_API_MAP } from '../src/shared/constants/skill-levels'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -14,13 +15,7 @@ const app = express()
 const PORT = process.env.PORT || 3003
 
 // Маппинг уровней навыков
-const skillLevelMap = {
-  'novice': 'beginner',
-  'intermediate': 'intermediate',
-  'confident': 'advanced',
-  'expert': 'expert',
-  'master': 'expert'
-}
+const skillLevelMap = SKILL_LEVEL_API_MAP
 
 // Database setup
 const setupDatabase = () => {

@@ -1,13 +1,21 @@
 import { SKILL_LEVELS, BUBBLE_SIZES } from '../constants/skill-levels'
 
 export const GAME_CONFIG = {
-  // XP System - значительно увеличены требования
-  xpLevels: {
-    level1: 25,   // Уровень 1: 0-50 XP
-    level2: 50,   // Уровень 2: 50-120 XP  
-    level3: 100,  // Уровень 3: 120-200 XP
-    level4: 200,  // Уровень 4: 200-300 XP
-    level5: 400   // Уровень 5: 300-450 XP
+  // Требования XP для каждого уровня
+  levelRequirements: {
+    1: 0,     // Начальный уровень
+    2: 50,    // Нужно 50 XP для достижения уровня 2
+    3: 100,   // Нужно 100 XP для достижения уровня 3
+    4: 150,   // Нужно 150 XP для достижения уровня 4
+    5: 200    // Нужно 200 XP для достижения уровня 5
+  } as const,
+  
+  // Награды за достижения
+  achievementXP: {
+    basic: 5,        // Базовое достижение
+    intermediate: 8,  // Промежуточное достижение
+    advanced: 12,    // Продвинутое достижение
+    master: 15       // Мастерское достижение
   } as const,
   
   // Lives System
@@ -16,21 +24,21 @@ export const GAME_CONFIG = {
   livesPenalty: 1,
   
   // Bubble Experience - опыт за уровни экспертизы
-  xpPerBubble: 10,
-  xpPerEasterEgg: 20,
+  xpPerBubble: 5,      // Уменьшено с 10
+  xpPerEasterEgg: 10,  // Уменьшено с 20
   
   // XP за уровни экспертизы пузырей
   xpPerExpertiseLevel: {
     [SKILL_LEVELS.NOVICE]: 1,
     [SKILL_LEVELS.INTERMEDIATE]: 2, 
     [SKILL_LEVELS.CONFIDENT]: 3,
-    [SKILL_LEVELS.EXPERT]: 5,
-    [SKILL_LEVELS.MASTER]: 8
+    [SKILL_LEVELS.EXPERT]: 4,
+    [SKILL_LEVELS.MASTER]: 5
   } as const,
   
   // Philosophy Questions XP/Lives
-  philosophyCorrectXp: 15,      // +10 XP за правильный ответ
-  philosophyWrongLives: 1,      // -1 жизнь за неправильный ответ
+  philosophyCorrectXp: 8,      // Уменьшено с 15
+  philosophyWrongLives: 1,     // -1 жизнь за неправильный ответ
   
   // Game Over & Restart
   restartYear: 2015,             // С какого года начинается игра заново
@@ -140,7 +148,7 @@ export const GAME_CONFIG = {
   } as const,
 } as const
 
-export type GameLevel = keyof typeof GAME_CONFIG.xpLevels
+export type GameLevel = keyof typeof GAME_CONFIG.levelRequirements
 export type AnimationType = keyof typeof GAME_CONFIG.animation
 export type ExpertiseLevel = keyof typeof GAME_CONFIG.expertiseLevels
 export type ExpertiseXPLevel = keyof typeof GAME_CONFIG.xpPerExpertiseLevel 

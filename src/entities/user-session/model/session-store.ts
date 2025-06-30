@@ -26,14 +26,13 @@ export const useSessionStore = defineStore('session', () => {
   const xpProgress = computed(() => {
     if (!session.value) return 0
     const level = session.value.currentLevel
-    if (level > 5) return 100
+    if (level >= 5) return 100
     
-    const levels = Object.values(GAME_CONFIG.xpLevels)
-    const xpForCurrentLevel = level === 1 ? 0 : levels[level - 2]
-    const xpForNext = levels[level - 1]
+    const currentLevelXP = GAME_CONFIG.levelRequirements[level as keyof typeof GAME_CONFIG.levelRequirements]
+    const nextLevelXP = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
     
-    const xpRangeForLevel = xpForNext - xpForCurrentLevel
-    const xpAbovePrevLevel = Math.max(0, currentXP.value - xpForCurrentLevel)
+    const xpRangeForLevel = nextLevelXP - currentLevelXP
+    const xpAbovePrevLevel = Math.max(0, currentXP.value - currentLevelXP)
     
     const progress = Math.min((xpAbovePrevLevel / xpRangeForLevel) * 100, 100)
     
@@ -45,20 +44,18 @@ export const useSessionStore = defineStore('session', () => {
     const currentLevel = session.value.currentLevel
     if (currentLevel >= 5) return 0 // Максимальный уровень
     
-    const levels = Object.values(GAME_CONFIG.xpLevels)
-    return levels[currentLevel - 1]
+    return GAME_CONFIG.levelRequirements[(currentLevel + 1) as keyof typeof GAME_CONFIG.levelRequirements]
   })
 
   const canLevelUp = computed(() => {
-    const levels = Object.values(GAME_CONFIG.xpLevels)
-    const maxLevel = levels.length
+    if (!session.value) return false
+    const level = session.value.currentLevel
     
     // Не можем повыситься если уже максимальный уровень
-    if (currentLevel.value >= maxLevel) return false
+    if (level >= 5) return false
     
     // XP необходимый для следующего уровня
-    // Если мы на уровне 4, нам нужен XP для уровня 5, который в массиве под индексом 4
-    const requiredXPForNextLevel = levels[currentLevel.value] // следующий уровень в массиве
+    const requiredXPForNextLevel = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
     const canLevel = currentXP.value >= requiredXPForNextLevel
     
     return canLevel
@@ -118,7 +115,7 @@ export const useSessionStore = defineStore('session', () => {
         const gameStore = useGameStore()
         const modalStore = useModalStore()
         
-        const achievement = gameStore.unlockAchievement('first-level-master')
+        const achievement = await gameStore.unlockAchievement('first-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
@@ -136,7 +133,7 @@ export const useSessionStore = defineStore('session', () => {
         const gameStore = useGameStore()
         const modalStore = useModalStore()
         
-        const achievement = gameStore.unlockAchievement('final-level-master')
+        const achievement = await gameStore.unlockAchievement('final-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
@@ -172,7 +169,7 @@ export const useSessionStore = defineStore('session', () => {
     const gameStore = useGameStore()
     const modalStore = useModalStore()
     
-    const achievement = gameStore.unlockAchievement('philosophy-master')
+    const achievement = await gameStore.unlockAchievement('philosophy-master')
     if (achievement) {
       // Начисляем XP за достижение
       await gainXP(achievement.xpReward)
@@ -206,7 +203,7 @@ export const useSessionStore = defineStore('session', () => {
       const gameStore = useGameStore()
       const modalStore = useModalStore()
       
-      const achievement = gameStore.unlockAchievement('on-the-edge')
+      const achievement = await gameStore.unlockAchievement('on-the-edge')
       if (achievement) {
         // Начисляем XP за достижение
         await gainXP(achievement.xpReward)
@@ -272,7 +269,7 @@ export const useSessionStore = defineStore('session', () => {
     const gameStore = useGameStore()
     const modalStore = useModalStore()
     
-    const achievement = gameStore.unlockAchievement('first-tough-bubble')
+    const achievement = await gameStore.unlockAchievement('tough-bubble-popper')
     if (achievement) {
       // Начисляем XP за достижение
       await gainXP(achievement.xpReward)

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
-import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
+import { SKILL_LEVEL_MIGRATION_MAP, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -44,7 +44,7 @@ export const useBubbleStore = defineStore('bubble', () => {
         // Трансформируем данные в правильный формат
         bubbles.value = data.data.map((rawBubble: any) => {
           // Преобразуем уровень навыка
-          const skillLevel = SKILL_LEVEL_API_MAPPING[rawBubble.skillLevel] || SKILL_LEVELS.NOVICE
+          const skillLevel = SKILL_LEVEL_MIGRATION_MAP[rawBubble.skillLevel] || SKILL_LEVELS.NOVICE
           const bubbleSize: BubbleSize = SKILL_TO_BUBBLE_SIZE[skillLevel]
           
           return {

@@ -134,7 +134,7 @@ export function useCanvasInteraction(
         createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
         
         // Разблокируем достижение
-        const achievement = gameStore.unlockAchievement('secret-bubble-discoverer')
+        const achievement = await gameStore.unlockAchievement('secret-bubble-discoverer')
         if (achievement) {
           modalStore.queueOrShowAchievement({
             title: achievement.name,
@@ -278,11 +278,11 @@ export function useCanvasInteraction(
     let achievement = null
     
     if (bubblesCount === 10) {
-      achievement = gameStore.unlockAchievement('bubble-explorer-10')
+      achievement = await gameStore.unlockAchievement('bubble-explorer-10')
     } else if (bubblesCount === 30) {
-      achievement = gameStore.unlockAchievement('bubble-explorer-30')
+      achievement = await gameStore.unlockAchievement('bubble-explorer-30')
     } else if (bubblesCount === 50) {
-      achievement = gameStore.unlockAchievement('bubble-explorer-50')
+      achievement = await gameStore.unlockAchievement('bubble-explorer-50')
     }
     
     if (achievement) {

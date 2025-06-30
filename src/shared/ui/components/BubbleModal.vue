@@ -48,7 +48,7 @@
               <h3 class="section-title">Уровень экспертизы</h3>
               <div class="skill-level">
                 <div class="skill-badge" :class="skillLevelClass">
-                  {{ getSkillLevelLabel(bubble?.skillLevel) }}
+                  {{ bubble?.skillLevel ? SKILL_LEVEL_LABELS[bubble.skillLevel] : '' }}
                 </div>
                 <div class="skill-years">
                   {{ getExperienceYears() }} лет опыта
@@ -136,8 +136,7 @@
 import { computed } from 'vue'
 import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
-import { useModalStore } from '@shared/stores/modal-store'
-import { useSessionStore } from '@entities/user-session/model/session-store'
+import { SKILL_LEVEL_LABELS } from '@shared/constants/skill-levels'
 
 interface Props {
   isOpen: boolean
