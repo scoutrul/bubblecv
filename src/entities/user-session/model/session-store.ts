@@ -246,15 +246,26 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const resetSession = async (): Promise<void> => {
-    if (!session.value) return
+    // Сбрасываем состояние сессии
+    session.value = {
+      id: generateSessionId(),
+      currentXP: 0,
+      currentLevel: 1,
+      lives: GAME_CONFIG.initialLives,
+      unlockedContent: [],
+      visitedBubbles: [],
+      agreementScore: 0,
+      gameCompleted: false,
+      hasDestroyedToughBubble: false,
+      startTime: new Date(),
+      lastActivity: new Date()
+    }
 
-    session.value.currentXP = 0
-    session.value.currentLevel = 1
-    session.value.lives = GAME_CONFIG.maxLives, // При ресете восстанавливаем все 5 жизней
-    session.value.unlockedContent = []
-    session.value.visitedBubbles = []
-    session.value.gameCompleted = false
-    
+    // Показываем приветственную модалку
+    const { useModalStore } = await import('@shared/stores/modal-store')
+    const modalStore = useModalStore()
+    modalStore.openWelcome()
+
     // Уведомляем компоненты о сбросе игры
     window.dispatchEvent(new CustomEvent('game-reset'))
   }
