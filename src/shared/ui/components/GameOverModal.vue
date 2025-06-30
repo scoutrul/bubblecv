@@ -1,6 +1,15 @@
 <template>
   <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
     <div class="modal-content game-over-modal">
+      <!-- Крестик для закрытия -->
+      <button 
+        @click="$emit('close')"
+        class="close-button"
+        aria-label="Закрыть"
+      >
+        ×
+      </button>
+      
       <div class="game-over-header">
         <div class="skull-icon">💀</div>
         <h2 class="game-over-title">GAME OVER</h2>
@@ -97,7 +106,23 @@ const handleRestart = async () => {
 }
 
 .game-over-modal {
-  @apply text-center;
+  @apply text-center relative;
+}
+
+.close-button {
+  @apply absolute top-4 right-4;
+  @apply w-8 h-8 rounded-full;
+  @apply bg-gray-100 hover:bg-gray-200;
+  @apply border border-gray-300 hover:border-gray-400;
+  @apply text-gray-600 hover:text-gray-800;
+  @apply font-bold text-xl leading-none;
+  @apply transition-all duration-200;
+  @apply flex items-center justify-center;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  transform: scale(1.05);
 }
 
 .game-over-header {

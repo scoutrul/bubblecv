@@ -4,7 +4,16 @@
     class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     style="z-index: 2000;"
   >
-    <div class="bg-surface border border-border rounded-2xl p-8 max-w-2xl w-full mx-4">
+    <div class="bg-surface border border-border rounded-2xl p-8 max-w-2xl w-full mx-4 relative">
+      <!-- Крестик для закрытия -->
+      <button 
+        @click="$emit('close')"
+        class="close-button"
+        aria-label="Закрыть"
+      >
+        ×
+      </button>
+      
       <!-- Header -->
       <div class="text-center mb-6">
         <div class="w-16 h-16 mx-auto bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
@@ -121,5 +130,29 @@ const handleAnswer = (answer: 'agree' | 'disagree') => {
 </script>
 
 <style scoped>
-/* Дополнительные стили если нужны */
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  color: #64748b;
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
+}
 </style> 

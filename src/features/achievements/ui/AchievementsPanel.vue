@@ -1,9 +1,17 @@
 <template>
-  <div class="achievements-panel content-card">
-    <div class="panel-header">
-      <h3 class="text-lg font-semibold">🏆 Достижения</h3>
-      <button @click="$emit('close')" class="close-btn">✕</button>
-    </div>
+  <!-- Фон для закрытия по клику вне области -->
+  <div 
+    class="achievements-overlay"
+    @click="$emit('close')"
+  >
+    <div 
+      class="achievements-panel content-card"
+      @click.stop
+    >
+      <div class="panel-header">
+        <h3 class="text-lg font-semibold">🏆 Достижения</h3>
+        <button @click="$emit('close')" class="close-btn">✕</button>
+      </div>
     
     <div class="achievements-grid">
       <div v-if="unlockedAchievements.length === 0" class="achievement-placeholder">
@@ -37,6 +45,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -65,10 +74,23 @@ const formatDate = (date: string | Date): string => {
 </script>
 
 <style scoped>
+.achievements-overlay {
+  @apply fixed inset-0;
+  z-index: 1400;
+  pointer-events: auto;
+}
+
 .achievements-panel {
-  @apply absolute bottom-[4rem] right-[1rem] mb-2 w-80 max-h-96 overflow-y-auto;
+  @apply absolute bottom-[4rem] right-[1rem] mb-2 w-80;
   z-index: 1500;
   pointer-events: auto;
+  max-height: calc(100vh - 8rem);
+  min-height: fit-content;
+}
+
+.achievements-grid {
+  @apply overflow-y-auto;
+  max-height: calc(100vh - 12rem);
 }
 
 .panel-header {

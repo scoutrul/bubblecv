@@ -24,6 +24,15 @@
               <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
             </div>
           </div>
+          
+          <!-- Крестик для закрытия -->
+          <button 
+            @click="$emit('continue')"
+            class="close-button"
+            aria-label="Закрыть"
+          >
+            ×
+          </button>
         </div>
 
         <!-- Content -->
@@ -201,6 +210,23 @@ const handleOverlayClick = (event: MouseEvent) => {
 .modal-header {
   @apply flex justify-between items-start p-6 pb-4;
   @apply border-b border-border;
+  @apply relative;
+}
+
+.close-button {
+  @apply absolute top-4 right-4;
+  @apply w-8 h-8 rounded-full;
+  @apply bg-gray-100 hover:bg-gray-200;
+  @apply border border-gray-300 hover:border-gray-400;
+  @apply text-gray-600 hover:text-gray-800;
+  @apply font-bold text-xl leading-none;
+  @apply transition-all duration-200;
+  @apply flex items-center justify-center;
+  cursor: pointer;
+}
+
+.close-button:hover {
+  transform: scale(1.05);
 }
 
 .bubble-icon {

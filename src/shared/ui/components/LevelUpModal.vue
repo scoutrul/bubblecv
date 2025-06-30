@@ -5,6 +5,15 @@
     @click="handleOverlayClick"
   >
     <div class="level-up-modal" @click.stop>
+      <!-- Крестик для закрытия -->
+      <button 
+        @click="close"
+        class="close-button"
+        aria-label="Закрыть"
+      >
+        ×
+      </button>
+      
       <!-- Заголовок с анимацией -->
       <div class="level-up-header">
         <div class="level-icon-large">{{ levelData.icon }}</div>
@@ -121,6 +130,32 @@ const handleOverlayClick = () => {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   animation: slideUp 0.4s ease-out;
   position: relative;
+}
+
+.close-button {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
+  color: var(--text-secondary, #64748b);
+  font-size: 1.5rem;
+  font-weight: bold;
+  line-height: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-button:hover {
+  color: var(--text-primary, #f1f5f9);
+  background: rgba(255, 255, 255, 0.1);
+  transform: scale(1.05);
 }
 
 .level-up-header {
