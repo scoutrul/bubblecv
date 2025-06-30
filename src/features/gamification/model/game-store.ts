@@ -16,9 +16,13 @@ export const useGameStore = defineStore('game', () => {
   // Загружаем и обновляем уровни с актуальными XP требованиями
   const loadContentLevels = async () => {
     try {
+      isLoading.value = true
+      error.value = null
+      
       const data = await api.getContentLevels()
+      
+      // Обновляем XP требования из game-config
       const levelsWithUpdatedXP = data.levels.map((level: Level) => {
-        // Получаем XP требования из game-config
         const xpRequiredMap = {
           1: 0,  // Первый уровень - стартовый
           2: GAME_CONFIG.levelRequirements[2],
@@ -34,9 +38,13 @@ export const useGameStore = defineStore('game', () => {
       })
       
       contentLevels.value = levelsWithUpdatedXP
+      levels.value = data.levels
+      console.log('📚 Loaded levels:', levels.value.length)
     } catch (err) {
       console.error('❌ Error loading content levels:', err)
       error.value = 'Failed to load content levels'
+    } finally {
+      isLoading.value = false
     }
   }
 
@@ -167,26 +175,6 @@ export const useGameStore = defineStore('game', () => {
     return null
   }
 
-  // Загрузка данных об уровнях
-  const fetchLevels = async () => {
-    try {
-      isLoading.value = true
-      error.value = null
-      
-      const data = await api.getContentLevels()
-      levels.value = data.levels
-      console.log('📚 Loaded levels:', levels.value.length)
-    } catch (err) {
-      console.error('❌ Error loading levels:', err)
-      error.value = 'Failed to load game levels'
-    } finally {
-      isLoading.value = false
-    }
-  }
-
-  // Вызываем загрузку при инициализации стора
-  fetchLevels()
-
   const currentLevelData = computed(() => {
     return levels.value.find(level => level.level === currentLevel.value)
   })
@@ -238,7 +226,6 @@ export const useGameStore = defineStore('game', () => {
     progress,
     addXP,
     isLoading,
-    error,
-    fetchLevels
+    error
   }
 }) 

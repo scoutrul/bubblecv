@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
-import { SKILL_LEVEL_MIGRATION_MAP, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
+import type { Bubble, SkillLevel, BubbleSize } from '@shared/types'
+import { SKILL_LEVEL_MIGRATION_MAP, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '@shared/constants/skill-levels'
+import { api } from '@shared/api'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -30,12 +31,8 @@ export const useBubbleStore = defineStore('bubble', () => {
     // Создаём промис для отслеживания загрузки
     loadingPromise = (async () => {
       try {
-        // Загружаем данные с сервера
-        const response = await fetch('http://localhost:3003/api/bubbles')
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data = await response.json()
+        // Загружаем данные с сервера через API клиент
+        const data = await api.getBubbles()
         
         if (!data.success) {
           throw new Error(data.error || 'Failed to load bubbles')

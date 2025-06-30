@@ -31,24 +31,7 @@ const modalStore = useModalStore()
 // Функция для проверки и инициализации базы данных
 const initializeDatabase = async () => {
   try {
-    // Пробуем загрузить пузыри через store
-    await bubbleStore.loadBubbles()
-    
-    // Если пузырей нет, инициализируем базу данных
-    if (bubbleStore.bubbles.length === 0) {
-      const seedResponse = await fetch('http://localhost:3003/api/seed', {
-        method: 'POST'
-      })
-      const seedData = await seedResponse.json()
-      
-      if (!seedData.success) {
-        throw new Error('Failed to seed database')
-      }
-      console.log('✅ База данных инициализирована')
-      
-      // Принудительно перезагружаем пузыри после инициализации
-      await bubbleStore.loadBubbles(true)
-    }
+    await bubbleStore.loadBubbles() 
   } catch (error) {
     console.error('❌ Ошибка инициализации базы данных:', error)
   }
