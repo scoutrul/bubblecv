@@ -3,13 +3,13 @@
     name="modal"
     appear
   >
-    <div 
-      v-if="isOpen" 
-      class="level-up-modal-overlay"
-      @click="handleOverlayClick"
+  <div 
+    v-if="isOpen" 
+    class="level-up-modal-overlay"
+    @click="handleOverlayClick"
       data-testid="level-up-modal"
-    >
-      <div class="level-up-modal" @click.stop>
+  >
+    <div class="level-up-modal" @click.stop>
         <!-- Крестик для закрытия -->
         <button 
           @click="close"
@@ -20,37 +20,37 @@
           ×
         </button>
         
-        <!-- Заголовок с анимацией -->
-        <div class="level-up-header">
-          <div class="level-icon-large">{{ levelData.icon }}</div>
-          <h2 class="level-up-title">LEVEL UP!</h2>
-          <div class="new-level">
-            <span class="level-number">Уровень {{ levelData.level }}</span>
-            <span class="level-name">{{ levelData.title }}</span>
-          </div>
-        </div>
-
-        <!-- Описание -->
-        <div class="level-description">
-          <p>{{ levelData.description }}</p>
-        </div>
-
-        <!-- Разблокированные возможности -->
-        <div v-if="unlockedFeatures.length > 0" class="unlocked-features">
-          <h3>🔓 Разблокировано:</h3>
-          <ul>
-            <li v-for="feature in unlockedFeatures" :key="feature">
-              {{ feature }}
-            </li>
-          </ul>
-        </div>
-
-        <!-- Подсказка для закрытия -->
-        <div class="click-outside-hint">
-          <span>Кликните вне окна для продолжения</span>
+      <!-- Заголовок с анимацией -->
+      <div class="level-up-header">
+        <div class="level-icon-large">{{ levelData.icon }}</div>
+        <h2 class="level-up-title">LEVEL UP!</h2>
+        <div class="new-level">
+          <span class="level-number">Уровень {{ levelData.level }}</span>
+          <span class="level-name">{{ levelData.title }}</span>
         </div>
       </div>
+
+      <!-- Описание -->
+      <div class="level-description">
+        <p>{{ levelData.description }}</p>
+      </div>
+
+      <!-- Разблокированные возможности -->
+      <div v-if="unlockedFeatures.length > 0" class="unlocked-features">
+        <h3>🔓 Разблокировано:</h3>
+        <ul>
+          <li v-for="feature in unlockedFeatures" :key="feature">
+            {{ feature }}
+          </li>
+        </ul>
+      </div>
+
+      <!-- Подсказка для закрытия -->
+      <div class="click-outside-hint">
+        <span>Кликните вне окна для продолжения</span>
+      </div>
     </div>
+  </div>
   </Transition>
 </template>
 
@@ -97,19 +97,15 @@ const handleOverlayClick = () => {
 <style scoped>
 .level-up-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  z-index: 2500;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  z-index: 2500;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 .level-up-modal {
@@ -123,6 +119,7 @@ const handleOverlayClick = () => {
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   position: relative;
+  cursor: default;
 }
 
 /* Vue Transition классы */

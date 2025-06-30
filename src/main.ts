@@ -60,23 +60,7 @@ const initApp = async () => {
 
   app.use(pinia)
 
-  // Инициализируем сессию пользователя при запуске приложения
-  const sessionStore = useSessionStore()
-  await sessionStore.loadSession()
-
-  // Проверяем нужно ли показать welcome модалку
-  const modalStore = useModalStore()
-  if (modalStore.shouldShowWelcome()) {
-    // Небольшая задержка для лучшего UX
-    setTimeout(() => {
-      modalStore.openWelcome()
-    }, 500)
-  }
-
   app.mount('#app')
 }
 
-// Запускаем приложение
-initApp().catch(error => {
-  // Удалить все строки с console.log(...) и console.error(...)
-}) 
+initApp() 

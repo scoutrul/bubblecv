@@ -107,14 +107,6 @@ export const useModalStore = defineStore('modal', () => {
 
   const closeWelcome = () => {
     isWelcomeOpen.value = false
-    // Сохраняем что welcome модалка была показана
-    localStorage.setItem('bubbleme-welcome-shown', 'true')
-    processPendingAchievements()
-  }
-
-  // Проверяем нужно ли показать welcome модалку
-  const shouldShowWelcome = () => {
-    return !localStorage.getItem('bubbleme-welcome-shown')
   }
 
   // Bubble Modal Actions
@@ -277,8 +269,7 @@ export const useModalStore = defineStore('modal', () => {
 
   // Achievement Modal Actions
   const openAchievementModal = (achievement: { title: string; description: string; icon: string; xpReward: number }) => {
-    achievementData.value = achievement
-    isAchievementModalOpen.value = true
+    queueOrShowAchievement(achievement)
   }
 
   const closeAchievementModal = () => {
@@ -305,7 +296,6 @@ export const useModalStore = defineStore('modal', () => {
     // Actions
     openWelcome,
     closeWelcome,
-    shouldShowWelcome,
     openBubbleModal,
     closeBubbleModal,
     continueBubbleModal,

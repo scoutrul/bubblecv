@@ -22,9 +22,11 @@ import ModalManager from './shared/ui/components/ModalManager.vue'
 import ResetButton from './shared/ui/components/ResetButton.vue'
 import { useSessionStore } from './entities/user-session/model/session-store'
 import { useBubbleStore } from './entities/bubble/model/bubble-store'
+import { useModalStore } from './shared/stores/modal-store'
 
 const sessionStore = useSessionStore()
 const bubbleStore = useBubbleStore()
+const modalStore = useModalStore()
 
 // Функция для проверки и инициализации базы данных
 const initializeDatabase = async () => {
@@ -53,9 +55,16 @@ const initializeDatabase = async () => {
 }
 
 onMounted(async () => {
-  // Инициализируем сессию и базу данных
-  await initializeDatabase() // Уже загружает пузыри внутри
+  // Инициализируем базу данных и сессию
+  await initializeDatabase()
+  
+  // Создаем новую сессию для каждой вкладки
   await sessionStore.loadSession()
+  
+  // Всегда показываем приветственную модалку в новой вкладке
+  setTimeout(() => {
+    modalStore.openWelcome()
+  }, 500)
 })
 </script>
 

@@ -94,15 +94,23 @@ const handleRestart = async () => {
 
 <style scoped>
 .modal-overlay {
-  @apply fixed inset-0 flex items-center justify-center;
-  @apply bg-black/80 backdrop-blur-sm;
-  z-index: 2000;
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 .modal-content {
-  @apply bg-background-card border border-border rounded-lg shadow-xl;
+  @apply bg-background-primary border border-border rounded-lg shadow-xl;
   @apply p-6 max-w-md w-full mx-4;
   @apply transform transition-all duration-300;
+  @apply text-center relative;
 }
 
 .game-over-modal {

@@ -161,4 +161,30 @@ const handleAnswer = (answer: 'agree' | 'disagree') => {
   background: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+}
+
+.modal-container {
+  cursor: default;
+  background: var(--background-primary, #1e293b);
+  border: 1px solid var(--border, #334155);
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 28rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
 </style> 

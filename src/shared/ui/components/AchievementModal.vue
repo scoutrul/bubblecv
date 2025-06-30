@@ -1,97 +1,87 @@
 <template>
-  <Transition
-    name="modal"
-    appear
+  <BaseModal
+    :is-open="modalStore.isAchievementModalOpen"
+    data-testid="achievement-modal"
+    @close="handleClose"
   >
-    <div 
-      v-if="modalStore.isAchievementModalOpen" 
-      class="modal-overlay"
-      @click.self="handleClose"
-      data-testid="achievement-modal"
-    >
-      <div 
-        class="modal-container"
-        @click.stop
+    <!-- Фиксированный хедер с крестиком -->
+    <div class="relative flex-shrink-0 p-4 border-b border-amber-200">
+      <button 
+        @click="handleClose"
+        class="close-button"
+        aria-label="Закрыть"
+        data-testid="achievement-continue"
       >
-        <!-- Фиксированный хедер с крестиком -->
-        <div class="relative flex-shrink-0 p-4 border-b border-amber-200">
-          <button 
-            @click="handleClose"
-            class="close-button"
-            aria-label="Закрыть"
-            data-testid="achievement-continue"
-          >
-            ×
-          </button>
-          
-          <!-- Заголовок в хедере -->
-          <div class="text-center">
-            <h2 class="text-lg font-bold text-amber-800 tracking-wider uppercase">
-              Достижение разблокировано!
-            </h2>
-          </div>
-        </div>
-        
-        <!-- Скроллируемая область контента -->
-        <div 
-          ref="scrollContainer"
-          class="flex-1 overflow-y-auto scrollable-content"
-          tabindex="0"
-        >
-          <!-- Фоновые эффекты -->
-          <div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-amber-200/30 rounded-full blur-3xl animate-pulse"></div>
-            <div class="absolute bottom-0 right-0 w-24 h-24 bg-yellow-200/40 rounded-full blur-2xl animate-pulse delay-1000"></div>
-          </div>
-          
-          <!-- Содержимое с отступом для скроллбара -->
-          <div class="relative z-10 text-center p-6 pr-4">
-            <!-- Иконка достижения -->
-            <div class="mb-6">
-              <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg animate-bounce">
-                <span class="text-4xl">{{ modalStore.achievementData?.icon || '🏆' }}</span>
-              </div>
-            </div>
-            
-            <!-- Название достижения -->
-            <h3 class="text-2xl font-bold text-gray-800 mb-4">
-              {{ modalStore.achievementData?.title }}
-            </h3>
-            
-            <!-- Описание -->
-            <p class="text-gray-700 mb-6 leading-relaxed">
-              {{ modalStore.achievementData?.description }}
-            </p>
-            
-            <!-- XP награда -->
-            <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg mb-6">
-              <div class="flex items-center justify-center space-x-2">
-                <span class="text-2xl">✨</span>
-                <span class="font-bold text-lg">+{{ modalStore.achievementData?.xpReward }} XP</span>
-                <span class="text-2xl">✨</span>
-              </div>
-            </div>
-            
-            <!-- Подсказка для закрытия -->
-            <div class="text-amber-700 text-sm">
-              Кликните вне окна для продолжения
-            </div>
-          </div>
-        </div>
-        
-        <!-- Декоративные звезды (привязаны к основному контейнеру) -->
-        <div class="absolute top-16 right-4 text-amber-400 animate-pulse pointer-events-none">⭐</div>
-        <div class="absolute top-20 left-4 text-yellow-400 animate-pulse delay-500 pointer-events-none">🌟</div>
-        <div class="absolute bottom-6 left-8 text-amber-300 animate-pulse delay-1000 pointer-events-none">✨</div>
-        <div class="absolute bottom-4 right-6 text-yellow-300 animate-pulse delay-700 pointer-events-none">💫</div>
+        ×
+      </button>
+      
+      <!-- Заголовок в хедере -->
+      <div class="text-center">
+        <h2 class="text-lg font-bold text-amber-800 tracking-wider uppercase">
+          Достижение разблокировано!
+        </h2>
       </div>
     </div>
-  </Transition>
+    
+    <!-- Скроллируемая область контента -->
+    <div 
+      ref="scrollContainer"
+      class="flex-1 overflow-y-auto scrollable-content"
+      tabindex="0"
+    >
+      <!-- Фоновые эффекты -->
+      <div class="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-32 bg-amber-200/30 rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-0 right-0 w-24 h-24 bg-yellow-200/40 rounded-full blur-2xl animate-pulse delay-1000"></div>
+      </div>
+      
+      <!-- Содержимое с отступом для скроллбара -->
+      <div class="relative z-10 text-center p-6 pr-4">
+        <!-- Иконка достижения -->
+        <div class="mb-6">
+          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg animate-bounce">
+            <span class="text-4xl">{{ modalStore.achievementData?.icon || '🏆' }}</span>
+          </div>
+        </div>
+        
+        <!-- Название достижения -->
+        <h3 class="text-2xl font-bold text-gray-800 mb-4">
+          {{ modalStore.achievementData?.title }}
+        </h3>
+        
+        <!-- Описание -->
+        <p class="text-gray-700 mb-6 leading-relaxed">
+          {{ modalStore.achievementData?.description }}
+        </p>
+        
+        <!-- XP награда -->
+        <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg mb-6">
+          <div class="flex items-center justify-center space-x-2">
+            <span class="text-2xl">✨</span>
+            <span class="font-bold text-lg">+{{ modalStore.achievementData?.xpReward }} XP</span>
+            <span class="text-2xl">✨</span>
+          </div>
+        </div>
+        
+        <!-- Подсказка для закрытия -->
+        <div class="text-amber-700 text-sm">
+          Кликните вне окна для продолжения
+        </div>
+      </div>
+    </div>
+    
+    <!-- Декоративные звезды (привязаны к основному контейнеру) -->
+    <div class="absolute top-16 right-4 text-amber-400 animate-pulse pointer-events-none">⭐</div>
+    <div class="absolute top-20 left-4 text-yellow-400 animate-pulse delay-500 pointer-events-none">🌟</div>
+    <div class="absolute bottom-6 left-8 text-amber-300 animate-pulse delay-1000 pointer-events-none">✨</div>
+    <div class="absolute bottom-4 right-6 text-yellow-300 animate-pulse delay-700 pointer-events-none">💫</div>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
 import { useModalStore } from '@shared/stores/modal-store'
+import BaseModal from './BaseModal.vue'
 
 const modalStore = useModalStore()
 const scrollContainer = ref<HTMLElement>()
@@ -136,21 +126,17 @@ const handleClose = () => {
   color: #78350f;
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
-}
+  }
 
 /* Стили для скроллируемой области */
 .scrollable-content {
-  /* Убираем outline при фокусе */
   outline: none;
-  /* Padding справа для скроллбара */
   padding-right: 8px;
-  /* Для Firefox */
   scrollbar-width: thin;
   scrollbar-color: rgba(245, 158, 11, 0.4) rgba(245, 158, 11, 0.1);
 }
 
 .scrollable-content:focus {
-  /* Тонкий border при фокусе для индикации */
   box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.3);
 }
 
@@ -179,91 +165,11 @@ const handleClose = () => {
   background: rgba(245, 158, 11, 0.8);
 }
 
-/* Улучшенные анимации модалки */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
-}
-
-.modal-container {
-  position: relative;
+/* Стили для контейнера */
+:deep(.modal-container) {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border: 2px solid #f59e0b;
-  max-width: 28rem;
-  width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Vue Transition классы */
-.modal-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.modal-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.modal-enter-from {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-enter-from .modal-container {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.9);
-}
-
-.modal-leave-to {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-leave-to .modal-container {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
-@keyframes modalEnter {
-  from { 
-    opacity: 0; 
-    backdrop-filter: blur(0px);
-  }
-  to { 
-    opacity: 1; 
-    backdrop-filter: blur(4px);
-  }
-}
-
-@keyframes modalScale {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes modalLeave {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
 }
 </style> 

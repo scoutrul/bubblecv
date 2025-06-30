@@ -69,9 +69,10 @@ export const useSessionStore = defineStore('session', () => {
     error.value = null
 
     try {
-      const id = sessionId || generateSessionId()
+      // Всегда генерируем новый ID сессии для новой вкладки
+      const id = generateSessionId()
       
-      // ВСЕГДА создаём новую сессию без сохранения
+      // Создаём новую сессию
       session.value = {
         id,
         currentXP: 0,
@@ -265,7 +266,7 @@ export const useSessionStore = defineStore('session', () => {
     const { useModalStore } = await import('@shared/stores/modal-store')
     const modalStore = useModalStore()
     modalStore.openWelcome()
-
+    
     // Уведомляем компоненты о сбросе игры
     window.dispatchEvent(new CustomEvent('game-reset'))
   }

@@ -4,31 +4,31 @@
       name="modal"
       appear
     >
-      <div 
-        v-if="isOpen" 
-        class="modal-overlay"
-        @click="handleOverlayClick"
+    <div 
+      v-if="isOpen" 
+      class="modal-overlay"
+      @click="handleOverlayClick"
         data-testid="bubble-modal"
+    >
+      <div 
+        class="modal-container"
+        @click.stop
       >
-        <div 
-          class="modal-container"
-          @click.stop
-        >
-          <!-- Header -->
-          <div class="modal-header">
-            <div class="flex items-center gap-3">
-              <div 
-                class="bubble-icon"
-                :style="{ backgroundColor: getBubbleColor() }"
-              >
-                <span class="text-white font-bold text-lg">
-                  {{ bubble?.name?.[0]?.toUpperCase() }}
-                </span>
-              </div>
-              <div>
-                <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
-              </div>
+        <!-- Header -->
+        <div class="modal-header">
+          <div class="flex items-center gap-3">
+            <div 
+              class="bubble-icon"
+              :style="{ backgroundColor: getBubbleColor() }"
+            >
+              <span class="text-white font-bold text-lg">
+                {{ bubble?.name?.[0]?.toUpperCase() }}
+              </span>
             </div>
+            <div>
+              <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
+            </div>
+          </div>
             
             <!-- Крестик для закрытия -->
             <button 
@@ -39,95 +39,88 @@
             >
               ×
             </button>
-          </div>
+        </div>
 
-          <!-- Content -->
-          <div class="modal-content">
-            <!-- Skill Level -->
-            <div class="skill-section">
-              <h3 class="section-title">Уровень экспертизы</h3>
-              <div class="skill-level">
-                <div class="skill-badge" :class="skillLevelClass">
+        <!-- Content -->
+        <div class="modal-content">
+          <!-- Skill Level -->
+          <div class="skill-section">
+            <h3 class="section-title">Уровень экспертизы</h3>
+            <div class="skill-level">
+              <div class="skill-badge" :class="skillLevelClass">
                   {{ bubble?.skillLevel ? SKILL_LEVEL_LABELS[bubble.skillLevel] : '' }}
-                </div>
-                <div class="skill-years">
-                  {{ getExperienceYears() }} лет опыта
-                </div>
               </div>
-            </div>
-
-            <!-- Description -->
-            <div class="description-section">
-              <h3 class="section-title">Описание</h3>
-              <p class="description-text">
-                {{ bubble?.description }}
-              </p>
-            </div>
-
-            <!-- Projects -->
-            <div v-if="bubble?.projects?.length" class="projects-section">
-              <h3 class="section-title">Проекты</h3>
-              <ul class="projects-list">
-                <li 
-                  v-for="project in bubble.projects" 
-                  :key="project"
-                  class="project-item"
-                >
-                  {{ project }}
-                </li>
-              </ul>
-            </div>
-
-            <!-- Link -->
-            <div v-if="bubble?.link" class="link-section">
-              <a 
-                :href="bubble.link"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="external-link"
-              >
-                🔗 Посмотреть примеры работы
-              </a>
-            </div>
-
-            <!-- Timeline -->
-            <div class="timeline-section">
-              <h3 class="section-title">Временная линия</h3>
-              <div class="timeline-info">
-                <span class="timeline-start">{{ bubble?.yearStarted }}</span>
-                <div class="timeline-line"></div>
-                <span class="timeline-end">
-                  {{ bubble?.yearEnded || 'настоящее время' }}
-                </span>
-              </div>
-            </div>
-
-            <!-- Easter Egg Special -->
-            <div v-if="bubble?.isEasterEgg" class="easter-egg-section">
-              <div class="easter-egg-badge">
-                🥚 Философский пузырь
-              </div>
-              <p class="easter-egg-text">
-                Этот пузырь содержит особые убеждения о разработке. 
-                Взаимодействие с ним поможет работодателю понять ваши ценности!
-              </p>
             </div>
           </div>
 
-          <!-- Footer -->
-          <div class="modal-footer">
-            <div class="xp-reward">
-              <span class="xp-text">
+          <!-- Description -->
+          <div class="description-section">
+            <h3 class="section-title">Описание</h3>
+            <p class="description-text">
+              {{ bubble?.description }}
+            </p>
+          </div>
+
+          <!-- Projects -->
+          <div v-if="bubble?.projects?.length" class="projects-section">
+            <h3 class="section-title">Проекты</h3>
+            <ul class="projects-list">
+              <li 
+                v-for="project in bubble.projects" 
+                :key="project"
+                class="project-item"
+              >
+                {{ project }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Link -->
+          <div v-if="bubble?.link" class="link-section">
+            <a 
+              :href="bubble.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="external-link"
+            >
+              🔗 Посмотреть примеры работы
+            </a>
+          </div>
+
+          <!-- Timeline -->
+          <div class="timeline-section">
+              <h3 class="section-title">Год появления</h3>
+            <div class="timeline-info">
+                <span class="timeline-start">{{ bubble?.year }}</span>
+            </div>
+          </div>
+
+          <!-- Easter Egg Special -->
+          <div v-if="bubble?.isEasterEgg" class="easter-egg-section">
+            <div class="easter-egg-badge">
+              🥚 Философский пузырь
+            </div>
+            <p class="easter-egg-text">
+              Этот пузырь содержит особые убеждения о разработке. 
+              Взаимодействие с ним поможет работодателю понять ваши ценности!
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+          <div class="xp-reward">
+            <span class="xp-text">
                 + {{ xpReward }} XP
-              </span>
-            </div>
-            
-            <div class="click-outside-hint">
-              <span class="hint-text">Кликните вне окна для продолжения</span>
-            </div>
+            </span>
+          </div>
+          
+          <div class="click-outside-hint">
+            <span class="hint-text">Кликните вне окна для продолжения</span>
           </div>
         </div>
       </div>
+    </div>
     </Transition>
   </Teleport>
 </template>
@@ -170,8 +163,7 @@ const skillLevelClass = computed(() => {
 const getExperienceYears = () => {
   if (!props.bubble) return 0
   const currentYear = new Date().getFullYear()
-  const endYear = props.bubble.yearEnded || currentYear
-  return endYear - props.bubble.yearStarted
+  return currentYear - props.bubble.year
 }
 
 const xpReward = computed(() => {
@@ -199,15 +191,23 @@ const handleOverlayClick = (event: MouseEvent) => {
 
 <style scoped>
 .modal-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm;
-  @apply flex items-center justify-center p-4;
-  z-index: 2000;
+  position: fixed;
+  inset: 0;
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
 .modal-container {
-  @apply bg-background-primary border border-border rounded-xl;
-  @apply w-full max-w-lg max-h-[90vh] overflow-y-auto;
-  @apply shadow-2xl;
+  cursor: default;
+  @apply bg-background-primary border border-border rounded-lg shadow-xl;
+  @apply p-6 max-w-md w-full mx-4;
+  @apply transform transition-all duration-300;
 }
 
 /* Vue Transition классы */
@@ -383,12 +383,12 @@ const handleOverlayClick = (event: MouseEvent) => {
 }
 
 @keyframes modalEnter {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     backdrop-filter: blur(0px);
   }
-  to { 
-    opacity: 1; 
+  to {
+    opacity: 1;
     backdrop-filter: blur(4px);
   }
 }
@@ -413,5 +413,9 @@ const handleOverlayClick = (event: MouseEvent) => {
     opacity: 0;
     transform: scale(0.95);
   }
+}
+
+.game-over-modal {
+  @apply text-center relative;
 }
 </style> 
