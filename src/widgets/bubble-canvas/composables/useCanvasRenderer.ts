@@ -62,6 +62,34 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.beginPath()
       context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
+    } else if (bubble.isTough) {
+      // Особая отрисовка для крепких пузырей
+      const toughConfig = GAME_CONFIG.TOUGH_BUBBLE
+      
+      // Сначала рисуем свечение
+      context.shadowColor = toughConfig.glowColor
+      context.shadowBlur = toughConfig.glowSize
+      context.shadowOffsetX = 0
+      context.shadowOffsetY = 0
+      
+      if (toughConfig.hasGradient && toughConfig.gradientColors) {
+        const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
+        toughConfig.gradientColors.forEach((color, index) => {
+          const stop = index / (toughConfig.gradientColors.length - 1)
+          gradient.addColorStop(stop, color)
+        })
+        context.fillStyle = gradient
+      } else {
+        context.fillStyle = bubble.color
+      }
+      
+      context.beginPath()
+      context.arc(x, y, radius, 0, Math.PI * 2)
+      context.fill()
+      
+      // Сбрасываем тень после отрисовки
+      context.shadowColor = 'transparent'
+      context.shadowBlur = 0
     } else {
       // Отрисовка для обычных пузырей с поддержкой градиентов
       const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]

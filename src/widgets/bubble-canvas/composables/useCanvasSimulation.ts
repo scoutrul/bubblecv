@@ -74,7 +74,13 @@ export function useCanvasSimulation(
 
   // Взрыв пузыря с удалением
   const explodeBubble = (bubble: SimulationNode) => {
+    // Создаем визуальный эффект "хлопка"
     canvasEffects.explodeBubble(bubble)
+    
+    // Создаем мощный эффект отталкивания от центра пузыря
+    const explosionRadius = bubble.baseRadius * 5 // Радиус волны
+    const explosionStrength = 18 // Сила волны
+    physicsSimulation.explodeFromPoint(bubble.x, bubble.y, explosionRadius, explosionStrength, nodes, width, height)
     
     // Сохраняем позицию перед удалением
     bubbleManager.savePositions([bubble])
@@ -162,9 +168,12 @@ export function useCanvasSimulation(
 
     // Создаем новые узлы (с восстановлением позиций)
     nodes = bubbleManager.createNodes(bubbles, width, height)
+
+    // Обновляем физическую симуляцию с новыми узлами
     physicsSimulation.updateNodes(nodes)
 
-
+    // Принудительно запускаем симуляцию для новых узлов
+    simulation.alpha(1).restart()
   }
 
   // Удаление пузыря по ID

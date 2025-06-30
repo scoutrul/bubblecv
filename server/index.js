@@ -10,15 +10,6 @@ import fs from 'fs'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Настройка логирования
-const logFile = join(__dirname, 'server.log')
-const log = (message) => {
-  const timestamp = new Date().toISOString()
-  const logMessage = `${timestamp} ${message}\n`
-  console.log(logMessage)
-  fs.appendFileSync(logFile, logMessage)
-}
-
 const app = express()
 const PORT = process.env.PORT || 3003
 
@@ -38,7 +29,6 @@ const setupDatabase = () => {
   let db
   try {
     db = new Database(dbPath)
-    log('✅ База данных инициализирована')
     
     // Создаем таблицы
     db.exec(`
@@ -50,6 +40,8 @@ const setupDatabase = () => {
         year_ended INTEGER,
         is_active BOOLEAN DEFAULT true,
         is_easter_egg BOOLEAN DEFAULT false,
+        is_tough BOOLEAN DEFAULT false,
+        tough_clicks INTEGER DEFAULT 3,
         description TEXT,
         projects TEXT,
         link TEXT,
@@ -126,7 +118,7 @@ const setupDatabase = () => {
     
     return { db, statements, dbPath }
   } catch (error) {
-    log('❌ Ошибка инициализации БД: ' + error.message)
+    console.error('❌ Ошибка инициализации БД: ' + error.message)
     process.exit(1)
   }
 }
@@ -162,7 +154,9 @@ app.get('/api/bubbles', (req, res) => {
       ...bubble,
       projects: bubble.projects ? JSON.parse(bubble.projects) : [],
       isActive: Boolean(bubble.is_active),
-      isEasterEgg: Boolean(bubble.is_easter_egg)
+      isEasterEgg: Boolean(bubble.is_easter_egg),
+      isTough: Boolean(bubble.is_tough),
+      toughClicks: bubble.tough_clicks || 3
     }))
     
     res.json({
@@ -171,7 +165,6 @@ app.get('/api/bubbles', (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('❌ Ошибка получения пузырей:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка сервера',
@@ -203,7 +196,6 @@ app.get('/api/session/:sessionId', (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Ошибка сессии:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка сервера',
@@ -234,7 +226,6 @@ app.put('/api/session/:sessionId', (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('Ошибка обновления сессии:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка сервера',
@@ -327,8 +318,6 @@ app.post('/api/seed', async (req, res) => {
       }
     }
     
-    console.log(`✅ Загружено ${mockData.bubbles.length} пузырей и ${philosophyData.questions.length} вопросов`)
-    
     res.json({
       success: true,
       data: { 
@@ -338,7 +327,6 @@ app.post('/api/seed', async (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    console.error('❌ Ошибка загрузки данных:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка загрузки данных',
@@ -355,7 +343,6 @@ app.get('*', (req, res) => {
 
 // Error handling
 app.use((err, req, res, next) => {
-  console.error('Ошибка сервера:', err)
   res.status(500).json({
     success: false,
     error: 'Внутренняя ошибка сервера',
@@ -367,12 +354,6 @@ app.use((err, req, res, next) => {
 const startServer = async () => {
   try {
     app.listen(PORT, () => {
-      console.log(`
-🚀 Bubbles Resume Server запущен!
-📍 URL: http://localhost:${PORT}
-📊 API: http://localhost:${PORT}/api/health
-🗄️  База данных: ${dbPath}
-      `)
     })
   } catch (error) {
     console.error('❌ Ошибка запуска сервера:', error)
@@ -384,7 +365,6 @@ startServer()
 
 // Graceful shutdown
 process.on('SIGINT', () => {
-  console.log('\n🛑 Завершение работы сервера...')
   db.close()
   process.exit(0)
 }) 

@@ -61,6 +61,9 @@ export interface Achievement {
 export interface PhilosophyQuestion {
   id: string
   question: string
+  context: string
+  agreeText: string
+  disagreeText: string
   options: string[]
   correctAnswer: string
   explanation: string

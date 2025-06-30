@@ -52,12 +52,19 @@ const isLoading = ref<boolean>(true)
 const canvasWidth = ref(0)
 const canvasHeight = ref(0)
 
+const getBubblesToRender = () => {
+  const regularBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
+  const hiddenBubbles = bubbleStore.activeHiddenBubbles
+  return [...regularBubbles, ...hiddenBubbles]
+}
+
 // Функция для проверки и обновления года
 const checkBubblesAndAdvance = () => {
-  // Используем накопительный метод для получения всех доступных пузырей
-  const visibleBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
+  // Получаем все доступные пузыри до текущего года, исключая скрытые
+  const visibleBubbles = getBubblesToRender()
+    .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
   const hasUnpoppedBubbles = visibleBubbles.some(bubble => !bubble.isPopped)
-
+  
   if (!hasUnpoppedBubbles && props.currentYear < props.endYear) {
     // Ищем следующий год с новыми пузырями
     const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(props.currentYear, sessionStore.visitedBubbles)
@@ -102,41 +109,44 @@ const handleMouseLeave = () => {
 }
 
 // Следим за изменением года
-watch(() => props.currentYear, (newYear: number) => {
-  if (!isLoading.value) {
-    // Используем накопительный метод - показываем все пузыри до текущего года
-    const filteredBubbles = bubbleStore.getBubblesUpToYear(newYear, sessionStore.visitedBubbles)
-    updateBubbles(filteredBubbles)
+watch(() => props.currentYear, (newYear, oldYear) => {
+  if (isLoading.value || !isInitialized.value) return;
+
+  // Если движемся вперед во времени, добавляем новый скрытый пузырь
+  if (newYear > oldYear) {
+    bubbleStore.addHiddenBubble();
+  }
+
+  const filteredBubbles = getBubblesToRender()
+  updateBubbles(filteredBubbles)
+})
+
+// Этот watch исправляет проблему с пустой инициализацией
+watch(() => bubbleStore.isLoading, (loading) => {
+  // Когда загрузка ЗАКОНЧИЛАСЬ и канвас уже инициализирован
+  if (loading === false && isInitialized.value) {
+    const bubblesToRender = getBubblesToRender();
+    updateBubbles(bubblesToRender);
   }
 })
 
-// Реактивная инициализация при загрузке пузырей
-watchEffect(() => {
-  // Ждём когда пузыри загрузятся в App.vue
-  if (bubbleStore.bubbles.length > 0 && isLoading.value) {
-    initializeCanvas()
-  }
-})
-
-// Функция инициализации canvas
-const initializeCanvas = () => {
+// Реактивная инициализация и обновление
+onMounted(() => {
+  isLoading.value = true
+  
   const resizeObserver = new ResizeObserver(entries => {
     for (const entry of entries) {
       const { width, height } = entry.contentRect
       if (width > 0 && height > 0) {
-        // Обновляем размеры канваса
         canvasWidth.value = width
         canvasHeight.value = height
         
         if (!isInitialized.value) {
-          // Первичная инициализация
           initSimulation(width, height)
-          // Используем накопительный метод для начальной загрузки
-          const initialBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
+          const initialBubbles = getBubblesToRender()
           updateBubbles(initialBubbles)
           isLoading.value = false
         } else {
-          // Просто обновляем размеры без пересоздания симуляции
           updateSimulationSize(width, height)
         }
       }
@@ -151,17 +161,11 @@ const initializeCanvas = () => {
     resizeObserver.disconnect()
     destroySimulation()
   })
-}
-
-// Инициализация и очистка
-onMounted(() => {
-  isLoading.value = true
   
   // Если пузыри уже загружены, инициализируем сразу
   if (bubbleStore.bubbles.length > 0) {
-    initializeCanvas()
+    // Canvas будет инициализирован через ResizeObserver
   }
-  // Иначе ждём через watchEffect
 })
 </script>
 

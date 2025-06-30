@@ -93,19 +93,14 @@ export function useCanvasInteraction(
     const clickedBubble = findBubbleUnderCursor(mouseX, mouseY, nodes)
 
     if (clickedBubble && !clickedBubble.isVisited) {
-
-      
       // Обработка крепких пузырей
       if (clickedBubble.isTough) {
         const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
         
-        // Показываем +1 XP за каждый клик
         createXPFloatingText(clickedBubble.x, clickedBubble.y, 1, '#fbbf24')
         await sessionStore.gainXP(1)
         
         if (!result.isReady) {
-
-          
           // Анимация клика для крепкого пузыря
           const originalRadius = clickedBubble.targetRadius
           clickedBubble.targetRadius = originalRadius * 0.95
@@ -116,25 +111,18 @@ export function useCanvasInteraction(
             }, 100)
           }, 50)
           
-          return // Не открываем модал пока пузырь не готов
-        } else {
-          
-          
-          // Разблокируем достижение за первый крепкий пузырь
-          await sessionStore.unlockFirstToughBubbleAchievement()
-          
-          // Пузырь готов - продолжаем обычную логику открытия модалки
+          return // Не открываем модал и не помечаем как посещенный
         }
+        
+        await sessionStore.unlockFirstToughBubbleAchievement()
       }
+      
+      // Пузырь считается посещенным, как только мы по нему кликнули
+      clickedBubble.isVisited = true
+      await sessionStore.visitBubble(clickedBubble.id)
       
       // Специальная обработка для скрытого пузыря
       if (clickedBubble.isHidden) {
-
-        
-        // Отмечаем пузырь как посещенный
-        clickedBubble.isVisited = true
-        await sessionStore.visitBubble(clickedBubble.id)
-        
         // Создаем мощный эффект взрыва
         const explosionRadius = clickedBubble.baseRadius * 8
         const explosionStrength = 25
@@ -143,7 +131,7 @@ export function useCanvasInteraction(
         // Начисляем XP за секретный пузырь
         const secretXP = 10
         await sessionStore.gainXP(secretXP)
-        createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700') // Золотой цвет для секретного XP
+        createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
         
         // Разблокируем достижение
         const achievement = gameStore.unlockAchievement('secret-bubble-discoverer')
@@ -158,8 +146,7 @@ export function useCanvasInteraction(
         
         // Удаляем пузырь со сцены
         removeBubble(clickedBubble.id, nodes)
-        
-        return
+        return // Завершаем обработку
       }
       
       // Анимация клика - плавное изменение размера
@@ -179,6 +166,9 @@ export function useCanvasInteraction(
         const philosophyQuestion: PhilosophyQuestion = {
           id: `question-${clickedBubble.id}`,
           question: clickedBubble.name,
+          context: 'Этот вопрос проверяет ваши взгляды на разработку.',
+          agreeText: 'Я согласен с этим подходом и готов работать в этом стиле.',
+          disagreeText: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
           options: [
             'Я согласен с этим подходом и готов работать в этом стиле.',
             'Я предпочитаю работать по-другому и не согласен с этим подходом.'
@@ -191,7 +181,7 @@ export function useCanvasInteraction(
       } else {
         modalStore.openBubbleModal(clickedBubble)
       }
-    } else {
+    } else if (!clickedBubble) {
       // Клик по пустому месту - создаем взрыв отталкивания
       const explosionRadius = Math.min(width, height) * 0.3 // 30% от размера экрана
       const explosionStrength = 15 // Сильный взрыв
@@ -217,7 +207,6 @@ export function useCanvasInteraction(
     // Находим пузырь
     const bubble = nodes.find(node => node.id === bubbleId)
     if (!bubble) {
-      console.warn('❌ Пузырь не найден:', bubbleId)
       return
     }
     
@@ -252,7 +241,6 @@ export function useCanvasInteraction(
 
     // Показываем Level Up модал если уровень повысился
     if (leveledUp) {
-      console.log('🎉 LEVEL UP! Уровень:', sessionStore.currentLevel)
       
       // Получаем иконку для уровня (такую же как в LevelDisplay)
       const getLevelIcon = (level: number): string => {

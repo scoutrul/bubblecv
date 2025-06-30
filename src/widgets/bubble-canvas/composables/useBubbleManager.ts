@@ -13,12 +13,37 @@ export function useBubbleManager() {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
     
     return bubbles.map((bubble, index) => {
+      // Если это скрытый пузырь, используем специальную конфигурацию
+      if (bubble.bubbleType === 'hidden') {
+        const baseRadius = sizes.min * 0.8 // Делаем скрытые пузыри немного меньше
+        const savedPos = savedPositions.get(bubble.id)
+        
+        const node: SimulationNode = {
+          ...bubble,
+          radius: baseRadius,
+          baseRadius,
+          color: bubble.color,
+          oscillationPhase: Math.random() * Math.PI * 2,
+          targetRadius: baseRadius,
+          currentRadius: baseRadius,
+          x: savedPos?.x ?? Math.random() * width,
+          y: savedPos?.y ?? Math.random() * height,
+          vx: savedPos?.vx ?? 0,
+          vy: savedPos?.vy ?? 0
+        }
+        
+        const textResult = wrapText(bubble.name, baseRadius, SKILL_LEVELS.NOVICE)
+        node.textLines = textResult.lines
+        node.textScaleFactor = textResult.scaleFactor
+        
+        return node
+      }
+
       // Используем конфигурацию уровня экспертизы для определения размера
       const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
       
       // Проверяем, что конфигурация найдена
       if (!expertiseConfig) {
-        console.error(`Конфигурация для уровня навыка "${bubble.skillLevel}" не найдена для пузыря "${bubble.name}"`)
         // Используем дефолтную конфигурацию
         const defaultConfig = GAME_CONFIG.EXPERTISE_LEVELS[SKILL_LEVELS.INTERMEDIATE]
         const skillIndex = SKILL_LEVELS_ARRAY.indexOf(SKILL_LEVELS.INTERMEDIATE)

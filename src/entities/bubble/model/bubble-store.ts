@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
 import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
@@ -9,6 +9,10 @@ export const useBubbleStore = defineStore('bubble', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   let loadingPromise: Promise<void> | null = null
+  
+  const activeHiddenBubbles = computed(() => {
+    return bubbles.value.filter(b => b.bubbleType === 'hidden' && !b.isPopped && !b.isVisited)
+  })
 
   const loadBubbles = async (forceReload: boolean = false) => {
     // Если уже загружены и не принудительная перезагрузка - ничего не делаем
@@ -58,7 +62,9 @@ export const useBubbleStore = defineStore('bubble', () => {
             isPopped: false,
             isVisited: false,
             size: bubbleSize,
-            color: rawBubble.color || '#3b82f6'
+            color: rawBubble.color || '#3b82f6',
+            isTough: rawBubble.isTough || false,
+            toughClicks: rawBubble.toughClicks || 3
           } satisfies Bubble
         })
         
@@ -82,14 +88,14 @@ export const useBubbleStore = defineStore('bubble', () => {
     return bubbles.value.filter(bubble => bubble.yearStarted === year)
   }
 
-  // Новый метод: получить все пузыри до указанного года включительно (накопительно)
+  // Модифицируем метод getBubblesUpToYear
   const getBubblesUpToYear = (year: number, visitedBubbleIds: string[] = []): Bubble[] => {
+    // Этот метод теперь работает ТОЛЬКО с обычными пузырями
     return bubbles.value.filter(bubble => {
-      // Пузыри должны быть из года <= текущему году
+      if (bubble.bubbleType === 'hidden') return false // Игнорируем скрытые пузыри
+
       const isInTimeRange = bubble.yearStarted <= year
-      // Исключаем уже посещённые пузыри
       const isNotVisited = !visitedBubbleIds.includes(bubble.id)
-      // Исключаем лопнувшие пузыри
       const isNotPopped = !bubble.isPopped
       
       return isInTimeRange && isNotVisited && isNotPopped
@@ -98,8 +104,12 @@ export const useBubbleStore = defineStore('bubble', () => {
 
   // Найти следующий год с новыми пузырями
   const findNextYearWithNewBubbles = (currentYear: number, visitedBubbleIds: string[] = []): number | null => {
-    // Получаем все годы, где есть пузыри
-    const availableYears = [...new Set(bubbles.value.map(bubble => bubble.yearStarted))].sort((a, b) => a - b)
+    // Получаем все годы, где есть пузыри (исключая скрытые)
+    const availableYears = [...new Set(
+      bubbles.value
+        .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
+        .map(bubble => bubble.yearStarted)
+    )].sort((a, b) => a - b)
     
     // Ищем следующий год после текущего, где есть новые (не посещённые) пузыри
     for (const year of availableYears) {
@@ -108,7 +118,8 @@ export const useBubbleStore = defineStore('bubble', () => {
           const isInYear = bubble.yearStarted === year
           const isNotVisited = !visitedBubbleIds.includes(bubble.id)
           const isNotPopped = !bubble.isPopped
-          return isInYear && isNotVisited && isNotPopped
+          const isNotHidden = !bubble.bubbleType || bubble.bubbleType !== 'hidden'
+          return isInYear && isNotVisited && isNotPopped && isNotHidden
         })
         
         if (newBubblesInYear.length > 0) {
@@ -124,13 +135,6 @@ export const useBubbleStore = defineStore('bubble', () => {
     const bubble = bubbles.value.find(b => b.id === id)
     if (bubble) {
       bubble.isPopped = true
-    }
-
-    // После лопания пузыря, если число лопнувших кратно 10, добавляем новый скрытый пузырь
-    const poppedCount = bubbles.value.filter(b => b.isPopped && b.bubbleType !== 'hidden').length
-    if (poppedCount > 0 && poppedCount % 10 === 0) {
-      const hiddenCount = bubbles.value.filter(b => b.bubbleType === 'hidden').length
-      bubbles.value.push(createHiddenBubble(hiddenCount))
     }
   }
 
@@ -172,8 +176,8 @@ export const useBubbleStore = defineStore('bubble', () => {
 
   // Генерация скрытого пузыря
   function createHiddenBubble(index: number = 0): Bubble {
-    return {
-      id: `hidden-bubble-${index}`,
+    const hiddenBubble = {
+      id: `hidden-bubble-${Date.now()}-${index}`, // Добавляем timestamp для уникальности
       name: 'Скрытый пузырь',
       skillLevel: SKILL_LEVELS.NOVICE,
       yearStarted: 2000, // вне зависимости от года
@@ -184,10 +188,29 @@ export const useBubbleStore = defineStore('bubble', () => {
       projects: [],
       isPopped: false,
       isVisited: false,
+      // Убираем временную метку
       size: BUBBLE_SIZES.NOVICE,
-      color: '#64748B11',
-      bubbleType: 'hidden'
+      color: '#64748B99', // Увеличиваем непрозрачность для лучшей видимости
+      bubbleType: 'hidden',
+      x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
+      y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
     } as Bubble & { bubbleType: 'hidden' }
+    return hiddenBubble
+  }
+
+  const addHiddenBubble = () => {
+    const totalHiddenCount = bubbles.value.filter(b => b.bubbleType === 'hidden').length;
+    const newHiddenBubble = createHiddenBubble(totalHiddenCount);
+    bubbles.value = [...bubbles.value, newHiddenBubble];
+  };
+
+  // Добавляем метод для проверки наличия непробитых пузырей в году (исключая скрытые)
+  const hasUnpoppedBubblesInYear = (year: number): boolean => {
+    return bubbles.value.some(bubble => 
+      bubble.yearStarted === year && 
+      !bubble.isPopped && 
+      (!bubble.bubbleType || bubble.bubbleType !== 'hidden')
+    )
   }
 
   return {
@@ -200,6 +223,9 @@ export const useBubbleStore = defineStore('bubble', () => {
     findNextYearWithNewBubbles,
     popBubble,
     resetBubbles,
-    incrementToughBubbleClicks
+    incrementToughBubbleClicks,
+    hasUnpoppedBubblesInYear,
+    activeHiddenBubbles,
+    addHiddenBubble
   }
 }) 

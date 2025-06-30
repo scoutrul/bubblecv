@@ -126,6 +126,17 @@ export const GAME_CONFIG = {
     opacity: 0.08, // очень высокая прозрачность
     name: 'Скрытый пузырь'
   } as const,
+
+  // Tough Bubble - визуализация крепкого пузыря
+  TOUGH_BUBBLE: {
+    hasGradient: true,
+    gradientColors: ['#FFFFFF', '#FBBF24', '#F59E0B'], // яркий золотой градиент
+    sizeMultiplier: 1.1, // чуть больше обычных
+    opacity: 1,
+    glowColor: '#F59E0B33', // цвет свечения
+    glowSize: 10, // размер свечения
+    name: 'Крепкий пузырь'
+  } as const,
 } as const
 
 export type GameLevel = keyof typeof GAME_CONFIG.XP_LEVELS
