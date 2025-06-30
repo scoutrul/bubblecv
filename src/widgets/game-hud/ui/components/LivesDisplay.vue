@@ -1,5 +1,5 @@
 <template>
-  <div class="lives-display">
+  <div class="lives-display" :class="{ 'lives-shake': isShaking }">
     <div class="stat-header">
       <span class="stat-title">Жизни</span>
       <div class="hearts-container">
@@ -17,12 +17,25 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+
 interface Props {
   currentLives: number
   maxLives: number
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const isShaking = ref(false)
+
+// Следим за изменением жизней
+watch(() => props.currentLives, (newValue, oldValue) => {
+  if (newValue < oldValue) { // Запускаем анимацию только при потере жизней
+    isShaking.value = true
+    setTimeout(() => {
+      isShaking.value = false
+    }, 600) // Длительность shake анимации
+  }
+})
 </script>
 
 <style scoped>
@@ -49,5 +62,16 @@ defineProps<Props>()
 
 .life-lost {
   @apply opacity-30 grayscale;
+}
+
+/* Shake анимация для панели жизней */
+.lives-shake {
+  animation: lives-shake 0.6s ease-in-out;
+}
+
+@keyframes lives-shake {
+  0%, 100% { transform: translate(0, 0); }
+  10%, 30%, 50%, 70%, 90% { transform: translate(-1px, -1px); }
+  20%, 40%, 60%, 80% { transform: translate(1px, 1px); }
 }
 </style> 

@@ -1,6 +1,6 @@
 <template>
   <div class="xp-display">
-    <div class="xp-row">
+    <div class="xp-row" :class="{ 'shake-animation': isShaking }">
       <div class="xp-info">
         <span class="stat-title">Опыт</span>
         <span class="stat-value">{{ currentXP }} / {{ nextLevelXP }}</span>
@@ -19,6 +19,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue'
+
 interface Props {
   currentXP: number
   nextLevelXP: number
@@ -26,7 +28,17 @@ interface Props {
   isAnimating?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const isShaking = ref(false)
+
+watch(() => props.currentXP, (newVal, oldVal) => {
+  if (oldVal !== undefined && newVal !== oldVal) {
+    isShaking.value = true
+    setTimeout(() => {
+      isShaking.value = false
+    }, 600)
+  }
+})
 </script>
 
 <style scoped>
@@ -72,5 +84,15 @@ defineProps<Props>()
     rgba(255, 255, 255, 0.4),
     transparent
   );
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.shake-animation {
+  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
 }
 </style> 

@@ -4,16 +4,7 @@
     class="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     style="z-index: 2000;"
   >
-    <div class="bg-surface border border-border rounded-2xl p-8 max-w-2xl w-full mx-4 relative">
-      <!-- Крестик для закрытия -->
-      <button 
-        @click="$emit('close')"
-        class="close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
-      
+    <div class="modal-container border border-border rounded-2xl p-8 max-w-2xl w-full mx-4 relative">
       <!-- Header -->
       <div class="text-center mb-6">
         <div class="w-16 h-16 mx-auto bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
@@ -55,10 +46,10 @@
             </div>
           </div>
           
-                     <h4 class="font-semibold text-text-primary mb-2">Принимаю</h4>
-           <p class="text-sm text-text-secondary leading-relaxed">
-             {{ question.agreeText || 'Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
-           </p>
+          <h4 class="font-semibold text-text-primary mb-2">Принимаю</h4>
+          <p class="text-sm text-text-secondary leading-relaxed">
+            {{ question.agreeText || 'Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
+          </p>
           
           <div class="absolute inset-0 bg-green-500/5 rounded-xl opacity-0 
                       group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -80,10 +71,10 @@
             </div>
           </div>
           
-                     <h4 class="font-semibold text-text-primary mb-2">Не принимаю</h4>
-           <p class="text-sm text-text-secondary leading-relaxed">
-             {{ question.disagreeText || 'Я не согласен с этим подходом и предпочитаю работать по-другому.' }}
-           </p>
+          <h4 class="font-semibold text-text-primary mb-2">Не принимаю</h4>
+          <p class="text-sm text-text-secondary leading-relaxed">
+            {{ question.disagreeText || 'Я не согласен с этим подходом и предпочитаю работать по-другому.' }}
+          </p>
           
           <div class="absolute inset-0 bg-red-500/5 rounded-xl opacity-0 
                       group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -177,14 +168,30 @@ const handleAnswer = (answer: 'agree' | 'disagree') => {
 
 .modal-container {
   cursor: default;
-  background: var(--background-primary, #1e293b);
-  border: 1px solid var(--border, #334155);
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 2px solid #8b5cf6;
   border-radius: 1rem;
   padding: 2rem;
   width: 100%;
-  max-width: 28rem;
+  min-width: calc(100vw - 4rem);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(139, 92, 246, 0.1),
+    0 0 50px rgba(139, 92, 246, 0.15);
+  position: relative;
+}
+
+/* Добавляем декоративный фоновый эффект */
+.modal-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+  border-radius: inherit;
+  pointer-events: none;
 }
 </style> 

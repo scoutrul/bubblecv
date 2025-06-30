@@ -1,6 +1,6 @@
 <template>
   <div class="level-display">
-    <div class="level-info" :class="levelClass">
+    <div class="level-info" :class="[levelClass, { 'shake-animation': isShaking }]">
       <span class="level-title" :class="titleClass">
         <span class="level-icon">{{ levelIcon }}</span>
         Уровень {{ currentLevel }}
@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 interface Props {
   currentLevel: number
@@ -20,6 +20,16 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const isShaking = ref(false)
+
+watch(() => props.currentLevel, (newVal, oldVal) => {
+  if (oldVal !== undefined && newVal !== oldVal) {
+    isShaking.value = true
+    setTimeout(() => {
+      isShaking.value = false
+    }, 600)
+  }
+})
 
 // Иконки для разных уровней
 const levelIcon = computed(() => {
@@ -188,5 +198,15 @@ const subtitleClass = computed(() => {
   60% {
     transform: translateY(-2px);
   }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.shake-animation {
+  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
 }
 </style> 

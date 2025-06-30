@@ -61,32 +61,7 @@
             </p>
           </div>
 
-          <!-- Projects -->
-          <div v-if="bubble?.projects?.length" class="projects-section">
-            <h3 class="section-title">Проекты</h3>
-            <ul class="projects-list">
-              <li 
-                v-for="project in bubble.projects" 
-                :key="project"
-                class="project-item"
-              >
-                {{ project }}
-              </li>
-            </ul>
-          </div>
-
-          <!-- Link -->
-          <div v-if="bubble?.link" class="link-section">
-            <a 
-              :href="bubble.link"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="external-link"
-            >
-              🔗 Посмотреть примеры работы
-            </a>
-          </div>
-
+      
           <!-- Timeline -->
           <div class="timeline-section">
               <h3 class="section-title">Год появления</h3>
@@ -95,16 +70,6 @@
             </div>
           </div>
 
-          <!-- Easter Egg Special -->
-          <div v-if="bubble?.isEasterEgg" class="easter-egg-section">
-            <div class="easter-egg-badge">
-              🥚 Философский пузырь
-            </div>
-            <p class="easter-egg-text">
-              Этот пузырь содержит особые убеждения о разработке. 
-              Взаимодействие с ним поможет работодателю понять ваши ценности!
-            </p>
-          </div>
         </div>
 
         <!-- Footer -->
