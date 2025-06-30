@@ -27,7 +27,7 @@ export const useGameStore = defineStore('game', () => {
     })
     
     contentLevels.value = levelsWithUpdatedXP
-    console.log('📊 Загружены уровни контента:', contentLevels.value.map(l => ({ level: l.level, title: l.title, xpRequired: l.xpRequired })))
+
   }
 
   const getLevelByNumber = (level: number) => {

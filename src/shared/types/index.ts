@@ -35,13 +35,16 @@ export interface Position {
 // Игровые системы
 export interface UserSession {
   id: string
-  startedAt: string
-  lastActiveAt: string
-  score: number
-  level: number
+  currentXP: number
+  currentLevel: number
   lives: number
+  unlockedContent: number[]
   visitedBubbles: string[]
-  achievements: Achievement[]
+  agreementScore: number
+  gameCompleted: boolean
+  hasDestroyedToughBubble?: boolean
+  startTime: Date
+  lastActivity: Date
 }
 
 export interface Achievement {
@@ -50,7 +53,7 @@ export interface Achievement {
   description: string
   icon: string
   unlockedAt?: string
-  xpReward?: number
+  xpReward: number
 }
 
 export interface PhilosophyQuestion {

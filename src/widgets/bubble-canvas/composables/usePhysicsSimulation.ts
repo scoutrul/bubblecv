@@ -1,0 +1,191 @@
+import { ref } from 'vue'
+import * as d3 from 'd3'
+import type { SimulationNode } from './types'
+
+export function usePhysicsSimulation() {
+  let simulation: d3.Simulation<SimulationNode, undefined> | null = null
+  let restartInterval: number = 0
+
+  // Инициализация симуляции
+  const initSimulation = (width: number, height: number): d3.Simulation<SimulationNode, undefined> => {
+    // Высота HUD панели (примерно 80px с отступами)
+    const hudHeight = 80
+    const effectiveHeight = height - hudHeight
+    const centerY = (effectiveHeight / 2) + hudHeight
+    
+    // Инициализируем симуляцию с улучшенной физикой для импульсов
+    simulation = d3.forceSimulation<SimulationNode>()
+      .force('center', d3.forceCenter(width / 2, centerY).strength(0.005))
+      .force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.7))
+      .force('charge', d3.forceManyBody().strength(-12))
+      .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.003))
+      .alpha(0.3)
+      .alphaDecay(0) // Бесконечное движение
+      .velocityDecay(0.75) // Уменьшили затухание для более заметного движения
+
+    // Принудительно поддерживаем симуляцию
+    restartInterval = window.setInterval(() => {
+      if (simulation && simulation.alpha() < 0.1) {
+        simulation.alpha(0.3).restart()
+      }
+    }, 3000)
+
+
+    return simulation
+  }
+
+  // Обновление размеров симуляции при ресайзе окна
+  const updateSimulationSize = (newWidth: number, newHeight: number) => {
+    if (!simulation) return
+
+    // Высота HUD панели (примерно 80px с отступами)
+    const hudHeight = 80
+    const effectiveHeight = newHeight - hudHeight
+
+    // Обновляем центральную силу с учетом HUD
+    simulation
+      .force('center', d3.forceCenter(newWidth / 2, (effectiveHeight / 2) + hudHeight))
+      .alpha(0.3)
+      .restart()
+
+
+  }
+
+  // Обновление узлов симуляции
+  const updateNodes = (nodes: SimulationNode[]) => {
+    if (!simulation) return
+    simulation.nodes(nodes)
+    simulation.alpha(0.5).restart()
+  }
+
+  // Импульсное отталкивание соседей при ховере
+  const pushNeighbors = (centerBubble: SimulationNode, pushRadius: number, pushStrength: number, nodes: SimulationNode[]) => {
+    let affectedCount = 0
+    
+    nodes.forEach(bubble => {
+      if (bubble.id === centerBubble.id) return
+      
+      const dx = bubble.x - centerBubble.x
+      const dy = bubble.y - centerBubble.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Если пузырь в радиусе воздействия
+      if (distance < pushRadius && distance > 0) {
+        // Нормализуем вектор направления
+        const normalizedDx = dx / distance
+        const normalizedDy = dy / distance
+        
+        // Увеличиваем силу и делаем её более заметной
+        const force = pushStrength * (1 - distance / pushRadius) * 3
+        
+        // Применяем импульс к скорости более агрессивно
+        bubble.vx = (bubble.vx || 0) + normalizedDx * force
+        bubble.vy = (bubble.vy || 0) + normalizedDy * force
+        
+        // Также немного сдвигаем позицию для мгновенного эффекта
+        bubble.x += normalizedDx * force * 0.5
+        bubble.y += normalizedDy * force * 0.5
+        
+        // Ограничиваем максимальную скорость
+        const maxVelocity = 15 // Увеличили максимальную скорость
+        const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
+        if (currentVelocity > maxVelocity) {
+          const scale = maxVelocity / currentVelocity
+          bubble.vx = (bubble.vx || 0) * scale
+          bubble.vy = (bubble.vy || 0) * scale
+        }
+        
+        affectedCount++
+      }
+    })
+    
+    // Перезапускаем симуляцию для лучшего отклика
+    if (simulation && affectedCount > 0) {
+      simulation.alpha(0.5).restart()
+    }
+    
+
+  }
+
+  // Отталкивание от точки клика как от стены (взрыв)
+  const explodeFromPoint = (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => {
+    let affectedCount = 0
+    
+    nodes.forEach(bubble => {
+      const dx = bubble.x - clickX
+      const dy = bubble.y - clickY
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      
+      // Если пузырь в радиусе взрыва
+      if (distance < explosionRadius) {
+        // Если пузырь прямо в центре клика, отталкиваем в случайном направлении
+        let normalizedDx, normalizedDy
+        if (distance < 5) {
+          const randomAngle = Math.random() * Math.PI * 2
+          normalizedDx = Math.cos(randomAngle)
+          normalizedDy = Math.sin(randomAngle)
+        } else {
+          // Нормализуем вектор направления от центра взрыва
+          normalizedDx = dx / distance
+          normalizedDy = dy / distance
+        }
+        
+        // Сила взрыва убывает с расстоянием (как от стены)
+        const force = explosionStrength * (1 - distance / explosionRadius) * 4
+        
+        // Применяем мощный импульс для эффекта взрыва
+        bubble.vx = (bubble.vx || 0) + normalizedDx * force
+        bubble.vy = (bubble.vy || 0) + normalizedDy * force
+        
+        // Немедленно сдвигаем позицию для мгновенного эффекта
+        bubble.x += normalizedDx * force * 0.8
+        bubble.y += normalizedDy * force * 0.8
+        
+        // Ограничиваем максимальную скорость для контроля
+        const maxVelocity = 20 // Высокая скорость для эффекта взрыва
+        const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
+        if (currentVelocity > maxVelocity) {
+          const scale = maxVelocity / currentVelocity
+          bubble.vx = (bubble.vx || 0) * scale
+          bubble.vy = (bubble.vy || 0) * scale
+        }
+        
+        // Убеждаемся что пузыри не выходят за границы экрана
+        const padding = bubble.currentRadius + 5
+        bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
+        bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
+        
+        affectedCount++
+      }
+    })
+    
+    // Сильно перезапускаем симуляцию для драматичного эффекта
+    if (simulation && affectedCount > 0) {
+      simulation.alpha(0.8).restart()
+    }
+  }
+
+  // Остановка симуляции
+  const stopSimulation = () => {
+    if (restartInterval) {
+      clearInterval(restartInterval)
+      restartInterval = 0
+    }
+    
+    if (simulation) {
+      simulation.stop()
+      simulation = null
+    }
+
+  }
+
+  return {
+    initSimulation,
+    updateSimulationSize,
+    updateNodes,
+    pushNeighbors,
+    explodeFromPoint,
+    stopSimulation,
+    getSimulation: () => simulation
+  }
+} 

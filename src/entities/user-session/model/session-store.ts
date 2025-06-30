@@ -42,15 +42,7 @@ export const useSessionStore = defineStore('session', () => {
     // Процент прогресса для текущего уровня
     const progress = Math.min((xpAbovePrevLevel / xpRangeForLevel) * 100, 100)
     
-    console.log('📊 XP Progress:', { 
-      currentLevel: currentLevel.value,
-      currentXP: currentXP.value,
-      currentLevelRequiredXP,
-      prevLevelRequiredXP,
-      xpRangeForLevel,
-      xpAbovePrevLevel,
-      progress: Math.round(progress)
-    })
+
     
     return Math.max(0, Math.min(progress, 100))
   })
@@ -60,12 +52,7 @@ export const useSessionStore = defineStore('session', () => {
     const nextLevelIndex = currentLevel.value // index for next level (0-based + 1)
     const nextXP = levels[nextLevelIndex] || levels[levels.length - 1]
     
-    console.log('🎯 Next Level XP:', { 
-      currentLevel: currentLevel.value, 
-      nextLevelIndex, 
-      nextXP,
-      currentXP: currentXP.value
-    })
+
     
     return nextXP
   })
@@ -109,7 +96,7 @@ export const useSessionStore = defineStore('session', () => {
         id,
         currentXP: 0,
         currentLevel: 1,
-        lives: GAME_CONFIG.INITIAL_LIVES, // Стартуем с 3 жизнями
+        lives: GAME_CONFIG.INITIAL_LIVES,
         unlockedContent: [],
         visitedBubbles: [],
         agreementScore: 0,
@@ -178,12 +165,6 @@ export const useSessionStore = defineStore('session', () => {
         newLevel: newLevel,
         currentXP: session.value.currentXP
       })
-      
-      // Разблокируем контент
-      if (!session.value.unlockedContent.includes(newLevel)) {
-        session.value.unlockedContent.push(newLevel)
-        console.log('🔓 Разблокирован контент для уровня:', newLevel)
-      }
       
       // Проверяем достижение за достижение первого уровня
       if (newLevel === 2) { // Достигли уровня 2 (первое повышение)

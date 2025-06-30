@@ -51,10 +51,10 @@ defineEmits<{
 const gameStore = useGameStore()
 
 const unlockedAchievements = computed(() => 
-  gameStore.achievements.filter(achievement => achievement.isUnlocked)
+  gameStore.achievements.filter(achievement => achievement.unlockedAt)
 )
 
-const formatDate = (date: Date): string => {
+const formatDate = (date: string | Date): string => {
   return new Intl.DateTimeFormat('ru', {
     day: '2-digit',
     month: 'short',

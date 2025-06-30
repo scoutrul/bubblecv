@@ -12,17 +12,14 @@ export const useBubbleStore = defineStore('bubble', () => {
   const loadBubbles = async (forceReload: boolean = false) => {
     // Если уже загружены и не принудительная перезагрузка - ничего не делаем
     if (bubbles.value.length > 0 && !forceReload) {
-      console.log('✅ Пузыри уже загружены, пропускаем запрос')
       return Promise.resolve()
     }
     
     // Если уже загружаем - возвращаем существующий промис
     if (loadingPromise) {
-      console.log('⏳ Пузыри уже загружаются, ждём завершения...')
       return loadingPromise
     }
 
-    console.log('🔄 Начинаем загрузку пузырей...')
     isLoading.value = true
     error.value = null
     
@@ -64,9 +61,9 @@ export const useBubbleStore = defineStore('bubble', () => {
           } satisfies Bubble
         })
         
-        console.log('✅ Bubbles loaded successfully:', bubbles.value.length)
+        console.log('✅ Загружено пузырей:', bubbles.value.length)
       } catch (e) {
-        console.error('❌ Error loading bubbles:', e)
+        console.error('❌ Ошибка загрузки пузырей:', e)
         error.value = e instanceof Error ? e.message : 'Failed to load bubbles'
         throw e
       } finally {
@@ -112,13 +109,11 @@ export const useBubbleStore = defineStore('bubble', () => {
         })
         
         if (newBubblesInYear.length > 0) {
-          console.log(`🔍 Найден следующий год с новыми пузырями: ${year} (${newBubblesInYear.length} пузырей)`)
           return year
         }
       }
     }
     
-    console.log('🔍 Новых пузырей в будущих годах не найдено')
     return null
   }
 

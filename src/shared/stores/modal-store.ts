@@ -117,7 +117,7 @@ export const useModalStore = defineStore('modal', () => {
     currentQuestion.value = question
     philosophyBubbleId.value = bubbleId || null
     isPhilosophyModalOpen.value = true
-    console.log('🤔 Opening philosophy modal for bubble:', bubbleId)
+
   }
 
   const closePhilosophyModal = () => {
@@ -132,7 +132,7 @@ export const useModalStore = defineStore('modal', () => {
     const bubbleId = philosophyBubbleId.value
     const isNegativeAnswer = answer === 'disagree'
     
-    console.log('🤔 Philosophy answer:', { answer, bubbleId, isNegativeAnswer })
+
     
     if (answer === 'agree') {
       // Правильный ответ - дать XP
@@ -166,7 +166,7 @@ export const useModalStore = defineStore('modal', () => {
         
         openLevelUpModal(sessionStore.currentLevel, levelUpData)
       }
-      console.log('✅ Philosophy: Gained XP for agreeing')
+      
     } else {
       // Неправильный ответ - забрать жизнь (без XP)
       const gameOver = await sessionStore.losePhilosophyLife()
@@ -176,14 +176,14 @@ export const useModalStore = defineStore('modal', () => {
           currentLevel: sessionStore.currentLevel
         })
       }
-      console.log('❌ Philosophy: Lost life for disagreeing')
+      
     }
     
     closePhilosophyModal()
     
     // Пузырь всегда лопается независимо от ответа
     if (bubbleId) {
-      console.log('💥 Dispatching bubble-continue for philosophy bubble:', bubbleId)
+
       window.dispatchEvent(new CustomEvent('bubble-continue', { 
         detail: { 
           bubbleId, 

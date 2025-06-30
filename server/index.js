@@ -34,15 +34,12 @@ const skillLevelMap = {
 // Database setup
 const setupDatabase = () => {
   const dbPath = join(__dirname, 'database.sqlite')
-  log('📂 Путь к базе данных: ' + dbPath)
   
   let db
   try {
-    log('🔄 Создаем базу данных...')
     db = new Database(dbPath)
-    log('✅ База данных создана')
+    log('✅ База данных инициализирована')
     
-    log('🔄 Инициализируем базу данных...')
     // Создаем таблицы
     db.exec(`
       CREATE TABLE IF NOT EXISTS bubbles (
@@ -102,8 +99,7 @@ const setupDatabase = () => {
         is_easter_egg BOOLEAN DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
-    `)
-    log('✅ Таблицы созданы')
+          `)
     
     // Prepared statements
     const statements = {
@@ -131,7 +127,6 @@ const setupDatabase = () => {
     return { db, statements, dbPath }
   } catch (error) {
     log('❌ Ошибка инициализации БД: ' + error.message)
-    log('📝 Стек вызовов: ' + error.stack)
     process.exit(1)
   }
 }
@@ -176,7 +171,7 @@ app.get('/api/bubbles', (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    log('❌ Ошибка получения пузырей: ' + error.message)
+    console.error('❌ Ошибка получения пузырей:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка сервера',
@@ -193,16 +188,8 @@ app.get('/api/session/:sessionId', (req, res) => {
     
     if (!session) {
       // Создаем новую сессию
-      console.log('🆕 Создаем новую сессию:', sessionId)
-      console.log('📝 Вставляем:', { sessionId, xp: 0, level: 1, lives: 3 })
-      
       const result = statements.insertSession.run(sessionId, 0, 1, 3)
-      console.log('📊 Результат вставки:', result)
-      
       session = statements.getSession.get(sessionId)
-      console.log('📋 Получена сессия из БД:', session)
-    } else {
-      console.log('♻️ Сессия уже существует:', sessionId)
     }
     
     res.json({
@@ -263,11 +250,7 @@ app.post('/api/seed', async (req, res) => {
     const mockDataPath = join(__dirname, '../src/shared/data/mockData.json')
     const philosophyPath = join(__dirname, '../src/shared/data/philosophyQuestions.json')
     
-    log('📂 Путь к mockData: ' + mockDataPath)
-    log('📂 Путь к philosophyQuestions: ' + philosophyPath)
-    
     if (!fs.existsSync(mockDataPath)) {
-      log('❌ Файл mockData.json не найден')
       return res.status(404).json({
         success: false,
         error: 'Файл mockData.json не найден',
@@ -276,7 +259,6 @@ app.post('/api/seed', async (req, res) => {
     }
     
     if (!fs.existsSync(philosophyPath)) {
-      log('❌ Файл philosophyQuestions.json не найден')
       return res.status(404).json({
         success: false,
         error: 'Файл philosophyQuestions.json не найден',
@@ -284,25 +266,13 @@ app.post('/api/seed', async (req, res) => {
       })
     }
     
-    log('📖 Читаем mockData.json...')
     const mockData = JSON.parse(fs.readFileSync(mockDataPath, 'utf8'))
-    log('📊 Количество пузырей в JSON: ' + mockData.bubbles.length)
-    
-    log('📖 Читаем philosophyQuestions.json...')
     const philosophyData = JSON.parse(fs.readFileSync(philosophyPath, 'utf8'))
-    log('📚 Количество философских вопросов: ' + philosophyData.questions.length)
     
     // Очищаем существующие данные
-    log('🗑️ Очищаем старые данные...')
     db.exec('DELETE FROM bubbles')
     db.exec('DELETE FROM philosophy_questions')
-    
-    // Добавляем пузыри
-    log('📥 Добавляем пузыри...')
     for (const bubble of mockData.bubbles) {
-      log(`🔄 Обрабатываем пузырь: ${bubble.id}`)
-      log('📝 Данные пузыря: ' + JSON.stringify(bubble, null, 2))
-      
       try {
         const params = [
           String(bubble.id),                    // id
@@ -321,19 +291,14 @@ app.post('/api/seed', async (req, res) => {
         ]
         
         statements.insertBubble.run(params)
-        log(`✅ Пузырь ${bubble.id} добавлен`)
       } catch (error) {
-        log(`❌ Ошибка добавления пузыря ${bubble.id}: ${error.message}`)
-        log('🔍 Детали ошибки: ' + error.message)
+        console.error(`❌ Ошибка добавления пузыря ${bubble.id}:`, error)
         throw error
       }
     }
     
     // Добавляем философские вопросы
-    log('📥 Добавляем философские вопросы...')
     for (const question of philosophyData.questions) {
-      log(`🔄 Обрабатываем вопрос: ${question.id}`)
-      
       try {
         // Находим опцию с максимальным agreementLevel для agree_text
         const agreeOption = question.options.reduce((max, opt) => 
@@ -356,15 +321,13 @@ app.post('/api/seed', async (req, res) => {
         ]
         
         statements.insertPhilosophyQuestion.run(params)
-        log(`✅ Вопрос ${question.id} добавлен`)
       } catch (error) {
-        log(`❌ Ошибка добавления вопроса ${question.id}: ${error.message}`)
-        log('🔍 Детали ошибки: ' + error.message)
+        console.error(`❌ Ошибка добавления вопроса ${question.id}:`, error)
         throw error
       }
     }
     
-    log(`✅ Загружено ${mockData.bubbles.length} пузырей и ${philosophyData.questions.length} вопросов`)
+    console.log(`✅ Загружено ${mockData.bubbles.length} пузырей и ${philosophyData.questions.length} вопросов`)
     
     res.json({
       success: true,
@@ -375,9 +338,7 @@ app.post('/api/seed', async (req, res) => {
       timestamp: new Date().toISOString()
     })
   } catch (error) {
-    log('❌ Ошибка загрузки данных: ' + error.message)
-    log('🔍 Детали ошибки: ' + error.message)
-    log('📝 Стек вызовов: ' + error.stack)
+    console.error('❌ Ошибка загрузки данных:', error)
     res.status(500).json({
       success: false,
       error: 'Ошибка загрузки данных',

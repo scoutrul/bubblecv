@@ -202,14 +202,6 @@ const isCurrentYearCompleted = computed(() => {
   const hasUnpoppedBubbles = availableBubbles.some(bubble => !bubble.isPopped)
   const isCompleted = !hasUnpoppedBubbles
   
-  console.log('🧮 Computed isCurrentYearCompleted (накопительно):', {
-    currentYear: props.currentYear,
-    availableBubbles: availableBubbles.length,
-    unpoppedBubbles: availableBubbles.filter(b => !b.isPopped).length,
-    visitedBubbles: sessionStore.visitedBubbles.length,
-    isCompleted
-  })
-  
   return isCompleted
 })
 
@@ -218,15 +210,10 @@ let autoSwitchTimeout: number | null = null
 
 const performAutoSwitch = async () => {
   if (isAutoSwitching.value || props.currentYear >= props.endYear) {
-    console.log('🚫 Автопереключение блокировано:', { 
-      isAutoSwitching: isAutoSwitching.value, 
-      isLastYear: props.currentYear >= props.endYear 
-    })
     return
   }
   
   isAutoSwitching.value = true
-  console.log('🚀 Начинаем автопереключение года...', props.currentYear, '→', props.currentYear + 1)
   
   // Ждём следующий tick для убеждения что все updates завершены
   await nextTick()
@@ -245,7 +232,6 @@ const performAutoSwitch = async () => {
         // Сбрасываем флаг автопереключения после завершения
         setTimeout(() => {
           isAutoSwitching.value = false
-          console.log('✅ Автопереключение завершено')
         }, 500)
       } else {
         isAutoSwitching.value = false
@@ -263,12 +249,9 @@ watchEffect(() => {
   
   // Проверяем завершение года с debounce
   if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
-    console.log('⏰ Планируем автопереключение через 100ms...')
-    
     autoSwitchTimeout = window.setTimeout(() => {
       // Повторная проверка после задержки для уверенности
       if (isCurrentYearCompleted.value && !isAutoSwitching.value) {
-        console.log('🎯 Условия выполнены, запускаем автопереключение!')
         performAutoSwitch()
       }
     }, 100) // Небольшая задержка для debounce

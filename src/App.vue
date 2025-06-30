@@ -34,7 +34,6 @@ const initializeDatabase = async () => {
     
     // Если пузырей нет, инициализируем базу данных
     if (bubbleStore.bubbles.length === 0) {
-      console.log('🔄 Инициализируем базу данных...')
       const seedResponse = await fetch('http://localhost:3003/api/seed', {
         method: 'POST'
       })
@@ -43,7 +42,7 @@ const initializeDatabase = async () => {
       if (!seedData.success) {
         throw new Error('Failed to seed database')
       }
-      console.log('✅ База данных инициализирована:', seedData.data)
+      console.log('✅ База данных инициализирована')
       
       // Принудительно перезагружаем пузыри после инициализации
       await bubbleStore.loadBubbles(true)
@@ -55,10 +54,8 @@ const initializeDatabase = async () => {
 
 onMounted(async () => {
   // Инициализируем сессию и базу данных
-  console.log('🚀 Initializing app...')
   await initializeDatabase() // Уже загружает пузыри внутри
   await sessionStore.loadSession()
-  console.log('✅ App initialized')
 })
 </script>
 
