@@ -1,33 +1,43 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import type { Achievement, ContentLevel } from '@shared/types'
-import contentLevelsData from '@shared/data/contentLevels.json'
+import { ref, computed } from 'vue'
+import type { Achievement, ContentLevel, Level } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
+import { api } from '@shared/api'
 
 export const useGameStore = defineStore('game', () => {
   const achievements = ref<Achievement[]>([])
   const contentLevels = ref<ContentLevel[]>([])
+  const currentLevel = ref(1)
+  const currentXP = ref(0)
+  const levels = ref<Level[]>([])
+  const isLoading = ref(true)
+  const error = ref<string | null>(null)
 
   // Загружаем и обновляем уровни с актуальными XP требованиями
-  const loadContentLevels = () => {
-    const levelsWithUpdatedXP = contentLevelsData.levels.map((level, index) => {
-      // Получаем XP требования из game-config
-      const xpRequiredMap = {
-        1: 0,  // Первый уровень - стартовый
-        2: GAME_CONFIG.levelRequirements[2],
-        3: GAME_CONFIG.levelRequirements[3],
-        4: GAME_CONFIG.levelRequirements[4],
-        5: GAME_CONFIG.levelRequirements[5]
-      }
+  const loadContentLevels = async () => {
+    try {
+      const data = await api.getContentLevels()
+      const levelsWithUpdatedXP = data.levels.map((level: Level) => {
+        // Получаем XP требования из game-config
+        const xpRequiredMap = {
+          1: 0,  // Первый уровень - стартовый
+          2: GAME_CONFIG.levelRequirements[2],
+          3: GAME_CONFIG.levelRequirements[3],
+          4: GAME_CONFIG.levelRequirements[4],
+          5: GAME_CONFIG.levelRequirements[5]
+        }
+        
+        return {
+          ...level,
+          xpRequired: xpRequiredMap[level.level as keyof typeof xpRequiredMap] || level.xpRequired
+        } as ContentLevel
+      })
       
-      return {
-        ...level,
-        xpRequired: xpRequiredMap[level.level as keyof typeof xpRequiredMap] || level.xpRequired
-      } as ContentLevel
-    })
-    
-    contentLevels.value = levelsWithUpdatedXP
-
+      contentLevels.value = levelsWithUpdatedXP
+    } catch (err) {
+      console.error('❌ Error loading content levels:', err)
+      error.value = 'Failed to load content levels'
+    }
   }
 
   const getLevelByNumber = (level: number) => {
@@ -157,15 +167,78 @@ export const useGameStore = defineStore('game', () => {
     return null
   }
 
+  // Загрузка данных об уровнях
+  const fetchLevels = async () => {
+    try {
+      isLoading.value = true
+      error.value = null
+      
+      const data = await api.getContentLevels()
+      levels.value = data.levels
+      console.log('📚 Loaded levels:', levels.value.length)
+    } catch (err) {
+      console.error('❌ Error loading levels:', err)
+      error.value = 'Failed to load game levels'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Вызываем загрузку при инициализации стора
+  fetchLevels()
+
+  const currentLevelData = computed(() => {
+    return levels.value.find(level => level.level === currentLevel.value)
+  })
+
+  const nextLevelXP = computed(() => {
+    const nextLevel = levels.value.find(level => level.level === currentLevel.value + 1)
+    return nextLevel?.xpRequired || Infinity
+  })
+
+  const progress = computed(() => {
+    const currentLevelObj = levels.value.find(level => level.level === currentLevel.value)
+    const nextLevelObj = levels.value.find(level => level.level === currentLevel.value + 1)
+    
+    if (!currentLevelObj || !nextLevelObj) return 0
+    
+    const currentLevelXP = currentLevelObj.xpRequired
+    const nextLevelXP = nextLevelObj.xpRequired
+    const xpInCurrentLevel = currentXP.value - currentLevelXP
+    const xpRequiredForNextLevel = nextLevelXP - currentLevelXP
+    
+    return (xpInCurrentLevel / xpRequiredForNextLevel) * 100
+  })
+
+  function addXP(amount: number) {
+    currentXP.value += amount
+    checkLevelUp()
+  }
+
+  function checkLevelUp() {
+    while (currentXP.value >= nextLevelXP.value) {
+      currentLevel.value++
+    }
+  }
+
   // Инициализируем уровни и достижения при создании store
-  loadContentLevels()
   initializeAchievements()
+  loadContentLevels() // Асинхронная загрузка уровней
 
   return {
     achievements,
     contentLevels,
     getLevelByNumber,
     loadContentLevels,
-    unlockAchievement
+    unlockAchievement,
+    currentLevel,
+    currentXP,
+    currentLevelData,
+    nextLevelXP,
+    progress,
+    addXP,
+    isLoading,
+    error,
+    fetchLevels
   }
 }) 

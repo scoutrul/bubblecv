@@ -21,7 +21,7 @@ export function useCanvasSimulation(
   let width = 0
   let height = 0
   let animationId: number = 0
-
+  
   // Инициализация всех модулей
   const bubbleManager = useBubbleManager()
   const physicsSimulation = usePhysicsSimulation()
@@ -57,7 +57,7 @@ export function useCanvasSimulation(
       canvasEffects.drawFloatingTexts,
       canvasEffects.drawHoverEffect
     )
-    
+
     // Отрисовываем эффекты взрыва поверх всего
     const context = canvasRef.value.getContext('2d')
     if (context) {
@@ -180,8 +180,8 @@ export function useCanvasSimulation(
   const removeBubble = (bubbleId: string) => {
     nodes = bubbleManager.removeBubble(bubbleId, nodes)
     physicsSimulation.updateNodes(nodes)
-  }
-
+    }
+    
   // Остановка симуляции
   const destroySimulation = () => {
     if (animationId) {

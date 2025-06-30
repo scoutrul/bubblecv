@@ -6,11 +6,10 @@ export interface Bubble {
   id: string
   name: string
   skillLevel: SkillLevel
-  yearStarted: number
-  yearEnded?: number
+  year: number
   isActive: boolean
   isEasterEgg: boolean
-  isHidden: boolean
+  isHidden?: boolean
   description: string
   projects: string[]
   isPopped: boolean
@@ -24,6 +23,7 @@ export interface Bubble {
   link?: string
   x?: number
   y?: number
+  category?: string
 }
 
 // Импортируем типы из констант
@@ -153,4 +153,18 @@ export interface ModalState {
   isOpen: boolean
   type: ModalType | null
   data?: any
+}
+
+export interface Level {
+  level: number
+  xpRequired: number
+  title: string
+  description: string
+  content: {
+    [key: string]: any // Используем any так как контент может быть разным для разных уровней
+  }
+  unlockedFeatures: string[]
+  lockedMessage?: string
+  congratulations?: string
+  achievement?: string
 } 

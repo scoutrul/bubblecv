@@ -44,15 +44,14 @@ export const useBubbleStore = defineStore('bubble', () => {
         // Трансформируем данные в правильный формат
         bubbles.value = data.data.map((rawBubble: any) => {
           // Преобразуем уровень навыка
-          const skillLevel = SKILL_LEVEL_MIGRATION_MAP[rawBubble.skillLevel] || SKILL_LEVELS.NOVICE
+          const skillLevel = SKILL_LEVEL_MIGRATION_MAP[rawBubble.skillLevel as keyof typeof SKILL_LEVEL_MIGRATION_MAP] || SKILL_LEVELS.NOVICE
           const bubbleSize: BubbleSize = SKILL_TO_BUBBLE_SIZE[skillLevel]
           
           return {
             id: rawBubble.id,
             name: rawBubble.name,
             skillLevel,
-            yearStarted: rawBubble.yearStarted,
-            yearEnded: rawBubble.yearEnded,
+            year: rawBubble.year,
             isActive: rawBubble.isActive,
             isEasterEgg: rawBubble.isEasterEgg,
             isHidden: false,
@@ -64,7 +63,8 @@ export const useBubbleStore = defineStore('bubble', () => {
             color: rawBubble.color || '#3b82f6',
             isTough: rawBubble.isTough || false,
             toughClicks: rawBubble.toughClicks || 0,
-            currentClicks: 0
+            currentClicks: 0,
+            link: rawBubble.link || ''
           } satisfies Bubble
         })
         
@@ -85,7 +85,7 @@ export const useBubbleStore = defineStore('bubble', () => {
   }
 
   const getBubblesByYear = (year: number): Bubble[] => {
-    return bubbles.value.filter(bubble => bubble.yearStarted === year)
+    return bubbles.value.filter(bubble => bubble.year === year)
   }
 
   // Модифицируем метод getBubblesUpToYear
@@ -94,7 +94,7 @@ export const useBubbleStore = defineStore('bubble', () => {
     return bubbles.value.filter(bubble => {
       if (bubble.bubbleType === 'hidden') return false // Игнорируем скрытые пузыри
 
-      const isInTimeRange = bubble.yearStarted <= year
+      const isInTimeRange = bubble.year <= year
       const isNotVisited = !visitedBubbleIds.includes(bubble.id)
       const isNotPopped = !bubble.isPopped
       
@@ -104,18 +104,16 @@ export const useBubbleStore = defineStore('bubble', () => {
 
   // Найти следующий год с новыми пузырями
   const findNextYearWithNewBubbles = (currentYear: number, visitedBubbleIds: string[] = []): number | null => {
-    // Получаем все годы, где есть пузыри (исключая скрытые)
     const availableYears = [...new Set(
       bubbles.value
         .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
-        .map(bubble => bubble.yearStarted)
+        .map(bubble => bubble.year)
     )].sort((a, b) => a - b)
     
-    // Ищем следующий год после текущего, где есть новые (не посещённые) пузыри
     for (const year of availableYears) {
       if (year > currentYear) {
         const newBubblesInYear = bubbles.value.filter(bubble => {
-          const isInYear = bubble.yearStarted === year
+          const isInYear = bubble.year === year
           const isNotVisited = !visitedBubbleIds.includes(bubble.id)
           const isNotPopped = !bubble.isPopped
           const isNotHidden = !bubble.bubbleType || bubble.bubbleType !== 'hidden'
@@ -168,11 +166,11 @@ export const useBubbleStore = defineStore('bubble', () => {
 
   // Генерация скрытого пузыря
   function createHiddenBubble(index: number = 0): Bubble {
-    const hiddenBubble = {
+    const hiddenBubble: Bubble = {
       id: `hidden-bubble-${Date.now()}-${index}`, // Добавляем timestamp для уникальности
       name: 'Скрытый пузырь',
       skillLevel: SKILL_LEVELS.NOVICE,
-      yearStarted: 2000, // вне зависимости от года
+      year: 2000, // вне зависимости от года
       isActive: true,
       isEasterEgg: false,
       isHidden: true,
@@ -202,7 +200,7 @@ export const useBubbleStore = defineStore('bubble', () => {
   // Добавляем метод для проверки наличия непробитых пузырей в году (исключая скрытые)
   const hasUnpoppedBubblesInYear = (year: number): boolean => {
     return bubbles.value.some(bubble => 
-      bubble.yearStarted === year && 
+      bubble.year === year && 
       !bubble.isPopped && 
       (!bubble.bubbleType || bubble.bubbleType !== 'hidden')
     )

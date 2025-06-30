@@ -1204,7 +1204,7 @@ app.use(cors({
     : ['http://localhost:3000'],
   credentials: true
 }));
-```
+``` 
 
 ## Соглашения по кодированию (Coding Conventions)
 

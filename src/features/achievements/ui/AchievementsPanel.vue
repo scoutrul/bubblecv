@@ -8,10 +8,10 @@
       class="achievements-panel content-card"
       @click.stop
     >
-      <div class="panel-header">
-        <h3 class="text-lg font-semibold">🏆 Достижения</h3>
-        <button @click="$emit('close')" class="close-btn">✕</button>
-      </div>
+    <div class="panel-header">
+      <h3 class="text-lg font-semibold">🏆 Достижения</h3>
+      <button @click="$emit('close')" class="close-btn">✕</button>
+    </div>
     
     <div class="achievements-grid">
       <div v-if="unlockedAchievements.length === 0" class="achievement-placeholder">
@@ -24,8 +24,8 @@
           :key="achievement.id"
           :achievement="achievement"
         />
+        </div>
       </div>
-    </div>
     </div>
   </div>
 </template>

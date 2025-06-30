@@ -60,7 +60,7 @@
     },
     {
       "id": "code-quality",
-      "type": "philosophy",
+      "type": "philosophy", 
       "question": "Что важнее при разработке?",
       "options": [
         {
@@ -208,9 +208,10 @@
     "totalQuestions": 7,
     "maxLives": 3,
     "passingScore": 30,
+
     "scoringSystem": {
       "excellent": "8-10 баллов",
-      "good": "5-7 баллов",
+      "good": "5-7 баллов", 
       "neutral": "0-4 балла",
       "disagreement": "отрицательные баллы",
       "philosophical_difference": "потеря жизни"

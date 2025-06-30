@@ -64,7 +64,7 @@ const checkBubblesAndAdvance = () => {
   const visibleBubbles = getBubblesToRender()
     .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
   const hasUnpoppedBubbles = visibleBubbles.some(bubble => !bubble.isPopped)
-  
+
   if (!hasUnpoppedBubbles && props.currentYear < props.endYear) {
     // Ищем следующий год с новыми пузырями
     const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(props.currentYear, sessionStore.visitedBubbles)
@@ -118,7 +118,7 @@ watch(() => props.currentYear, (newYear, oldYear) => {
   }
 
   const filteredBubbles = getBubblesToRender()
-  updateBubbles(filteredBubbles)
+    updateBubbles(filteredBubbles)
 })
 
 // Этот watch исправляет проблему с пустой инициализацией
