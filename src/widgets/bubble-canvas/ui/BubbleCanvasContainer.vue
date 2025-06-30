@@ -17,7 +17,7 @@ import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
 const bubbleStore = useBubbleStore()
 
 // Константы для временной шкалы
-const startYear = 2010
+const startYear = 2009
 const endYear = 2025
 const currentYear = ref(startYear)
 

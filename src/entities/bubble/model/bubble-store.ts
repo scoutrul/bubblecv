@@ -2,7 +2,6 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '../../../shared/types'
 import { SKILL_LEVEL_API_MAPPING, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '../../../shared/constants/skill-levels'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -45,17 +44,17 @@ export const useBubbleStore = defineStore('bubble', () => {
         // Трансформируем данные в правильный формат
         bubbles.value = data.data.map((rawBubble: any) => {
           // Преобразуем уровень навыка
-          const skillLevel = SKILL_LEVEL_API_MAPPING[rawBubble.skill_level] || SKILL_LEVELS.NOVICE
+          const skillLevel = SKILL_LEVEL_API_MAPPING[rawBubble.skillLevel] || SKILL_LEVELS.NOVICE
           const bubbleSize: BubbleSize = SKILL_TO_BUBBLE_SIZE[skillLevel]
           
           return {
             id: rawBubble.id,
             name: rawBubble.name,
             skillLevel,
-            yearStarted: rawBubble.year_started,
-            yearEnded: rawBubble.year_ended,
-            isActive: rawBubble.is_active,
-            isEasterEgg: rawBubble.is_easter_egg,
+            yearStarted: rawBubble.yearStarted,
+            yearEnded: rawBubble.yearEnded,
+            isActive: rawBubble.isActive,
+            isEasterEgg: rawBubble.isEasterEgg,
             isHidden: false,
             description: rawBubble.description,
             projects: Array.isArray(rawBubble.projects) ? rawBubble.projects : (rawBubble.projects ? JSON.parse(rawBubble.projects) : []),
@@ -64,7 +63,8 @@ export const useBubbleStore = defineStore('bubble', () => {
             size: bubbleSize,
             color: rawBubble.color || '#3b82f6',
             isTough: rawBubble.isTough || false,
-            toughClicks: rawBubble.toughClicks || 3
+            toughClicks: rawBubble.toughClicks || 0,
+            currentClicks: 0
           } satisfies Bubble
         })
         
@@ -151,14 +151,6 @@ export const useBubbleStore = defineStore('bubble', () => {
       return { isReady: false, currentClicks: 0, requiredClicks: 1, clicksLeft: 1, bonusXP: 0 }
     }
 
-    // Инициализируем значения если их нет
-    if (bubble.currentClicks === undefined) {
-      bubble.currentClicks = 0
-    }
-    if (bubble.toughClicks === undefined) {
-      bubble.toughClicks = 3 // дефолтное значение
-    }
-
     bubble.currentClicks++
     
     const isReady = bubble.currentClicks >= bubble.toughClicks
@@ -192,6 +184,9 @@ export const useBubbleStore = defineStore('bubble', () => {
       size: BUBBLE_SIZES.NOVICE,
       color: '#64748B99', // Увеличиваем непрозрачность для лучшей видимости
       bubbleType: 'hidden',
+      isTough: false,
+      toughClicks: 0,
+      currentClicks: 0,
       x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
       y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
     } as Bubble & { bubbleType: 'hidden' }

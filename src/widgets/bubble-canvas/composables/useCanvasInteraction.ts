@@ -136,7 +136,7 @@ export function useCanvasInteraction(
         // Разблокируем достижение
         const achievement = gameStore.unlockAchievement('secret-bubble-discoverer')
         if (achievement) {
-          modalStore.openAchievementModal({
+          modalStore.queueOrShowAchievement({
             title: achievement.name,
             description: achievement.description,
             icon: achievement.icon,
@@ -175,7 +175,7 @@ export function useCanvasInteraction(
           ],
           correctAnswer: 'Я согласен с этим подходом и готов работать в этом стиле.',
           explanation: clickedBubble.description,
-          points: GAME_CONFIG.XP_PER_EASTER_EGG
+          points: GAME_CONFIG.xpPerEasterEgg
         }
         modalStore.openPhilosophyModal(philosophyQuestion, clickedBubble.id)
       } else {
@@ -222,13 +222,13 @@ export function useCanvasInteraction(
         createLifeLossFloatingText(bubble.x, bubble.y)
       } else {
         // Положительный ответ - обычный XP (зеленый цвет)
-        xpGained = GAME_CONFIG.XP_PER_EASTER_EGG
+        xpGained = GAME_CONFIG.xpPerEasterEgg
         leveledUp = await sessionStore.gainXP(xpGained)
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
       }
     } else {
-      const expertiseLevel = bubble.skillLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL
-      const xpConfig = GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[expertiseLevel]
+      const expertiseLevel = bubble.skillLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel
+      const xpConfig = GAME_CONFIG.xpPerExpertiseLevel[expertiseLevel]
       xpGained = xpConfig || 1
       
       leveledUp = await sessionStore.gainBubbleXP(expertiseLevel)
@@ -272,6 +272,28 @@ export function useCanvasInteraction(
     // Отмечаем пузырь как посещенный
     await sessionStore.visitBubble(bubble.id)
     bubble.isVisited = true
+    
+    // Проверяем достижения за количество пузырей ПОСЛЕ закрытия модалки
+    const bubblesCount = sessionStore.visitedBubbles.length
+    let achievement = null
+    
+    if (bubblesCount === 10) {
+      achievement = gameStore.unlockAchievement('bubble-explorer-10')
+    } else if (bubblesCount === 30) {
+      achievement = gameStore.unlockAchievement('bubble-explorer-30')
+    } else if (bubblesCount === 50) {
+      achievement = gameStore.unlockAchievement('bubble-explorer-50')
+    }
+    
+    if (achievement) {
+      await sessionStore.gainXP(achievement.xpReward)
+      modalStore.queueOrShowAchievement({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+    }
     
     // Создаем мощный взрыв пузыря и сразу удаляем
     explodeBubble(bubble)

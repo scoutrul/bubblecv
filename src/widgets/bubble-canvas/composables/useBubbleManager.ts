@@ -1,5 +1,5 @@
-import type { Bubble } from '../../../shared/types'
-import type { SimulationNode, PositionData } from './types'
+import type { Ref } from 'vue'
+import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
 import { calculateAdaptiveSizes, wrapText, isWindows } from './canvasUtils'
@@ -11,41 +11,15 @@ export function useBubbleManager() {
   // Создание узлов из пузырей
   const createNodes = (bubbles: Bubble[], width: number, height: number): SimulationNode[] => {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
-    
-    return bubbles.map((bubble, index) => {
-      // Если это скрытый пузырь, используем специальную конфигурацию
-      if (bubble.bubbleType === 'hidden') {
-        const baseRadius = sizes.min * 0.8 // Делаем скрытые пузыри немного меньше
-        const savedPos = savedPositions.get(bubble.id)
-        
-        const node: SimulationNode = {
-          ...bubble,
-          radius: baseRadius,
-          baseRadius,
-          color: bubble.color,
-          oscillationPhase: Math.random() * Math.PI * 2,
-          targetRadius: baseRadius,
-          currentRadius: baseRadius,
-          x: savedPos?.x ?? Math.random() * width,
-          y: savedPos?.y ?? Math.random() * height,
-          vx: savedPos?.vx ?? 0,
-          vy: savedPos?.vy ?? 0
-        }
-        
-        const textResult = wrapText(bubble.name, baseRadius, SKILL_LEVELS.NOVICE)
-        node.textLines = textResult.lines
-        node.textScaleFactor = textResult.scaleFactor
-        
-        return node
-      }
 
-      // Используем конфигурацию уровня экспертизы для определения размера
-      const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
+    return bubbles.map((bubble, index) => {
+      // Масштабируем размер в зависимости от уровня экспертизы
+      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
       
       // Проверяем, что конфигурация найдена
       if (!expertiseConfig) {
         // Используем дефолтную конфигурацию
-        const defaultConfig = GAME_CONFIG.EXPERTISE_LEVELS[SKILL_LEVELS.INTERMEDIATE]
+        const defaultConfig = GAME_CONFIG.expertiseLevels[SKILL_LEVELS.INTERMEDIATE]
         const skillIndex = SKILL_LEVELS_ARRAY.indexOf(SKILL_LEVELS.INTERMEDIATE)
         const sizeRatio = (skillIndex + 1) / SKILL_LEVELS_ARRAY.length
         const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
@@ -86,13 +60,15 @@ export function useBubbleManager() {
       let bubbleColor: string
       if (bubble.isEasterEgg) {
         // Для философских пузырей берем основной цвет из конфига
-        bubbleColor = GAME_CONFIG.PHILOSOPHY_BUBBLE.gradientColors[0]
+        bubbleColor = GAME_CONFIG.philosophyBubble.gradientColors[0]
       } else {
         // Для обычных пузырей используем цвет из уровня экспертизы
         bubbleColor = expertiseConfig.color
       }
       
-      // Восстанавливаем сохраненные позиции
+      // Обертываем текст
+      const textResult = wrapText(bubble.name, baseRadius, bubble.skillLevel)
+      
       const savedPos = savedPositions.get(bubble.id)
       
       const node: SimulationNode = {
@@ -103,21 +79,18 @@ export function useBubbleManager() {
         oscillationPhase: Math.random() * Math.PI * 2,
         targetRadius: baseRadius,
         currentRadius: baseRadius,
+        textLines: textResult.lines,
+        textScaleFactor: textResult.scaleFactor,
         x: savedPos?.x ?? Math.random() * width,
         y: savedPos?.y ?? Math.random() * height,
         vx: savedPos?.vx ?? 0,
         vy: savedPos?.vy ?? 0
       }
-
-      // Подготавливаем текст для отображения
-      const textResult = wrapText(bubble.name, baseRadius, bubble.skillLevel)
-      node.textLines = textResult.lines
-      node.textScaleFactor = textResult.scaleFactor
-
+      
       return node
     })
   }
-
+  
   // Обновление состояния пузырей с живой физикой
   const updateBubbleStates = (nodes: SimulationNode[], width: number, height: number) => {
     const time = Date.now() * 0.0008
@@ -167,15 +140,10 @@ export function useBubbleManager() {
     return nodes
   }
 
-  // Сохранение позиций пузырей
+  // Сохраняем позиции узлов перед их заменой
   const savePositions = (nodes: SimulationNode[]) => {
     nodes.forEach(node => {
-      savedPositions.set(node.id, {
-        x: node.x,
-        y: node.y,
-        vx: node.vx || 0,
-        vy: node.vy || 0
-      })
+      savedPositions.set(node.id, { x: node.x, y: node.y, vx: node.vx, vy: node.vy })
     })
   }
 
@@ -200,10 +168,34 @@ export function useBubbleManager() {
 
   return {
     createNodes,
+    savePositions,
     updateBubbleStates,
     removeBubble,
-    savePositions,
     findBubbleUnderCursor,
     clearSavedPositions
   }
+}
+
+// Вспомогательные типы
+interface PositionData {
+  x: number
+  y: number
+  vx: number
+  vy: number
+}
+
+export interface SimulationNode extends Bubble {
+  index?: number
+  x: number
+  y: number
+  vx: number
+  vy: number
+  radius: number
+  baseRadius: number
+  targetRadius: number
+  currentRadius: number
+  oscillationPhase: number
+  isHovered?: boolean
+  textLines?: string[]
+  textScaleFactor?: number
 } 

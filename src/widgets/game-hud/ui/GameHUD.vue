@@ -15,7 +15,7 @@
         <XPDisplay 
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"
-          :xp-percentage="xpPercentage"
+          :xp-percentage="xpProgress"
           :is-animating="isXPAnimating"
         />
       </div>
@@ -47,8 +47,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useSessionStore } from '../../../entities/user-session/model/session-store'
-import { useGameStore } from '../../../features/gamification/model/game-store'
+import { useSessionStore } from '@entities/user-session/model/session-store'
+import { useGameStore } from '@features/gamification/model/game-store'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
 import LivesDisplay from './components/LivesDisplay.vue'
@@ -76,12 +76,9 @@ const currentXP = computed(() => {
 })
 
 const currentLives = computed(() => sessionStore.lives)
-const maxLives = computed(() => GAME_CONFIG.MAX_LIVES)
+const maxLives = computed(() => GAME_CONFIG.maxLives)
 
-const xpPercentage = computed(() => {
-  const percentage = sessionStore.xpProgress
-  return percentage
-})
+const xpProgress = computed(() => sessionStore.xpProgress)
 
 const nextLevelXP = computed(() => {
   const nextXP = sessionStore.nextLevelXP
@@ -97,12 +94,14 @@ const unlockedAchievements = computed(() => {
   return gameStore.achievements.filter(a => a.isUnlocked).length
 })
 
+const xpToDisplay = ref(currentXP.value)
+
 // Methods
 const animateXPGain = () => {
   isXPAnimating.value = true
   setTimeout(() => {
     isXPAnimating.value = false
-  }, GAME_CONFIG.ANIMATION.XP_GAIN)
+  }, GAME_CONFIG.animation.xpGain)
 }
 
 // Watch for XP changes to trigger animation

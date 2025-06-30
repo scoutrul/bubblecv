@@ -1,43 +1,43 @@
-import { SKILL_LEVELS } from '../constants/skill-levels'
+import { SKILL_LEVELS, BUBBLE_SIZES } from '../constants/skill-levels'
 
 export const GAME_CONFIG = {
   // XP System - значительно увеличены требования
-  XP_LEVELS: {
-    LEVEL_1: 50,   // Уровень 1: 0-50 XP
-    LEVEL_2: 120,  // Уровень 2: 50-120 XP  
-    LEVEL_3: 200,  // Уровень 3: 120-200 XP
-    LEVEL_4: 300,  // Уровень 4: 200-300 XP
-    LEVEL_5: 450   // Уровень 5: 300-450 XP
+  xpLevels: {
+    level1: 25,   // Уровень 1: 0-50 XP
+    level2: 50,   // Уровень 2: 50-120 XP  
+    level3: 100,  // Уровень 3: 120-200 XP
+    level4: 200,  // Уровень 4: 200-300 XP
+    level5: 400   // Уровень 5: 300-450 XP
   } as const,
   
   // Lives System
-  MAX_LIVES: 5,
-  INITIAL_LIVES: 3,  // Стартовые жизни при первом запуске
-  LIVES_PENALTY: 1,
+  maxLives: 5,
+  initialLives: 3,  // Стартовые жизни при первом запуске
+  livesPenalty: 1,
   
   // Bubble Experience - опыт за уровни экспертизы
-  XP_PER_BUBBLE: 5, // deprecated, используем XP_PER_EXPERTISE_LEVEL
-  XP_PER_EASTER_EGG: 10,
+  xpPerBubble: 10,
+  xpPerEasterEgg: 20,
   
   // XP за уровни экспертизы пузырей
-  XP_PER_EXPERTISE_LEVEL: {
+  xpPerExpertiseLevel: {
     [SKILL_LEVELS.NOVICE]: 1,
     [SKILL_LEVELS.INTERMEDIATE]: 2, 
     [SKILL_LEVELS.CONFIDENT]: 3,
-    [SKILL_LEVELS.EXPERT]: 4,
-    [SKILL_LEVELS.MASTER]: 5
+    [SKILL_LEVELS.EXPERT]: 5,
+    [SKILL_LEVELS.MASTER]: 8
   } as const,
   
   // Philosophy Questions XP/Lives
-  PHILOSOPHY_CORRECT_XP: 10,      // +10 XP за правильный ответ
-  PHILOSOPHY_WRONG_LIVES: 1,      // -1 жизнь за неправильный ответ
+  philosophyCorrectXp: 15,      // +10 XP за правильный ответ
+  philosophyWrongLives: 1,      // -1 жизнь за неправильный ответ
   
   // Game Over & Restart
-  RESTART_YEAR: 2015,             // С какого года начинается игра заново
-  GAME_OVER_BLOCK_BUBBLES: true,  // Блокировать пузыри при Game Over
+  restartYear: 2015,             // С какого года начинается игра заново
+  gameOverBlockBubbles: true,  // Блокировать пузыри при Game Over
   
   // Expertise Levels - Уровни экспертизы (с уменьшенными размерами)
-  EXPERTISE_LEVELS: {
+  expertiseLevels: {
     [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
       color: '#334155',
@@ -81,7 +81,7 @@ export const GAME_CONFIG = {
   } as const,
 
   // Philosophy Bubbles - Визуализация философских пузырей (исправленный размер)
-  PHILOSOPHY_BUBBLE: {
+  philosophyBubble: {
     hasGradient: true,
     gradientColors: ['#FF0080', '#FF4080', '#FF8080', '#B3FF80', '#FFFFFF00'],
     sizeMultiplier: 0.9,           // Чуть меньше обычных пузырей (было -0.9)
@@ -90,45 +90,46 @@ export const GAME_CONFIG = {
   } as const,
   
   // Animation Durations (ms)
-  ANIMATION: {
-    BUBBLE_HOVER: 300,
-    LEVEL_UP: 1500,
-    XP_GAIN: 800,
-    MODAL_TRANSITION: 250,
-    EXPERTISE_GLOW: 2000,        // Анимация свечения для высоких уровней
-    MASTER_PULSE: 3000           // Пульсация для мастер-уровня
+  animation: {
+    bubbleHover: 300,
+    levelUp: 1500,
+    xpGain: 1500,
+    modalTransition: 250,
+    expertiseGlow: 2000,        // Анимация свечения для высоких уровней
+    masterPulse: 3000,          // Пульсация для мастер-уровня
+    lifeLoss: 1500             // ms
   } as const,
   
   // Timeline
-  START_YEAR: 2000,
-  CURRENT_YEAR: new Date().getFullYear(),
+  startYear: 2010,
+  endYear: 2025,
   
   // Canvas Dimensions
-  CANVAS: {
-    MIN_WIDTH: 800,
-    MIN_HEIGHT: 600,
-    PADDING: 50
+  canvas: {
+    minWidth: 800,
+    minHeight: 600,
+    padding: 50
   } as const,
   
   // D3 Force Simulation
-  SIMULATION: {
-    FORCE_STRENGTH: -300,
-    COLLISION_RADIUS_MULTIPLIER: 1.5,
-    CENTER_STRENGTH: 0.1,
-    VELOCITY_DECAY: 0.4
+  simulation: {
+    forceStrength: -300,
+    collisionRadiusMultiplier: 1.5,
+    centerStrength: 0.1,
+    velocityDecay: 0.4
   } as const,
 
   // Hidden Bubble - визуализация особого скрытого пузыря
-  HIDDEN_BUBBLE: {
+  hiddenBubble: {
     hasGradient: true,
     gradientColors: ['#00000000', '#64748B33', '#64748B11', '#FFFFFF00'], // почти прозрачный серо-голубой градиент
-    sizeMultiplier: 0.85, // чуть меньше обычных
-    opacity: 0.08, // очень высокая прозрачность
+    sizeMultiplier: 1.3, // чуть меньше обычных
+    opacity: 0, // очень высокая прозрачность
     name: 'Скрытый пузырь'
   } as const,
 
   // Tough Bubble - визуализация крепкого пузыря
-  TOUGH_BUBBLE: {
+  toughBubble: {
     hasGradient: true,
     gradientColors: ['#FFFFFF', '#FBBF24', '#F59E0B'], // яркий золотой градиент
     sizeMultiplier: 1.1, // чуть больше обычных
@@ -139,7 +140,7 @@ export const GAME_CONFIG = {
   } as const,
 } as const
 
-export type GameLevel = keyof typeof GAME_CONFIG.XP_LEVELS
-export type AnimationType = keyof typeof GAME_CONFIG.ANIMATION
-export type ExpertiseLevel = keyof typeof GAME_CONFIG.EXPERTISE_LEVELS
-export type ExpertiseXPLevel = keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL 
+export type GameLevel = keyof typeof GAME_CONFIG.xpLevels
+export type AnimationType = keyof typeof GAME_CONFIG.animation
+export type ExpertiseLevel = keyof typeof GAME_CONFIG.expertiseLevels
+export type ExpertiseXPLevel = keyof typeof GAME_CONFIG.xpPerExpertiseLevel 

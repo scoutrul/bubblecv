@@ -68,7 +68,7 @@ const subtitleClass = computed(() => {
 
 /* Базовые стили для информации об уровне */
 .level-info {
-  @apply text-right mb-2 flex items-center gap-2 transition-all duration-500 rounded-lg p-2;
+  @apply text-right flex items-center gap-2 transition-all duration-500 rounded-lg p-2;
 }
 
 .level-title {

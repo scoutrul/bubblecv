@@ -35,13 +35,13 @@ const setupDatabase = () => {
       CREATE TABLE IF NOT EXISTS bubbles (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        skill_level TEXT NOT NULL,
-        year_started INTEGER NOT NULL,
-        year_ended INTEGER,
-        is_active BOOLEAN DEFAULT true,
-        is_easter_egg BOOLEAN DEFAULT false,
-        is_tough BOOLEAN DEFAULT false,
-        tough_clicks INTEGER DEFAULT 3,
+        skillLevel TEXT NOT NULL,
+        yearStarted INTEGER NOT NULL,
+        yearEnded INTEGER,
+        isActive BOOLEAN DEFAULT true,
+        isEasterEgg BOOLEAN DEFAULT false,
+        isTough BOOLEAN DEFAULT false,
+        toughClicks INTEGER DEFAULT 3,
         description TEXT,
         projects TEXT,
         link TEXT,
@@ -52,15 +52,15 @@ const setupDatabase = () => {
       
       CREATE TABLE IF NOT EXISTS user_sessions (
         id TEXT PRIMARY KEY,
-        current_xp INTEGER DEFAULT 0,
-        current_level INTEGER DEFAULT 1,
+        currentXp INTEGER DEFAULT 0,
+        currentLevel INTEGER DEFAULT 1,
         lives INTEGER DEFAULT 3,
-        unlocked_content TEXT, -- JSON array
-        visited_bubbles TEXT, -- JSON array
-        agreement_score INTEGER DEFAULT 0,
-        game_completed BOOLEAN DEFAULT 0,
-        start_time DATETIME DEFAULT CURRENT_TIMESTAMP,
-        last_activity DATETIME DEFAULT CURRENT_TIMESTAMP
+        unlockedContent TEXT, -- JSON array
+        visitedBubbles TEXT, -- JSON array
+        agreementScore INTEGER DEFAULT 0,
+        gameCompleted BOOLEAN DEFAULT 0,
+        startTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+        lastActivity DATETIME DEFAULT CURRENT_TIMESTAMP
       );
       
       CREATE TABLE IF NOT EXISTS achievements (
@@ -68,50 +68,50 @@ const setupDatabase = () => {
         name TEXT NOT NULL,
         description TEXT NOT NULL,
         icon TEXT NOT NULL,
-        xp_reward INTEGER DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        xpReward INTEGER DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
       
       CREATE TABLE IF NOT EXISTS user_achievements (
-        session_id TEXT,
-        achievement_id TEXT,
-        unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (session_id, achievement_id),
-        FOREIGN KEY (session_id) REFERENCES user_sessions(id),
-        FOREIGN KEY (achievement_id) REFERENCES achievements(id)
+        sessionId TEXT,
+        achievementId TEXT,
+        unlockedAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (sessionId, achievementId),
+        FOREIGN KEY (sessionId) REFERENCES user_sessions(id),
+        FOREIGN KEY (achievementId) REFERENCES achievements(id)
       );
       
       CREATE TABLE IF NOT EXISTS philosophy_questions (
         id TEXT PRIMARY KEY,
         question TEXT NOT NULL,
         context TEXT NOT NULL,
-        agree_text TEXT NOT NULL,
-        disagree_text TEXT NOT NULL,
-        live_penalty INTEGER DEFAULT 1,
-        is_easter_egg BOOLEAN DEFAULT 0,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        agreeText TEXT NOT NULL,
+        disagreeText TEXT NOT NULL,
+        livePenalty INTEGER DEFAULT 1,
+        isEasterEgg BOOLEAN DEFAULT 0,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
           `)
     
     // Prepared statements
     const statements = {
-      getBubbles: db.prepare('SELECT * FROM bubbles ORDER BY year_started, name'),
+      getBubbles: db.prepare('SELECT * FROM bubbles ORDER BY yearStarted, name'),
       insertBubble: db.prepare(`
-        INSERT INTO bubbles (id, name, skill_level, year_started, year_ended, is_active, is_easter_egg, description, projects, link, size, color, category)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO bubbles (id, name, skillLevel, yearStarted, yearEnded, isActive, isEasterEgg, isTough, toughClicks, description, projects, link, size, color, category)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `),
       insertPhilosophyQuestion: db.prepare(`
-        INSERT INTO philosophy_questions (id, question, context, agree_text, disagree_text, live_penalty, is_easter_egg)
+        INSERT INTO philosophy_questions (id, question, context, agreeText, disagreeText, livePenalty, isEasterEgg)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `),
       getSession: db.prepare('SELECT * FROM user_sessions WHERE id = ?'),
       insertSession: db.prepare(`
-        INSERT INTO user_sessions (id, current_xp, current_level, lives)
+        INSERT INTO user_sessions (id, currentXp, currentLevel, lives)
         VALUES (?, ?, ?, ?)
       `),
       updateSession: db.prepare(`
         UPDATE user_sessions 
-        SET current_xp = ?, current_level = ?, lives = ?, unlocked_content = ?, visited_bubbles = ?, agreement_score = ?, last_activity = CURRENT_TIMESTAMP
+        SET currentXp = ?, currentLevel = ?, lives = ?, unlockedContent = ?, visitedBubbles = ?, agreementScore = ?, lastActivity = CURRENT_TIMESTAMP
         WHERE id = ?
       `)
     }
@@ -135,6 +135,83 @@ app.use(compression())
 app.use(express.json())
 app.use(express.static(join(__dirname, '../dist')))
 
+// Seeding function
+const seedDatabase = () => {
+  try {
+    // Читаем данные из JSON файлов
+    const mockDataPath = join(__dirname, '../src/shared/data/mockData.json')
+    const philosophyPath = join(__dirname, '../src/shared/data/philosophyQuestions.json')
+    
+    if (!fs.existsSync(mockDataPath) || !fs.existsSync(philosophyPath)) {
+      console.log('🌱 Seed files not found, skipping seeding.')
+      return
+    }
+    
+    const mockData = JSON.parse(fs.readFileSync(mockDataPath, 'utf8'))
+    const philosophyData = JSON.parse(fs.readFileSync(philosophyPath, 'utf8'))
+    
+    // Очищаем существующие данные
+    db.exec('DELETE FROM bubbles')
+    db.exec('DELETE FROM philosophy_questions')
+
+    // Добавляем пузыри
+    for (const bubble of mockData.bubbles) {
+      try {
+        const isTough = bubble.label === 'JavaScript';
+        const toughClicks = isTough ? 5 : 0;
+        const color = isTough ? '#FBBF24' : (bubble.color || '#667eea');
+
+        const params = [
+          String(bubble.id),
+          String(bubble.label || ''),
+          String(skillLevelMap[bubble.level] || 'beginner'),
+          Number(bubble.year || 0),
+          null,
+          Number(bubble.isActive === false ? 0 : 1),
+          Number(bubble.isEasterEgg ? 1 : 0),
+          isTough ? 1 : 0,
+          toughClicks,
+          String(bubble.description || ''),
+          '[]',
+          String(bubble.projectLink || ''),
+          String(`bubble-${skillLevelMap[bubble.level] || 'beginner'}`),
+          color,
+          String(bubble.category || 'general')
+        ]
+        
+        statements.insertBubble.run(params)
+      } catch (error) {
+        console.error(`❌ Ошибка добавления пузыря ${bubble.id}:`, error)
+      }
+    }
+    
+    // Добавляем философские вопросы
+    for (const question of philosophyData.questions) {
+      try {
+        const agreeOption = question.options.reduce((max, opt) => opt.agreementLevel > max.agreementLevel ? opt : max, question.options[0])
+        const disagreeOption = question.options.reduce((min, opt) => opt.agreementLevel < min.agreementLevel ? opt : min, question.options[0])
+        
+        const params = [
+          String(question.id),
+          String(question.question),
+          String(question.insight || ''),
+          String(agreeOption.text),
+          String(disagreeOption.text),
+          Number(disagreeOption.livesLost || 1),
+          Number(question.isEasterEgg ? 1 : 0)
+        ]
+        
+        statements.insertPhilosophyQuestion.run(params)
+      } catch (error) {
+        console.error(`❌ Ошибка добавления вопроса ${question.id}:`, error)
+      }
+    }
+    console.log('🌱 Database seeded successfully.')
+  } catch (error) {
+    console.error('❌ Error seeding database:', error)
+  }
+}
+
 // API Routes
 
 // Health check
@@ -153,10 +230,6 @@ app.get('/api/bubbles', (req, res) => {
     const formattedBubbles = bubbles.map(bubble => ({
       ...bubble,
       projects: bubble.projects ? JSON.parse(bubble.projects) : [],
-      isActive: Boolean(bubble.is_active),
-      isEasterEgg: Boolean(bubble.is_easter_egg),
-      isTough: Boolean(bubble.is_tough),
-      toughClicks: bubble.tough_clicks || 3
     }))
     
     res.json({
@@ -189,9 +262,9 @@ app.get('/api/session/:sessionId', (req, res) => {
       success: true,
       data: {
         ...session,
-        unlockedContent: session.unlocked_content ? JSON.parse(session.unlocked_content) : [],
-        visitedBubbles: session.visited_bubbles ? JSON.parse(session.visited_bubbles) : [],
-        gameCompleted: Boolean(session.game_completed)
+        unlockedContent: session.unlockedContent ? JSON.parse(session.unlockedContent) : [],
+        visitedBubbles: session.visitedBubbles ? JSON.parse(session.visitedBubbles) : [],
+        gameCompleted: Boolean(session.gameCompleted)
       },
       timestamp: new Date().toISOString()
     })
@@ -208,10 +281,10 @@ app.get('/api/session/:sessionId', (req, res) => {
 app.put('/api/session/:sessionId', (req, res) => {
   try {
     const { sessionId } = req.params
-    const { currentXP, currentLevel, lives, unlockedContent, visitedBubbles, agreementScore } = req.body
+    const { currentXp, currentLevel, lives, unlockedContent, visitedBubbles, agreementScore } = req.body
     
     statements.updateSession.run(
-      currentXP,
+      currentXp,
       currentLevel,
       lives,
       JSON.stringify(unlockedContent || []),
@@ -265,20 +338,26 @@ app.post('/api/seed', async (req, res) => {
     db.exec('DELETE FROM philosophy_questions')
     for (const bubble of mockData.bubbles) {
       try {
+        const isTough = bubble.label === 'JavaScript';
+        const toughClicks = isTough ? 5 : 0;
+        const color = isTough ? '#FBBF24' : (bubble.color || '#667eea');
+
         const params = [
-          String(bubble.id),                    // id
-          String(bubble.label || ''),           // name
-          String(skillLevelMap[bubble.level] || 'beginner'),   // skill_level
-          Number(bubble.year || 0),             // year_started
-          null,                                 // year_ended
-          Number(bubble.isActive === false ? 0 : 1),    // is_active
-          Number(bubble.isEasterEgg ? 1 : 0),          // is_easter_egg
-          String(bubble.description || ''),     // description
-          '[]',                                 // projects (empty array)
-          String(bubble.projectLink || ''),           // link
-          String(`bubble-${skillLevelMap[bubble.level] || 'beginner'}`),     // size
-          String(bubble.color || '#667eea'),    // color
-          String(bubble.category || 'general')  // category
+          String(bubble.id),
+          String(bubble.label || ''),
+          String(skillLevelMap[bubble.level] || 'beginner'),
+          Number(bubble.year || 0),
+          null,
+          Number(bubble.isActive === false ? 0 : 1),
+          Number(bubble.isEasterEgg ? 1 : 0),
+          isTough ? 1 : 0,
+          toughClicks,
+          String(bubble.description || ''),
+          '[]',
+          String(bubble.projectLink || ''),
+          String(`bubble-${skillLevelMap[bubble.level] || 'beginner'}`),
+          color,
+          String(bubble.category || 'general')
         ]
         
         statements.insertBubble.run(params)
@@ -302,13 +381,13 @@ app.post('/api/seed', async (req, res) => {
         , question.options[0])
         
         const params = [
-          String(question.id),                  // id
-          String(question.question),            // question
-          String(question.insight || ''),       // context
-          String(agreeOption.text),            // agree_text
-          String(disagreeOption.text),         // disagree_text
-          Number(disagreeOption.livesLost || 1), // live_penalty
-          Number(question.isEasterEgg ? 1 : 0)         // is_easter_egg
+          String(question.id),
+          String(question.question),
+          String(question.insight || ''),
+          String(agreeOption.text),
+          String(disagreeOption.text),
+          Number(disagreeOption.livesLost || 1),
+          Number(question.isEasterEgg ? 1 : 0)
         ]
         
         statements.insertPhilosophyQuestion.run(params)
@@ -353,7 +432,9 @@ app.use((err, req, res, next) => {
 // Start server
 const startServer = async () => {
   try {
+    seedDatabase(); // Заполняем БД при старте
     app.listen(PORT, () => {
+      console.log(`🚀 Server listening at http://localhost:${PORT}`);
     })
   } catch (error) {
     console.error('❌ Ошибка запуска сервера:', error)

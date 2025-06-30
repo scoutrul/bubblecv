@@ -1,62 +1,57 @@
 <template>
-  <div 
-    v-if="isOpen" 
-    class="level-up-modal-overlay"
-    @click="handleOverlayClick"
+  <Transition
+    name="modal"
+    appear
   >
-    <div class="level-up-modal" @click.stop>
-      <!-- Крестик для закрытия -->
-      <button 
-        @click="close"
-        class="close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
-      
-      <!-- Заголовок с анимацией -->
-      <div class="level-up-header">
-        <div class="level-icon-large">{{ levelData.icon }}</div>
-        <h2 class="level-up-title">LEVEL UP!</h2>
-        <div class="new-level">
-          <span class="level-number">Уровень {{ levelData.level }}</span>
-          <span class="level-name">{{ levelData.title }}</span>
+    <div 
+      v-if="isOpen" 
+      class="level-up-modal-overlay"
+      @click="handleOverlayClick"
+      data-testid="level-up-modal"
+    >
+      <div class="level-up-modal" @click.stop>
+        <!-- Крестик для закрытия -->
+        <button 
+          @click="close"
+          class="close-button"
+          aria-label="Закрыть"
+          data-testid="level-up-continue"
+        >
+          ×
+        </button>
+        
+        <!-- Заголовок с анимацией -->
+        <div class="level-up-header">
+          <div class="level-icon-large">{{ levelData.icon }}</div>
+          <h2 class="level-up-title">LEVEL UP!</h2>
+          <div class="new-level">
+            <span class="level-number">Уровень {{ levelData.level }}</span>
+            <span class="level-name">{{ levelData.title }}</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Описание -->
-      <div class="level-description">
-        <p>{{ levelData.description }}</p>
-      </div>
-
-      <!-- XP информация -->
-      <div class="xp-info">
-        <div class="xp-gained">
-          <span class="label">Получено XP:</span>
-          <span class="value">+{{ xpGained }}</span>
+        <!-- Описание -->
+        <div class="level-description">
+          <p>{{ levelData.description }}</p>
         </div>
-        <div class="xp-total">
-          <span class="label">Общий XP:</span>
-          <span class="value">{{ currentXP }}</span>
+
+        <!-- Разблокированные возможности -->
+        <div v-if="unlockedFeatures.length > 0" class="unlocked-features">
+          <h3>🔓 Разблокировано:</h3>
+          <ul>
+            <li v-for="feature in unlockedFeatures" :key="feature">
+              {{ feature }}
+            </li>
+          </ul>
         </div>
-      </div>
 
-      <!-- Разблокированные возможности -->
-      <div v-if="unlockedFeatures.length > 0" class="unlocked-features">
-        <h3>🔓 Разблокировано:</h3>
-        <ul>
-          <li v-for="feature in unlockedFeatures" :key="feature">
-            {{ feature }}
-          </li>
-        </ul>
-      </div>
-
-      <!-- Подсказка для закрытия -->
-      <div class="click-outside-hint">
-        <span>Кликните вне окна для продолжения</span>
+        <!-- Подсказка для закрытия -->
+        <div class="click-outside-hint">
+          <span>Кликните вне окна для продолжения</span>
+        </div>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
@@ -115,7 +110,6 @@ const handleOverlayClick = () => {
   justify-content: center;
   padding: 1rem;
   z-index: 2500;
-  animation: fadeIn 0.3s ease-out;
 }
 
 .level-up-modal {
@@ -128,8 +122,36 @@ const handleOverlayClick = () => {
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  animation: slideUp 0.4s ease-out;
   position: relative;
+}
+
+/* Vue Transition классы */
+.modal-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.modal-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.modal-enter-from {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
+
+.modal-enter-from .level-up-modal {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.9);
+}
+
+.modal-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
+
+.modal-leave-to .level-up-modal {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
 .close-button {
@@ -210,35 +232,6 @@ const handleOverlayClick = () => {
   line-height: 1.6;
 }
 
-.xp-info {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.xp-gained, .xp-total {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.label {
-  font-size: 0.75rem;
-  color: var(--text-secondary, #64748b);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.value {
-  font-size: 1.125rem;
-  font-weight: bold;
-  color: var(--primary, #3b82f6);
-}
-
 .unlocked-features {
   margin-bottom: 1.5rem;
 }
@@ -276,23 +269,7 @@ const handleOverlayClick = () => {
   font-size: 0.875rem;
 }
 
-/* Анимации */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+/* Анимации для элементов внутри модалки */
 @keyframes bounce {
   0%, 20%, 50%, 80%, 100% {
     transform: translateY(0);

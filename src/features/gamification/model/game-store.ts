@@ -14,10 +14,10 @@ export const useGameStore = defineStore('game', () => {
       // Получаем XP требования из game-config
       const xpRequiredMap = {
         1: 0,  // Первый уровень - стартовый
-        2: GAME_CONFIG.XP_LEVELS.LEVEL_1, // 22 XP
-        3: GAME_CONFIG.XP_LEVELS.LEVEL_2, // 44 XP  
-        4: GAME_CONFIG.XP_LEVELS.LEVEL_3, // 66 XP
-        5: GAME_CONFIG.XP_LEVELS.LEVEL_4  // 88 XP
+        2: GAME_CONFIG.xpLevels.level1,
+        3: GAME_CONFIG.xpLevels.level2,  
+        4: GAME_CONFIG.xpLevels.level3,
+        5: GAME_CONFIG.xpLevels.level4 
       }
       
       return {
@@ -38,12 +38,36 @@ export const useGameStore = defineStore('game', () => {
   const initializeAchievements = () => {
     achievements.value = [
       {
+        id: 'tough-bubble-popper',
+        name: 'Крепыш',
+        description: 'Вы пробили свой первый крепкий пузырь!',
+        icon: '💥',
+        xpReward: GAME_CONFIG.xpLevels.level1,
+        isUnlocked: false
+      },
+      {
         id: 'secret-bubble-discoverer',
-        name: 'Секретный исследователь',
-        description: 'Вы нашли скрытый пузырь! Настоящие таланты умеют находить возможности там, где их не видят другие.',
+        name: 'Искатель секретов',
+        description: 'Вы нашли и активировали скрытый пузырь!',
         icon: '🕵️',
-        isUnlocked: false,
-        xpReward: 10
+        xpReward: GAME_CONFIG.xpLevels.level2,
+        isUnlocked: false
+      },
+      {
+        id: 'year-jumper',
+        name: 'Путешественник во времени',
+        description: 'Вы перешли на следующий год, не лопнув все пузыри!',
+        icon: '⏭️',
+        xpReward: GAME_CONFIG.xpLevels.level3,
+        isUnlocked: false
+      },
+      {
+        id: 'completionist',
+        name: 'Перфекционист',
+        description: 'Вы лопнули все доступные пузыри в году!',
+        icon: '🏆',
+        xpReward: GAME_CONFIG.xpLevels.level4,
+        isUnlocked: false
       },
       {
         id: 'philosophy-master',

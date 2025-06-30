@@ -9,7 +9,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     
     // Особая отрисовка для скрытого пузыря
     if (bubble.bubbleType === 'hidden') {
-      const hiddenConfig = GAME_CONFIG.HIDDEN_BUBBLE
+      const hiddenConfig = GAME_CONFIG.hiddenBubble
       context.globalAlpha = hiddenConfig.opacity
       const x = bubble.x
       const y = bubble.y
@@ -42,7 +42,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     
     // Особая отрисовка для философских пузырей
     if (bubble.isEasterEgg) {
-      const philosophyConfig = GAME_CONFIG.PHILOSOPHY_BUBBLE
+      const philosophyConfig = GAME_CONFIG.philosophyBubble
       
       if (philosophyConfig.hasGradient && philosophyConfig.gradientColors) {
         // Создаем радиальный градиент для философского пузыря
@@ -64,7 +64,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.fill()
     } else if (bubble.isTough) {
       // Особая отрисовка для крепких пузырей
-      const toughConfig = GAME_CONFIG.TOUGH_BUBBLE
+      const toughConfig = GAME_CONFIG.toughBubble
       
       // Сначала рисуем свечение
       context.shadowColor = toughConfig.glowColor
@@ -92,7 +92,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.shadowBlur = 0
     } else {
       // Отрисовка для обычных пузырей с поддержкой градиентов
-      const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
+      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
       
       if ('hasGradient' in expertiseConfig && expertiseConfig.hasGradient && 
          'gradientColors' in expertiseConfig && expertiseConfig.gradientColors) {
@@ -133,7 +133,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     context.save()
     
     // Используем baseRadius вместо currentRadius для стабильности
-    const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[bubble.skillLevel]
+    const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
     const sizeMultiplier = expertiseConfig.sizeMultiplier
     
     // Ограничиваем минимальный и максимальный размер шрифта

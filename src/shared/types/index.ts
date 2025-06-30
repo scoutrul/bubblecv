@@ -10,12 +10,12 @@ export interface Bubble {
   yearEnded?: number
   isActive: boolean
   isEasterEgg: boolean
-  isHidden?: boolean
-  isTough?: boolean         // Крепкий пузырь - требует несколько кликов
-  toughClicks?: number      // Сколько кликов нужно для активации
-  currentClicks?: number    // Сколько кликов уже сделано
+  isHidden: boolean
+  isTough: boolean
+  toughClicks: number
+  currentClicks: number
   isPopped: boolean
-  isVisited: boolean       // Флаг посещения пузыря
+  isVisited: boolean
   description: string
   projects: string[]
   link?: string

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import type { Bubble, PhilosophyQuestion } from '@shared/types'
 import { useSessionStore } from '@/entities/user-session/model/session-store'
 import { useGameStore } from '@/features/gamification/model/game-store'
@@ -12,6 +12,13 @@ interface LevelUpData {
   currentXP: number
   xpGained: number
   unlockedFeatures: string[]
+}
+
+interface PendingAchievement {
+  title: string
+  description: string
+  icon: string
+  xpReward: number
 }
 
 export const useModalStore = defineStore('modal', () => {
@@ -50,6 +57,48 @@ export const useModalStore = defineStore('modal', () => {
   // Achievement Modal
   const isAchievementModalOpen = ref(false)
   const achievementData = ref<{ title: string; description: string; icon: string; xpReward: number } | null>(null)
+  
+  // Система отложенных достижений
+  const pendingAchievements = ref<PendingAchievement[]>([])
+  
+  // Computed для проверки открытых модалок (исключая панель достижений)
+  const hasActiveModals = computed(() => {
+    return isWelcomeOpen.value || 
+           isBubbleModalOpen.value || 
+           isLevelUpModalOpen.value || 
+           isPhilosophyModalOpen.value || 
+           isGameOverModalOpen.value ||
+           isAchievementModalOpen.value
+  })
+  
+  // Функция для добавления достижения в очередь или показа сразу
+  const queueOrShowAchievement = (achievement: PendingAchievement) => {
+    // Если LevelUp модалка открыта - всегда добавляем в очередь  
+    if (isLevelUpModalOpen.value) {
+      pendingAchievements.value.push(achievement)
+      return
+    }
+    
+    if (hasActiveModals.value) {
+      // Если есть другие открытые модалки - добавляем в очередь
+      pendingAchievements.value.push(achievement)
+    } else {
+      // Если модалок нет - показываем сразу
+      achievementData.value = achievement
+      isAchievementModalOpen.value = true
+    }
+  }
+  
+  // Функция для обработки очереди достижений
+  const processPendingAchievements = () => {
+    if (!hasActiveModals.value && pendingAchievements.value.length > 0) {
+      const nextAchievement = pendingAchievements.value.shift()
+      if (nextAchievement) {
+        achievementData.value = nextAchievement
+        isAchievementModalOpen.value = true
+      }
+    }
+  }
 
   // Welcome Modal Actions
   const openWelcome = () => {
@@ -60,6 +109,7 @@ export const useModalStore = defineStore('modal', () => {
     isWelcomeOpen.value = false
     // Сохраняем что welcome модалка была показана
     localStorage.setItem('bubbleme-welcome-shown', 'true')
+    processPendingAchievements()
   }
 
   // Проверяем нужно ли показать welcome модалку
@@ -76,6 +126,7 @@ export const useModalStore = defineStore('modal', () => {
   const closeBubbleModal = () => {
     isBubbleModalOpen.value = false
     currentBubble.value = null
+    processPendingAchievements()
   }
 
   const continueBubbleModal = () => {
@@ -91,6 +142,13 @@ export const useModalStore = defineStore('modal', () => {
 
   // Level Up Modal Actions  
   const openLevelUpModal = (level: number, data?: Partial<LevelUpData>) => {
+    // Если открыта achievement модалка - добавляем ее в очередь и закрываем
+    if (isAchievementModalOpen.value && achievementData.value) {
+      pendingAchievements.value.unshift(achievementData.value) // Добавляем в начало очереди
+      isAchievementModalOpen.value = false
+      achievementData.value = null
+    }
+    
     currentLevel.value = level
     
     if (data) {
@@ -110,6 +168,7 @@ export const useModalStore = defineStore('modal', () => {
 
   const closeLevelUpModal = () => {
     isLevelUpModalOpen.value = false
+    processPendingAchievements()
   }
 
   // Philosophy Question Modal Actions
@@ -124,6 +183,7 @@ export const useModalStore = defineStore('modal', () => {
     isPhilosophyModalOpen.value = false
     currentQuestion.value = null
     philosophyBubbleId.value = null
+    processPendingAchievements()
   }
 
   const handlePhilosophyAnswer = async (answer: 'agree' | 'disagree') => {
@@ -204,6 +264,7 @@ export const useModalStore = defineStore('modal', () => {
   const closeGameOverModal = () => {
     isGameOverModalOpen.value = false
     gameOverStats.value = null
+    processPendingAchievements()
   }
 
   const restartGame = async () => {
@@ -223,6 +284,7 @@ export const useModalStore = defineStore('modal', () => {
   const closeAchievementModal = () => {
     isAchievementModalOpen.value = false
     achievementData.value = null
+    processPendingAchievements()
   }
 
   return {
@@ -256,6 +318,8 @@ export const useModalStore = defineStore('modal', () => {
     closeGameOverModal,
     restartGame,
     openAchievementModal,
-    closeAchievementModal
+    closeAchievementModal,
+    queueOrShowAchievement,
+    processPendingAchievements
   }
 }) 

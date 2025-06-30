@@ -106,7 +106,10 @@
 
 <script setup lang="ts">
 import type { PhilosophyQuestion } from '@shared/types'
+import { useModalStore } from '@shared/stores/modal-store'
+import { useSessionStore } from '@entities/user-session/model/session-store'
 import { GAME_CONFIG } from '@shared/config/game-config'
+import { computed, ref } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -118,11 +121,14 @@ interface Emits {
   (e: 'answer', answer: 'agree' | 'disagree'): void
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const philosophyXP = GAME_CONFIG.PHILOSOPHY_CORRECT_XP
-const philosophyLives = GAME_CONFIG.PHILOSOPHY_WRONG_LIVES
+const modalStore = useModalStore()
+const sessionStore = useSessionStore()
+
+const philosophyXP = GAME_CONFIG.philosophyCorrectXp
+const philosophyLives = GAME_CONFIG.philosophyWrongLives
 
 const handleAnswer = (answer: 'agree' | 'disagree') => {
   emit('answer', answer)

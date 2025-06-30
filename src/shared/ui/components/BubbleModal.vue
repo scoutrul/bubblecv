@@ -1,127 +1,134 @@
 <template>
   <Teleport to="body">
-    <div 
-      v-if="isOpen" 
-      class="modal-overlay"
-      @click="handleOverlayClick"
+    <Transition
+      name="modal"
+      appear
     >
       <div 
-        class="modal-container"
-        @click.stop
+        v-if="isOpen" 
+        class="modal-overlay"
+        @click="handleOverlayClick"
+        data-testid="bubble-modal"
       >
-        <!-- Header -->
-        <div class="modal-header">
-          <div class="flex items-center gap-3">
-            <div 
-              class="bubble-icon"
-              :style="{ backgroundColor: getBubbleColor() }"
-            >
-              <span class="text-white font-bold text-lg">
-                {{ bubble?.name?.[0]?.toUpperCase() }}
-              </span>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
-            </div>
-          </div>
-          
-          <!-- Крестик для закрытия -->
-          <button 
-            @click="$emit('continue')"
-            class="close-button"
-            aria-label="Закрыть"
-          >
-            ×
-          </button>
-        </div>
-
-        <!-- Content -->
-        <div class="modal-content">
-          <!-- Skill Level -->
-          <div class="skill-section">
-            <h3 class="section-title">Уровень экспертизы</h3>
-            <div class="skill-level">
-              <div class="skill-badge" :class="skillLevelClass">
-                {{ getSkillLevelLabel(bubble?.skillLevel) }}
-              </div>
-              <div class="skill-years">
-                {{ getExperienceYears() }} лет опыта
-              </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div class="description-section">
-            <h3 class="section-title">Описание</h3>
-            <p class="description-text">
-              {{ bubble?.description }}
-            </p>
-          </div>
-
-          <!-- Projects -->
-          <div v-if="bubble?.projects?.length" class="projects-section">
-            <h3 class="section-title">Проекты</h3>
-            <ul class="projects-list">
-              <li 
-                v-for="project in bubble.projects" 
-                :key="project"
-                class="project-item"
+        <div 
+          class="modal-container"
+          @click.stop
+        >
+          <!-- Header -->
+          <div class="modal-header">
+            <div class="flex items-center gap-3">
+              <div 
+                class="bubble-icon"
+                :style="{ backgroundColor: getBubbleColor() }"
               >
-                {{ project }}
-              </li>
-            </ul>
-          </div>
-
-          <!-- Link -->
-          <div v-if="bubble?.link" class="link-section">
-            <a 
-              :href="bubble.link"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="external-link"
+                <span class="text-white font-bold text-lg">
+                  {{ bubble?.name?.[0]?.toUpperCase() }}
+                </span>
+              </div>
+              <div>
+                <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
+              </div>
+            </div>
+            
+            <!-- Крестик для закрытия -->
+            <button 
+              @click="$emit('continue')"
+              class="close-button"
+              aria-label="Закрыть"
+              data-testid="bubble-continue"
             >
-              🔗 Посмотреть примеры работы
-            </a>
+              ×
+            </button>
           </div>
 
-          <!-- Timeline -->
-          <div class="timeline-section">
-            <h3 class="section-title">Временная линия</h3>
-            <div class="timeline-info">
-              <span class="timeline-start">{{ bubble?.yearStarted }}</span>
-              <div class="timeline-line"></div>
-              <span class="timeline-end">
-                {{ bubble?.yearEnded || 'настоящее время' }}
+          <!-- Content -->
+          <div class="modal-content">
+            <!-- Skill Level -->
+            <div class="skill-section">
+              <h3 class="section-title">Уровень экспертизы</h3>
+              <div class="skill-level">
+                <div class="skill-badge" :class="skillLevelClass">
+                  {{ getSkillLevelLabel(bubble?.skillLevel) }}
+                </div>
+                <div class="skill-years">
+                  {{ getExperienceYears() }} лет опыта
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="description-section">
+              <h3 class="section-title">Описание</h3>
+              <p class="description-text">
+                {{ bubble?.description }}
+              </p>
+            </div>
+
+            <!-- Projects -->
+            <div v-if="bubble?.projects?.length" class="projects-section">
+              <h3 class="section-title">Проекты</h3>
+              <ul class="projects-list">
+                <li 
+                  v-for="project in bubble.projects" 
+                  :key="project"
+                  class="project-item"
+                >
+                  {{ project }}
+                </li>
+              </ul>
+            </div>
+
+            <!-- Link -->
+            <div v-if="bubble?.link" class="link-section">
+              <a 
+                :href="bubble.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="external-link"
+              >
+                🔗 Посмотреть примеры работы
+              </a>
+            </div>
+
+            <!-- Timeline -->
+            <div class="timeline-section">
+              <h3 class="section-title">Временная линия</h3>
+              <div class="timeline-info">
+                <span class="timeline-start">{{ bubble?.yearStarted }}</span>
+                <div class="timeline-line"></div>
+                <span class="timeline-end">
+                  {{ bubble?.yearEnded || 'настоящее время' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Easter Egg Special -->
+            <div v-if="bubble?.isEasterEgg" class="easter-egg-section">
+              <div class="easter-egg-badge">
+                🥚 Философский пузырь
+              </div>
+              <p class="easter-egg-text">
+                Этот пузырь содержит особые убеждения о разработке. 
+                Взаимодействие с ним поможет работодателю понять ваши ценности!
+              </p>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="modal-footer">
+            <div class="xp-reward">
+              <span class="xp-text">
+                + {{ xpReward }} XP
               </span>
             </div>
-          </div>
-
-          <!-- Easter Egg Special -->
-          <div v-if="bubble?.isEasterEgg" class="easter-egg-section">
-            <div class="easter-egg-badge">
-              🥚 Философский пузырь
+            
+            <div class="click-outside-hint">
+              <span class="hint-text">Кликните вне окна для продолжения</span>
             </div>
-            <p class="easter-egg-text">
-              Этот пузырь содержит особые убеждения о разработке. 
-              Взаимодействие с ним поможет работодателю понять ваши ценности!
-            </p>
-          </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="modal-footer">
-          <div class="xp-reward">
-            <span class="xp-text">
-              + {{ bubbleXP }} XP
-            </span>
-          </div>
-          
-          <div class="click-outside-hint">
-            <span class="hint-text">Кликните вне окна для продолжения</span>
           </div>
         </div>
       </div>
-    </div>
+    </Transition>
   </Teleport>
 </template>
 
@@ -129,6 +136,8 @@
 import { computed } from 'vue'
 import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
+import { useModalStore } from '@shared/stores/modal-store'
+import { useSessionStore } from '@entities/user-session/model/session-store'
 
 interface Props {
   isOpen: boolean
@@ -166,23 +175,20 @@ const getExperienceYears = () => {
   return endYear - props.bubble.yearStarted
 }
 
-const bubbleXP = computed(() => {
+const xpReward = computed(() => {
   if (!props.bubble) return 0
-  if (props.bubble.isEasterEgg) return GAME_CONFIG.XP_PER_EASTER_EGG
-  return GAME_CONFIG.XP_PER_EXPERTISE_LEVEL[props.bubble.skillLevel as keyof typeof GAME_CONFIG.XP_PER_EXPERTISE_LEVEL] || 1
+  if (props.bubble.isEasterEgg) return GAME_CONFIG.xpPerEasterEgg
+  return GAME_CONFIG.xpPerExpertiseLevel[props.bubble.skillLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel] || 1
 })
 
 const getBubbleColor = () => {
-  if (!props.bubble) return '#667eea'
-  
-  // Для философских пузырей используем градиент (берем первый цвет)
+  if (!props.bubble) return '#3b82f6'
   if (props.bubble.isEasterEgg) {
-    return GAME_CONFIG.PHILOSOPHY_BUBBLE.gradientColors[0]
+    return GAME_CONFIG.philosophyBubble.gradientColors[0]
   }
   
-  // Для обычных пузырей используем цвет из уровня экспертизы
-  const expertiseConfig = GAME_CONFIG.EXPERTISE_LEVELS[props.bubble.skillLevel as keyof typeof GAME_CONFIG.EXPERTISE_LEVELS]
-  return expertiseConfig?.color || '#667eea'
+  const expertiseConfig = GAME_CONFIG.expertiseLevels[props.bubble.skillLevel as keyof typeof GAME_CONFIG.expertiseLevels]
+  return expertiseConfig?.color || '#3b82f6'
 }
 
 const handleOverlayClick = (event: MouseEvent) => {
@@ -197,14 +203,41 @@ const handleOverlayClick = (event: MouseEvent) => {
   @apply fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm;
   @apply flex items-center justify-center p-4;
   z-index: 2000;
-  animation: fadeIn 0.3s ease-out;
 }
 
 .modal-container {
   @apply bg-background-primary border border-border rounded-xl;
   @apply w-full max-w-lg max-h-[90vh] overflow-y-auto;
   @apply shadow-2xl;
-  animation: slideUp 0.3s ease-out;
+}
+
+/* Vue Transition классы */
+.modal-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.modal-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.modal-enter-from {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
+
+.modal-enter-from .modal-container {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.9);
+}
+
+.modal-leave-to {
+  opacity: 0;
+  backdrop-filter: blur(0px);
+}
+
+.modal-leave-to .modal-container {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
 .modal-header {
@@ -350,23 +383,36 @@ const handleOverlayClick = (event: MouseEvent) => {
   @apply text-text-secondary;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
+@keyframes modalEnter {
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
   }
-  to {
-    opacity: 1;
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(4px);
   }
 }
 
-@keyframes slideUp {
+@keyframes modalScale {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(-10px) scale(0.9);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes modalLeave {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
   }
 }
 </style> 
