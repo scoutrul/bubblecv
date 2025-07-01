@@ -46,12 +46,12 @@ const handleReset = () => {
   @apply bg-background-glass backdrop-blur-md border border-border;
   @apply text-text-secondary hover:text-text-primary;
   @apply transition-all duration-300;
-  @apply hover:scale-110 hover:border-primary/50;
+  @apply hover:scale-110;
   @apply active:scale-95;
 }
 
 .reset-button:hover {
-  @apply shadow-lg shadow-primary/20;
+  @apply shadow-xl shadow-primary/30;
 }
 
 .reset-button svg {

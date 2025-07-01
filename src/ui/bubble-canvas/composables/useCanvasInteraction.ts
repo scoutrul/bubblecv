@@ -1,4 +1,4 @@
-import { type Ref } from 'vue'
+import { type Ref, ref } from 'vue'
 import type { PhilosophyQuestion } from '@shared/types'
 import type { SimulationNode } from './types'
 import { GAME_CONFIG } from '@shared/config/game-config'
@@ -6,6 +6,7 @@ import { useSessionStore } from '@/app/stores/session.store'
 import { useModalStore } from '@/app/stores/modal.store'
 import { useBubbleStore } from '@/app/stores/bubble.store'
 import { useGameStore } from '@/app/stores/game.store'
+import { gsap } from 'gsap'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -15,9 +16,10 @@ export function useCanvasInteraction(
   const modalStore = useModalStore()
   const gameStore = useGameStore()
   const bubbleStore = useBubbleStore()
-
-  let hoveredBubble: SimulationNode | null = null
-  let isClicking = false
+  const isDragging = ref(false)
+  const hoveredBubble = ref<SimulationNode | null>(null)
+  let lastHoveredId: string | null = null
+  const parallaxOffset = ref({ x: 0, y: 0 })
 
   // Обработка движения мыши
   const handleMouseMove = (
@@ -32,27 +34,45 @@ export function useCanvasInteraction(
     const mouseX = event.clientX - rect.left
     const mouseY = event.clientY - rect.top
 
+    // Вычисляем целевое смещение для параллакса
+    const centerX = rect.width / 2
+    const centerY = rect.height / 2
+    const strength = 0.008 // Сила эффекта параллакса (еще уменьшена)
+    const targetX = (mouseX - centerX) * strength * -1
+    const targetY = (mouseY - centerY) * strength * -1
+
+    // Анимируем смещение к целевому значению с затуханием
+    gsap.to(parallaxOffset.value, {
+      x: targetX,
+      y: targetY,
+      duration: 1.2, // Длительность анимации (увеличена для более медленного эффекта)
+      ease: 'power2.out' // Изинг для плавности
+    })
+
+    // Если идет перетаскивание, не обрабатываем ховер
+    if (isDragging.value) return
+
     const newHoveredBubble = findBubbleUnderCursor(mouseX, mouseY, nodes)
 
-    if (newHoveredBubble !== hoveredBubble) {
+    if (newHoveredBubble !== hoveredBubble.value) {
       // Сброс предыдущего ховера
-      if (hoveredBubble) {
-        hoveredBubble.targetRadius = hoveredBubble.baseRadius
-        hoveredBubble.isHovered = false
+      if (hoveredBubble.value) {
+        hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius
+        hoveredBubble.value.isHovered = false
       }
 
-      hoveredBubble = newHoveredBubble
+      hoveredBubble.value = newHoveredBubble
 
       // Применение нового ховера
-      if (hoveredBubble) {
-        hoveredBubble.targetRadius = hoveredBubble.baseRadius * 1.2
-        hoveredBubble.isHovered = true
+      if (hoveredBubble.value) {
+        hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius * 1.2
+        hoveredBubble.value.isHovered = true
         canvasRef.value!.style.cursor = 'pointer'
         
         // Отталкиваем соседей при начале ховера
-        const pushRadius = hoveredBubble.baseRadius * 4 // Увеличили радиус воздействия
+        const pushRadius = hoveredBubble.value.baseRadius * 4 // Увеличили радиус воздействия
         const pushStrength = 8 // Увеличили силу отталкивания
-        pushNeighbors(hoveredBubble, pushRadius, pushStrength, nodes)
+        pushNeighbors(hoveredBubble.value, pushRadius, pushStrength, nodes)
         
   
       } else {
@@ -63,10 +83,10 @@ export function useCanvasInteraction(
 
   // Обработка ухода мыши
   const handleMouseLeave = () => {
-    if (hoveredBubble) {
-      hoveredBubble.targetRadius = hoveredBubble.baseRadius
-      hoveredBubble.isHovered = false
-      hoveredBubble = null
+    if (hoveredBubble.value) {
+      hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius
+      hoveredBubble.value.isHovered = false
+      hoveredBubble.value = null
     }
     if (canvasRef.value) {
       canvasRef.value.style.cursor = 'default'
@@ -85,8 +105,8 @@ export function useCanvasInteraction(
     createLifeLossFloatingText: (x: number, y: number) => void,
     removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[]
   ) => {
-    if (!canvasRef.value || isClicking) return
-    isClicking = true
+    if (!canvasRef.value || isDragging.value) return
+    isDragging.value = true
 
     try {
       const rect = canvasRef.value.getBoundingClientRect()
@@ -194,7 +214,7 @@ export function useCanvasInteraction(
         explodeFromPoint(mouseX, mouseY, explosionRadius, explosionStrength, nodes, width, height)
       }
     } finally {
-      isClicking = false
+      isDragging.value = false
     }
   }
 
@@ -352,11 +372,12 @@ export function useCanvasInteraction(
   }
 
   return {
+    isDragging,
+    hoveredBubble,
     handleMouseMove,
-    handleMouseLeave,
     handleClick,
-    handleBubbleContinue,
+    handleMouseLeave,
     setupEventListeners,
-    getHoveredBubble: () => hoveredBubble
+    parallaxOffset
   }
 } 

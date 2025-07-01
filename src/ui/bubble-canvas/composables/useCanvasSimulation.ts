@@ -27,6 +27,7 @@ export function useCanvasSimulation(
   const physicsSimulation = usePhysicsSimulation()
   const canvasEffects = useCanvasEffects()
   const canvasRenderer = useCanvasRenderer(canvasRef)
+  const { initStarfield } = canvasRenderer
   const canvasInteraction = useCanvasInteraction(canvasRef, onBubblePopped)
 
   // Обновление размеров симуляции при ресайзе окна
@@ -54,6 +55,7 @@ export function useCanvasSimulation(
       width, 
       height,
       shakeOffset,
+      canvasInteraction.parallaxOffset.value,
       canvasEffects.drawFloatingTexts,
       canvasEffects.drawHoverEffect
     )
@@ -108,6 +110,9 @@ export function useCanvasSimulation(
     ctx = canvasRef.value.getContext('2d')
     if (!ctx) return
     
+    // Инициализируем звездное поле
+    initStarfield(width, height)
+
     // Инициализируем физическую симуляцию
     physicsSimulation.initSimulation(width, height)
 

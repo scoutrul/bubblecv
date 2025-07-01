@@ -38,7 +38,7 @@ defineEmits<Emits>()
 }
 
 .achievements-toggle:hover {
-  @apply border-border-light scale-105;
+  @apply scale-105 shadow-lg shadow-primary/20;
 }
 
 .achievement-badge {

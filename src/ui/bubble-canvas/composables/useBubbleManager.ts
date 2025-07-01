@@ -3,6 +3,7 @@ import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
 import { calculateAdaptiveSizes, wrapText, isWindows } from './canvasUtils'
+import type { SimulationNode, PositionData } from './types'
 
 export function useBubbleManager() {
   // Сохранение позиций между фильтрациями
@@ -116,8 +117,9 @@ export function useBubbleManager() {
       bubble.x += oscillationX + randomX
       bubble.y += oscillationY + randomY
 
-      // Границы с учетом текущего радиуса
-      const padding = bubble.currentRadius + 5
+      // Границы, позволяющие пузырям немного выходить за экран
+      const overlap = 30 // На сколько пикселей пузырь может выйти за границу
+      const padding = bubble.currentRadius - overlap
       bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
       bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
       
@@ -143,7 +145,7 @@ export function useBubbleManager() {
   // Сохраняем позиции узлов перед их заменой
   const savePositions = (nodes: SimulationNode[]) => {
     nodes.forEach(node => {
-      savedPositions.set(node.id, { x: node.x, y: node.y, vx: node.vx, vy: node.vy })
+      savedPositions.set(node.id, { x: node.x, y: node.y, vx: node.vx ?? 0, vy: node.vy ?? 0 })
     })
   }
 
@@ -174,28 +176,4 @@ export function useBubbleManager() {
     findBubbleUnderCursor,
     clearSavedPositions
   }
-}
-
-// Вспомогательные типы
-interface PositionData {
-  x: number
-  y: number
-  vx: number
-  vy: number
-}
-
-export interface SimulationNode extends Bubble {
-  index?: number
-  x: number
-  y: number
-  vx: number
-  vy: number
-  radius: number
-  baseRadius: number
-  targetRadius: number
-  currentRadius: number
-  oscillationPhase: number
-  isHovered?: boolean
-  textLines?: string[]
-  textScaleFactor?: number
 } 

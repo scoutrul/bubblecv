@@ -149,7 +149,6 @@ watch(() => sessionStore.currentXP, (newXP, oldXP) => {
   @apply fixed top-0 left-0 right-0;
   @apply flex justify-between items-center;
   @apply p-4 bg-gradient-to-b from-background-primary/90 to-transparent;
-  @apply pointer-events-auto;
   z-index: 1000;
 }
 

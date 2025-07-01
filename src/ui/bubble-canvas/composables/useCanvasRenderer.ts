@@ -1,8 +1,89 @@
 import type { Ref } from 'vue'
+import { ref } from 'vue'
 import type { SimulationNode } from './types'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
+import { gsap } from 'gsap'
+
+interface Star {
+  x: number
+  y: number
+  radius: number
+  opacity: number
+}
 
 export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
+  const bgStars = ref<Star[]>([])
+  const fgStars = ref<Star[]>([])
+
+  // Инициализация звездного поля
+  const initStarfield = (width: number, height: number) => {
+    // Задний, статичный слой
+    const bgStarArray: Star[] = []
+    for (let i = 0; i < 70; i++) { // Больше тусклых звезд
+      bgStarArray.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.2 + 0.5,
+        opacity: Math.random() * 0.4 + 0.1 // (0.1 - 0.5)
+      })
+    }
+    bgStars.value = bgStarArray
+    bgStars.value.forEach(star => {
+      gsap.to(star, {
+        opacity: Math.random() * 0.5,
+        duration: Math.random() * 3 + 2,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      })
+    })
+
+    // Передний, подвижный слой
+    const fgStarArray: Star[] = []
+    for (let i = 0; i < 30; i++) { // Меньше ярких звезд
+      fgStarArray.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 1.6 + 0.8, // Крупнее
+        opacity: Math.random() * 0.6 + 0.4 // Ярче (0.4 - 1.0)
+      })
+    }
+    fgStars.value = fgStarArray
+    fgStars.value.forEach(star => {
+      gsap.to(star, {
+        opacity: 0.1,
+        duration: Math.random() * 1.5 + 0.8,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      })
+    })
+  }
+  
+  // Отрисовка звездного поля
+  const drawStarfield = (context: CanvasRenderingContext2D, parallaxOffset: { x: number, y: number }) => {
+    // Рисуем задний слой (без параллакса)
+    context.save()
+    bgStars.value.forEach(star => {
+      context.beginPath()
+      context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+      context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+      context.fill()
+    })
+    context.restore()
+
+    // Рисуем передний слой (с параллаксом)
+    context.save()
+    context.translate(parallaxOffset.x, parallaxOffset.y)
+    fgStars.value.forEach(star => {
+      context.beginPath()
+      context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+      context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+      context.fill()
+    })
+    context.restore()
+  }
+
   // Отрисовка реалистичного пузыря с градацией по уровню экспертизы
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
     context.save()
@@ -177,6 +258,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     width: number, 
     height: number,
     shakeOffset: { x: number, y: number },
+    parallaxOffset: { x: number, y: number },
     drawFloatingTexts: (context: CanvasRenderingContext2D) => void,
     drawHoverEffect?: (context: CanvasRenderingContext2D, bubble: SimulationNode) => void
   ) => {
@@ -186,6 +268,9 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Очищаем канвас
     context.clearRect(0, 0, width, height)
     
+    // Рисуем фон (звезды) с эффектом параллакса
+    drawStarfield(context, parallaxOffset)
+
     // Применяем тряску ко всему канвасу
     context.save()
     context.translate(shakeOffset.x, shakeOffset.y)
@@ -224,6 +309,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   }
 
   return {
+    initStarfield,
     drawBubble,
     drawText,
     render
