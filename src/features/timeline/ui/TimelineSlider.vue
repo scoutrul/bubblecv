@@ -58,8 +58,8 @@
 
 <script setup lang="ts">
 import { watch, ref, computed, watchEffect, nextTick } from 'vue'
-import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
-import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import { useBubbleStore } from '@/app/stores/bubble.store'
+import { useSessionStore } from '@/app/stores/session.store'
 import { gsap } from 'gsap'
 
 interface Props {

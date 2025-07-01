@@ -25,8 +25,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
 import { useCanvasSimulation } from '../composables/useCanvasSimulation'
-import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
-import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import { useBubbleStore } from '@/app/stores/bubble.store'
+import { useSessionStore } from '@/app/stores/session.store'
 import TimelineSlider from '../../../features/timeline/ui/TimelineSlider.vue'
 import LoadingSpinner from '../../../shared/ui/components/LoadingSpinner.vue'
 

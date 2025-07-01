@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserSession, ApiResponse } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
-import { useUiEventStore } from '@shared/stores/ui-event-store'
+import { useUiEventStore } from '@/app/stores/ui-event.store'
 
 export const useSessionStore = defineStore('session', () => {
   // State
@@ -114,7 +114,7 @@ export const useSessionStore = defineStore('session', () => {
       session.value.currentLevel = newLevel
       uiEventStore.queueShake('level')
       
-      const { useGameStore } = await import('../../../features/gamification/model/game-store')
+      const { useGameStore } = await import('@/app/stores/game.store')
       const gameStore = useGameStore()
 
       // Проверяем достижения за уровни (отложенно)
@@ -149,7 +149,7 @@ export const useSessionStore = defineStore('session', () => {
   // Получить XP за правильный ответ на философский вопрос
   const gainPhilosophyXP = async (): Promise<boolean> => {
     // Проверяем достижение "Философ" (если еще не разблокировано)
-    const { useGameStore } = await import('../../../features/gamification/model/game-store')
+    const { useGameStore } = await import('@/app/stores/game.store')
     const gameStore = useGameStore()
     
     const achievement = await gameStore.unlockAchievement('philosophy-master')
@@ -177,7 +177,7 @@ export const useSessionStore = defineStore('session', () => {
 
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
-      const { useGameStore } = await import('../../../features/gamification/model/game-store')
+      const { useGameStore } = await import('@/app/stores/game.store')
       const gameStore = useGameStore()
       
       const achievement = await gameStore.unlockAchievement('on-the-edge')
@@ -191,7 +191,7 @@ export const useSessionStore = defineStore('session', () => {
       session.value.gameCompleted = true
       
       // Показываем Game Over модал через modal store
-      const { useModalStore } = await import('../../../shared/stores/modal-store')
+      const { useModalStore } = await import('@/app/stores/modal.store')
       const modalStore = useModalStore()
       
       modalStore.openGameOverModal({
@@ -232,7 +232,7 @@ export const useSessionStore = defineStore('session', () => {
     }
 
     // Показываем приветственную модалку
-    const { useModalStore } = await import('@shared/stores/modal-store')
+    const { useModalStore } = await import('@/app/stores/modal.store')
     const modalStore = useModalStore()
     modalStore.openWelcome()
     
@@ -245,16 +245,14 @@ export const useSessionStore = defineStore('session', () => {
     
     session.value.hasDestroyedToughBubble = true
     
-    const { useGameStore } = await import('../../../features/gamification/model/game-store')
-    const { useModalStore } = await import('../../../shared/stores/modal-store')
+    const { useGameStore } = await import('@/app/stores/game.store')
+    const { useModalStore } = await import('@/app/stores/modal.store')
     const gameStore = useGameStore()
     const modalStore = useModalStore()
+    const achievement = await gameStore.unlockAchievement('tough-bubble-breaker')
     
-    const achievement = await gameStore.unlockAchievement('tough-bubble-popper')
     if (achievement) {
-      // Начисляем XP за достижение
       await gainXP(achievement.xpReward)
-      
       modalStore.queueOrShowAchievement({
         title: achievement.name,
         description: achievement.description,
@@ -268,13 +266,14 @@ export const useSessionStore = defineStore('session', () => {
     error.value = null
   }
 
+  const getSession = (): UserSession | null => {
+    return session.value
+  }
+
   return {
-    // State
     session,
     isLoading,
     error,
-    
-    // Getters
     currentXP,
     currentLevel,
     lives,
@@ -286,18 +285,17 @@ export const useSessionStore = defineStore('session', () => {
     nextLevelXP,
     canLevelUp,
     isAlive,
-    
-    // Actions
     loadSession,
     gainXP,
     gainBubbleXP,
     gainPhilosophyXP,
-    losePhilosophyLife,
     loseLives,
+    losePhilosophyLife,
     visitBubble,
     updateAgreementScore,
     resetSession,
     unlockFirstToughBubbleAchievement,
-    clearError
+    clearError,
+    getSession
   }
 }) 

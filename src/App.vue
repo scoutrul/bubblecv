@@ -20,9 +20,10 @@ import BubbleCanvasContainer from './widgets/bubble-canvas/ui/BubbleCanvasContai
 import GameHUD from './widgets/game-hud/ui/GameHUD.vue'
 import ModalManager from './shared/ui/components/ModalManager.vue'
 import ResetButton from './shared/ui/components/ResetButton.vue'
-import { useSessionStore } from './entities/user-session/model/session-store'
-import { useBubbleStore } from './entities/bubble/model/bubble-store'
-import { useModalStore } from './shared/stores/modal-store'
+import { useSessionStore } from '@/app/stores/session.store'
+import { useGameStore } from '@/app/stores/game.store'
+import { useModalStore } from '@/app/stores/modal.store'
+import { useBubbleStore } from '@/app/stores/bubble.store'
 
 const sessionStore = useSessionStore()
 const bubbleStore = useBubbleStore()

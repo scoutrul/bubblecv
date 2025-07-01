@@ -94,8 +94,8 @@
 
 <script setup lang="ts">
 import type { PhilosophyQuestion } from '@shared/types'
-import { useModalStore } from '@shared/stores/modal-store'
-import { useSessionStore } from '@entities/user-session/model/session-store'
+import { useModalStore } from '@/app/stores/modal.store'
+import { useSessionStore } from '@/app/stores/session.store'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { computed, ref } from 'vue'
 import BaseModal from './BaseModal.vue'

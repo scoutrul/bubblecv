@@ -57,8 +57,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useSessionStore } from '../../../entities/user-session/model/session-store'
 import BaseModal from './BaseModal.vue'
+import { useGameStore } from '@/app/stores/game.store'
+import { useSessionStore } from '@/app/stores/session.store'
 
 interface Props {
   isVisible: boolean
@@ -72,6 +73,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const gameStore = useGameStore()
 const sessionStore = useSessionStore()
 
 const currentLevel = computed(() => sessionStore.currentLevel)

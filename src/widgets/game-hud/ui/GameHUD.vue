@@ -51,9 +51,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useSessionStore } from '@entities/user-session/model/session-store'
-import { useGameStore } from '@features/gamification/model/game-store'
-import { useUiEventStore } from '@shared/stores/ui-event-store'
+import { useSessionStore } from '@/app/stores/session.store'
+import { useGameStore } from '@/app/stores/game.store'
+import { useUiEventStore } from '@/app/stores/ui-event.store'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
 import LivesDisplay from './components/LivesDisplay.vue'

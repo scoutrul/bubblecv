@@ -4,7 +4,7 @@ import type { Achievement, ContentLevel, Level } from '@shared/types'
 import { allAchievements } from '@/shared/assets/achievements'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { api } from '@shared/api'
-import { useUiEventStore } from '@shared/stores/ui-event-store'
+import { useUiEventStore } from '@/app/stores/ui-event.store'
 
 export const useGameStore = defineStore('game', () => {
   const achievements = ref<Achievement[]>([])
@@ -80,12 +80,12 @@ export const useGameStore = defineStore('game', () => {
       const uiEventStore = useUiEventStore()
       uiEventStore.queueShake('achievements')
 
-      const { useSessionStore } = await import('@/entities/user-session/model/session-store')
+      const { useSessionStore } = await import('@/app/stores/session.store')
       const sessionStore = useSessionStore()
       await sessionStore.gainXP(achievement.xpReward)
 
       if (showModal) {
-        const { useModalStore } = await import('@/shared/stores/modal-store')
+        const { useModalStore } = await import('@/app/stores/modal.store')
         const modalStore = useModalStore()
         modalStore.queueOrShowAchievement({
           title: achievement.name,

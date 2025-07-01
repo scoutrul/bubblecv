@@ -12,7 +12,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import BubbleCanvas from './BubbleCanvas.vue'
-import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
+import { useBubbleStore } from '@/app/stores/bubble.store'
 
 const bubbleStore = useBubbleStore()
 
