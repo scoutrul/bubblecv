@@ -326,14 +326,14 @@ app.get('/api/content-levels', (req: ExpressRequest, res: ExpressResponse) => {
     
     if (!existsSync(contentLevelsPath)) {
       console.log('❌ Content levels file not found at:', contentLevelsPath)
-      return res.status(404).json({ error: 'Content levels data not found' })
+      return res.status(404).json({ success: false, error: 'Content levels data not found' })
     }
     
     const contentLevels = JSON.parse(readFileSync(contentLevelsPath, 'utf8'))
-    res.json(contentLevels)
+    res.json({ success: true, data: contentLevels })
   } catch (error: any) {
     console.error('❌ Error reading content levels:', error.message)
-    res.status(500).json({ error: 'Failed to read content levels' })
+    res.status(500).json({ success: false, error: 'Failed to read content levels' })
   }
 })
 

@@ -50,3 +50,6 @@ lerna-debug.log*
 # Playwright e2e
 playwright-report/
 test-results/
+
+# TypeScript Build Info
+*.tsbuildinfo

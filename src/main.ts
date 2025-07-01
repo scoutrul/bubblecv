@@ -1,8 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
-import { useSessionStore } from '@entities/user-session/model/session-store'
-import { useModalStore } from '@shared/stores/modal-store'
 import './shared/ui/styles/index.css'
 
 // Блокировка навигации по истории браузера

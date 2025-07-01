@@ -19,7 +19,12 @@ export const useGameStore = defineStore('game', () => {
       isLoading.value = true
       error.value = null
       
-      const data = await api.getContentLevels()
+      const response = await api.getContentLevels()
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to fetch content levels')
+      }
+      
+      const data = response.data
       
       // Обновляем XP требования из game-config
       const levelsWithUpdatedXP = data.levels.map((level: Level) => {
