@@ -6,12 +6,14 @@
         <span :class="titleClass">Уровень {{ currentLevel }}</span>
       </span>
       <span :class="subtitleClass">{{ levelTitle }}</span>
+      <div v-if="currentLevel >= 3" class="glossy-shine"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { gsap } from 'gsap'
 
 interface Props {
   currentLevel: number
@@ -20,6 +22,30 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Анимация глянцевого эффекта
+const startShineAnimation = () => {
+  if (props.currentLevel >= 3) {
+    gsap.to('.glossy-shine', {
+      x: '150%',
+      duration: 2,
+      ease: 'power1.inOut',
+      repeat: -1,
+      repeatDelay: 3,
+      onComplete: () => {
+        gsap.set('.glossy-shine', { x: '-150%' })
+      }
+    })
+  }
+}
+
+onMounted(() => {
+  startShineAnimation()
+})
+
+onUnmounted(() => {
+  gsap.killTweensOf('.glossy-shine')
+})
 
 const levelIcon = computed(() => {
   switch (props.currentLevel) {
@@ -63,7 +89,7 @@ const subtitleClass = computed(() => {
 }
 
 .level-info {
-  @apply flex items-baseline gap-x-3 text-right p-2 rounded-lg transition-all duration-300;
+  @apply flex items-baseline gap-x-3 text-right p-2 rounded-lg transition-all duration-300 relative overflow-hidden;
 }
 
 .level-title-group {
@@ -72,6 +98,20 @@ const subtitleClass = computed(() => {
 
 .level-icon {
   @apply text-base;
+}
+
+.glossy-shine {
+  @apply absolute inset-0 pointer-events-none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 45%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-150%);
 }
 
 /* --- Level 1 --- */
@@ -84,12 +124,12 @@ const subtitleClass = computed(() => {
 .subtitle-interested { @apply text-xs text-blue-400; }
 
 /* --- Level 3 --- */
-.level-3 { @apply bg-green-900/30; }
+.level-3 { @apply bg-green-900/30 border border-green-500/20; }
 .title-learning { @apply text-green-300; }
 .subtitle-learning { @apply text-xs text-green-400; }
 
 /* --- Level 4 --- */
-.level-4 { @apply bg-purple-900/40; }
+.level-4 { @apply bg-purple-900/40 border border-purple-500/20; }
 .title-partner { @apply text-purple-300; }
 .subtitle-partner { @apply text-xs text-purple-400; }
 

@@ -7,7 +7,11 @@
           v-for="life in maxLives"
           :key="life"
           class="life-heart"
-          :class="{ 'life-lost': life > currentLives }"
+          :class="{ 
+            'life-lost': life > currentLives,
+            'last-life': currentLives === 1 && life === 1
+          }"
+          :ref="life === 1 ? 'lastHeart' : undefined"
         >
           ❤️
         </div>
@@ -17,13 +21,80 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { gsap } from 'gsap'
+
 interface Props {
   currentLives: number
   maxLives: number
   isShaking: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const lastHeart = ref<HTMLElement | null>(null)
+let heartbeatAnimation: gsap.core.Timeline | null = null
+
+const startHeartbeatAnimation = () => {
+  if (!lastHeart.value) return
+  
+  // Останавливаем предыдущую анимацию, если она есть
+  if (heartbeatAnimation) {
+    heartbeatAnimation.kill()
+  }
+
+  // Создаем новую анимацию биения сердца
+  heartbeatAnimation = gsap.timeline({
+    repeat: -1,
+    defaults: { ease: "power3.inOut" }
+  })
+  .to(lastHeart.value, {
+    scale: 2.2,
+    filter: 'brightness(1.3)',
+    duration: 0.2
+  })
+  .to(lastHeart.value, {
+    scale: 0.7,
+    filter: 'brightness(1)',
+    duration: 0.15
+  })
+  .to(lastHeart.value, {
+    scale: 3,
+    filter: 'brightness(1.2)',
+    duration: 0.2
+  })
+  .to(lastHeart.value, {
+    scale: 1,
+    filter: 'brightness(1)',
+    duration: 0.15
+  })
+  .to({}, {
+    duration: 1.3 // Немного уменьшили паузу
+  })
+}
+
+// Следим за изменением количества жизней
+watch(() => props.currentLives, (newLives) => {
+  if (newLives === 1) {
+    startHeartbeatAnimation()
+  } else if (heartbeatAnimation) {
+    heartbeatAnimation.kill()
+    if (lastHeart.value) {
+      gsap.set(lastHeart.value, { scale: 1 })
+    }
+  }
+}, { immediate: true })
+
+onMounted(() => {
+  if (props.currentLives === 1) {
+    startHeartbeatAnimation()
+  }
+})
+
+onUnmounted(() => {
+  if (heartbeatAnimation) {
+    heartbeatAnimation.kill()
+  }
+})
 </script>
 
 <style scoped>
@@ -45,10 +116,15 @@ defineProps<Props>()
 }
 
 .life-heart {
-  @apply text-sm transition-all duration-300;
+  @apply text-sm transition-all duration-300 origin-center;
 }
 
 .life-lost {
   @apply opacity-30 grayscale;
+}
+
+.last-life {
+  @apply text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.7)] will-change-transform;
+  filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.7));
 }
 </style> 
