@@ -1,21 +1,28 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useUiEventStore = defineStore('ui-events', () => {
+export const useUiEventStore = defineStore('ui-event', () => {
   const shakeQueue = ref(new Set<string>())
 
-  const queueShake = (component: string) => {
-    shakeQueue.value.add(component)
+  /**
+   * Добавляет компонент в очередь на "встряску".
+   * @param componentName - Имя компонента (например, 'lives', 'xp').
+   */
+  const queueShake = (componentName: string) => {
+    shakeQueue.value.add(componentName)
   }
 
+  /**
+   * Забирает все запросы из очереди и очищает ее.
+   * @returns Set с именами компонентов, которые нужно "встряхнуть".
+   */
   const consumeShakeQueue = (): Set<string> => {
-    const queue = new Set(shakeQueue.value)
+    const queueToProcess = new Set(shakeQueue.value)
     shakeQueue.value.clear()
-    return queue
+    return queueToProcess
   }
 
   return {
-    shakeQueue,
     queueShake,
     consumeShakeQueue
   }

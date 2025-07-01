@@ -102,7 +102,7 @@ export function useCanvasInteraction(
           
           if (!result.isReady) {
             // Только промежуточные клики дают XP
-            createXPFloatingText(mouseX, mouseY, 1, '#fbbf24')
+            createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
             await sessionStore.gainXP(1)
 
             // Анимация клика для крепкого пузыря

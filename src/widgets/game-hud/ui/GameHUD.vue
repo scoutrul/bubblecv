@@ -69,6 +69,7 @@ const shakingComponents = ref(new Set<string>())
 // Stores
 const sessionStore = useSessionStore()
 const gameStore = useGameStore()
+const uiEventStore = useUiEventStore()
 
 // Computed
 const currentLevel = computed(() => {
@@ -111,14 +112,15 @@ const animateXPGain = () => {
 }
 
 const handleProcessShakeQueue = () => {
-  const uiEventStore = useUiEventStore()
-  const queue = uiEventStore.consumeShakeQueue()
-  shakingComponents.value = queue
-
-  // Очищаем эффект после завершения анимации
-  setTimeout(() => {
-    shakingComponents.value.clear()
-  }, 700) // Длительность анимации + небольшой запас
+  const componentsToShake = uiEventStore.consumeShakeQueue()
+  if (componentsToShake.size > 0) {
+    shakingComponents.value = componentsToShake
+    
+    // Очищаем состояние встряски после завершения анимации
+    setTimeout(() => {
+      shakingComponents.value.clear()
+    }, 700) // Длительность анимации + небольшой буфер
+  }
 }
 
 onMounted(() => {

@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, watchEffect } from 'vue'
+import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
 import { useCanvasSimulation } from '../composables/useCanvasSimulation'
 import { useBubbleStore } from '../../../entities/bubble/model/bubble-store'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
@@ -132,9 +132,24 @@ onMounted(() => {
     resizeObserver.observe(containerRef.value)
   }
 
+  // Обработчик сброса игры
+  const handleGameReset = async () => {
+    emit('update:currentYear', props.startYear)
+    
+    // Ждем следующего тика, чтобы Vue успел обновить пропсы
+    await nextTick()
+
+    // После сброса немедленно проверяем, нужно ли переключить год,
+    // так как на стартовом году может не быть пузырей.
+    checkBubblesAndAdvance()
+  }
+
+  window.addEventListener('game-reset', handleGameReset)
+
   onUnmounted(() => {
     resizeObserver.disconnect()
     destroySimulation()
+    window.removeEventListener('game-reset', handleGameReset)
   })
   
   // Если пузыри уже загружены, инициализируем сразу
