@@ -1,5 +1,5 @@
 // Импорты типов
-import type { SkillLevel, BubbleSize } from '../constants/skill-levels'
+import type { SkillLevel, BubbleSize } from '../constants/skill-levels.js'
 
 // Базовые типы для бизнес-логики
 export interface Bubble {

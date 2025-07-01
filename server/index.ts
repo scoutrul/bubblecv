@@ -6,34 +6,22 @@ import Database from 'better-sqlite3'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import fs from 'fs'
-import { SKILL_LEVEL_API_MAP } from './constants.js'
+import { SKILL_LEVELS } from '../src/shared/constants/skill-levels.js'
+import type { Bubble, SkillLevel } from '../src/shared/types/index.js'
 import { existsSync, readFileSync } from 'fs'
 
-type SkillLevel = 'novice' | 'intermediate' | 'advanced' | 'expert'
-
-interface Bubble {
-  id: string
-  name: string
-  skillLevel: SkillLevel
-  year: number
-  isActive: boolean
-  isEasterEgg: boolean
-  isHidden?: boolean
-  description: string
-  projects: string[]
-  isPopped: boolean
-  isVisited: boolean
-  size: string
-  color: string
-  isTough: boolean
-  toughClicks: number
-  currentClicks: number
-  link: string
-  category: string
-  bubbleType: 'hidden' | 'philosophy' | 'regular'
-  x?: number | null
-  y?: number | null
-}
+// Map skill levels from any source to our canonical SkillLevel type
+const SKILL_LEVEL_API_MAP: Record<string, SkillLevel> = {
+  'novice': SKILL_LEVELS.NOVICE,
+  'intermediate': SKILL_LEVELS.INTERMEDIATE,
+  'advanced': SKILL_LEVELS.CONFIDENT, // Assuming advanced maps to confident
+  'expert': SKILL_LEVELS.EXPERT,
+  'master': SKILL_LEVELS.MASTER,
+  'Новичок': SKILL_LEVELS.NOVICE,
+  'Средний': SKILL_LEVELS.INTERMEDIATE,
+  'Продвинутый': SKILL_LEVELS.CONFIDENT,
+  'Эксперт': SKILL_LEVELS.EXPERT
+};
 
 type BetterSqlite3Database = any
 type ExpressRequest = express.Request
@@ -197,7 +185,7 @@ const seedDatabase = () => {
       const transformedBubbles = mockData.bubbles.map((bubble: any): Bubble => ({
         id: bubble.id,
         name: bubble.name || bubble.label || '',
-        skillLevel: (SKILL_LEVEL_API_MAP[bubble.skillLevel || bubble.level] || 'novice') as SkillLevel,
+        skillLevel: (SKILL_LEVEL_API_MAP[bubble.skillLevel || bubble.level] || SKILL_LEVELS.NOVICE),
         year: bubble.year,
         isActive: bubble.isActive !== false,
         isEasterEgg: !!bubble.isEasterEgg,
@@ -206,15 +194,13 @@ const seedDatabase = () => {
         projects: bubble.projects || [],
         isPopped: false,
         isVisited: false,
-        size: typeof bubble.size === 'number' ? `${bubble.size}px` : (bubble.size || 'medium'),
+        size: 'medium', // Size is now a client-side concern
         color: bubble.isTough ? '#FBBF24' : (bubble.color || '#667eea'),
         bubbleType: bubble.bubbleType || 'regular',
         isTough: !!bubble.isTough,
         toughClicks: bubble.toughClicks || 0,
         currentClicks: 0,
         link: bubble.projectLink || bubble.link || '',
-        x: bubble.x || null,
-        y: bubble.y || null,
         category: bubble.category || 'general'
       }))
 
