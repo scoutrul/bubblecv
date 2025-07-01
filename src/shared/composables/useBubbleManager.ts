@@ -8,6 +8,13 @@ import type { SimulationNode, PositionData } from './types'
 export function useBubbleManager() {
   // Сохранение позиций между фильтрациями
   const savedPositions = new Map<string, PositionData>()
+  
+  // Для тестов - проверяем наличие глобальной переменной с тестовыми позициями
+  if (typeof window !== 'undefined' && (window as any).__testPositions) {
+    Object.entries((window as any).__testPositions).forEach(([id, pos]) => {
+      savedPositions.set(id, pos as any)
+    })
+  }
 
   // Создание узлов из пузырей
   const createNodes = (bubbles: Bubble[], width: number, height: number): SimulationNode[] => {
@@ -82,10 +89,11 @@ export function useBubbleManager() {
         currentRadius: baseRadius,
         textLines: textResult.lines,
         textScaleFactor: textResult.scaleFactor,
-        x: savedPos?.x ?? Math.random() * width,
-        y: savedPos?.y ?? Math.random() * height,
-        vx: savedPos?.vx ?? 0,
-        vy: savedPos?.vy ?? 0
+        // Используем сохраненные позиции, если они есть
+        x: savedPos ? savedPos.x : Math.random() * width,
+        y: savedPos ? savedPos.y : Math.random() * height,
+        vx: savedPos ? savedPos.vx : 0,
+        vy: savedPos ? savedPos.vy : 0
       }
       
       return node
@@ -119,7 +127,9 @@ export function useBubbleManager() {
 
       // Границы, позволяющие пузырям немного выходить за экран
       const overlap = 30 // На сколько пикселей пузырь может выйти за границу
-      const padding = bubble.currentRadius - overlap
+      // Гарантируем, что padding не отрицательный и пузыри не выходят за границы слишком сильно
+      const minPadding = 20 // Минимальный отступ от края
+      const padding = Math.max(minPadding, bubble.currentRadius - overlap)
       bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
       bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
       

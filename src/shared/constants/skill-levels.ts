@@ -35,7 +35,10 @@ export const SKILL_LEVEL_API_MAP: Record<SkillLevel, string> = {
 // Маппинг для масштабирования пузырей
 export const SKILL_LEVEL_SCALE_MAP: Partial<Record<SkillLevel, number>> = {
   [SKILL_LEVELS.NOVICE]: 0.85,
-  [SKILL_LEVELS.INTERMEDIATE]: 0.9
+  [SKILL_LEVELS.INTERMEDIATE]: 0.9,
+  [SKILL_LEVELS.CONFIDENT]: 1.0,
+  [SKILL_LEVELS.EXPERT]: 1.1,
+  [SKILL_LEVELS.MASTER]: 1.2
 }
 
 // Размеры пузырей

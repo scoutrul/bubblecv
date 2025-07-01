@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import { fileURLToPath } from 'url'
+/// <reference types="vitest" />
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -49,6 +50,32 @@ export default defineConfig(({ mode }) => {
     define: {
       __VUE_OPTIONS_API__: false,
       __VUE_PROD_DEVTOOLS__: false
+    },
+    test: {
+      globals: true,
+      environment: 'happy-dom',
+      setupFiles: ['./src/test/setup.ts'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'html', 'lcov'],
+        exclude: [
+          'node_modules/',
+          'src/test/',
+          '**/*.spec.ts',
+          '**/*.test.ts',
+          '**/*.d.ts',
+          'dist/',
+          'server/'
+        ],
+        thresholds: {
+          branches: 70,
+          functions: 70,
+          lines: 70,
+          statements: 70
+        }
+      },
+      include: ['src/**/*.{test,spec}.{js,ts,vue}'],
+      exclude: ['node_modules', 'dist', 'server']
     }
   }
 }) 

@@ -17,8 +17,8 @@ export const calculateAdaptiveSizes = (bubbleCount: number, width: number, heigh
   const aspectFactor = Math.min(1.2, Math.max(0.8, aspectRatio / 1.5))
   
   // Диапазон размеров на основе среднего с учетом соотношения сторон
-  const baseMinRadius = Math.max(20, averageRadius * 0.5 * aspectFactor)
-  const baseMaxRadius = Math.min(100, averageRadius * 1.5 * aspectFactor)
+  const baseMinRadius = Math.max(10, averageRadius * 0.4 * aspectFactor)
+  const baseMaxRadius = Math.min(150, averageRadius * 1.5 * aspectFactor)
   
   // Ограничиваем размеры чтобы пузыри всегда помещались на экране
   const maxAllowedRadius = Math.min(width, height) / 8

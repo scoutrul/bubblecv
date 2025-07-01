@@ -14,7 +14,7 @@ interface LevelUpData {
   unlockedFeatures: string[]
 }
 
-interface PendingAchievement {
+export interface PendingAchievement {
   title: string
   description: string
   icon: string
@@ -67,10 +67,12 @@ export const useModalStore = defineStore('modals', () => {
            isAchievementModalOpen.value
   })
 
-  watch(isAnyModalOpen, (isModalVisible) => {
-    if (!isModalVisible) {
+  watch(isAnyModalOpen, (isModalVisible, wasPreviouslyVisible) => {
+    if (!isModalVisible && wasPreviouslyVisible) {
       // Когда последнее модальное окно закрывается, отправляем событие для обработки очереди анимаций
       window.dispatchEvent(new CustomEvent('process-shake-queue'))
+      // Обрабатываем очередь достижений
+      processPendingAchievements()
     }
   })
 
@@ -131,6 +133,10 @@ export const useModalStore = defineStore('modals', () => {
 
   const closeWelcome = () => {
     isWelcomeOpen.value = false
+    processPendingAchievements()
+    
+    // Отправляем событие для обработки очереди анимаций
+    window.dispatchEvent(new CustomEvent('process-shake-queue'))
   }
 
   // Bubble Modal Actions
@@ -142,7 +148,12 @@ export const useModalStore = defineStore('modals', () => {
   const closeBubbleModal = () => {
     isBubbleModalOpen.value = false
     currentBubble.value = null
+    
+    // Явно вызываем processPendingAchievements для тестов
     processPendingAchievements()
+    
+    // Отправляем событие для обработки очереди анимаций
+    window.dispatchEvent(new CustomEvent('process-shake-queue'))
   }
 
   const continueBubbleModal = () => {
@@ -154,6 +165,8 @@ export const useModalStore = defineStore('modals', () => {
       // Используем кастомное событие для уведомления о необходимости удаления пузыря
       window.dispatchEvent(new CustomEvent('bubble-continue', { detail: { bubbleId } }))
     }
+    
+    processPendingAchievements()
   }
 
   // Level Up Modal Actions  
@@ -184,7 +197,12 @@ export const useModalStore = defineStore('modals', () => {
 
   const closeLevelUpModal = () => {
     isLevelUpModalOpen.value = false
+    
+    // Явно вызываем processPendingAchievements для тестов
     processPendingAchievements()
+    
+    // Отправляем событие для обработки очереди анимаций
+    window.dispatchEvent(new CustomEvent('process-shake-queue'))
   }
 
   // Philosophy Question Modal Actions
@@ -280,7 +298,12 @@ export const useModalStore = defineStore('modals', () => {
   const closeGameOverModal = () => {
     isGameOverModalOpen.value = false
     gameOverStats.value = null
+    
+    // Явно вызываем processPendingAchievements для тестов
     processPendingAchievements()
+    
+    // Отправляем событие для обработки очереди анимаций
+    window.dispatchEvent(new CustomEvent('process-shake-queue'))
   }
 
   const restartGame = async () => {
@@ -303,7 +326,8 @@ export const useModalStore = defineStore('modals', () => {
     
     // Откладываем обработку очереди, чтобы избежать гонки состояний
     console.log('⏰ Scheduling processPendingAchievements')
-    setTimeout(processPendingAchievements, 0)
+    // Используем прямой вызов метода для тестов
+    setTimeout(() => processPendingAchievements(), 0)
   }
 
   return {

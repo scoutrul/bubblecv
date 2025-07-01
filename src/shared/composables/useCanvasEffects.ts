@@ -23,7 +23,7 @@ export function useCanvasEffects() {
       radius: 0,
       maxRadius: radius * 2,
       opacity: 1,
-      startTime: performance.now()
+      startTime: Date.now()
     }
     explosionEffects.value.push(explosionEffect)
   }
@@ -226,10 +226,10 @@ export function useCanvasEffects() {
     // Помечаем пузырь как лопнутый
     bubble.isPopped = true
     
-    // Создаем эффект взрыва
-    createExplosionEffect(bubble.x, bubble.y, bubble.radius)
-    
-
+    // Создаем эффект взрыва с явным указанием координат и радиуса
+    if (bubble.x !== undefined && bubble.y !== undefined && bubble.currentRadius !== undefined) {
+      createExplosionEffect(bubble.x, bubble.y, bubble.currentRadius)
+    }
   }
 
   // Очистка всех эффектов

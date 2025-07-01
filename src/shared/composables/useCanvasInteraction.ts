@@ -1,4 +1,4 @@
-import { type Ref, ref } from 'vue'
+import { type Ref, ref, onMounted, onUnmounted } from 'vue'
 import type { PhilosophyQuestion } from '@shared/types'
 import type { SimulationNode } from './types'
 import { GAME_CONFIG } from '@shared/config/game-config'
@@ -247,7 +247,10 @@ export function useCanvasInteraction(
       // Для крепких пузырей XP уже начислен за клики, дополнительно не даем
       xpGained = 0
       leveledUp = false
-      
+      // Но его нужно взорвать и удалить
+      explodeBubble(bubble)
+      removeBubble(bubble.id, nodes)
+      return // Завершаем обработку здесь
     } else if (bubble.isEasterEgg) {
       if (isPhilosophyNegative) {
         // Отрицательный ответ на философский вопрос - показываем потерю жизни
@@ -365,11 +368,15 @@ export function useCanvasInteraction(
       mouseMoveHandler,
       clickHandler,
       bubbleContinueHandler,
-      cleanupEventListeners: () => {
+      removeEventListeners: () => {
         window.removeEventListener('bubble-continue', bubbleContinueHandler)
       }
     }
   }
+
+  onMounted(() => {
+    // setupEventListeners will be called from the component with proper parameters
+  })
 
   return {
     isDragging,

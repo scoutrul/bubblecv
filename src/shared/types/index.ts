@@ -58,6 +58,7 @@ export interface Achievement {
   isUnlocked: boolean
   xpReward: number
   isShown?: boolean
+  points?: number // Добавляем необязательное поле points
 }
 
 export interface PhilosophyQuestion {
