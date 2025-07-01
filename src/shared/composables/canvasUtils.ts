@@ -1,4 +1,4 @@
-import { SKILL_LEVELS, SKILL_LEVEL_SCALE_MAP, type SkillLevel } from '../../../shared/constants/skill-levels'
+import { SKILL_LEVELS, SKILL_LEVEL_SCALE_MAP, type SkillLevel } from '@shared/constants/skill-levels'
 
 // Проверка Windows для отключения анимации дыхания
 export const isWindows = (): boolean => {

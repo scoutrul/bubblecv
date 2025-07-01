@@ -32,8 +32,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useGameStore } from '@/app/stores/game.store'
+import { useGameStore } from '@/stores/game.store'
 import AchievementItem from './AchievementItem.vue'
+import type { Achievement } from '@shared/types'
 
 defineEmits<{
   close: []

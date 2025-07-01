@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { Bubble } from '../../../shared/types'
+import type { Bubble } from '@shared/types'
 import type { SimulationNode } from './types'
 
 // Импорты всех модулей

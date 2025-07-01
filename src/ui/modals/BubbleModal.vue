@@ -81,9 +81,9 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import BaseModal from '@/ui/shared/BaseModal.vue'
+import BaseModal from '@/ui/global/BaseModal.vue'
 import type { Bubble, ExpertiseLevel } from '@shared/types'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import { GAME_CONFIG } from '@/shared/config/game-config'
 import { SKILL_LEVEL_LABELS } from '@shared/constants/skill-levels'
 
 interface Props {

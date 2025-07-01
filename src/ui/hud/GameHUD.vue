@@ -51,15 +51,15 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useSessionStore } from '@/app/stores/session.store'
-import { useGameStore } from '@/app/stores/game.store'
-import { useUiEventStore } from '@/app/stores/ui-event.store'
+import { useSessionStore } from '@/stores/session.store'
+import { useGameStore } from '@/stores/game.store'
+import { useUiEventStore } from '@/stores/ui-event.store'
 import { GAME_CONFIG } from '@/shared/config/game-config'
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
-import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
-import XPDisplay from '@/ui/hud/XPDisplay.vue'
-import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
-import AchievementsToggle from '@/ui/hud/AchievementsToggle.vue'
+import LivesDisplay from './LivesDisplay.vue'
+import XPDisplay from './XPDisplay.vue'
+import LevelDisplay from './LevelDisplay.vue'
+import AchievementsToggle from './AchievementsToggle.vue'
 
 // State
 const showAchievements = ref(false)

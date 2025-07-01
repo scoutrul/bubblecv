@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { useModalStore } from '@/app/stores/modal.store'
+import { useModalStore } from '@/stores/modal.store'
 import WelcomeModal from './WelcomeModal.vue'
 import PhilosophyModal from './PhilosophyModal.vue'
 import BubbleModal from './BubbleModal.vue'
@@ -58,4 +58,16 @@ import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 
 const modalStore = useModalStore()
-</script> 
+</script>
+
+<style scoped>
+.modal-manager-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2000;
+}
+</style> 

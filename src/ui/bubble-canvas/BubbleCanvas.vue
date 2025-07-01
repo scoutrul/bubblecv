@@ -24,11 +24,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
-import { useCanvasSimulation } from './composables/useCanvasSimulation'
-import { useBubbleStore } from '@/app/stores/bubble.store'
-import { useSessionStore } from '@/app/stores/session.store'
+import { useCanvasSimulation } from '@/shared/composables'
+import { useBubbleStore } from '@/stores/bubble.store'
+import { useSessionStore } from '@/stores/session.store'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
-import LoadingSpinner from '@/ui/shared/LoadingSpinner.vue'
+import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 
 interface Props {
   currentYear: number

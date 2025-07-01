@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import type { SimulationNode } from './types'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
+import { GAME_CONFIG } from '@shared/config/game-config'
 import { gsap } from 'gsap'
 
 interface Star {

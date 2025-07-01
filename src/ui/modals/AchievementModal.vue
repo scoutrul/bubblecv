@@ -76,10 +76,10 @@
 
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
-import BaseModal from '@/ui/shared/BaseModal.vue'
+import BaseModal from '@/ui/global/BaseModal.vue'
+import { useModalStore } from '@/stores/modal.store'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import type { PendingAchievement } from '@shared/types'
-import { useModalStore } from '@/app/stores/modal.store'
 
 const modalStore = useModalStore()
 const scrollContainer = ref<HTMLElement>()

@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import type { Bubble } from '@shared/types'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
-import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '../../../shared/constants/skill-levels'
+import { GAME_CONFIG } from '@shared/config/game-config'
+import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '@shared/constants/skill-levels'
 import { calculateAdaptiveSizes, wrapText, isWindows } from './canvasUtils'
 import type { SimulationNode, PositionData } from './types'
 

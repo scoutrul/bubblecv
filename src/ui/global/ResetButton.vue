@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSessionStore } from '@/app/stores/session.store'
+import { useSessionStore } from '@/stores/session.store'
 
 const sessionStore = useSessionStore()
 

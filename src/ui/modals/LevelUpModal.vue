@@ -48,8 +48,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import BaseModal from '@/ui/shared/BaseModal.vue'
+import { computed, watch, ref, nextTick } from 'vue'
+import BaseModal from '@/ui/global/BaseModal.vue'
+import { useModalStore } from '@/stores/modal.store'
 
 interface Props {
   isOpen: boolean
@@ -82,6 +83,8 @@ const levelData = computed(() => ({
 const close = () => {
   emit('close')
 }
+
+const modalStore = useModalStore()
 </script>
 
 <style scoped>

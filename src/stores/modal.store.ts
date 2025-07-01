@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import type { Bubble, PhilosophyQuestion } from '@shared/types'
-import { useSessionStore } from '@/app/stores/session.store'
-import { useGameStore } from '@/app/stores/game.store'
+import { useSessionStore } from '@/stores/session.store'
+import { useGameStore } from '@/stores/game.store'
 
 interface LevelUpData {
   level: number

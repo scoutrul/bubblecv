@@ -94,11 +94,11 @@
 
 <script setup lang="ts">
 import type { PhilosophyQuestion } from '@shared/types'
-import { useModalStore } from '@/app/stores/modal.store'
-import { useSessionStore } from '@/app/stores/session.store'
+import BaseModal from '@/ui/global/BaseModal.vue'
+import { useModalStore } from '@/stores/modal.store'
+import { useSessionStore } from '@/stores/session.store'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { computed, ref } from 'vue'
-import BaseModal from '@/ui/shared/BaseModal.vue'
 
 interface Props {
   isOpen: boolean

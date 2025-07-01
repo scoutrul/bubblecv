@@ -20,12 +20,14 @@ import BubbleCanvasContainer from '@/ui/bubble-canvas/BubbleCanvasContainer.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'
-import { useSessionStore } from '@/app/stores/session.store'
-import { useGameStore } from '@/app/stores/game.store'
-import { useModalStore } from '@/app/stores/modal.store'
-import { useBubbleStore } from '@/app/stores/bubble.store'
+import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
+import { useSessionStore } from '@/stores/session.store'
+import { useGameStore } from '@/stores/game.store'
+import { useModalStore } from '@/stores/modal.store'
+import { useBubbleStore } from '@/stores/bubble.store'
 
 const sessionStore = useSessionStore()
+const gameStore = useGameStore()
 const bubbleStore = useBubbleStore()
 const modalStore = useModalStore()
 
@@ -42,13 +44,8 @@ onMounted(async () => {
   // Инициализируем базу данных и сессию
   await initializeDatabase()
   
-  // Создаем новую сессию для каждой вкладки
-  await sessionStore.loadSession()
-  
-  // Всегда показываем приветственную модалку в новой вкладке
-  setTimeout(() => {
-    modalStore.openWelcome()
-  }, 500)
+  // Создаем и сбрасываем сессию, что вызовет 'game-reset'
+  await sessionStore.resetSession()
 })
 </script>
 
