@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import { fileURLToPath } from 'url'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -11,14 +12,11 @@ export default defineConfig(({ mode }) => {
     plugins: [vue()],
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src'),
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
         '@shared': resolve(__dirname, 'src/shared'),
-        '@entities': resolve(__dirname, 'src/entities'),
-        '@features': resolve(__dirname, 'src/features'),
-        '@widgets': resolve(__dirname, 'src/widgets'),
-        '@pages': resolve(__dirname, 'src/pages'),
         '@app': resolve(__dirname, 'src/app'),
-        'server': resolve(__dirname, 'server')
+        '@pages': resolve(__dirname, 'src/pages'),
+        '@ui': resolve(__dirname, 'src/ui')
       }
     },
     server: {

@@ -1,4 +1,4 @@
-import type { Bubble } from '../../../shared/types'
+import type { Bubble } from '@shared/types'
 
 export interface CanvasBubble extends Bubble {
   radius: number

@@ -54,12 +54,12 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSessionStore } from '@/app/stores/session.store'
 import { useGameStore } from '@/app/stores/game.store'
 import { useUiEventStore } from '@/app/stores/ui-event.store'
-import { GAME_CONFIG } from '../../../shared/config/game-config'
-import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
-import LivesDisplay from './components/LivesDisplay.vue'
-import XPDisplay from './components/XPDisplay.vue'
-import LevelDisplay from './components/LevelDisplay.vue'
-import AchievementsToggle from './components/AchievementsToggle.vue'
+import { GAME_CONFIG } from '@/shared/config/game-config'
+import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
+import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
+import XPDisplay from '@/ui/hud/XPDisplay.vue'
+import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
+import AchievementsToggle from '@/ui/hud/AchievementsToggle.vue'
 
 // State
 const showAchievements = ref(false)

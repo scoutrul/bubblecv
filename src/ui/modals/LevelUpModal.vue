@@ -49,7 +49,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 
 interface Props {
   isOpen: boolean

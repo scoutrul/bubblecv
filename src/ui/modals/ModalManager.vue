@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import { useModalStore } from '../../stores/modal-store'
+import { useModalStore } from '@/app/stores/modal.store'
 import WelcomeModal from './WelcomeModal.vue'
 import PhilosophyModal from './PhilosophyModal.vue'
 import BubbleModal from './BubbleModal.vue'

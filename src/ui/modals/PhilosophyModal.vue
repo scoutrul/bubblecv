@@ -98,7 +98,7 @@ import { useModalStore } from '@/app/stores/modal.store'
 import { useSessionStore } from '@/app/stores/session.store'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { computed, ref } from 'vue'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 
 interface Props {
   isOpen: boolean

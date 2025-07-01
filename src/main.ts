@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import App from './App.vue'
-import './shared/ui/styles/index.css'
+import App from '@/App.vue'
+import '@/ui/styles/index.css'
 
 // Блокировка навигации по истории браузера
 const preventHistoryNavigation = () => {

@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { useGameStore } from '@/app/stores/game.store'
 import { useSessionStore } from '@/app/stores/session.store'
 

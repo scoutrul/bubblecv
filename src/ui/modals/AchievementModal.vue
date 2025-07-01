@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
-import BaseModal from './BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import type { PendingAchievement } from '@shared/types'
 import { useModalStore } from '@/app/stores/modal.store'

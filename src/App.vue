@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
-import BubbleCanvasContainer from './widgets/bubble-canvas/ui/BubbleCanvasContainer.vue'
-import GameHUD from './widgets/game-hud/ui/GameHUD.vue'
-import ModalManager from './shared/ui/components/ModalManager.vue'
-import ResetButton from './shared/ui/components/ResetButton.vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import BubbleCanvasContainer from '@/ui/bubble-canvas/BubbleCanvasContainer.vue'
+import ModalManager from '@/ui/modals/ModalManager.vue'
+import GameHUD from '@/ui/hud/GameHUD.vue'
+import ResetButton from '@/ui/global/ResetButton.vue'
 import { useSessionStore } from '@/app/stores/session.store'
 import { useGameStore } from '@/app/stores/game.store'
 import { useModalStore } from '@/app/stores/modal.store'
