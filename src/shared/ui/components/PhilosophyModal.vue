@@ -131,8 +131,7 @@ const handleAnswer = (answer: 'agree' | 'disagree') => {
   border: 2px solid #8b5cf6;
   border-radius: 1rem;
   padding: 2rem;
-  width: 100%;
-  min-width: calc(100vw - 4rem);
+  max-width: calc(100vw - 4rem);
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 

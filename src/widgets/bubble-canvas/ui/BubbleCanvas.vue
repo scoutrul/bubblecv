@@ -6,9 +6,6 @@
       class="bubble-canvas"
       :width="canvasWidth"
       :height="canvasHeight"
-      @mousemove="handleMouseMove"
-      @click="handleClick"
-      @mouseleave="handleMouseLeave"
     ></canvas>
     
     <!-- Временная линия -->
@@ -83,30 +80,8 @@ const {
   updateBubbles, 
   destroySimulation,
   updateSimulationSize,
-  handleMouseMove: simMouseMove,
-  handleClick: simClick,
-  handleMouseLeave: simMouseLeave,
   isInitialized
 } = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
-
-// Обработчики событий мыши
-const handleMouseMove = (event: MouseEvent) => {
-  if (!isLoading.value) {
-    simMouseMove(event)
-  }
-}
-
-const handleClick = (event: MouseEvent) => {
-  if (!isLoading.value) {
-    simClick(event)
-  }
-}
-
-const handleMouseLeave = () => {
-  if (!isLoading.value) {
-    simMouseLeave()
-  }
-}
 
 // Следим за изменением года
 watch(() => props.currentYear, (newYear, oldYear) => {

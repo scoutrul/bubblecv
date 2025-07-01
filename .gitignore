@@ -10,6 +10,7 @@ coverage
 # Продакшн билды
 dist
 dist-ssr
+dist-server
 *.local
 
 # Кэш и логи

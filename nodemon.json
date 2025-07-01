@@ -1,6 +1,6 @@
 {
-  "watch": ["server"],
-  "ext": "ts",
-  "exec": "npm run server:build && node server/dist/server/index.js",
-  "ignore": ["server/dist"]
+  "watch": ["server/**/*.ts", "server/data/**/*.json"],
+  "ext": "ts,json",
+  "exec": "tsx server/index.ts",
+  "ignore": ["server/dist", "server/data/*.json.bak"]
 } 

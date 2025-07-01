@@ -3,7 +3,7 @@
     <button 
       @click="$emit('toggle')"
       class="achievements-toggle"
-      :class="{ 'shake-animation': isShaking }"
+      :class="{ 'util-shake-hud': isShaking }"
     >
       🏆
       <span class="achievement-badge">{{ unlockedCount }}</span>
@@ -12,56 +12,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-
 interface Props {
   unlockedCount: number
+  isShaking: boolean
 }
 
 interface Emits {
-  toggle: []
+  (e: 'toggle'): void
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 defineEmits<Emits>()
-
-const isShaking = ref(false)
-
-watch(() => props.unlockedCount, (newVal, oldVal) => {
-  if (oldVal !== undefined && newVal !== oldVal && newVal > oldVal) {
-    isShaking.value = true
-    setTimeout(() => {
-      isShaking.value = false
-    }, 600)
-  }
-})
 </script>
 
 <style scoped>
 .achievements-toggle-wrapper {
-  @apply flex-shrink-0;
+  position: relative;
 }
 
 .achievements-toggle {
-  @apply flex items-center gap-2 px-3 py-2;
-  @apply bg-background-card hover:bg-background-secondary;
-  @apply border border-border hover:border-border-light;
-  @apply rounded-lg transition-all duration-200;
-  @apply text-sm font-medium;
+  @apply relative w-12 h-12 bg-background-secondary rounded-full;
+  @apply flex items-center justify-center;
+  @apply text-2xl border-2 border-border;
+  @apply transition-all duration-200;
+}
+
+.achievements-toggle:hover {
+  @apply border-border-light scale-105;
 }
 
 .achievement-badge {
-  @apply text-xs bg-primary text-white rounded-full;
-  @apply px-2 py-0.5 min-w-[1.25rem] text-center;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-4px); }
-  75% { transform: translateX(4px); }
-}
-
-.shake-animation {
-  animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
+  @apply absolute -top-1 -right-1;
+  @apply w-5 h-5 bg-primary rounded-full;
+  @apply text-xs font-bold text-white;
+  @apply flex items-center justify-center;
+  @apply border-2 border-background-secondary;
 }
 </style> 

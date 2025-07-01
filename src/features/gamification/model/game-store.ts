@@ -4,6 +4,7 @@ import type { Achievement, ContentLevel, Level } from '@shared/types'
 import { allAchievements } from '@/shared/assets/achievements'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { api } from '@shared/api'
+import { useUiEventStore } from '@shared/stores/ui-event-store'
 
 export const useGameStore = defineStore('game', () => {
   const achievements = ref<Achievement[]>([])
@@ -76,6 +77,9 @@ export const useGameStore = defineStore('game', () => {
       achievement.unlockedAt = new Date().toISOString()
       console.log('🏆 Достижение разблокировано:', achievement.name)
       
+      const uiEventStore = useUiEventStore()
+      uiEventStore.queueShake('achievements')
+
       const { useSessionStore } = await import('@/entities/user-session/model/session-store')
       const sessionStore = useSessionStore()
       await sessionStore.gainXP(achievement.xpReward)

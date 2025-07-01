@@ -3,11 +3,12 @@ import cors from 'cors'
 import helmet from 'helmet'
 import compression from 'compression'
 import Database from 'better-sqlite3'
+import path from 'path'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 import fs from 'fs'
-import { SKILL_LEVELS } from '../src/shared/constants/skill-levels.js'
-import type { Bubble, SkillLevel } from '../src/shared/types/index.js'
+import { SKILL_LEVELS } from '../src/shared/constants/skill-levels'
+import type { Bubble, SkillLevel } from '../src/shared/types'
 import { existsSync, readFileSync } from 'fs'
 
 // Map skill levels from any source to our canonical SkillLevel type
@@ -28,7 +29,7 @@ type ExpressRequest = express.Request
 type ExpressResponse = express.Response
 
 const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+const __dirname = path.dirname(__filename)
 
 const app = express()
 const PORT = process.env.PORT || 3003

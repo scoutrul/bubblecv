@@ -3,10 +3,11 @@
     <!-- Верхняя панель: жизни, опыт, уровень -->
     <div class="top-panel">
       <!-- Левая секция: жизни -->
-      <div class="panel-section">
+      <div class="panel-section justify-start">
         <LivesDisplay 
           :current-lives="currentLives"
           :max-lives="maxLives"
+          :is-shaking="shakingComponents.has('lives')"
         />
       </div>
       
@@ -17,14 +18,16 @@
           :next-level-x-p="nextLevelXP"
           :xp-percentage="xpProgress"
           :is-animating="isXPAnimating"
+          :is-shaking="shakingComponents.has('xp')"
         />
       </div>
       
       <!-- Правая секция: уровень -->
-      <div class="panel-section">
+      <div class="panel-section justify-end">
         <LevelDisplay 
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
+          :is-shaking="shakingComponents.has('level')"
         />
       </div>
     </div>
@@ -33,6 +36,7 @@
     <div class="achievements-corner">
       <AchievementsToggle 
         :unlocked-count="unlockedAchievements"
+        :is-shaking="shakingComponents.has('achievements')"
         @toggle="showAchievements = !showAchievements"
       />
     </div>
@@ -46,9 +50,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSessionStore } from '@entities/user-session/model/session-store'
 import { useGameStore } from '@features/gamification/model/game-store'
+import { useUiEventStore } from '@shared/stores/ui-event-store'
 import { GAME_CONFIG } from '../../../shared/config/game-config'
 import AchievementsPanel from '../../../features/achievements/ui/AchievementsPanel.vue'
 import LivesDisplay from './components/LivesDisplay.vue'
@@ -59,6 +64,7 @@ import AchievementsToggle from './components/AchievementsToggle.vue'
 // State
 const showAchievements = ref(false)
 const isXPAnimating = ref(false)
+const shakingComponents = ref(new Set<string>())
 
 // Stores
 const sessionStore = useSessionStore()
@@ -103,6 +109,25 @@ const animateXPGain = () => {
     isXPAnimating.value = false
   }, GAME_CONFIG.animation.xpGain)
 }
+
+const handleProcessShakeQueue = () => {
+  const uiEventStore = useUiEventStore()
+  const queue = uiEventStore.consumeShakeQueue()
+  shakingComponents.value = queue
+
+  // Очищаем эффект после завершения анимации
+  setTimeout(() => {
+    shakingComponents.value.clear()
+  }, 700) // Длительность анимации + небольшой запас
+}
+
+onMounted(() => {
+  window.addEventListener('process-shake-queue', handleProcessShakeQueue)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('process-shake-queue', handleProcessShakeQueue)
+})
 
 // Watch for XP changes to trigger animation
 watch(() => sessionStore.currentXP, (newXP, oldXP) => {

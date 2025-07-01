@@ -9,6 +9,7 @@ export const useBubbleStore = defineStore('bubble', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   let loadingPromise: Promise<void> | null = null
+  const toughBubbleClicks = ref<Record<string, number>>({})
   
   const activeHiddenBubbles = computed(() => {
     return bubbles.value.filter(b => b.bubbleType === 'hidden' && !b.isPopped && !b.isVisited)
@@ -140,25 +141,23 @@ export const useBubbleStore = defineStore('bubble', () => {
     }))
   }
 
-  const incrementToughBubbleClicks = (id: string): { isReady: boolean, currentClicks: number, requiredClicks: number, clicksLeft: number, bonusXP: number } => {
-    const bubble = bubbles.value.find(b => b.id === id)
-    if (!bubble || !bubble.isTough) {
-      return { isReady: false, currentClicks: 0, requiredClicks: 1, clicksLeft: 1, bonusXP: 0 }
+  const incrementToughBubbleClicks = (bubbleId: string): { currentClicks: number; isReady: boolean } => {
+    if (!toughBubbleClicks.value[bubbleId]) {
+      toughBubbleClicks.value[bubbleId] = 0
     }
+    toughBubbleClicks.value[bubbleId]++
 
-    bubble.currentClicks++
-    
-    const isReady = bubble.currentClicks >= bubble.toughClicks
-    const clicksLeft = Math.max(0, bubble.toughClicks - bubble.currentClicks)
-    const bonusXP = isReady ? 5 : 0 // Бонус XP за разрушение крепкого пузыря
-    
+    const bubble = bubbles.value.find(b => b.id === bubbleId)
+    const requiredClicks = bubble?.toughClicks || 3
+
     return {
-      isReady,
-      currentClicks: bubble.currentClicks,
-      requiredClicks: bubble.toughClicks,
-      clicksLeft,
-      bonusXP
+      currentClicks: toughBubbleClicks.value[bubbleId],
+      isReady: toughBubbleClicks.value[bubbleId] >= requiredClicks
     }
+  }
+
+  const getToughBubbleClicks = (bubbleId: string): number => {
+    return toughBubbleClicks.value[bubbleId] || 0
   }
 
   // Генерация скрытого пузыря
@@ -203,6 +202,14 @@ export const useBubbleStore = defineStore('bubble', () => {
     )
   }
 
+  const reset = () => {
+    bubbles.value = []
+    isLoading.value = false
+    error.value = null
+    loadingPromise = null
+    toughBubbleClicks.value = {}
+  }
+
   return {
     bubbles,
     isLoading,
@@ -216,6 +223,8 @@ export const useBubbleStore = defineStore('bubble', () => {
     incrementToughBubbleClicks,
     hasUnpoppedBubblesInYear,
     activeHiddenBubbles,
-    addHiddenBubble
+    addHiddenBubble,
+    getToughBubbleClicks,
+    reset
   }
 }) 

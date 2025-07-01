@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserSession, ApiResponse } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
+import { useUiEventStore } from '@shared/stores/ui-event-store'
 
 export const useSessionStore = defineStore('session', () => {
   // State
@@ -104,10 +105,14 @@ export const useSessionStore = defineStore('session', () => {
     
     session.value.currentXP += amount
     
+    const uiEventStore = useUiEventStore()
+    uiEventStore.queueShake('xp')
+
     // Проверяем можем ли повыситься в уровне
     if (canLevelUp.value) {
       const newLevel = session.value.currentLevel + 1
       session.value.currentLevel = newLevel
+      uiEventStore.queueShake('level')
       
       const { useGameStore } = await import('../../../features/gamification/model/game-store')
       const gameStore = useGameStore()
@@ -167,6 +172,9 @@ export const useSessionStore = defineStore('session', () => {
 
     session.value.lives = Math.max(0, session.value.lives - amount)
     
+    const uiEventStore = useUiEventStore()
+    uiEventStore.queueShake('lives')
+
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
       const { useGameStore } = await import('../../../features/gamification/model/game-store')

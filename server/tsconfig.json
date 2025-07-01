@@ -1,17 +1,11 @@
 {
-  "extends": "@tsconfig/node20/tsconfig.json",
-  "include": ["index.ts", "../src/shared/types/**/*", "../src/shared/constants/**/*"],
-  "exclude": ["node_modules", "dist", "../src/shared/stores/**/*", "../src/shared/config/**/*"],
+  "extends": "../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "esModuleInterop": true,
-    "strict": true,
-    "outDir": "./dist",
-    "rootDir": "..",
-    "paths": {
-      "@shared/*": ["../src/shared/*"]
-    }
-  }
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "../dist-server",
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"],
+  "exclude": ["node_modules"]
 } 

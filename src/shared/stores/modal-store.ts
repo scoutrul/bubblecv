@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { Bubble, PhilosophyQuestion } from '@shared/types'
 import { useSessionStore } from '@/entities/user-session/model/session-store'
 import { useGameStore } from '@/features/gamification/model/game-store'
@@ -21,7 +21,7 @@ interface PendingAchievement {
   xpReward: number
 }
 
-export const useModalStore = defineStore('modal', () => {
+export const useModalStore = defineStore('modals', () => {
   const sessionStore = useSessionStore()
   const gameStore = useGameStore()
   
@@ -56,8 +56,24 @@ export const useModalStore = defineStore('modal', () => {
   
   // Achievement Modal
   const isAchievementModalOpen = ref(false)
-  const achievementData = ref<{ title: string; description: string; icon: string; xpReward: number } | null>(null)
+  const achievementData = ref<PendingAchievement | null>(null)
   
+  const isAnyModalOpen = computed(() => {
+    return isWelcomeOpen.value ||
+           isBubbleModalOpen.value ||
+           isLevelUpModalOpen.value ||
+           isPhilosophyModalOpen.value ||
+           isGameOverModalOpen.value ||
+           isAchievementModalOpen.value
+  })
+
+  watch(isAnyModalOpen, (isModalVisible) => {
+    if (!isModalVisible) {
+      // Когда последнее модальное окно закрывается, отправляем событие для обработки очереди анимаций
+      window.dispatchEvent(new CustomEvent('process-shake-queue'))
+    }
+  })
+
   // Система отложенных достижений
   const pendingAchievements = ref<PendingAchievement[]>([])
   
@@ -276,7 +292,7 @@ export const useModalStore = defineStore('modal', () => {
   }
 
   // Achievement Modal Actions
-  const openAchievementModal = (achievement: { title: string; description: string; icon: string; xpReward: number }) => {
+  const openAchievementModal = (achievement: PendingAchievement) => {
     queueOrShowAchievement(achievement)
   }
 
