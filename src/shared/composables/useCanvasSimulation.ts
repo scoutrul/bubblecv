@@ -76,9 +76,6 @@ export function useCanvasSimulation(
 
   // Взрыв пузыря с удалением
   const explodeBubble = (bubble: SimulationNode) => {
-    // Создаем визуальный эффект "хлопка"
-    canvasEffects.explodeBubble(bubble)
-    
     // Создаем мощный эффект отталкивания от центра пузыря
     const explosionRadius = bubble.baseRadius * 5 // Радиус волны
     const explosionStrength = 18 // Сила волны
@@ -151,7 +148,7 @@ export function useCanvasSimulation(
         canvasRef.value.removeEventListener('click', eventHandlers.clickHandler)
         canvasRef.value.removeEventListener('mouseleave', canvasInteraction.handleMouseLeave)
       }
-      eventHandlers.cleanupEventListeners()
+      eventHandlers.removeEventListeners()
     }
 
     // Сохраняем функцию очистки в canvas элементе

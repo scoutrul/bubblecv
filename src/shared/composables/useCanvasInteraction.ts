@@ -70,8 +70,8 @@ export function useCanvasInteraction(
         canvasRef.value!.style.cursor = 'pointer'
         
         // Отталкиваем соседей при начале ховера
-        const pushRadius = hoveredBubble.value.baseRadius * 4 // Увеличили радиус воздействия
-        const pushStrength = 8 // Увеличили силу отталкивания
+        const pushRadius = hoveredBubble.value.baseRadius * 3 // Уменьшили радиус воздействия
+        const pushStrength = 4 // Уменьшили силу отталкивания
         pushNeighbors(hoveredBubble.value, pushRadius, pushStrength, nodes)
         
   
