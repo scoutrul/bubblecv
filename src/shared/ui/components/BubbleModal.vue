@@ -1,97 +1,87 @@
 <template>
-  <Teleport to="body">
-    <Transition
-      name="modal"
-      appear
-    >
-    <div 
-      v-if="isOpen" 
-      class="modal-overlay"
-      @click="handleOverlayClick"
-        data-testid="bubble-modal"
-    >
-      <div 
-        class="modal-container"
-        @click.stop
-      >
-        <!-- Header -->
-        <div class="modal-header">
-          <div class="flex items-center gap-3">
-            <div 
-              class="bubble-icon"
-              :style="{ backgroundColor: getBubbleColor() }"
-            >
-              <span class="text-white font-bold text-lg">
-                {{ bubble?.name?.[0]?.toUpperCase() }}
-              </span>
-            </div>
-            <div>
-              <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
-            </div>
-          </div>
-            
-            <!-- Крестик для закрытия -->
-            <button 
-              @click="$emit('continue')"
-              class="close-button"
-              aria-label="Закрыть"
-              data-testid="bubble-continue"
-            >
-              ×
-            </button>
-        </div>
-
-        <!-- Content -->
-        <div class="modal-content">
-          <!-- Skill Level -->
-          <div class="skill-section">
-            <h3 class="section-title">Уровень экспертизы</h3>
-            <div class="skill-level">
-              <div class="skill-badge" :class="skillLevelClass">
-                  {{ bubble?.skillLevel ? SKILL_LEVEL_LABELS[bubble.skillLevel] : '' }}
-              </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div class="description-section">
-            <h3 class="section-title">Описание</h3>
-            <p class="description-text">
-              {{ bubble?.description }}
-            </p>
-          </div>
-
-      
-          <!-- Timeline -->
-          <div class="timeline-section">
-              <h3 class="section-title">Год появления</h3>
-            <div class="timeline-info">
-                <span class="timeline-start">{{ bubble?.year }}</span>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div class="modal-footer">
-          <div class="xp-reward">
-            <span class="xp-text">
-                + {{ xpReward }} XP
+  <BaseModal
+    :is-open="isOpen"
+    @close="$emit('close')"
+    data-testid="bubble-modal-wrapper"
+  >
+    <div class="modal-content-wrapper">
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="flex items-center gap-3">
+          <div 
+            class="bubble-icon"
+            :style="{ backgroundColor: getBubbleColor() }"
+          >
+            <span class="text-white font-bold text-lg">
+              {{ bubble?.name?.[0]?.toUpperCase() }}
             </span>
           </div>
-          
-          <div class="click-outside-hint">
-            <span class="hint-text">Кликните вне окна для продолжения</span>
+          <div>
+            <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
           </div>
+        </div>
+          
+          <!-- Крестик для закрытия -->
+          <button 
+            @click="$emit('continue')"
+            class="close-button"
+            aria-label="Закрыть"
+            data-testid="bubble-continue"
+          >
+            ×
+          </button>
+      </div>
+
+      <!-- Content -->
+      <div class="modal-content">
+        <!-- Skill Level -->
+        <div class="skill-section">
+          <h3 class="section-title">Уровень экспертизы</h3>
+          <div class="skill-level">
+            <div class="skill-badge" :class="skillLevelClass">
+                {{ bubble?.skillLevel ? SKILL_LEVEL_LABELS[bubble.skillLevel] : '' }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="description-section">
+          <h3 class="section-title">Описание</h3>
+          <p class="description-text">
+            {{ bubble?.description }}
+          </p>
+        </div>
+
+    
+        <!-- Timeline -->
+        <div class="timeline-section">
+            <h3 class="section-title">Год появления</h3>
+          <div class="timeline-info">
+              <span class="timeline-start">{{ bubble?.year }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <div class="xp-reward">
+          <span class="xp-text">
+              + {{ xpReward }} XP
+          </span>
+        </div>
+        
+        <div class="click-outside-hint">
+          <span class="hint-text">Кликните крестик для продолжения</span>
         </div>
       </div>
     </div>
-    </Transition>
-  </Teleport>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import BaseModal from './BaseModal.vue'
 import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { SKILL_LEVEL_LABELS } from '@shared/constants/skill-levels'
@@ -146,62 +136,11 @@ const getBubbleColor = () => {
   const expertiseConfig = GAME_CONFIG.expertiseLevels[props.bubble.skillLevel as keyof typeof GAME_CONFIG.expertiseLevels]
   return expertiseConfig?.color || '#3b82f6'
 }
-
-const handleOverlayClick = (event: MouseEvent) => {
-  if (event.target === event.currentTarget) {
-    emit('continue')
-  }
-}
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
-  cursor: pointer;
-}
-
-.modal-container {
-  cursor: default;
-  @apply bg-background-primary border border-border rounded-lg shadow-xl;
-  @apply p-6 max-w-md w-full mx-4;
-  @apply transform transition-all duration-300;
-}
-
-/* Vue Transition классы */
-.modal-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.modal-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.modal-enter-from {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-enter-from .modal-container {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.9);
-}
-
-.modal-leave-to {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-leave-to .modal-container {
-  opacity: 0;
-  transform: scale(0.95);
+.modal-content-wrapper {
+  @apply w-full;
 }
 
 .modal-header {
@@ -344,43 +283,6 @@ const handleOverlayClick = (event: MouseEvent) => {
 }
 
 .hint-text {
-  @apply text-text-secondary;
-}
-
-@keyframes modalEnter {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-  to {
-    opacity: 1;
-    backdrop-filter: blur(4px);
-  }
-}
-
-@keyframes modalScale {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes modalLeave {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
-
-.game-over-modal {
-  @apply text-center relative;
+  @apply text-xs text-gray-500 italic;
 }
 </style> 

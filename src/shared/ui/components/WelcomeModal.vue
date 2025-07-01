@@ -1,95 +1,90 @@
 <template>
-  <Transition
-    name="modal"
-    appear
+  <BaseModal
+    :is-open="isOpen"
+    @close="close"
+    data-testid="welcome-modal"
+    class-name="welcome-modal-container"
   >
-  <div 
-    v-if="isOpen" 
-    class="welcome-modal-overlay"
-    @click="handleOverlayClick"
-      data-testid="welcome-modal"
-  >
-    <div class="welcome-modal" @click.stop>
-      <!-- Закрытие -->
-      <button 
-        @click="close"
-        class="close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
+    <!-- Закрытие -->
+    <button 
+      @click="close"
+      class="close-button"
+      aria-label="Закрыть"
+    >
+      ×
+    </button>
 
-      <!-- Аватар загадочной личности -->
-      <div class="mystery-avatar">
-        <div class="avatar-circle">
-          <span class="avatar-icon">🕵️‍♂️</span>
-        </div>
-        <div class="avatar-glow"></div>
+    <!-- Аватар загадочной личности -->
+    <div class="mystery-avatar">
+      <div class="avatar-circle">
+        <span class="avatar-icon">🕵️‍♂️</span>
       </div>
+      <div class="avatar-glow"></div>
+    </div>
 
-      <!-- Заголовок -->
-      <div class="welcome-header">
-        <h2 class="mystery-title">Привет. Я — Мистер Икс.</h2>
-        <p class="mystery-subtitle">Создатель этого резюме-игры.</p>
+    <!-- Заголовок -->
+    <div class="welcome-header">
+      <h2 class="mystery-title">Привет. Я — Мистер Икс.</h2>
+      <p class="mystery-subtitle">Создатель этого резюме-игры.</p>
+    </div>
+
+    <!-- Основное сообщение -->
+    <div class="welcome-content">
+      <p class="intro-text">
+        Ты внутри интерактивного профиля разработчика: фронтенд-специалиста, немного фуллстакера, 
+        продуктового архитектора и IT-мастера по вызову.
+      </p>
+      
+      <p class="twist-text">
+        Но всё здесь устроено иначе.
+      </p>
+      
+      <p class="quest-text">
+        Чтобы узнать, кто стоит за этим проектом, что умеет, как мыслит и как связаться — 
+        <strong>нужно пройти игру</strong>.
+      </p>
+    </div>
+
+    <!-- Инструкции -->
+    <div class="instructions">
+      <div class="instruction-item">
+        <span class="instruction-icon">🔍</span>
+        <span class="instruction-text">Изучай пузырьки</span>
       </div>
-
-      <!-- Основное сообщение -->
-      <div class="welcome-content">
-        <p class="intro-text">
-          Ты внутри интерактивного профиля разработчика: фронтенд-специалиста, немного фуллстакера, 
-          продуктового архитектора и IT-мастера по вызову.
-        </p>
-        
-        <p class="twist-text">
-          Но всё здесь устроено иначе.
-        </p>
-        
-        <p class="quest-text">
-          Чтобы узнать, кто стоит за этим проектом, что умеет, как мыслит и как связаться — 
-          <strong>нужно пройти игру</strong>.
-        </p>
+      <div class="instruction-item">
+        <span class="instruction-icon">🏆</span>
+        <span class="instruction-text">Получай достижения</span>
       </div>
-
-      <!-- Инструкции -->
-      <div class="instructions">
-        <div class="instruction-item">
-          <span class="instruction-icon">🔍</span>
-          <span class="instruction-text">Изучай пузырьки</span>
-        </div>
-        <div class="instruction-item">
-          <span class="instruction-icon">🏆</span>
-          <span class="instruction-text">Получай достижения</span>
-        </div>
-        <div class="instruction-item">
-          <span class="instruction-icon">💬</span>
-          <span class="instruction-text">Разблокируй уровни доступа</span>
-        </div>
-      </div>
-
-      <!-- Финальное сообщение -->
-      <div class="finale-message">
-        <p>
-          В финале откроются скиллы, проекты, код и контакты — и станет ясно, 
-          <em>совпадают ли наши цели</em>.
-        </p>
-      </div>
-
-      <!-- Призыв к действию -->
-      <div class="call-to-action">
-        <h3 class="ready-title">Готовы к исследованию?</h3>
-        <p class="start-hint">Начинай с любого баббла.</p>
-        
-          <button @click="close" class="start-button" data-testid="welcome-continue">
-          <span class="button-icon">🚀</span>
-          Начать исследование
-        </button>
+      <div class="instruction-item">
+        <span class="instruction-icon">💬</span>
+        <span class="instruction-text">Разблокируй уровни доступа</span>
       </div>
     </div>
-  </div>
-  </Transition>
+
+    <!-- Финальное сообщение -->
+    <div class="finale-message">
+      <p>
+        В финале откроются скиллы, проекты, код и контакты — и станет ясно, 
+        <em>совпадают ли наши цели</em>.
+      </p>
+    </div>
+
+    <!-- Призыв к действию -->
+    <div class="call-to-action">
+      <h3 class="ready-title">Готовы к исследованию?</h3>
+      <p class="start-hint">Начинай с любого баббла.</p>
+      
+        <button @click="close" class="start-button" data-testid="welcome-continue">
+        <span class="button-icon">🚀</span>
+        Начать исследование
+      </button>
+    </div>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
+import BaseModal from './BaseModal.vue'
+
 interface Props {
   isOpen: boolean
 }
@@ -104,31 +99,10 @@ const emit = defineEmits<Emits>()
 const close = () => {
   emit('close')
 }
-
-const handleOverlayClick = () => {
-  close()
-}
 </script>
 
 <style scoped>
-.welcome-modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  z-index: 3000; /* Выше всех остальных модалок */
-}
-
-.welcome-modal {
+:deep(.welcome-modal-container) {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   border: 2px solid #3b82f6;
   border-radius: 1rem;

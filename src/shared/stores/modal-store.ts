@@ -61,41 +61,49 @@ export const useModalStore = defineStore('modal', () => {
   // Система отложенных достижений
   const pendingAchievements = ref<PendingAchievement[]>([])
   
-  // Computed для проверки открытых модалок (исключая панель достижений)
+  // Computed для проверки открытых модалок (исключая AchievementModal)
   const hasActiveModals = computed(() => {
     return isWelcomeOpen.value || 
            isBubbleModalOpen.value || 
            isLevelUpModalOpen.value || 
            isPhilosophyModalOpen.value || 
-           isGameOverModalOpen.value ||
-           isAchievementModalOpen.value
+           isGameOverModalOpen.value
   })
   
   // Функция для добавления достижения в очередь или показа сразу
   const queueOrShowAchievement = (achievement: PendingAchievement) => {
+    console.log(`🎯 queueOrShowAchievement called for: ${achievement.title}`)
+    console.log(`📊 Modal states - levelUp: ${isLevelUpModalOpen.value}, hasActive: ${hasActiveModals.value}, achievement: ${isAchievementModalOpen.value}`)
+    
     // Если LevelUp модалка открыта - всегда добавляем в очередь  
     if (isLevelUpModalOpen.value) {
       pendingAchievements.value.push(achievement)
+      console.log(`📥 Achievement queued (LevelUp open): ${achievement.title}`)
       return
     }
     
     if (hasActiveModals.value) {
       // Если есть другие открытые модалки - добавляем в очередь
       pendingAchievements.value.push(achievement)
+      console.log(`📥 Achievement queued (other modals open): ${achievement.title}`)
     } else {
       // Если модалок нет - показываем сразу
       achievementData.value = achievement
       isAchievementModalOpen.value = true
+      console.log(`🎉 Achievement shown immediately: ${achievement.title}`)
     }
   }
   
   // Функция для обработки очереди достижений
   const processPendingAchievements = () => {
+    console.log(`🔄 processPendingAchievements called. Queue length: ${pendingAchievements.value.length}, hasActiveModals: ${hasActiveModals.value}`)
+    
     if (!hasActiveModals.value && pendingAchievements.value.length > 0) {
       const nextAchievement = pendingAchievements.value.shift()
       if (nextAchievement) {
         achievementData.value = nextAchievement
         isAchievementModalOpen.value = true
+        console.log(`▶️ Processing queued achievement: ${nextAchievement.title}`)
       }
     }
   }
@@ -273,9 +281,13 @@ export const useModalStore = defineStore('modal', () => {
   }
 
   const closeAchievementModal = () => {
+    console.log('❌ closeAchievementModal called')
     isAchievementModalOpen.value = false
     achievementData.value = null
-    processPendingAchievements()
+    
+    // Откладываем обработку очереди, чтобы избежать гонки состояний
+    console.log('⏰ Scheduling processPendingAchievements')
+    setTimeout(processPendingAchievements, 0)
   }
 
   return {

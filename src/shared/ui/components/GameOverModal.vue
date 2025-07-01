@@ -1,61 +1,64 @@
 <template>
-  <div v-if="isVisible" class="modal-overlay" @click="handleOverlayClick">
-    <div class="modal-content game-over-modal">
-      <!-- Крестик для закрытия -->
-      <button 
-        @click="$emit('close')"
-        class="close-button"
-        aria-label="Закрыть"
-      >
-        ×
-      </button>
+  <BaseModal
+    :is-open="isVisible"
+    @close="$emit('close')"
+    class-name="game-over-modal-container"
+  >
+    <!-- Крестик для закрытия -->
+    <button 
+      @click="$emit('close')"
+      class="close-button"
+      aria-label="Закрыть"
+    >
+      ×
+    </button>
+    
+    <div class="game-over-header">
+      <div class="skull-icon">💀</div>
+      <h2 class="game-over-title">GAME OVER</h2>
+      <p class="game-over-subtitle">Все жизни потеряны!</p>
       
-      <div class="game-over-header">
-        <div class="skull-icon">💀</div>
-        <h2 class="game-over-title">GAME OVER</h2>
-        <p class="game-over-subtitle">Все жизни потеряны!</p>
-        
-        <div class="philosophy-message">
-          <p class="philosophy-text">
-            🤔 <strong>Наши цели и ценности не совпадают.</strong>
-          </p>
-          <p class="philosophy-subtext">
-            Видимо, мы по-разному смотрим на разработку и командную работу. 
-            Эффективное сотрудничество в таких условиях будет затруднительно.
-          </p>
-          <p class="retry-suggestion">
-            💡 <em>Попробуйте пройти игру заново, возможно, стоит быть более лояльным к философии команды...</em>
-          </p>
-        </div>
-      </div>
-      
-      <div class="game-over-stats">
-        <div class="stat-row">
-          <span class="stat-label">Достигнутый уровень:</span>
-          <span class="stat-value">{{ currentLevel }}</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Набрано опыта:</span>
-          <span class="stat-value">{{ currentXP }} XP</span>
-        </div>
-        <div class="stat-row">
-          <span class="stat-label">Исследовано пузырей:</span>
-          <span class="stat-value">{{ visitedBubblesCount }}</span>
-        </div>
-      </div>
-      
-      <div class="game-over-actions">
-        <button @click="handleRestart" class="restart-button">
-          🔄 Начать заново
-        </button>
+      <div class="philosophy-message">
+        <p class="philosophy-text">
+          🤔 <strong>Наши цели и ценности не совпадают.</strong>
+        </p>
+        <p class="philosophy-subtext">
+          Видимо, мы по-разному смотрим на разработку и командную работу. 
+          Эффективное сотрудничество в таких условиях будет затруднительно.
+        </p>
+        <p class="retry-suggestion">
+          💡 <em>Попробуйте пройти игру заново, возможно, стоит быть более лояльным к философии команды...</em>
+        </p>
       </div>
     </div>
-  </div>
+    
+    <div class="game-over-stats">
+      <div class="stat-row">
+        <span class="stat-label">Достигнутый уровень:</span>
+        <span class="stat-value">{{ currentLevel }}</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Набрано опыта:</span>
+        <span class="stat-value">{{ currentXP }} XP</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Исследовано пузырей:</span>
+        <span class="stat-value">{{ visitedBubblesCount }}</span>
+      </div>
+    </div>
+    
+    <div class="game-over-actions">
+      <button @click="handleRestart" class="restart-button">
+        🔄 Начать заново
+      </button>
+    </div>
+  </BaseModal>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useSessionStore } from '../../../entities/user-session/model/session-store'
+import BaseModal from './BaseModal.vue'
 
 interface Props {
   isVisible: boolean
@@ -75,12 +78,6 @@ const currentLevel = computed(() => sessionStore.currentLevel)
 const currentXP = computed(() => sessionStore.currentXP)
 const visitedBubblesCount = computed(() => sessionStore.visitedBubbles.length)
 
-const handleOverlayClick = (event: MouseEvent) => {
-  if (event.target === event.currentTarget) {
-    emit('close')
-  }
-}
-
 const handleRestart = async () => {
   await sessionStore.resetSession()
   
@@ -93,20 +90,7 @@ const handleRestart = async () => {
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 2500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(4px);
-  cursor: pointer;
-}
-
-.modal-content {
+:deep(.game-over-modal-container) {
   @apply bg-background-primary border border-border rounded-lg shadow-xl;
   @apply p-6 max-w-md w-full mx-4;
   @apply transform transition-all duration-300;

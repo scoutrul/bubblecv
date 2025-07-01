@@ -17,7 +17,8 @@ export default defineConfig(({ mode }) => {
         '@features': resolve(__dirname, 'src/features'),
         '@widgets': resolve(__dirname, 'src/widgets'),
         '@pages': resolve(__dirname, 'src/pages'),
-        '@app': resolve(__dirname, 'src/app')
+        '@app': resolve(__dirname, 'src/app'),
+        'server': resolve(__dirname, 'server')
       }
     },
     server: {

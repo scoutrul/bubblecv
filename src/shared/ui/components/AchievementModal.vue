@@ -3,6 +3,7 @@
     :is-open="modalStore.isAchievementModalOpen"
     data-testid="achievement-modal"
     @close="handleClose"
+    class-name="achievement-modal-container"
   >
     <!-- Фиксированный хедер с крестиком -->
     <div class="relative flex-shrink-0 p-4 border-b border-amber-200">
@@ -61,11 +62,6 @@
             <span class="font-bold text-lg">+{{ modalStore.achievementData?.xpReward }} XP</span>
             <span class="text-2xl">✨</span>
           </div>
-        </div>
-        
-        <!-- Подсказка для закрытия -->
-        <div class="text-amber-700 text-sm">
-          Кликните вне окна для продолжения
         </div>
       </div>
     </div>
@@ -166,7 +162,7 @@ const handleClose = () => {
 }
 
 /* Стили для контейнера */
-:deep(.modal-container) {
+:deep(.achievement-modal-container) {
   background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);

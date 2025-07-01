@@ -57,6 +57,7 @@ export interface Achievement {
   unlockedAt?: string
   isUnlocked: boolean
   xpReward: number
+  isShown?: boolean
 }
 
 export interface PhilosophyQuestion {

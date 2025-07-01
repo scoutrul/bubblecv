@@ -109,42 +109,21 @@ export const useSessionStore = defineStore('session', () => {
       const newLevel = session.value.currentLevel + 1
       session.value.currentLevel = newLevel
       
+      const { useGameStore } = await import('../../../features/gamification/model/game-store')
+      const gameStore = useGameStore()
+
       // Проверяем достижения за уровни (отложенно)
       if (newLevel === 2) { // Достигли уровня 2 (первое повышение)
-        const { useGameStore } = await import('../../../features/gamification/model/game-store')
-        const { useModalStore } = await import('../../../shared/stores/modal-store')
-        const gameStore = useGameStore()
-        const modalStore = useModalStore()
-        
         const achievement = await gameStore.unlockAchievement('first-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
-          
-          modalStore.queueOrShowAchievement({
-            title: achievement.name,
-            description: achievement.description,
-            icon: achievement.icon,
-            xpReward: achievement.xpReward
-          })
         }
       } else if (newLevel === 5) { // Достигли максимального уровня
-        const { useGameStore } = await import('../../../features/gamification/model/game-store')
-        const { useModalStore } = await import('../../../shared/stores/modal-store')
-        const gameStore = useGameStore()
-        const modalStore = useModalStore()
-        
         const achievement = await gameStore.unlockAchievement('final-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
-          
-          modalStore.queueOrShowAchievement({
-            title: achievement.name,
-            description: achievement.description,
-            icon: achievement.icon,
-            xpReward: achievement.xpReward
-          })
         }
       }
       
@@ -166,21 +145,12 @@ export const useSessionStore = defineStore('session', () => {
   const gainPhilosophyXP = async (): Promise<boolean> => {
     // Проверяем достижение "Философ" (если еще не разблокировано)
     const { useGameStore } = await import('../../../features/gamification/model/game-store')
-    const { useModalStore } = await import('../../../shared/stores/modal-store')
     const gameStore = useGameStore()
-    const modalStore = useModalStore()
     
     const achievement = await gameStore.unlockAchievement('philosophy-master')
     if (achievement) {
       // Начисляем XP за достижение
       await gainXP(achievement.xpReward)
-      
-      modalStore.queueOrShowAchievement({
-        title: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-        xpReward: achievement.xpReward
-      })
     }
     
     return await gainXP(GAME_CONFIG.philosophyCorrectXp)
@@ -200,21 +170,12 @@ export const useSessionStore = defineStore('session', () => {
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
       const { useGameStore } = await import('../../../features/gamification/model/game-store')
-      const { useModalStore } = await import('../../../shared/stores/modal-store')
       const gameStore = useGameStore()
-      const modalStore = useModalStore()
       
       const achievement = await gameStore.unlockAchievement('on-the-edge')
       if (achievement) {
         // Начисляем XP за достижение
         await gainXP(achievement.xpReward)
-        
-        modalStore.queueOrShowAchievement({
-          title: achievement.name,
-          description: achievement.description,
-          icon: achievement.icon,
-          xpReward: achievement.xpReward
-        })
       }
     }
     

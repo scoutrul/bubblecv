@@ -305,23 +305,19 @@ app.post('/api/seed', (req: ExpressRequest, res: ExpressResponse) => {
 })
 
 // API endpoint для получения уровней
-app.get('/api/content-levels', (req: ExpressRequest, res: ExpressResponse) => {
+app.get('/api/content-levels', (req, res) => {
   try {
-    const contentLevelsPath = join(__dirname, 'data', 'contentLevels.json')
-    console.log('📂 Content levels path:', contentLevelsPath)
-    
-    if (!existsSync(contentLevelsPath)) {
-      console.log('❌ Content levels file not found at:', contentLevelsPath)
-      return res.status(404).json({ success: false, error: 'Content levels data not found' })
+    const filePath = join(__dirname, 'data', 'contentLevels.json');
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf-8');
+      res.json(JSON.parse(data));
+    } else {
+      res.status(404).json({ error: 'Content levels data not found' });
     }
-    
-    const contentLevels = JSON.parse(readFileSync(contentLevelsPath, 'utf8'))
-    res.json({ success: true, data: contentLevels })
-  } catch (error: any) {
-    console.error('❌ Error reading content levels:', error.message)
-    res.status(500).json({ success: false, error: 'Failed to read content levels' })
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to read content levels data' });
   }
-})
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`)
