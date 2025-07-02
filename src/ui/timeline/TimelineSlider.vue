@@ -1,57 +1,57 @@
 <template>
   <div class="timeline-slider" ref="timelineRef">
-    <div class="timeline-content" :class="{ 'timeline-shake': isShaking }">
-    <div class="timeline-header">
-      <h3 class="text-lg font-semibold">Путешествие во времени</h3>
-      
-      <!-- Компактные кнопки навигации -->
-      <div class="navigation-compact">
-        <button 
-          @click="goToPreviousYear" 
-          :disabled="currentYear <= startYear"
-          class="nav-button-compact"
-          title="Предыдущий год"
-        >
-          <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
+    <div class="timeline-content">
+      <div class="timeline-header">
+        <h3 class="text-lg font-semibold">Путешествие во времени</h3>
         
-        <div class="year-display">
-          <TransitionGroup name="slide" tag="div" class="year-wrapper">
-            <span :key="currentYear" class="year-compact">{{ currentYear }}</span>
-          </TransitionGroup>
+        <!-- Компактные кнопки навигации -->
+        <div class="navigation-compact">
+          <button 
+            @click="goToPreviousYear" 
+            :disabled="currentYear <= startYear"
+            class="nav-button-compact"
+            title="Предыдущий год"
+          >
+            <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
+          
+          <div class="year-display">
+            <div class="year-wrapper">
+              <span class="year-compact">{{ currentYear }}</span>
+            </div>
+          </div>
+          
+          <button 
+            @click="goToNextYear" 
+            :disabled="currentYear >= endYear"
+            class="nav-button-compact"
+            title="Следующий год"
+          >
+            <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
         </div>
-        
-        <button 
-          @click="goToNextYear" 
-          :disabled="currentYear >= endYear"
-          class="nav-button-compact"
-          title="Следующий год"
-        >
-          <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
       </div>
-    </div>
-    
-    <div class="slider-container">
-      <div class="slider-with-labels">
-        <span class="year-label-side">{{ startYear }}</span>
-        
-        <input
-          :value="currentYear"
-          @input="handleYearChange"
-          type="range"
-          :min="startYear"
-          :max="endYear"
-          class="year-slider"
-        />
-        
-        <span class="year-label-side">{{ endYear }}</span>
+      
+      <div class="slider-container">
+        <div class="slider-with-labels">
+          <span class="year-label-side">{{ startYear }}</span>
+          
+          <input
+            :value="currentYear"
+            @input="handleYearChange"
+            type="range"
+            :min="startYear"
+            :max="endYear"
+            class="year-slider"
+          />
+          
+          <span class="year-label-side">{{ endYear }}</span>
+        </div>
       </div>
-    </div>
     </div>
   </div>
 </template>
@@ -102,21 +102,13 @@ const goToPreviousYear = () => {
 
 const goToNextYear = () => {
   if (props.currentYear < props.endYear) {
-    // Добавляем shake эффект
-    triggerShakeEffect()
+    // Используем GSAP версию shake эффекта
+    triggerGsapShakeEffect()
     
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear + 1)
     })
   }
-}
-
-// Функция для shake эффекта
-const triggerShakeEffect = () => {
-  isShaking.value = true
-  setTimeout(() => {
-    isShaking.value = false
-  }, 600) // Длительность shake анимации
 }
 
 // 🚀 GSAP альтернатива для анимации shake (более мощная)
@@ -215,21 +207,16 @@ const performAutoSwitch = async () => {
   
   isAutoSwitching.value = true
   
-  // Ждём следующий tick для убеждения что все updates завершены
   await nextTick()
   
-  // Добавляем задержку для плавности + shake эффект
   setTimeout(() => {
-    triggerShakeEffect()
-    // 🚀 Для использования GSAP замените на: triggerGsapShakeEffect()
+    // Используем GSAP версию shake эффекта
+    triggerGsapShakeEffect()
     
-    // Дополнительная задержка для самого переключения
     setTimeout(() => {
       if (props.currentYear < props.endYear) {
-        // Простой переход на следующий год - логика поиска будет в BubbleCanvas
         emit('update:currentYear', props.currentYear + 1)
         
-        // Сбрасываем флаг автопереключения после завершения
         setTimeout(() => {
           isAutoSwitching.value = false
         }, 500)
@@ -239,6 +226,15 @@ const performAutoSwitch = async () => {
     }, 300)
   }, 800)
 }
+
+// Добавляем watch для анимации смены года
+watch(() => props.currentYear, async () => {
+  await nextTick()
+  const yearElement = document.querySelector('.year-compact') as HTMLElement
+  if (yearElement) {
+    animateYearChangeWithGsap(yearElement)
+  }
+})
 
 // Используем watchEffect для лучшего отслеживания изменений
 watchEffect(() => {
@@ -280,17 +276,6 @@ watch(() => props.currentYear, () => {
   @apply w-full transition-all duration-300;
 }
 
-/* Shake анимация для панели timeline - дрожание на месте */
-.timeline-shake {
-  animation: timeline-shake 0.6s ease-in-out;
-}
-
-@keyframes timeline-shake {
-  0%, 100% { transform: translate(0, 0); }
-  10%, 30%, 50%, 70%, 90% { transform: translate(-1px, -1px); }
-  20%, 40%, 60%, 80% { transform: translate(1px, 1px); }
-}
-
 .timeline-header {
   @apply flex justify-between items-center mb-4;
 }
@@ -329,7 +314,8 @@ watch(() => props.currentYear, () => {
 }
 
 /* Улучшенные анимации для TransitionGroup с градиентным эффектом */
-.slide-move,
+/* Удаляем CSS анимации, так как используем GSAP */
+/* .slide-move,
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -351,15 +337,15 @@ watch(() => props.currentYear, () => {
 .slide-leave-to {
   opacity: 0;
   transform: translateY(-25px) scale(1.2);
-  color: #9ca3af; /* более блеклый цвет при исчезновении */
+  color: #9ca3af;
 }
 
 .slide-leave-active {
   position: absolute;
-}
+} */
 
 /* Анимация перехода цвета от яркого к обычному */
-@keyframes gradient-fade {
+/* @keyframes gradient-fade {
   0% {
     color: #667eea;
     text-shadow: 0 0 15px rgba(102, 126, 234, 0.4);
@@ -380,10 +366,10 @@ watch(() => props.currentYear, () => {
     color: #6b7280;
     text-shadow: none;
   }
-}
+} */
 
 /* Анимация пульсации для нового года */
-@keyframes year-pulse {
+/* @keyframes year-pulse {
   0% {
     transform: translateY(25px) scale(0.8);
   }
@@ -396,7 +382,7 @@ watch(() => props.currentYear, () => {
   100% {
     transform: translateY(0) scale(1);
   }
-}
+} */
 
 .slider-container {
   @apply space-y-2;
