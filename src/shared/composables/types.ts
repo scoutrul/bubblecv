@@ -27,7 +27,6 @@ export interface SimulationNode extends Bubble {
   oscillationPhase: number
   textLines?: string[]
   textScaleFactor?: number
-  animationTimeout?: ReturnType<typeof setTimeout>
 }
 
 export interface ExplosionEffect {

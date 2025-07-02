@@ -128,13 +128,12 @@ export function useCanvasSimulation(
       canvasEffects.createLifeLossFloatingText,
       explodeBubble,
       (bubbleId: string, currentNodes: SimulationNode[]) => {
-        // Эта функция будет передана как `removeBubble` в `useCanvasInteraction`
-        // Она удаляет пузырь и возвращает обновленный список
         const newNodes = bubbleManager.removeBubble(bubbleId, currentNodes)
         physicsSimulation.updateNodes(newNodes)
-        nodes = newNodes // Обновляем локальное состояние
+        nodes = newNodes
         return newNodes
-      }
+      },
+      physicsSimulation.getSimulation
     )
 
     // Добавляем обработчики событий мыши к canvas

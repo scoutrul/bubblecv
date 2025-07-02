@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import type { Bubble, SkillLevel, BubbleSize } from '@shared/types'
 import { SKILL_LEVEL_MIGRATION_MAP, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '@shared/constants/skill-levels'
 import { api } from '@shared/api'
+import { GAME_CONFIG } from '@shared/config/game-config'
 
 export const useBubbleStore = defineStore('bubble', () => {
   const bubbles = ref<Bubble[]>([])
@@ -147,8 +148,7 @@ export const useBubbleStore = defineStore('bubble', () => {
     }
     toughBubbleClicks.value[bubbleId]++
 
-    const bubble = bubbles.value.find(b => b.id === bubbleId)
-    const requiredClicks = bubble?.toughClicks || 3
+    const requiredClicks = GAME_CONFIG.TOUGH_BUBBLE_CLICKS_REQUIRED
 
     return {
       currentClicks: toughBubbleClicks.value[bubbleId],

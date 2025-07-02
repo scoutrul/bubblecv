@@ -177,7 +177,7 @@ const seedDatabase = () => {
           const randomIndex = Math.floor(Math.random() * bubblesInYear.length)
           const randomBubble = bubblesInYear[randomIndex]
           randomBubble.isTough = true
-          randomBubble.toughClicks = Math.floor(Math.random() * 11) + 10 // от 10 до 20
+          // randomBubble.toughClicks = Math.floor(Math.random() * 11) + 10 // Убрали, теперь это на фронте
           console.log(`💪 Made bubble tough for year ${year}:`, randomBubble.id)
         }
       })

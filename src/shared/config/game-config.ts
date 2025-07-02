@@ -147,6 +147,13 @@ export const GAME_CONFIG = {
     glowSize: 10, // размер свечения
     name: 'Крепкий пузырь'
   } as const,
+
+  // Новая настройка для крепких пузырей
+  TOUGH_BUBBLE_CLICKS_REQUIRED: 10,
+
+  // Настройки для эффектов
+  shakeIntensity: 4,
+  xpShakeDuration: 300,
 } as const
 
 // Централизованные функции для расчета XP

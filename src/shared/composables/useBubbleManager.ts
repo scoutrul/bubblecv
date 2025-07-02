@@ -157,12 +157,18 @@ export function useBubbleManager() {
     })
   }
 
-  // Удаление пузыря по ID
+  // Удаление пузыря по ID и проверка на завершение года
   const removeBubble = (bubbleId: string, nodes: SimulationNode[]): SimulationNode[] => {
     const index = nodes.findIndex(node => node.id === bubbleId)
     if (index !== -1) {
       const newNodes = [...nodes]
       newNodes.splice(index, 1)
+
+      // Проверяем, нужно ли переходить на следующий год
+      const hasNonSpecialBubbles = newNodes.some(n => !n.isEasterEgg && !n.isTough && !n.isHidden)
+      if (!hasNonSpecialBubbles && newNodes.length > 0) { // Убедимся, что это не последний пузырь в игре
+        window.dispatchEvent(new CustomEvent('year-completed'))
+      }
   
       return newNodes
     }

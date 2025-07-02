@@ -1,5 +1,6 @@
 import { type Ref, ref, onMounted, onUnmounted } from 'vue'
 import type { PhilosophyQuestion } from '@shared/types'
+import type { Simulation } from 'd3-force'
 import type { SimulationNode } from './types'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { useSessionStore } from '@/stores/session.store'
@@ -133,7 +134,8 @@ export function useCanvasInteraction(
     explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => void,
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
-    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[]
+    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[],
+    getSimulation?: () => Simulation<SimulationNode, undefined> | null
   ) => {
     if (!canvasRef.value || isDragging.value) return
     isDragging.value = true
@@ -168,23 +170,41 @@ export function useCanvasInteraction(
               showLevelUpModal(1)
             }
 
-            // Анимация "упругого" клика для крепкого пузыря
-            if (clickedBubble.animationTimeout) {
-              clearTimeout(clickedBubble.animationTimeout)
+            // --- ОБНОВЛЕННАЯ ЛОГИКА ОТСКОКА И НАБУХАНИЯ ---
+            const clickOffsetX = mouseX - clickedBubble.x
+            const clickOffsetY = mouseY - clickedBubble.y
+            const distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
+
+            if (distanceToCenter > 0) {
+              const dirX = clickOffsetX / distanceToCenter
+              const dirY = clickOffsetY / distanceToCenter
+              
+              const strengthFactor = Math.min(distanceToCenter / clickedBubble.radius, 1)
+              // Сила отскока теперь зависит от ТЕКУЩЕГО размера пузыря
+              const maxStrength = clickedBubble.radius * 1.5 // Еще больше отскок
+              const jumpStrength = maxStrength * strengthFactor
+
+              clickedBubble.vx -= dirX * jumpStrength
+              clickedBubble.vy -= dirY * jumpStrength
+              clickedBubble.x -= dirX * jumpStrength * 0.5
+              clickedBubble.y -= dirY * jumpStrength * 0.5
+
+              const simulation = getSimulation ? getSimulation() : null
+              if (simulation) {
+                simulation.alpha(1).restart()
+              }
             }
-            gsap.to(clickedBubble, {
-              targetRadius: clickedBubble.baseRadius * 1.15,
-              duration: 0.1,
-              ease: 'power2.out',
-            })
-            clickedBubble.animationTimeout = setTimeout(() => {
-              gsap.to(clickedBubble, {
-                targetRadius: clickedBubble.baseRadius,
-                duration: 0.4,
-                ease: 'elastic.out(1, 0.75)',
-              })
-            }, 150)
             
+            // Анимация "набухания" при клике
+            gsap.killTweensOf(clickedBubble, 'targetRadius')
+            clickedBubble.targetRadius = (clickedBubble.targetRadius || clickedBubble.baseRadius) * 1.08
+            gsap.to(clickedBubble, {
+              targetRadius: clickedBubble.baseRadius,
+              duration: 1.2,
+              ease: 'elastic.out(1, 0.6)',
+              delay: 0.1
+            })
+          
             return // Не открываем модал и не помечаем как посещенный
           }
         }
@@ -400,13 +420,14 @@ export function useCanvasInteraction(
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
     explodeBubble: (bubble: SimulationNode) => void,
-    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[]
+    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[],
+    getSimulation?: () => Simulation<SimulationNode, undefined> | null
   ) => {
     const mouseMoveHandler = (event: MouseEvent) => 
       handleMouseMove(event, nodes(), findBubbleUnderCursor, pushNeighbors)
     
     const clickHandler = (event: MouseEvent) => 
-      handleClick(event, nodes(), width(), height(), findBubbleUnderCursor, explodeFromPoint, createXPFloatingText, createLifeLossFloatingText, removeBubble)
+      handleClick(event, nodes(), width(), height(), findBubbleUnderCursor, explodeFromPoint, createXPFloatingText, createLifeLossFloatingText, removeBubble, getSimulation)
     
     const bubbleContinueHandler = (event: Event) =>
       handleBubbleContinue(event, nodes(), createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
