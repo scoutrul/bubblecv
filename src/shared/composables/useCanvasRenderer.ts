@@ -9,6 +9,11 @@ interface Star {
   y: number
   radius: number
   opacity: number
+  angle: number
+  orbitRadius: number
+  centerX: number
+  centerY: number
+  speed: number
 }
 
 export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
@@ -20,11 +25,21 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Задний, статичный слой
     const bgStarArray: Star[] = []
     for (let i = 0; i < 70; i++) { // Больше тусклых звезд
+      const centerX = Math.random() * width
+      const centerY = Math.random() * height
+      const orbitRadius = Math.random() * 100 + 20
+      const angle = Math.random() * Math.PI * 2
+      
       bgStarArray.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
+        x: centerX + Math.cos(angle) * orbitRadius,
+        y: centerY + Math.sin(angle) * orbitRadius,
         radius: Math.random() * 1.2 + 0.5,
-        opacity: Math.random() * 0.4 + 0.1 // (0.1 - 0.5)
+        opacity: Math.random() * 0.4 + 0.1, // (0.1 - 0.5)
+        angle,
+        orbitRadius,
+        centerX,
+        centerY,
+        speed: (Math.random() * 0.002 + 0.001) * (Math.random() > 0.5 ? 1 : -1) // Случайное направление
       })
     }
     bgStars.value = bgStarArray
@@ -41,11 +56,21 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Передний, подвижный слой
     const fgStarArray: Star[] = []
     for (let i = 0; i < 30; i++) { // Меньше ярких звезд
+      const centerX = Math.random() * width
+      const centerY = Math.random() * height
+      const orbitRadius = Math.random() * 150 + 30
+      const angle = Math.random() * Math.PI * 2
+      
       fgStarArray.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
+        x: centerX + Math.cos(angle) * orbitRadius,
+        y: centerY + Math.sin(angle) * orbitRadius,
         radius: Math.random() * 1.6 + 0.8, // Крупнее
-        opacity: Math.random() * 0.6 + 0.4 // Ярче (0.4 - 1.0)
+        opacity: Math.random() * 0.6 + 0.4, // Ярче (0.4 - 1.0)
+        angle,
+        orbitRadius,
+        centerX,
+        centerY,
+        speed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1) // Быстрее и случайное направление
       })
     }
     fgStars.value = fgStarArray
@@ -62,9 +87,16 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   
   // Отрисовка звездного поля
   const drawStarfield = (context: CanvasRenderingContext2D, parallaxOffset: { x: number, y: number }) => {
-    // Рисуем задний слой (без параллакса)
+    // Рисуем задний слой (без параллакса, но с орбитальным движением)
     context.save()
     bgStars.value.forEach(star => {
+      // Обновляем угол для орбитального движения
+      star.angle += star.speed
+      
+      // Рассчитываем новую позицию по орбите
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+      
       context.beginPath()
       context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
       context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
@@ -72,10 +104,17 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     })
     context.restore()
 
-    // Рисуем передний слой (с параллаксом)
+    // Рисуем передний слой (с параллаксом и орбитальным движением)
     context.save()
     context.translate(parallaxOffset.x, parallaxOffset.y)
     fgStars.value.forEach(star => {
+      // Обновляем угол для орбитального движения
+      star.angle += star.speed
+      
+      // Рассчитываем новую позицию по орбите
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+      
       context.beginPath()
       context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
       context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
