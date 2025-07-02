@@ -301,7 +301,9 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     
     context.save()
     
-    // Используем baseRadius вместо currentRadius для стабильности
+    // Вычисляем коэффициент масштабирования на основе текущего радиуса
+    const breathingScale = bubble.currentRadius / bubble.baseRadius
+    
     const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
     const sizeMultiplier = expertiseConfig.sizeMultiplier
     
@@ -312,8 +314,8 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       Math.min(bubble.baseRadius * 0.35, maxFontSize)
     )
     
-    // Применяем масштаб текста
-    const scaleFactor = bubble.textScaleFactor || 1
+    // Применяем масштаб текста с учетом дыхания
+    const scaleFactor = (bubble.textScaleFactor || 1) * breathingScale
     const fontSize = Math.floor(baseFontSize * sizeMultiplier * scaleFactor)
     
     context.font = `${fontSize}px Inter, sans-serif`
