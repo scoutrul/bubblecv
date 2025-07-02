@@ -12,14 +12,44 @@ export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
   onBubblePopped?: () => void
 ) {
-  const sessionStore = useSessionStore()
   const modalStore = useModalStore()
   const gameStore = useGameStore()
+  const sessionStore = useSessionStore()
   const bubbleStore = useBubbleStore()
+  
   const isDragging = ref(false)
   const hoveredBubble = ref<SimulationNode | null>(null)
   let lastHoveredId: string | null = null
   const parallaxOffset = ref({ x: 0, y: 0 })
+
+  // Вспомогательная функция для показа Level Up модала
+  const showLevelUpModal = (xpGained: number) => {
+    // Получаем иконку для уровня (такую же как в LevelDisplay)
+    const getLevelIcon = (level: number): string => {
+      switch (level) {
+        case 1: return '👋'
+        case 2: return '🤔'
+        case 3: return '📚'
+        case 4: return '🤝'
+        case 5: return '🤜🤛'
+        default: return '⭐'
+      }
+    }
+    
+    // Получаем данные нового уровня из contentLevels
+    const levelData = gameStore.getLevelByNumber(sessionStore.currentLevel)
+    const levelUpData = {
+      level: sessionStore.currentLevel,
+      title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
+      description: levelData?.description || 'Новый уровень разблокирован!',
+      icon: getLevelIcon(sessionStore.currentLevel),
+      currentXP: sessionStore.currentXP,
+      xpGained,
+      unlockedFeatures: (levelData as any)?.unlockedFeatures || []
+    }
+    
+    modalStore.openLevelUpModal(sessionStore.currentLevel, levelUpData)
+  }
 
   // Обработка движения мыши
   const handleMouseMove = (
@@ -123,7 +153,12 @@ export function useCanvasInteraction(
           if (!result.isReady) {
             // Только промежуточные клики дают XP
             createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
-            await sessionStore.gainXP(1)
+            const leveledUp = await sessionStore.gainXP(1)
+
+            // Проверяем повышение уровня
+            if (leveledUp) {
+              showLevelUpModal(1)
+            }
 
             // Анимация клика для крепкого пузыря
             const originalRadius = clickedBubble.targetRadius
@@ -154,17 +189,29 @@ export function useCanvasInteraction(
           
           // Начисляем XP за секретный пузырь
           const secretXP = 10
-          await sessionStore.gainXP(secretXP)
+          const leveledUp = await sessionStore.gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
+          
+          // Проверяем повышение уровня
+          if (leveledUp) {
+            showLevelUpModal(secretXP)
+          }
           
           // Разблокируем достижение
           const achievement = await gameStore.unlockAchievement('secret-bubble-discoverer')
           if (achievement) {
+            const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
+            
+            // Проверяем повышение уровня от XP за достижение
+            if (achievementLeveledUp) {
+              showLevelUpModal(achievement.xpReward)
+            }
+            
             modalStore.queueOrShowAchievement({
               title: achievement.name,
               description: achievement.description,
               icon: achievement.icon,
-              xpReward: achievement.xpReward || 0
+              xpReward: achievement.xpReward
             })
           }
           
@@ -276,32 +323,7 @@ export function useCanvasInteraction(
 
     // Показываем Level Up модал если уровень повысился
     if (leveledUp) {
-      
-      // Получаем иконку для уровня (такую же как в LevelDisplay)
-      const getLevelIcon = (level: number): string => {
-        switch (level) {
-          case 1: return '👋'
-          case 2: return '🤔'
-          case 3: return '📚'
-          case 4: return '🤝'
-          case 5: return '🤜🤛'
-          default: return '⭐'
-        }
-      }
-      
-      // Получаем данные нового уровня из contentLevels
-      const levelData = gameStore.getLevelByNumber(sessionStore.currentLevel)
-      const levelUpData = {
-        level: sessionStore.currentLevel,
-        title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
-        description: levelData?.description || 'Новый уровень разблокирован!',
-        icon: getLevelIcon(sessionStore.currentLevel),
-        currentXP: sessionStore.currentXP,
-        xpGained,
-        unlockedFeatures: (levelData as any)?.unlockedFeatures || []
-      }
-      
-      modalStore.openLevelUpModal(sessionStore.currentLevel, levelUpData)
+      showLevelUpModal(xpGained)
     }
     
     // Отмечаем пузырь как посещенный
@@ -321,7 +343,13 @@ export function useCanvasInteraction(
     }
     
     if (achievement) {
-      await sessionStore.gainXP(achievement.xpReward)
+      const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
+      
+      // Проверяем повышение уровня от XP за достижение
+      if (achievementLeveledUp) {
+        showLevelUpModal(achievement.xpReward)
+      }
+      
       modalStore.queueOrShowAchievement({
         title: achievement.name,
         description: achievement.description,
