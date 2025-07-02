@@ -1,19 +1,18 @@
+import mockData from '../data/mockData.json'
+import contentLevels from '../data/contentLevels.json'
+
 const API_BASE_URL = '/api'
 
 export const api = {
   async getContentLevels() {
-    const response = await fetch(`${API_BASE_URL}/content-levels`)
-    if (!response.ok) {
-      throw new Error('Failed to fetch content levels')
-    }
-    return response.json()
+    return { data: contentLevels }
   },
   
   async getBubbles() {
-    const response = await fetch(`${API_BASE_URL}/bubbles`)
-    if (!response.ok) {
-      throw new Error('Failed to fetch bubbles')
+    // Проверка наличия и структуры bubbles в mockData
+    if (!mockData.bubbles || !Array.isArray(mockData.bubbles)) {
+      throw new Error('Invalid mock data structure: bubbles array is missing or not an array')
     }
-    return response.json()
+    return { data: mockData.bubbles }
   }
 } 

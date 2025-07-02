@@ -33,8 +33,8 @@ export const useGameStore = defineStore('game', () => {
     error.value = null
     try {
       const data = await api.getContentLevels()
-      levels.value = data.levels
-      contentLevels.value = data.levels.map((level: Level) => ({
+      levels.value = data.data.levels
+      contentLevels.value = data.data.levels.map((level: Level) => ({
         ...level,
         xpRequired: GAME_CONFIG.levelRequirements[level.level as keyof typeof GAME_CONFIG.levelRequirements] || level.xpRequired,
       }))

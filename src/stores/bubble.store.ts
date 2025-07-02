@@ -36,10 +36,6 @@ export const useBubbleStore = defineStore('bubble', () => {
         // Загружаем данные с сервера через API клиент
         const data = await api.getBubbles()
         
-        if (!data.success) {
-          throw new Error(data.error || 'Failed to load bubbles')
-        }
-        
         // Трансформируем данные в правильный формат
         bubbles.value = data.data.map((rawBubble: any) => {
           // Преобразуем уровень навыка
