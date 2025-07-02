@@ -72,15 +72,9 @@ const gameStore = useGameStore()
 const uiEventStore = useUiEventStore()
 
 // Computed
-const currentLevel = computed(() => {
-  const level = sessionStore.currentLevel
-  return level
-})
+const currentLevel = computed(() => sessionStore.currentLevel)
 
-const currentXP = computed(() => {
-  const xp = sessionStore.currentXP
-  return xp
-})
+const currentXP = computed(() => sessionStore.currentXP)
 
 const currentLives = computed(() => sessionStore.lives)
 const maxLives = computed(() => GAME_CONFIG.maxLives)
@@ -100,8 +94,6 @@ const currentLevelTitle = computed(() => {
 const unlockedAchievements = computed(() => {
   return gameStore.achievements.filter(a => a.isUnlocked).length
 })
-
-const xpToDisplay = ref(currentXP.value)
 
 // Methods
 const animateXPGain = () => {

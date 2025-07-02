@@ -131,13 +131,6 @@ export const useBubbleStore = defineStore('bubble', () => {
     }
   }
 
-  const resetBubbles = () => {
-    bubbles.value = bubbles.value.map(bubble => ({
-      ...bubble,
-      isPopped: false
-    }))
-  }
-
   const incrementToughBubbleClicks = (bubbleId: string): { currentClicks: number; isReady: boolean } => {
     if (!toughBubbleClicks.value[bubbleId]) {
       toughBubbleClicks.value[bubbleId] = 0
@@ -198,29 +191,20 @@ export const useBubbleStore = defineStore('bubble', () => {
     )
   }
 
-  const reset = () => {
-    bubbles.value = []
-    isLoading.value = false
-    error.value = null
-    loadingPromise = null
-    toughBubbleClicks.value = {}
-  }
 
   return {
     bubbles,
     isLoading,
     error,
+    activeHiddenBubbles,
     loadBubbles,
     getBubblesByYear,
     getBubblesUpToYear,
     findNextYearWithNewBubbles,
     popBubble,
-    resetBubbles,
     incrementToughBubbleClicks,
     hasUnpoppedBubblesInYear,
-    activeHiddenBubbles,
     addHiddenBubble,
     getToughBubbleClicks,
-    reset
   }
 }) 

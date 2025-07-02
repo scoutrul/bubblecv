@@ -1,18 +1,15 @@
 import mockData from '../data/mockData.json'
-import contentLevels from '../data/contentLevels.json'
-
-const API_BASE_URL = '/api'
+import contentLevelsData from '../data/contentLevels.json'
+import type { Bubble, Level } from '../types'
+import { normalizeBubble } from '../utils/normalize'
 
 export const api = {
-  async getContentLevels() {
-    return { data: contentLevels }
+  async getContentLevels(): Promise<{ data: { levels: Level[] } }> {
+    return { data: contentLevelsData }
   },
   
-  async getBubbles() {
-    // Проверка наличия и структуры bubbles в mockData
-    if (!mockData.bubbles || !Array.isArray(mockData.bubbles)) {
-      throw new Error('Invalid mock data structure: bubbles array is missing or not an array')
-    }
-    return { data: mockData.bubbles }
+  async getBubbles(): Promise<{ data: Bubble[] }> {
+    const bubbles: Bubble[] = mockData.bubbles.map(normalizeBubble)
+    return { data: bubbles }
   }
 } 

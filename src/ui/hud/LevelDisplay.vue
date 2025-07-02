@@ -27,16 +27,19 @@ const props = defineProps<Props>()
 const startShineAnimation = () => {
   gsap.killTweensOf('.glossy-shine')
   if (props.currentLevel >= 1) {
-    gsap.fromTo('.glossy-shine', 
-      { x: '-100%' },
-      {
-        x: '100%',
-        duration: 1,
-        ease: 'power1.out',
-        repeat: -1,
-        repeatDelay: 2
-      }
-    )
+    const shineElement = document.querySelector('.glossy-shine')
+    if (shineElement) {
+      gsap.fromTo('.glossy-shine', 
+        { x: '-100%' },
+        {
+          x: '100%',
+          duration: 1,
+          ease: 'power1.out',
+          repeat: -1,
+          repeatDelay: 2
+        }
+      )
+    }
   }
 }
 

@@ -42,7 +42,10 @@ export const GAME_CONFIG = {
   philosophyWrongLives: 1,     // -1 жизнь за неправильный ответ
   
   // Game Over & Restart
-  restartYear: 2015,             // С какого года начинается игра заново
+  restartYear: 2015,    
+  startYear: 2010,
+  endYear: 2025,
+  
   gameOverBlockBubbles: true,
   
   // Expertise Levels - Уровни экспертизы (с уменьшенными размерами)
@@ -108,10 +111,6 @@ export const GAME_CONFIG = {
     masterPulse: 3000,          // Пульсация для мастер-уровня
     lifeLoss: 1500             // ms
   } as const,
-  
-  // Timeline
-  startYear: 2010,
-  endYear: 2025,
   
   // Canvas Dimensions
   canvas: {

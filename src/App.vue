@@ -1,10 +1,10 @@
 <template>
   <div class="app">
-    <!-- Основная сцена с пузырями -->
-    <BubbleCanvasContainer class="bubble-scene" />
-    
     <!-- HUD интерфейс -->
     <GameHUD class="game-hud" />
+
+    <!-- Основная сцена с пузырями -->
+    <BubbleCanvasContainer class="bubble-scene" />
     
     <!-- Кнопка сброса -->
     <ResetButton />
@@ -15,34 +15,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { onMounted } from 'vue'
 import BubbleCanvasContainer from '@/ui/bubble-canvas/BubbleCanvasContainer.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'
-import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 import { useSessionStore } from '@/stores/session.store'
-import { useGameStore } from '@/stores/game.store'
-import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
 
 const sessionStore = useSessionStore()
-const gameStore = useGameStore()
-const bubbleStore = useBubbleStore()
-const modalStore = useModalStore()
 
-// Функция для проверки и инициализации базы данных
-const initializeDatabase = async () => {
-  try {
-    await bubbleStore.loadBubbles() 
-  } catch (error) {
-    console.error('❌ Ошибка инициализации базы данных:', error)
-  }
-}
+const bubbleStore = useBubbleStore()
 
 onMounted(async () => {
-  // Инициализируем базу данных и сессию
-  await initializeDatabase()
+  await bubbleStore.loadBubbles() 
   
   // Создаем и сбрасываем сессию, что вызовет 'game-reset'
   await sessionStore.resetSession()

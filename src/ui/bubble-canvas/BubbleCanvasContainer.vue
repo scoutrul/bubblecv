@@ -10,22 +10,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import BubbleCanvas from './BubbleCanvas.vue'
-import GameHUD from '../hud/GameHUD.vue'
-import ResetButton from '../global/ResetButton.vue'
-import { useBubbleStore } from '@/stores/bubble.store'
+import { GAME_CONFIG } from '@shared/config/game-config'
 
-const bubbleStore = useBubbleStore()
+const startYear = GAME_CONFIG.startYear
+const endYear = GAME_CONFIG.endYear
+const currentYear = GAME_CONFIG.startYear
 
-// Константы для временной шкалы
-const startYear = 2009
-const endYear = 2025
-const currentYear = ref(bubbleStore.startYear)
-
-onMounted(() => {
-  // Удалить все строки с console.log(...)
-})
 </script>
 
 <style scoped>

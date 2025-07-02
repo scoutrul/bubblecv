@@ -1,5 +1,5 @@
 <template>
-  <div class="timeline-slider" ref="timelineRef">
+  <div class="timeline-slider" ref="timelineRef" v-if="currentYear">
     <div class="timeline-content">
       <div class="timeline-header">
         <h3 class="text-lg font-semibold">Путешествие во времени</h3>
