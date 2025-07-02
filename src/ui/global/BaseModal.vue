@@ -1,6 +1,6 @@
 <template>
   <Transition
-    name="modal"
+    name="modal-backdrop"
     appear
   >
     <div 
@@ -8,13 +8,19 @@
       class="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
       :data-testid="testId"
     >
-      <div 
-        class="relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary"
-        :class="className"
-        @click.stop
+      <Transition
+        name="modal-window"
+        appear
       >
-        <slot />
-      </div>
+        <div 
+          v-if="isOpen"
+          class="relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary"
+          :class="className"
+          @click.stop
+        >
+          <slot />
+        </div>
+      </Transition>
     </div>
   </Transition>
 </template>
@@ -48,18 +54,29 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* Анимации */
-.modal-enter-active,
-.modal-leave-active {
+/* Анимация фона - только прозрачность */
+.modal-backdrop-enter-active,
+.modal-backdrop-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-backdrop-enter-from,
+.modal-backdrop-leave-to {
+  opacity: 0;
+}
+
+/* Анимация модального окна - масштабирование */
+.modal-window-enter-active,
+.modal-window-leave-active {
   transition: all 0.3s ease;
 }
 
-.modal-enter-from {
+.modal-window-enter-from {
   opacity: 0;
   transform: scale(0.9);
 }
 
-.modal-leave-to {
+.modal-window-leave-to {
   opacity: 0;
   transform: scale(1.1);
 }
