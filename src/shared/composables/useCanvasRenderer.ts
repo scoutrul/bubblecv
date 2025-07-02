@@ -19,9 +19,41 @@ interface Star {
 export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   const bgStars = ref<Star[]>([])
   const fgStars = ref<Star[]>([])
+  const centerStars = ref<Star[]>([]) // Новый слой звезд
 
   // Инициализация звездного поля
   const initStarfield = (width: number, height: number) => {
+    // Центральный, вращающийся слой
+    const centerStarArray: Star[] = []
+    const canvasCenter = { x: width / 2, y: height / 2 }
+    
+    for (let i = 0; i < 400; i++) {
+      const angle = Math.random() * Math.PI * 2
+      const orbitRadius = Math.random() * (Math.min(width, height) * 0.4) + 50 // Радиус орбиты относительно центра
+      
+      centerStarArray.push({
+        x: canvasCenter.x + Math.cos(angle) * orbitRadius,
+        y: canvasCenter.y + Math.sin(angle) * orbitRadius,
+        radius: Math.random() * 1 + 0.3, // Мелкие звезды
+        opacity: Math.random() * 0.3 + 0.1, // Тусклые (0.1 - 0.4)
+        angle,
+        orbitRadius,
+        centerX: canvasCenter.x, // Центр всегда в середине канваса
+        centerY: canvasCenter.y,
+        speed: (Math.random() * 0.0005) // Медленное вращение
+      })
+    }
+    centerStars.value = centerStarArray
+    centerStars.value.forEach(star => {
+      gsap.to(star, {
+        opacity: Math.random() * 0.3 + 0.1,
+        duration: Math.random() * 4 + 3,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      })
+    })
+
     // Задний, статичный слой
     const bgStarArray: Star[] = []
     for (let i = 0; i < 70; i++) { // Больше тусклых звезд
@@ -87,6 +119,23 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   
   // Отрисовка звездного поля
   const drawStarfield = (context: CanvasRenderingContext2D, parallaxOffset: { x: number, y: number }) => {
+    // Рисуем центральный слой (вращение вокруг центра канваса)
+    context.save()
+    centerStars.value.forEach(star => {
+      // Обновляем угол для вращения вокруг центра
+      star.angle += star.speed
+      
+      // Рассчитываем новую позицию
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+      
+      context.beginPath()
+      context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+      context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+      context.fill()
+    })
+    context.restore()
+
     // Рисуем задний слой (без параллакса, но с орбитальным движением)
     context.save()
     bgStars.value.forEach(star => {
