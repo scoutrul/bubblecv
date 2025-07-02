@@ -13,11 +13,21 @@ export interface CanvasBubble extends Bubble {
   bubbleType?: 'regular' | 'philosophy' | 'hidden'
 }
 
-export interface SimulationNode extends CanvasBubble {
+export interface SimulationNode extends Bubble {
   x: number
   y: number
-  vx?: number
-  vy?: number
+  vx: number
+  vy: number
+  radius: number
+  baseRadius: number
+  targetRadius: number
+  currentRadius: number
+  color: string
+  isHovered?: boolean
+  oscillationPhase: number
+  textLines?: string[]
+  textScaleFactor?: number
+  animationTimeout?: ReturnType<typeof setTimeout>
 }
 
 export interface ExplosionEffect {

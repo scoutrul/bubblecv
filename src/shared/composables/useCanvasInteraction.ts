@@ -10,7 +10,7 @@ import { gsap } from 'gsap'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
-  onBubblePopped?: () => void
+  onBubblePopped?: (nodes: SimulationNode[]) => void
 ) {
   const modalStore = useModalStore()
   const gameStore = useGameStore()
@@ -152,39 +152,41 @@ export function useCanvasInteraction(
           
           if (result.isReady) {
             // Пузырь пробит!
-            await sessionStore.unlockFirstToughBubbleAchievement()
+            // Помечаем пузырь как посещенный, чтобы он не появился снова.
+            // Достижение будет выдано после закрытия модалки в handleBubbleContinue.
+            await sessionStore.visitBubble(clickedBubble.id)
+
+            // Не выходим из функции, а позволяем коду ниже
+            // обработать этот пузырь как обычный (открыть модалку).
+          } else {
+            // Промежуточные клики дают XP
+            createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
+            const leveledUp = await sessionStore.gainXP(1)
+
+            // Проверяем повышение уровня
+            if (leveledUp) {
+              showLevelUpModal(1)
+            }
+
+            // Анимация "упругого" клика для крепкого пузыря
+            if (clickedBubble.animationTimeout) {
+              clearTimeout(clickedBubble.animationTimeout)
+            }
+            gsap.to(clickedBubble, {
+              targetRadius: clickedBubble.baseRadius * 1.15,
+              duration: 0.1,
+              ease: 'power2.out',
+            })
+            clickedBubble.animationTimeout = setTimeout(() => {
+              gsap.to(clickedBubble, {
+                targetRadius: clickedBubble.baseRadius,
+                duration: 0.4,
+                ease: 'elastic.out(1, 0.75)',
+              })
+            }, 150)
             
-            // Создаем эффект взрыва, но не удаляем сразу
-            explodeFromPoint(clickedBubble.x, clickedBubble.y, clickedBubble.baseRadius * 4, 15, nodes, width, height)
-            
-            // Удаляем пузырь со сцены с небольшой задержкой для анимации
-            setTimeout(() => {
-              removeBubble(clickedBubble.id, nodes)
-            }, 100)
-            
-            return // Завершаем обработку для крепкого пузыря
+            return // Не открываем модал и не помечаем как посещенный
           }
-
-          // Промежуточные клики дают XP
-          createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
-          const leveledUp = await sessionStore.gainXP(1)
-
-          // Проверяем повышение уровня
-          if (leveledUp) {
-            showLevelUpModal(1)
-          }
-
-          // Анимация клика для крепкого пузыря
-          const originalRadius = clickedBubble.targetRadius
-          clickedBubble.targetRadius = originalRadius * 0.95
-          setTimeout(() => {
-            clickedBubble.targetRadius = originalRadius * 1.1
-            setTimeout(() => {
-              clickedBubble.targetRadius = originalRadius
-            }, 100)
-          }, 50)
-          
-          return // Не открываем модал и не помечаем как посещенный
         }
         
         // Пузырь считается посещенным, как только мы по нему кликнули
@@ -303,12 +305,17 @@ export function useCanvasInteraction(
     let xpGained = 0
     
     if (bubble.isTough) {
-      // Для крепких пузырей XP уже начислен за клики, дополнительно не даем
-      xpGained = 0
+      // Для крепких пузырей XP уже начислен за клики.
+      // Здесь мы выдаем достижение и взрываем его.
+      await sessionStore.unlockFirstToughBubbleAchievement()
+      xpGained = 0 // XP за само пробитие не дается, только за клики и ачивку.
       leveledUp = false
-      // Но его нужно взорвать и удалить
+      
       explodeBubble(bubble)
-      removeBubble(bubble.id, nodes)
+      const remainingNodes = removeBubble(bubble.id, nodes)
+      if (onBubblePopped) {
+        onBubblePopped(remainingNodes)
+      }
       return // Завершаем обработку здесь
     } else if (bubble.isEasterEgg) {
       // Философский пузырь ВСЕГДА дает базовый XP за разбиение (независимо от ответа)
@@ -375,7 +382,10 @@ export function useCanvasInteraction(
     
     // Удаляем пузырь сразу - резкий эффект
     setTimeout(() => {
-      removeBubble(bubbleId, nodes)
+      const remainingNodes = removeBubble(bubbleId, nodes)
+      if (onBubblePopped) {
+        onBubblePopped(remainingNodes)
+      }
     }, 50) // Минимальная задержка для применения физики
   }
 

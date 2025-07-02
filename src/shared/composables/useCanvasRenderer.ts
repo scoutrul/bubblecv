@@ -176,15 +176,34 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
     context.save()
     
-    // Особая отрисовка для скрытого пузыря
+    // Проверяем корректность координат и размера
+    if (!Number.isFinite(bubble.x) || !Number.isFinite(bubble.y) || !Number.isFinite(bubble.currentRadius)) {
+      console.warn('Invalid bubble coordinates or radius:', {
+        id: bubble.id,
+        name: bubble.name,
+        x: bubble.x,
+        y: bubble.y,
+        radius: bubble.currentRadius,
+        baseRadius: bubble.baseRadius,
+        skillLevel: bubble.skillLevel,
+        vx: bubble.vx,
+        vy: bubble.vy
+      })
+      context.restore()
+      return
+    }
+    
+    // Защищаем от отрицательных значений радиуса
+    const radius = Math.max(0, bubble.currentRadius)
+    const x = bubble.x
+    const y = bubble.y
+    
+    // Особая отрисовка для скрытых пузырей
     if (bubble.bubbleType === 'hidden') {
       const hiddenConfig = GAME_CONFIG.hiddenBubble
       context.globalAlpha = hiddenConfig.opacity
-      const x = bubble.x
-      const y = bubble.y
-      const radius = bubble.currentRadius * hiddenConfig.sizeMultiplier
       if (hiddenConfig.hasGradient && hiddenConfig.gradientColors) {
-        const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
+        const gradient = context.createRadialGradient(x, y, 0, x, y, radius * hiddenConfig.sizeMultiplier)
         hiddenConfig.gradientColors.forEach((color, index) => {
           const stop = index / (hiddenConfig.gradientColors.length - 1)
           gradient.addColorStop(stop, color)
@@ -194,7 +213,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         context.fillStyle = '#64748B11' // fallback
       }
       context.beginPath()
-      context.arc(x, y, radius, 0, Math.PI * 2)
+      context.arc(x, y, radius * hiddenConfig.sizeMultiplier, 0, Math.PI * 2)
       context.fill()
       context.restore()
       return
@@ -203,11 +222,6 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     if (bubble.isHidden) {
       context.globalAlpha = 0.1
     }
-    
-    // Позиция и размер пузыря
-    const x = bubble.x
-    const y = bubble.y
-    const radius = bubble.currentRadius
     
     // Особая отрисовка для философских пузырей
     if (bubble.isEasterEgg) {

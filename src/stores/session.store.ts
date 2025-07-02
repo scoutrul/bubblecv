@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { UserSession, ApiResponse } from '@shared/types'
+import type { UserSession } from '@shared/types'
 import { GAME_CONFIG } from '@shared/config/game-config'
 import { useUiEventStore } from '@/stores/ui-event.store'
 
@@ -23,6 +23,7 @@ export const useSessionStore = defineStore('session', () => {
   const visitedBubbles = computed(() => session.value?.visitedBubbles || [])
   const agreementScore = computed(() => session.value?.agreementScore || 0)
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
+  const hasUnlockedFirstToughBubbleAchievement = computed(() => session.value?.hasUnlockedFirstToughBubbleAchievement || false)
 
   const xpProgress = computed(() => {
     if (!session.value) return 0
@@ -89,7 +90,8 @@ export const useSessionStore = defineStore('session', () => {
         gameCompleted: false,
         hasDestroyedToughBubble: false,
         startTime: new Date(),
-        lastActivity: new Date()
+        lastActivity: new Date(),
+        hasUnlockedFirstToughBubbleAchievement: false
       }
 
     } catch (err) {
@@ -278,7 +280,8 @@ export const useSessionStore = defineStore('session', () => {
       gameCompleted: false,
       hasDestroyedToughBubble: false,
       startTime: new Date(),
-      lastActivity: new Date()
+      lastActivity: new Date(),
+      hasUnlockedFirstToughBubbleAchievement: false
     }
 
     // Показываем приветственную модалку
@@ -291,9 +294,10 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   const unlockFirstToughBubbleAchievement = async (): Promise<void> => {
-    if (!session.value || session.value.hasDestroyedToughBubble) return
+    if (!session.value || session.value.hasUnlockedFirstToughBubbleAchievement) return
     
     session.value.hasDestroyedToughBubble = true
+    session.value.hasUnlockedFirstToughBubbleAchievement = true
     
     const { useGameStore } = await import('@/stores/game.store')
     const gameStore = useGameStore()
@@ -338,6 +342,7 @@ export const useSessionStore = defineStore('session', () => {
     nextLevelXP,
     canLevelUp,
     isAlive,
+    hasUnlockedFirstToughBubbleAchievement,
     loadSession,
     gainXP,
     gainBubbleXP,

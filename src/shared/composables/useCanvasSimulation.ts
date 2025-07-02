@@ -11,7 +11,7 @@ import { useCanvasInteraction } from './useCanvasInteraction'
 
 export function useCanvasSimulation(
   canvasRef: Ref<HTMLCanvasElement | null>,
-  onBubblePopped?: () => void
+  onBubblePopped?: (nodes: SimulationNode[]) => void
 ) {
   const isInitialized = ref(false)
   
@@ -91,9 +91,9 @@ export function useCanvasSimulation(
       simulation.nodes(nodes)
     }
     
-    // Вызываем callback если он предоставлен
+    // Вызываем callback с обновленным списком узлов
     if (onBubblePopped) {
-      onBubblePopped()
+      onBubblePopped(nodes)
     }
   }
 
@@ -127,15 +127,13 @@ export function useCanvasSimulation(
       canvasEffects.createXPFloatingText,
       canvasEffects.createLifeLossFloatingText,
       explodeBubble,
-      (bubbleId: string) => {
+      (bubbleId: string, currentNodes: SimulationNode[]) => {
         // Эта функция будет передана как `removeBubble` в `useCanvasInteraction`
-        // Она удаляет пузырь и вызывает колбэк для проверки
-        nodes = bubbleManager.removeBubble(bubbleId, nodes)
-        physicsSimulation.updateNodes(nodes)
-        if (onBubblePopped) {
-          onBubblePopped()
-        }
-        return nodes
+        // Она удаляет пузырь и возвращает обновленный список
+        const newNodes = bubbleManager.removeBubble(bubbleId, currentNodes)
+        physicsSimulation.updateNodes(newNodes)
+        nodes = newNodes // Обновляем локальное состояние
+        return newNodes
       }
     )
 

@@ -25,6 +25,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
 import { useCanvasSimulation } from '@/shared/composables'
+import type { SimulationNode } from '@/shared/composables/types'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
@@ -56,13 +57,13 @@ const getBubblesToRender = () => {
 }
 
 // Функция для проверки и обновления года
-const checkBubblesAndAdvance = () => {
-  // Получаем все доступные пузыри до текущего года, исключая скрытые
-  const visibleBubbles = getBubblesToRender()
-    .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
-  const hasUnpoppedBubbles = visibleBubbles.some(bubble => !bubble.isPopped)
+const checkBubblesAndAdvance = (currentNodes: SimulationNode[]) => {
+  // Проверяем, остались ли на экране "основные" пузыри (обычные или крепкие)
+  const hasCoreBubbles = currentNodes.some(
+    n => !n.isEasterEgg && !n.isHidden
+  )
 
-  if (!hasUnpoppedBubbles && props.currentYear < props.endYear) {
+  if (!hasCoreBubbles && props.currentYear < props.endYear) {
     // Ищем следующий год с новыми пузырями
     const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(props.currentYear, sessionStore.visitedBubbles)
     
@@ -85,15 +86,32 @@ const {
 
 // Следим за изменением года
 watch(() => props.currentYear, (newYear, oldYear) => {
-  if (isLoading.value || !isInitialized.value) return;
+  if (isLoading.value || !isInitialized.value) return
 
   // Если движемся вперед во времени, добавляем новый скрытый пузырь
   if (newYear > oldYear) {
-    bubbleStore.addHiddenBubble();
+    bubbleStore.addHiddenBubble()
   }
 
   const filteredBubbles = getBubblesToRender()
-    updateBubbles(filteredBubbles)
+
+  // Проверяем, есть ли в этом году "основные" пузыри (обычные или крепкие)
+  const hasCoreBubbles = filteredBubbles.some(b => !b.isEasterEgg && !b.isHidden)
+
+  // Если основных пузырей нет, ищем следующий год, где они есть
+  if (!hasCoreBubbles && newYear < props.endYear) {
+    const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(newYear, sessionStore.visitedBubbles)
+    if (nextYearWithBubbles !== null) {
+      // Плавно переключаемся на следующий доступный год
+      setTimeout(() => emit('update:currentYear', nextYearWithBubbles), 300)
+    } else {
+      // Если следующих годов с пузырями нет, просто обновляем канвас (он будет пуст)
+      updateBubbles(filteredBubbles)
+    }
+    return
+  }
+  
+  updateBubbles(filteredBubbles)
 })
 
 // Этот watch исправляет проблему с пустой инициализацией
@@ -141,7 +159,7 @@ onMounted(() => {
 
     // После сброса немедленно проверяем, нужно ли переключить год,
     // так как на стартовом году может не быть пузырей.
-    checkBubblesAndAdvance()
+    checkBubblesAndAdvance([])
   }
 
   window.addEventListener('game-reset', handleGameReset)

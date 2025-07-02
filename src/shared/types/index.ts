@@ -47,6 +47,7 @@ export interface UserSession {
   hasDestroyedToughBubble?: boolean
   startTime: Date
   lastActivity: Date
+  hasUnlockedFirstToughBubbleAchievement: boolean
 }
 
 export interface Achievement {
