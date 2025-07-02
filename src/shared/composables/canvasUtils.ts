@@ -5,7 +5,7 @@ export const isWindows = (): boolean => {
   return typeof window !== 'undefined' && /Win/.test(window.navigator.platform)
 }
 
-// Адаптивный расчет размеров пузырей
+// Адаптивный расчет размеров пузырей с улучшенными минимальными размерами
 export const calculateAdaptiveSizes = (bubbleCount: number, width: number, height: number): { min: number, max: number } => {
   // Цель: заполнить 75% экрана пузырями
   const screenArea = width * height * 0.75
@@ -16,13 +16,13 @@ export const calculateAdaptiveSizes = (bubbleCount: number, width: number, heigh
   const aspectRatio = width / height
   const aspectFactor = Math.min(1.2, Math.max(0.8, aspectRatio / 1.5))
   
-  // Диапазон размеров на основе среднего с учетом соотношения сторон
-  const baseMinRadius = Math.max(10, averageRadius * 0.4 * aspectFactor)
-  const baseMaxRadius = Math.min(150, averageRadius * 1.5 * aspectFactor)
+  // Увеличиваем минимальный размер для лучшей читаемости
+  const baseMinRadius = Math.max(25, averageRadius * 0.5 * aspectFactor) // Увеличили с 10 до 25
+  const baseMaxRadius = Math.min(180, averageRadius * 1.6 * aspectFactor) // Также немного увеличили максимум
   
   // Ограничиваем размеры чтобы пузыри всегда помещались на экране
   const maxAllowedRadius = Math.min(width, height) / 8
-  const minRadius = Math.min(baseMinRadius, maxAllowedRadius * 0.3)
+  const minRadius = Math.min(baseMinRadius, maxAllowedRadius * 0.4) // Увеличили множитель с 0.3 до 0.4
   const maxRadius = Math.min(baseMaxRadius, maxAllowedRadius)
   
   return { min: minRadius, max: maxRadius }

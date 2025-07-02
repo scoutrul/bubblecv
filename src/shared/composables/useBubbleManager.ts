@@ -122,8 +122,25 @@ export function useBubbleManager() {
       const randomX = (Math.random() - 0.5) * 0.05
       const randomY = (Math.random() - 0.5) * 0.05
       
+      // Применяем основное движение
       bubble.x += oscillationX + randomX
       bubble.y += oscillationY + randomY
+
+      // Плавное затухание скорости для лучшей инерции (если есть скорость от физической симуляции)
+      if (bubble.vx !== undefined && bubble.vy !== undefined) {
+        // Применяем скорость к позиции
+        bubble.x += bubble.vx * 0.1 // Уменьшили множитель для более плавного движения
+        bubble.y += bubble.vy * 0.1
+        
+        // Плавное затухание скорости для естественной инерции
+        const dampingFactor = 0.92 // Медленное затухание для долгой инерции
+        bubble.vx *= dampingFactor
+        bubble.vy *= dampingFactor
+        
+        // Очищаем очень маленькие скорости для производительности
+        if (Math.abs(bubble.vx) < 0.01) bubble.vx = 0
+        if (Math.abs(bubble.vy) < 0.01) bubble.vy = 0
+      }
 
       // Границы, позволяющие пузырям немного выходить за экран
       const overlap = 30 // На сколько пикселей пузырь может выйти за границу

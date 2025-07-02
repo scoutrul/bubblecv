@@ -15,13 +15,13 @@ export function usePhysicsSimulation() {
     
     // Инициализируем симуляцию с улучшенной физикой для импульсов
     simulation = d3.forceSimulation<SimulationNode>()
-      .force('center', d3.forceCenter(width / 2, centerY).strength(0.005))
+      .force('center', d3.forceCenter(width / 2, centerY).strength(0.003)) // Уменьшили силу центра
       .force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.7))
-      .force('charge', d3.forceManyBody().strength(-12))
-      .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.003))
+      .force('charge', d3.forceManyBody().strength(-8)) // Уменьшили отталкивание
+      .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.002)) // Уменьшили притяжение к центру
       .alpha(0.3)
       .alphaDecay(0) // Бесконечное движение
-      .velocityDecay(0.75) // Уменьшили затухание для более заметного движения
+      .velocityDecay(0.85) // Увеличили затухание для более плавного движения и лучшей инерции
 
     // Принудительно поддерживаем симуляцию
     restartInterval = window.setInterval(() => {
@@ -29,7 +29,6 @@ export function usePhysicsSimulation() {
         simulation.alpha(0.3).restart()
       }
     }, 3000)
-
 
     return simulation
   }
@@ -47,8 +46,6 @@ export function usePhysicsSimulation() {
       .force('center', d3.forceCenter(newWidth / 2, (effectiveHeight / 2) + hudHeight))
       .alpha(0.3)
       .restart()
-
-
   }
 
   // Обновление узлов симуляции
@@ -58,7 +55,7 @@ export function usePhysicsSimulation() {
     simulation.alpha(0.5).restart()
   }
 
-  // Импульсное отталкивание соседей при ховере
+  // Импульсное отталкивание соседей при ховере с улучшенной инерцией
   const pushNeighbors = (centerBubble: SimulationNode, pushRadius: number, pushStrength: number, nodes: SimulationNode[]) => {
     let affectedCount = 0
     
@@ -75,36 +72,38 @@ export function usePhysicsSimulation() {
         const normalizedDx = dx / distance
         const normalizedDy = dy / distance
         
-        // Увеличиваем силу и делаем её более заметной
+        // Возвращаем более сильное отталкивание, но улучшаем обработку скорости
         const force = pushStrength * (1 - distance / pushRadius) * 3
         
-        // Применяем импульс к скорости более агрессивно
-        bubble.vx = (bubble.vx || 0) + normalizedDx * force
-        bubble.vy = (bubble.vy || 0) + normalizedDy * force
+        // Применяем импульс к скорости более мягко для лучшей инерции
+        const currentVx = bubble.vx || 0
+        const currentVy = bubble.vy || 0
+        
+        // Добавляем к существующей скорости, а не заменяем её
+        bubble.vx = currentVx + normalizedDx * force
+        bubble.vy = currentVy + normalizedDy * force
         
         // Также немного сдвигаем позицию для мгновенного эффекта
         bubble.x += normalizedDx * force * 0.5
         bubble.y += normalizedDy * force * 0.5
         
-        // Ограничиваем максимальную скорость
-        const maxVelocity = 15 // Увеличили максимальную скорость
-        const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
+        // Более мягкое ограничение максимальной скорости для сохранения инерции
+        const maxVelocity = 15 // Возвращаем более высокую скорость
+        const currentVelocity = Math.sqrt(bubble.vx ** 2 + bubble.vy ** 2)
         if (currentVelocity > maxVelocity) {
           const scale = maxVelocity / currentVelocity
-          bubble.vx = (bubble.vx || 0) * scale
-          bubble.vy = (bubble.vy || 0) * scale
+          bubble.vx = bubble.vx * scale
+          bubble.vy = bubble.vy * scale
         }
         
         affectedCount++
       }
     })
     
-    // Перезапускаем симуляцию для лучшего отклика
+    // Перезапускаем симуляцию для хорошего отклика
     if (simulation && affectedCount > 0) {
       simulation.alpha(0.5).restart()
     }
-    
-
   }
 
   // Отталкивание от точки клика как от стены (взрыв)
@@ -176,7 +175,6 @@ export function usePhysicsSimulation() {
       simulation.stop()
       simulation = null
     }
-
   }
 
   return {
