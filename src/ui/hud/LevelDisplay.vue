@@ -6,13 +6,13 @@
         <span :class="titleClass">Уровень {{ currentLevel }}</span>
       </span>
       <span :class="subtitleClass">{{ levelTitle }}</span>
-      <div v-if="currentLevel >= 3" class="glossy-shine"></div>
+      <div v-if="currentLevel >= 1" class="glossy-shine"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onUnmounted, watch } from 'vue'
 import { gsap } from 'gsap'
 
 interface Props {
@@ -25,23 +25,22 @@ const props = defineProps<Props>()
 
 // Анимация глянцевого эффекта
 const startShineAnimation = () => {
-  if (props.currentLevel >= 3) {
-    gsap.to('.glossy-shine', {
-      x: '150%',
-      duration: 2,
-      ease: 'power1.inOut',
-      repeat: -1,
-      repeatDelay: 3,
-      onComplete: () => {
-        gsap.set('.glossy-shine', { x: '-150%' })
+  gsap.killTweensOf('.glossy-shine')
+  if (props.currentLevel >= 1) {
+    gsap.fromTo('.glossy-shine', 
+      { x: '-100%' },
+      {
+        x: '100%',
+        duration: 1,
+        ease: 'power1.out',
+        repeat: -1,
+        repeatDelay: 2
       }
-    })
+    )
   }
 }
 
-onMounted(() => {
-  startShineAnimation()
-})
+watch(() => props.currentLevel, startShineAnimation, { immediate: true })
 
 onUnmounted(() => {
   gsap.killTweensOf('.glossy-shine')
@@ -103,15 +102,19 @@ const subtitleClass = computed(() => {
 .glossy-shine {
   @apply absolute inset-0 pointer-events-none;
   background: linear-gradient(
-    90deg,
+    110deg,
     transparent 0%,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.1) 45%,
-    rgba(255, 255, 255, 0.2) 50%,
-    rgba(255, 255, 255, 0.1) 55%,
-    rgba(255, 255, 255, 0) 100%
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.2) 40%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.2) 60%,
+    rgba(255, 255, 255, 0.05) 75%,
+    transparent 100%
   );
-  transform: translateX(-150%);
+  transform: translateX(-100%);
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 /* --- Level 1 --- */
