@@ -161,11 +161,12 @@ export const useSessionStore = defineStore('session', () => {
     
     const achievement = await gameStore.unlockAchievement('philosophy-master')
     if (achievement) {
-      // Начисляем XP за достижение
-      await gainXP(achievement.xpReward)
+      // Начисляем XP только за достижение (основной XP начисляется отдельно)
+      return await gainXP(achievement.xpReward)
     }
     
-    return await gainXP(GAME_CONFIG.philosophyCorrectXp)
+    // Если достижение уже было разблокировано, не начисляем дополнительный XP
+    return false
   }
 
   // Потерять жизнь за неправильный ответ на философский вопрос

@@ -128,8 +128,13 @@ export function useCanvasSimulation(
       canvasEffects.createLifeLossFloatingText,
       explodeBubble,
       (bubbleId: string) => {
+        // Эта функция будет передана как `removeBubble` в `useCanvasInteraction`
+        // Она удаляет пузырь и вызывает колбэк для проверки
         nodes = bubbleManager.removeBubble(bubbleId, nodes)
         physicsSimulation.updateNodes(nodes)
+        if (onBubblePopped) {
+          onBubblePopped()
+        }
         return nodes
       }
     )

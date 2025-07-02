@@ -254,7 +254,7 @@ export const useModalStore = defineStore('modals', () => {
           description: levelData?.description || 'Новый уровень разблокирован за правильный ответ на философский вопрос!',
           icon: getLevelIcon(sessionStore.currentLevel),
           currentXP: sessionStore.currentXP,
-          xpGained: 10, // XP за философский пузырь
+          xpGained: 5, // XP только за достижение (базовый XP за пузырь начисляется отдельно)
           unlockedFeatures: (levelData as any)?.unlockedFeatures || []
         }
         

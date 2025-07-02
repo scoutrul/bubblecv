@@ -150,30 +150,41 @@ export function useCanvasInteraction(
         if (clickedBubble.isTough) {
           const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
           
-          if (!result.isReady) {
-            // Только промежуточные клики дают XP
-            createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
-            const leveledUp = await sessionStore.gainXP(1)
-
-            // Проверяем повышение уровня
-            if (leveledUp) {
-              showLevelUpModal(1)
-            }
-
-            // Анимация клика для крепкого пузыря
-            const originalRadius = clickedBubble.targetRadius
-            clickedBubble.targetRadius = originalRadius * 0.95
-            setTimeout(() => {
-              clickedBubble.targetRadius = originalRadius * 1.1
-              setTimeout(() => {
-                clickedBubble.targetRadius = originalRadius
-              }, 100)
-            }, 50)
+          if (result.isReady) {
+            // Пузырь пробит!
+            await sessionStore.unlockFirstToughBubbleAchievement()
             
-            return // Не открываем модал и не помечаем как посещенный
+            // Создаем эффект взрыва, но не удаляем сразу
+            explodeFromPoint(clickedBubble.x, clickedBubble.y, clickedBubble.baseRadius * 4, 15, nodes, width, height)
+            
+            // Удаляем пузырь со сцены с небольшой задержкой для анимации
+            setTimeout(() => {
+              removeBubble(clickedBubble.id, nodes)
+            }, 100)
+            
+            return // Завершаем обработку для крепкого пузыря
           }
+
+          // Промежуточные клики дают XP
+          createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
+          const leveledUp = await sessionStore.gainXP(1)
+
+          // Проверяем повышение уровня
+          if (leveledUp) {
+            showLevelUpModal(1)
+          }
+
+          // Анимация клика для крепкого пузыря
+          const originalRadius = clickedBubble.targetRadius
+          clickedBubble.targetRadius = originalRadius * 0.95
+          setTimeout(() => {
+            clickedBubble.targetRadius = originalRadius * 1.1
+            setTimeout(() => {
+              clickedBubble.targetRadius = originalRadius
+            }, 100)
+          }, 50)
           
-          await sessionStore.unlockFirstToughBubbleAchievement()
+          return // Не открываем модал и не помечаем как посещенный
         }
         
         // Пузырь считается посещенным, как только мы по нему кликнули
@@ -187,8 +198,9 @@ export function useCanvasInteraction(
           const explosionStrength = 25
           explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
           
-          // Начисляем XP за секретный пузырь
-          const secretXP = 10
+          // Начисляем XP за секретный пузырь (используем централизованную логику)
+          const { XP_CALCULATOR } = await import('@shared/config/game-config')
+          const secretXP = XP_CALCULATOR.getSecretBubbleXP()
           const leveledUp = await sessionStore.gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
           
@@ -197,7 +209,7 @@ export function useCanvasInteraction(
             showLevelUpModal(secretXP)
           }
           
-          // Разблокируем достижение
+          // Разблокируем достижение (отдельно от основного XP)
           const achievement = await gameStore.unlockAchievement('secret-bubble-discoverer')
           if (achievement) {
             const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
@@ -299,21 +311,21 @@ export function useCanvasInteraction(
       removeBubble(bubble.id, nodes)
       return // Завершаем обработку здесь
     } else if (bubble.isEasterEgg) {
+      // Философский пузырь ВСЕГДА дает базовый XP за разбиение (независимо от ответа)
+      const { XP_CALCULATOR } = await import('@shared/config/game-config')
+      xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
+      leveledUp = await sessionStore.gainXP(xpGained)
+      createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
+      
       if (isPhilosophyNegative) {
-        // Отрицательный ответ на философский вопрос - показываем потерю жизни
+        // Дополнительно показываем потерю жизни при неправильном ответе
         createLifeLossFloatingText(bubble.x, bubble.y)
-      } else {
-        // Положительный ответ - обычный XP (зеленый цвет)
-        xpGained = GAME_CONFIG.xpPerEasterEgg
-        leveledUp = await sessionStore.gainXP(xpGained)
-        createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
       }
     } else {
-      const expertiseLevel = bubble.skillLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel
-      const xpConfig = GAME_CONFIG.xpPerExpertiseLevel[expertiseLevel]
-      xpGained = xpConfig || 1
-      
-      leveledUp = await sessionStore.gainBubbleXP(expertiseLevel)
+      // Обычный пузырь - используем централизованную логику
+      const { XP_CALCULATOR } = await import('@shared/config/game-config')
+      xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      leveledUp = await sessionStore.gainXP(xpGained)
       
       // Создаём визуальный эффект получения XP при исчезновении (зеленый цвет)
       if (xpGained > 0) {

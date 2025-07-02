@@ -25,7 +25,8 @@ export const GAME_CONFIG = {
   
   // Bubble Experience - опыт за уровни экспертизы
   xpPerBubble: 5,      // Уменьшено с 10
-  xpPerEasterEgg: 10,  // Уменьшено с 20
+  xpPerEasterEgg: 5,   // Философский пузырь - базовый XP за разбиение (независимо от ответа)
+  xpPerSecretBubble: 10, // Скрытый пузырь - только за сам пузырь, без достижения
   
   // XP за уровни экспертизы пузырей
   xpPerExpertiseLevel: {
@@ -42,7 +43,7 @@ export const GAME_CONFIG = {
   
   // Game Over & Restart
   restartYear: 2015,             // С какого года начинается игра заново
-  gameOverBlockBubbles: true,  // Блокировать пузыри при Game Over
+  gameOverBlockBubbles: true,
   
   // Expertise Levels - Уровни экспертизы (с уменьшенными размерами)
   expertiseLevels: {
@@ -146,6 +147,58 @@ export const GAME_CONFIG = {
     glowSize: 10, // размер свечения
     name: 'Крепкий пузырь'
   } as const,
+} as const
+
+// Централизованные функции для расчета XP
+export const XP_CALCULATOR = {
+  // Расчет XP за обычный пузырь
+  getBubbleXP: (skillLevel: string): number => {
+    return GAME_CONFIG.xpPerExpertiseLevel[skillLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel] || 1
+  },
+  
+  // Расчет XP за философский пузырь
+  getPhilosophyBubbleXP: (): number => {
+    return GAME_CONFIG.xpPerEasterEgg
+  },
+  
+  // Расчет XP за скрытый пузырь  
+  getSecretBubbleXP: (): number => {
+    return GAME_CONFIG.xpPerSecretBubble
+  },
+  
+  // Расчет XP за достижение
+  getAchievementXP: (achievementId: string): number => {
+    switch (achievementId) {
+      case 'philosophy-master':
+      case 'on-the-edge':
+      case 'first-level-master':
+      case 'bubble-explorer-10':
+        return GAME_CONFIG.achievementXP.basic
+      case 'tough-bubble-popper':
+      case 'bubble-explorer-30':
+        return GAME_CONFIG.achievementXP.intermediate
+      case 'secret-bubble-discoverer':
+      case 'year-jumper':
+      case 'bubble-explorer-50':
+        return GAME_CONFIG.achievementXP.advanced
+      case 'completionist':
+      case 'final-level-master':
+        return GAME_CONFIG.achievementXP.master
+      default:
+        return GAME_CONFIG.achievementXP.basic
+    }
+  },
+  
+  // Общий расчет XP за пузырь (включая тип пузыря)
+  getTotalBubbleXP: (bubble: { isEasterEgg?: boolean; isHidden?: boolean; skillLevel?: string }): number => {
+    if (bubble.isHidden) {
+      return XP_CALCULATOR.getSecretBubbleXP()
+    } else if (bubble.isEasterEgg) {
+      return XP_CALCULATOR.getPhilosophyBubbleXP()
+    } else {
+      return XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+    }
+  }
 } as const
 
 export type GameLevel = keyof typeof GAME_CONFIG.levelRequirements

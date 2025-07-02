@@ -19,10 +19,10 @@
     <!-- Question -->
     <div class="bg-background/50 rounded-lg p-6 mb-6">
       <h3 class="text-lg font-semibold text-text-primary mb-3">
-        {{ question.question }}
+        {{ question?.question }}
       </h3>
       <p class="text-text-secondary leading-relaxed">
-        {{ question.context }}
+        {{ question?.context }}
       </p>
     </div>
 
@@ -46,7 +46,7 @@
         
         <h4 class="font-semibold text-text-primary mb-2">Принимаю</h4>
         <p class="text-sm text-text-secondary leading-relaxed">
-          {{ question.agreeText || 'Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
+          {{ question?.agreeText || 'Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
         </p>
         
         <div class="absolute inset-0 bg-green-500/5 rounded-xl opacity-0 
@@ -71,7 +71,7 @@
         
         <h4 class="font-semibold text-text-primary mb-2">Не принимаю</h4>
         <p class="text-sm text-text-secondary leading-relaxed">
-          {{ question.disagreeText || 'Я не согласен с этим подходом и предпочитаю работать по-другому.' }}
+          {{ question?.disagreeText || 'Я не согласен с этим подходом и предпочитаю работать по-другому.' }}
         </p>
         
         <div class="absolute inset-0 bg-red-500/5 rounded-xl opacity-0 
@@ -97,7 +97,7 @@ import type { PhilosophyQuestion } from '@shared/types'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores/modal.store'
 import { useSessionStore } from '@/stores/session.store'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import { GAME_CONFIG, XP_CALCULATOR } from '@shared/config/game-config'
 import { computed, ref } from 'vue'
 
 interface Props {
@@ -116,7 +116,8 @@ const emit = defineEmits<Emits>()
 const modalStore = useModalStore()
 const sessionStore = useSessionStore()
 
-const philosophyXP = GAME_CONFIG.philosophyCorrectXp
+// Используем централизованную логику для расчета XP
+const philosophyXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP())
 const philosophyLives = GAME_CONFIG.philosophyWrongLives
 
 const handleAnswer = (answer: 'agree' | 'disagree') => {

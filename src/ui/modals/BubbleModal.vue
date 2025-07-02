@@ -1,7 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    @close="$emit('close')"
+    @close="$emit('continue')"
     data-testid="bubble-modal-wrapper"
   >
     <div class="modal-content-wrapper">
@@ -82,9 +82,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import type { Bubble, ExpertiseLevel } from '@shared/types'
+import type { Bubble } from '@shared/types'
 import { GAME_CONFIG } from '@/shared/config/game-config'
 import { SKILL_LEVEL_LABELS } from '@shared/constants/skill-levels'
+import { XP_CALCULATOR } from '@shared/config/game-config'
 
 interface Props {
   isOpen: boolean
@@ -99,32 +100,16 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const getSkillLevelLabel = (level?: string) => {
-  const labels = {
-    'novice': 'Новичок',
-    'intermediate': 'Средний',
-    'confident': 'Уверенный',
-    'expert': 'Эксперт',
-    'master': 'Мастер'
-  }
-  return labels[level as keyof typeof labels] || level
-}
-
 const skillLevelClass = computed(() => {
   if (!props.bubble?.skillLevel) return ''
   return `skill-${props.bubble.skillLevel}`
 })
 
-const getExperienceYears = () => {
-  if (!props.bubble) return 0
-  const currentYear = new Date().getFullYear()
-  return currentYear - props.bubble.year
-}
-
 const xpReward = computed(() => {
   if (!props.bubble) return 0
-  if (props.bubble.isEasterEgg) return GAME_CONFIG.xpPerEasterEgg
-  return GAME_CONFIG.xpPerExpertiseLevel[props.bubble.skillLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel] || 1
+  
+  // Используем централизованную логику для расчета XP
+  return XP_CALCULATOR.getTotalBubbleXP(props.bubble)
 })
 
 const getBubbleColor = () => {
