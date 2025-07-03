@@ -1,21 +1,24 @@
-import type { Bubble } from '../types'
+import type { NormalizedSkillBubble, NormalizedAchievement } from '../types/normalized'
+import type { Bubble, Achievement } from '../types/data'
+import { XP_CALCULATOR } from '../config/game-config'
 
-export function normalizeBubble(raw: any): Bubble {
+export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedSkillBubble {
+  return {
+    ...bubble,
+    id,
+    isActive: false,
+    isPopped: false,
+    isTough: false,
+    toughClicks: 0,
+    size: 'medium', // TODO: add size
+  }
+}
+
+export function normalizeAchievement(raw: Achievement): NormalizedAchievement {
   return {
     ...raw,
-    isActive: raw.isActive !== false,
-    isPopped: false,
-    isVisited: false,
-    isEasterEgg: !!raw.isEasterEgg,
-    isHidden: !!raw.isHidden,
-    isTough: !!raw.isTough,
-    toughClicks: raw.toughClicks || 0,
-    currentClicks: 0,
-    color: raw.color || '#3b82f6',
-    projects: Array.isArray(raw.projects) ? raw.projects : (raw.projects ? JSON.parse(raw.projects) : []),
-    link: raw.link || '',
-    size: raw.size || 'medium',
-    bubbleType: raw.bubbleType || 'regular',
-    description: raw.description || ''
+    xpReward: XP_CALCULATOR.getAchievementXP(raw.id),
+    isUnlocked: false,
+    isShown: false
   }
 } 

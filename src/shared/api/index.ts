@@ -1,15 +1,26 @@
-import mockData from '../data/mockData.json'
-import contentLevelsData from '../data/contentLevels.json'
-import type { Bubble, Level } from '../types'
-import { normalizeBubble } from '../utils/normalize'
+import skills from '../data/skills.json'
+import levels from '../data/levels.json'
+import achievements from '../data/achievements.json'
+
+import type { NormalizedSkillBubble, NormalizedAchievement } from '../types/normalized'
+import type { Bubble, Achievement } from '../types/data'
+import type { Level } from '../types/levels'
+
+import { normalizeSkillBubble, normalizeAchievement } from '../utils/normalize'
 
 export const api = {
-  async getContentLevels(): Promise<{ data: { levels: Level[] } }> {
-    return { data: contentLevelsData }
+  async getLevels(): Promise<{ data: Level[] }> {
+    const data: Level[] = levels.levels
+    return { data }
   },
   
-  async getBubbles(): Promise<{ data: Bubble[] }> {
-    const bubbles: Bubble[] = mockData.bubbles.map(normalizeBubble)
-    return { data: bubbles }
-  }
+  async getBubbles(): Promise<{ data: NormalizedSkillBubble[] }> {
+    const data: NormalizedSkillBubble[] = skills.skills.map((bubble, id) => normalizeSkillBubble(bubble as Bubble, id))
+    return { data }
+  },
+
+  async getAchievements(): Promise<{ data: NormalizedAchievement[] }> {
+    const data: NormalizedAchievement[] = achievements.achievements.map((achievement) => normalizeAchievement(achievement as Achievement))
+    return { data }
+  },
 } 

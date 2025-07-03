@@ -1,0 +1,125 @@
+{
+  "skills":
+    [
+      {
+        "name": "HTML",
+        "year": 2000,
+        "skillLevel": "novice",
+        "description": "Теги <b>, <i>, <table>, ручная верстка в Notepad",
+        "insight": "Первые шаги в HTML были похожи на волшебство. Всё выглядело магически — и чуть-чуть ломалось в IE6.",
+        "category": "frontend"
+      },
+      {
+        "name": "HTML",
+        "year": 2005,
+        "skillLevel": "intermediate",
+        "description": "Формы, атрибуты, фреймы, валидация, структура документа",
+        "insight": "Понимание структуры и правильных атрибутов стало основой будущего развития. HTML начал обрастать правилами.",
+        "category": "frontend"
+      },
+      {
+        "name": "HTML",
+        "year": 2010,
+        "skillLevel": "confident",
+        "description": "HTML5, семантические теги, новые API, встроенное видео",
+        "insight": "HTML стал зрелым: <article>, <section>, <nav> — теперь у каждого элемента появилась суть.",
+        "category": "frontend"
+      },
+      {
+        "name": "HTML",
+        "year": 2015,
+        "skillLevel": "expert",
+        "description": "Адаптивная разметка, доступность, взаимодействие с ARIA",
+        "insight": "Семантика без доступности — как дом без дверей. HTML стал о внимании к деталям.",
+        "category": "frontend"
+      },
+      {
+        "name": "HTML",
+        "year": 2023,
+        "skillLevel": "master",
+        "description": "Компонентный HTML, Web Components, accessibility-first подход",
+        "insight": "HTML — это язык интерфейса между человеком и машиной. И чем он чище, тем лучше тебя понимают.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "year": 2000,
+        "skillLevel": "novice",
+        "description": "Инлайн-стили, цветные шрифты, границы, background",
+        "insight": "CSS сначала казался магией: всё вроде бы работает, пока не откроешь в Netscape Navigator.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "year": 2005,
+        "skillLevel": "intermediate",
+        "description": "Каскадность, specificity, позиционирование, float-верстка",
+        "insight": "Float был злом и спасением одновременно. Появилось осознание, что CSS — это управление сложностью.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "year": 2010,
+        "skillLevel": "confident",
+        "description": "Reset/Normalize, clearfix, layout-сетки, псевдоклассы",
+        "insight": "Настоящая боль — это кроссбраузерность. В ней и рождается настоящий CSS-воин.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "year": 2015,
+        "skillLevel": "expert",
+        "description": "Flexbox, анимации, media queries, переменные через препроцессоры",
+        "insight": "Flexbox подарил свободу. А миксины в Sass дали первое чувство, что CSS — это язык программирования.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "year": 2023,
+        "skillLevel": "master",
+        "description": "CSS Grid, custom properties, Tailwind CSS, архитектура и масштабируемость",
+        "insight": "CSS стал мощным инструментом. Главное — использовать его с умом: читаемо, предсказуемо и модульно.",
+        "category": "frontend"
+      },
+      {
+        "name": "JavaScript",
+        "year": 2000,
+        "skillLevel": "novice",
+        "description": "Alert'ы, document.write, простейшие скрипты для эффектов",
+        "insight": "JavaScript казался игрушкой для того, чтобы что-то мигало. Тогда ещё никто не знал, что это станет сердцем веба.",
+        "category": "frontend"
+      },
+      {
+        "name": "JavaScript",
+        "year": 2005,
+        "skillLevel": "intermediate",
+        "description": "DOM API, события, jQuery, простая логика и формы",
+        "insight": "С появлением jQuery код стал выглядеть волшебно. JavaScript начал выходить из тени.",
+        "category": "frontend"
+      },
+      {
+        "name": "JavaScript",
+        "year": 2010,
+        "skillLevel": "confident",
+        "description": "Замыкания, таймеры, AJAX, модули, самописные паттерны",
+        "insight": "Понимание замыканий и асинхронности — момент, когда JavaScript стал взрослым.",
+        "category": "frontend"
+      },
+      {
+        "name": "JavaScript",
+        "year": 2015,
+        "skillLevel": "expert",
+        "description": "ES6+, промисы, классы, import/export, Babel, SPA",
+        "insight": "С ES6 JavaScript обрёл стройность. Теперь это был не хаос, а мощный язык с настоящим синтаксисом.",
+        "category": "frontend"
+      },
+      {
+        "name": "JavaScript",
+        "year": 2023,
+        "skillLevel": "master",
+        "description": "Modern JS: async/await, deep patterns, архитектура приложений, TypeScript-интеграция",
+        "insight": "JavaScript стал языком систем. Уже не скрипт, а платформа. Главное — мыслить не строчками, а архитектурой.",
+        "category": "frontend"
+      }
+    ]
+} 
