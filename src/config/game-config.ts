@@ -1,4 +1,4 @@
-import { SKILL_LEVELS } from '../types/skill-levels'
+import { SKILL_LEVELS, type SkillLevel } from '../types/skill-levels'
 
 export const GAME_CONFIG = {
   initialYear: 2015,
@@ -35,7 +35,6 @@ export const GAME_CONFIG = {
       color: '#334155',
       sizeMultiplier: 0.75,
       opacity: 0.85,
-
       gradientColors: ['#334155', '#475569'], // Slate
     },
     [SKILL_LEVELS.INTERMEDIATE]: {
@@ -43,7 +42,6 @@ export const GAME_CONFIG = {
       color: '#064E3B',
       sizeMultiplier: 0.8,
       opacity: 0.9,
-
       gradientColors: ['#064E3B', '#047857'], // Deep green
     },
     [SKILL_LEVELS.CONFIDENT]: {
@@ -51,7 +49,6 @@ export const GAME_CONFIG = {
       color: '#92400E',
       sizeMultiplier: 0.85,
       opacity: 0.93,
-
       gradientColors: ['#92400E', '#FBBF24'], // Amber
     },
     [SKILL_LEVELS.EXPERT]: {
@@ -59,7 +56,6 @@ export const GAME_CONFIG = {
       color: '#581C87',
       sizeMultiplier: 0.9,
       opacity: 0.95,
-
       gradientColors: ['#581C87', '#9333EA'], // Violet
     },
     [SKILL_LEVELS.MASTER]: {
@@ -67,7 +63,6 @@ export const GAME_CONFIG = {
       color: '#EAB308',
       sizeMultiplier: 0.95,
       opacity: 1,
-
       gradientColors: ['#FEF08A', '#EAB308', '#CA8A04'], // Bright Gold
     },
   } as const,
@@ -90,6 +85,15 @@ export const GAME_CONFIG = {
 
 // Централизованные функции для расчета XP
 export const XP_CALCULATOR = {  
+  getBubbleXP: (skillLevel: SkillLevel): number => {
+    return skillLevel ? GAME_CONFIG.xpPerExpertiseLevel[skillLevel] : GAME_CONFIG.xpPerExpertiseLevel[SKILL_LEVELS.NOVICE]
+  },
+  getPhilosophyBubbleXP: (): number => {
+    return GAME_CONFIG.achievementXP.intermediate
+  },
+  getSecretBubbleXP: (): number => {
+    return GAME_CONFIG.achievementXP.basic
+  },
   // Расчет XP за достижение
   getAchievementXP: (achievementId: string): number => {
     switch (achievementId) {

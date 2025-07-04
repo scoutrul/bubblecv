@@ -82,14 +82,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import type { Bubble } from '@shared/types'
-import { GAME_CONFIG } from '@/shared/config/game-config'
-import { SKILL_LEVEL_LABELS } from '@shared/constants/skill-levels'
-import { XP_CALCULATOR } from '@shared/config/game-config'
+import { GAME_CONFIG, XP_CALCULATOR } from '@/config/game-config'
+import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
+import type { NormalizedSkillBubble } from '@/types/normalized'
 
 interface Props {
   isOpen: boolean
-  bubble: Bubble | null
+  bubble: NormalizedSkillBubble | null
 }
 
 interface Emits {
@@ -109,16 +108,16 @@ const xpReward = computed(() => {
   if (!props.bubble) return 0
   
   // Используем централизованную логику для расчета XP
-  return XP_CALCULATOR.getTotalBubbleXP(props.bubble)
+  return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
 })
 
 const getBubbleColor = () => {
   if (!props.bubble) return '#3b82f6'
-  if (props.bubble.isEasterEgg) {
-    return GAME_CONFIG.philosophyBubble.gradientColors[0]
+  if (props.bubble.isQuestion) {
+    return GAME_CONFIG.expertiseBubbles[props.bubble.skillLevel].gradientColors[0]
   }
   
-  const expertiseConfig = GAME_CONFIG.expertiseLevels[props.bubble.skillLevel as keyof typeof GAME_CONFIG.expertiseLevels]
+  const expertiseConfig = GAME_CONFIG.expertiseBubbles[props.bubble.skillLevel]
   return expertiseConfig?.color || '#3b82f6'
 }
 </script>
@@ -202,26 +201,6 @@ const getBubbleColor = () => {
 
 .description-text {
   @apply text-text-secondary leading-relaxed;
-}
-
-.projects-list {
-  @apply space-y-2;
-}
-
-.project-item {
-  @apply flex items-center gap-2 text-text-secondary;
-}
-
-.project-item::before {
-  content: "▸";
-  @apply text-primary;
-}
-
-.external-link {
-  @apply inline-flex items-center gap-2;
-  @apply text-primary hover:text-primary-light;
-  @apply transition-colors duration-200;
-  @apply underline underline-offset-2;
 }
 
 .timeline-info {

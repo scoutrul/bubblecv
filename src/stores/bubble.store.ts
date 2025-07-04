@@ -1,19 +1,21 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Bubble, SkillLevel, BubbleSize } from '@shared/types'
-import { SKILL_LEVEL_MIGRATION_MAP, SKILL_TO_BUBBLE_SIZE, SKILL_LEVELS, BUBBLE_SIZES } from '@shared/constants/skill-levels'
-import { api } from '@shared/api'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import type { SimulationNode } from '@/types/canvas'
+import { SKILL_LEVELS } from '@/types/skill-levels'
+import { api } from '@/api'
+import { GAME_CONFIG } from '@/config/game-config'
+import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { BubbleSizes } from '@/types/client'
 
 export const useBubbleStore = defineStore('bubble', () => {
-  const bubbles = ref<Bubble[]>([])
+  const bubbles = ref<NormalizedSkillBubble[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   let loadingPromise: Promise<void> | null = null
   const toughBubbleClicks = ref<Record<string, number>>({})
   
   const activeHiddenBubbles = computed(() => {
-    return bubbles.value.filter(b => b.bubbleType === 'hidden' && !b.isPopped && !b.isVisited)
+    return bubbles.value.filter((b: NormalizedSkillBubble) => b.isHidden && !b.isPopped)
   })
 
   const loadBubbles = async (forceReload: boolean = false) => {
@@ -37,10 +39,10 @@ export const useBubbleStore = defineStore('bubble', () => {
         const data = await api.getBubbles()
         
         // Трансформируем данные в правильный формат
-        bubbles.value = data.data.map((rawBubble: any) => {
+        bubbles.value = data.data.map((rawBubble: NormalizedSkillBubble) => {
           // Преобразуем уровень навыка
           const skillLevel = SKILL_LEVEL_MIGRATION_MAP[rawBubble.skillLevel as keyof typeof SKILL_LEVEL_MIGRATION_MAP] || SKILL_LEVELS.NOVICE
-          const bubbleSize: BubbleSize = SKILL_TO_BUBBLE_SIZE[skillLevel]
+          const bubbleSize: BubbleSizes = SKILL_TO_BUBBLE_SIZE[skillLevel]
           
           return {
             id: rawBubble.id,
@@ -48,23 +50,18 @@ export const useBubbleStore = defineStore('bubble', () => {
             skillLevel,
             year: rawBubble.year,
             isActive: rawBubble.isActive,
-            isEasterEgg: rawBubble.isEasterEgg,
+            isQuestion: rawBubble.isQuestion,
             isHidden: false,
             description: rawBubble.description,
-            projects: Array.isArray(rawBubble.projects) ? rawBubble.projects : (rawBubble.projects ? JSON.parse(rawBubble.projects) : []),
             isPopped: false,
-            isVisited: false,
             size: bubbleSize,
-            color: rawBubble.color || '#3b82f6',
             isTough: rawBubble.isTough || false,
             toughClicks: rawBubble.toughClicks || 0,
-            currentClicks: 0,
-            link: rawBubble.link || ''
-          } satisfies Bubble
+          }
         })
         
         // Добавляем первый скрытый пузырь, если его нет
-        if (!bubbles.value.some(b => b.bubbleType === 'hidden')) {
+        if (!bubbles.value.some((b: NormalizedSkillBubble) => b.isHidden)) {
           bubbles.value.push(createHiddenBubble(0))
         }
       } catch (e) {
@@ -80,14 +77,14 @@ export const useBubbleStore = defineStore('bubble', () => {
   }
 
   const getBubblesByYear = (year: number): Bubble[] => {
-    return bubbles.value.filter(bubble => bubble.year === year)
+    return bubbles.value.filter((bubble: NormalizedSkillBubble) => bubble.year === year)
   }
 
   // Модифицируем метод getBubblesUpToYear
-  const getBubblesUpToYear = (year: number, visitedBubbleIds: string[] = []): Bubble[] => {
+  const getBubblesUpToYear = (year: number, visitedBubbleIds: number[] = []): Bubble[] => {
     // Этот метод теперь работает ТОЛЬКО с обычными пузырями
-    return bubbles.value.filter(bubble => {
-      if (bubble.bubbleType === 'hidden') return false // Игнорируем скрытые пузыри
+    return bubbles.value.filter((bubble: NormalizedSkillBubble) => {
+      if (bubble.isHidden) return false // Игнорируем скрытые пузыри
 
       const isInTimeRange = bubble.year <= year
       const isNotVisited = !visitedBubbleIds.includes(bubble.id)
@@ -98,10 +95,10 @@ export const useBubbleStore = defineStore('bubble', () => {
   }
 
   // Найти следующий год с новыми пузырями
-  const findNextYearWithNewBubbles = (currentYear: number, visitedBubbleIds: string[] = []): number | null => {
+  const findNextYearWithNewBubbles = (currentYear: number, visitedBubbleIds: NormalizedSkillBubble['id'] = []): any => {
     const availableYears = [...new Set(
       bubbles.value
-        .filter(bubble => !bubble.bubbleType || bubble.bubbleType !== 'hidden')
+        .filter(bubble => !bubble.isHidden)
         .map(bubble => bubble.year)
     )].sort((a, b) => a - b)
     
@@ -111,7 +108,7 @@ export const useBubbleStore = defineStore('bubble', () => {
           const isInYear = bubble.year === year
           const isNotVisited = !visitedBubbleIds.includes(bubble.id)
           const isNotPopped = !bubble.isPopped
-          const isNotHidden = !bubble.bubbleType || bubble.bubbleType !== 'hidden'
+          const isNotHidden = !bubble.isHidden
           return isInYear && isNotVisited && isNotPopped && isNotHidden
         })
         
@@ -124,14 +121,14 @@ export const useBubbleStore = defineStore('bubble', () => {
     return null
   }
 
-  const popBubble = (id: string) => {
+  const popBubble = (id: NormalizedSkillBubble['id']) => {
     const bubble = bubbles.value.find(b => b.id === id)
     if (bubble) {
       bubble.isPopped = true
     }
   }
 
-  const incrementToughBubbleClicks = (bubbleId: string): { currentClicks: number; isReady: boolean } => {
+  const incrementToughBubbleClicks = (bubbleId: NormalizedSkillBubble['id']): { currentClicks: number; isReady: boolean } => {
     if (!toughBubbleClicks.value[bubbleId]) {
       toughBubbleClicks.value[bubbleId] = 0
     }
@@ -150,8 +147,8 @@ export const useBubbleStore = defineStore('bubble', () => {
   }
 
   // Генерация скрытого пузыря
-  function createHiddenBubble(index: number = 0): Bubble {
-    const hiddenBubble: Bubble = {
+  function createHiddenBubble(index: number = 0): SimulationNode {
+    const hiddenBubble: SimulationNode = {
       id: `hidden-bubble-${Date.now()}-${index}`, // Добавляем timestamp для уникальности
       name: 'Скрытый пузырь',
       skillLevel: SKILL_LEVELS.NOVICE,
@@ -160,24 +157,20 @@ export const useBubbleStore = defineStore('bubble', () => {
       isEasterEgg: false,
       isHidden: true,
       description: 'Этот пузырь почти невидим. Найдите его!',
-      projects: [],
       isPopped: false,
-      isVisited: false,
       // Убираем временную метку
-      size: BUBBLE_SIZES.NOVICE,
-      color: '#64748B99', // Увеличиваем непрозрачность для лучшей видимости
+      size: 'small',
       bubbleType: 'hidden',
       isTough: false,
       toughClicks: 0,
-      currentClicks: 0,
       x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
       y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
-    } as Bubble & { bubbleType: 'hidden' }
+    } 
     return hiddenBubble
   }
 
   const addHiddenBubble = () => {
-    const totalHiddenCount = bubbles.value.filter(b => b.bubbleType === 'hidden').length;
+    const totalHiddenCount = bubbles.value.filter((b: NormalizedSkillBubble) => b.isHidden).length;
     const newHiddenBubble = createHiddenBubble(totalHiddenCount);
     bubbles.value = [...bubbles.value, newHiddenBubble];
   };
@@ -187,10 +180,9 @@ export const useBubbleStore = defineStore('bubble', () => {
     return bubbles.value.some(bubble => 
       bubble.year === year && 
       !bubble.isPopped && 
-      (!bubble.bubbleType || bubble.bubbleType !== 'hidden')
+      (!bubble.isHidden)
     )
   }
-
 
   return {
     bubbles,

@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
-import type { Bubble, PhilosophyQuestion } from '@shared/types'
+import type { Bubble } from '@/types/data'
+import type { Question } from '@/types/data'
 import { useSessionStore } from '@/stores/session.store'
 import { useGameStore } from '@/stores/game.store'
+import type { NormalizedSkillBubble } from '@/types/normalized'
 
 interface LevelUpData {
   level: number
@@ -30,7 +32,7 @@ export const useModalStore = defineStore('modals', () => {
   
   // Bubble Modal
   const isBubbleModalOpen = ref(false)
-  const currentBubble = ref<Bubble | null>(null)
+  const currentBubble = ref<NormalizedSkillBubble | null>(null)
   
   // Level Up Modal
   const isLevelUpModalOpen = ref(false)
@@ -47,8 +49,8 @@ export const useModalStore = defineStore('modals', () => {
   
   // Philosophy Question Modal
   const isPhilosophyModalOpen = ref(false)
-  const currentQuestion = ref<PhilosophyQuestion | null>(null)
-  const philosophyBubbleId = ref<string | null>(null)
+  const currentQuestion = ref<Question | null>(null)
+  const philosophyBubbleId = ref<NormalizedSkillBubble['id']>()
   
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
@@ -140,7 +142,7 @@ export const useModalStore = defineStore('modals', () => {
   }
 
   // Bubble Modal Actions
-  const openBubbleModal = (bubble: Bubble) => {
+  const openBubbleModal = (bubble: NormalizedSkillBubble) => {
     currentBubble.value = bubble
     isBubbleModalOpen.value = true
   }
@@ -206,9 +208,9 @@ export const useModalStore = defineStore('modals', () => {
   }
 
   // Philosophy Question Modal Actions
-  const openPhilosophyModal = (question: PhilosophyQuestion, bubbleId?: string) => {
+  const openPhilosophyModal = (question: Question, bubbleId?: NormalizedSkillBubble['id']) => {
     currentQuestion.value = question
-    philosophyBubbleId.value = bubbleId || null
+    philosophyBubbleId.value = bubbleId
     isPhilosophyModalOpen.value = true
 
   }
@@ -216,7 +218,7 @@ export const useModalStore = defineStore('modals', () => {
   const closePhilosophyModal = () => {
     isPhilosophyModalOpen.value = false
     currentQuestion.value = null
-    philosophyBubbleId.value = null
+    philosophyBubbleId.value = 0
     processPendingAchievements()
   }
 

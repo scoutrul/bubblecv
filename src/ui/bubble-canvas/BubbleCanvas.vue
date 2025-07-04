@@ -24,8 +24,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
-import { useCanvasSimulation } from '@/shared/composables'
-import type { SimulationNode } from '@/shared/composables/types'
+import { useCanvasSimulation } from '@/composables'
+import type { SimulationNode } from '@/types/canvas'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
@@ -60,7 +60,7 @@ const getBubblesToRender = () => {
 const checkBubblesAndAdvance = (currentNodes: SimulationNode[]) => {
   // Проверяем, остались ли на экране "основные" пузыри (обычные или крепкие)
   const hasCoreBubbles = currentNodes.some(
-    n => !n.isEasterEgg && !n.isHidden
+    n => !n.isQuestion && !n.isHidden
   )
 
   if (!hasCoreBubbles && props.currentYear < props.endYear) {

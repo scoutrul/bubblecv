@@ -30,7 +30,6 @@ const bubbleStore = useBubbleStore()
 onMounted(async () => {
   await bubbleStore.loadBubbles() 
   
-  // Создаем и сбрасываем сессию, что вызовет 'game-reset'
   await sessionStore.resetSession()
 })
 </script>

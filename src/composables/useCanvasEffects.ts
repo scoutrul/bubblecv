@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import type { ExplosionEffect, FloatingText, ShakeConfig, SimulationNode } from './types'
-import { hexToRgb } from './canvasUtils'
+
+import { hexToRgb } from '../utils/ui'
 
 export function useCanvasEffects() {
   // Массивы эффектов

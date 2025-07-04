@@ -239,7 +239,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         
         context.fillStyle = gradient
       } else {
-        context.fillStyle = bubble.color
+        context.fillStyle = philosophyConfig.gradientColors[0] || '#FF0080'
       }
       
       context.beginPath()
@@ -249,11 +249,9 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       // Особая отрисовка для крепких пузырей
       const toughConfig = GAME_CONFIG.toughBubble
       
-      // Сначала рисуем свечение
-      context.shadowColor = toughConfig.glowColor
+      // Свечение
       context.shadowBlur = toughConfig.glowSize
-      context.shadowOffsetX = 0
-      context.shadowOffsetY = 0
+      context.shadowColor = toughConfig.glowColor
       
       if (toughConfig.hasGradient && toughConfig.gradientColors) {
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
@@ -263,26 +261,25 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         })
         context.fillStyle = gradient
       } else {
-        context.fillStyle = bubble.color
+        context.fillStyle = toughConfig.gradientColors[0] || '#FBBF24'
       }
       
       context.beginPath()
       context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
       
-      // Сбрасываем тень после отрисовки
-      context.shadowColor = 'transparent'
+      // Сбрасываем тень
       context.shadowBlur = 0
+      context.shadowColor = 'transparent'
     } else {
-      // Отрисовка для обычных пузырей с поддержкой градиентов
-      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
+      // Отрисовка обычных пузырей
+      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel] || GAME_CONFIG.expertiseLevels.novice
       
-      if ('hasGradient' in expertiseConfig && expertiseConfig.hasGradient && 
-         'gradientColors' in expertiseConfig && expertiseConfig.gradientColors) {
+      if (expertiseConfig.hasGradient && 'gradientColors' in expertiseConfig && expertiseConfig.gradientColors) {
         // Создаем радиальный градиент
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
         
-        // Добавляем цвета градиента из конфига
+        // Добавляем цвета градиента
         expertiseConfig.gradientColors.forEach((color: string, index: number) => {
           const stop = index / (expertiseConfig.gradientColors!.length - 1)
           gradient.addColorStop(stop, color)
@@ -290,8 +287,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         
         context.fillStyle = gradient
       } else {
-        // Обычная отрисовка одним цветом
-        context.fillStyle = bubble.color
+        context.fillStyle = expertiseConfig.color
       }
       
       context.beginPath()
@@ -335,8 +331,9 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     context.font = `${fontSize}px Inter, sans-serif`
     context.textAlign = 'center'
     context.textBaseline = 'middle'
-    context.fillStyle = 'white'
-    context.globalAlpha = bubble.isVisited ? 0.4 : 1
+    
+    // Цвет текста
+    context.fillStyle = bubble.isPopped ? '#FFFFFF80' : '#FFFFFF' // Полупрозрачный для лопнувших
     
     const lineHeight = fontSize * 1.2
     const totalHeight = bubble.textLines.length * lineHeight

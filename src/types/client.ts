@@ -4,7 +4,7 @@ export interface UserSession {
   currentLevel: number
   lives: number
   unlockedContent: number[]
-  visitedBubbles: string[]
+  visitedBubbles: number[]
   agreementScore: number
   gameCompleted: boolean
   hasDestroyedToughBubble?: boolean

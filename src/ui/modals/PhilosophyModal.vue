@@ -22,7 +22,7 @@
         {{ question?.question }}
       </h3>
       <p class="text-text-secondary leading-relaxed">
-        {{ question?.context }}
+        {{ question?.description }}
       </p>
     </div>
 
@@ -46,7 +46,7 @@
         
         <h4 class="font-semibold text-text-primary mb-2">Принимаю</h4>
         <p class="text-sm text-text-secondary leading-relaxed">
-          {{ question?.agreeText || 'Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
+          {{ '123 Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
         </p>
         
         <div class="absolute inset-0 bg-green-500/5 rounded-xl opacity-0 
@@ -71,7 +71,7 @@
         
         <h4 class="font-semibold text-text-primary mb-2">Не принимаю</h4>
         <p class="text-sm text-text-secondary leading-relaxed">
-          {{ question?.disagreeText || 'Я не согласен с этим подходом и предпочитаю работать по-другому.' }}
+          {{ question?.options[1].text }}
         </p>
         
         <div class="absolute inset-0 bg-red-500/5 rounded-xl opacity-0 
@@ -93,16 +93,16 @@
 </template>
 
 <script setup lang="ts">
-import type { PhilosophyQuestion } from '@shared/types'
+import type { Question } from '@/types/data'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores/modal.store'
 import { useSessionStore } from '@/stores/session.store'
-import { GAME_CONFIG, XP_CALCULATOR } from '@shared/config/game-config'
-import { computed, ref } from 'vue'
+import { GAME_CONFIG, XP_CALCULATOR } from '@/config/game-config'
+import { computed } from 'vue'
 
 interface Props {
   isOpen: boolean
-  question: PhilosophyQuestion | null
+  question: Question | null
 }
 
 interface Emits {
@@ -118,7 +118,7 @@ const sessionStore = useSessionStore()
 
 // Используем централизованную логику для расчета XP
 const philosophyXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP())
-const philosophyLives = GAME_CONFIG.philosophyWrongLives
+const philosophyLives = 1
 
 const handleAnswer = (answer: 'agree' | 'disagree') => {
   emit('answer', answer)

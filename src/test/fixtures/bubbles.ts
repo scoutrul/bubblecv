@@ -20,15 +20,10 @@ export const mockBubbles: TestBubble[] = Array.from({ length: 20 }, (_, i) => ({
   isEasterEgg: false,
   isHidden: false,
   description: `Description for bubble ${i + 1}`,
-  projects: [],
   isPopped: false,
-  isVisited: false,
   size: BUBBLE_SIZES.NOVICE,
-  color: '#3b82f6',
   isTough: false,
   toughClicks: 0,
-  currentClicks: 0,
-  link: ''
 }))
 
 export const mockHiddenBubble: TestBubble = {
@@ -39,20 +34,15 @@ export const mockHiddenBubble: TestBubble = {
   skillLevel: SKILL_LEVELS.MASTER as SkillLevel,
   description: "Секретная технология",
   insight: "Это скрытый пузырь",
-  link: undefined,
   points: 100,
   isEasterEgg: true,
   category: "Hidden",
-  projects: [],
   isActive: true,
   isPopped: false,
-  isVisited: false,
   isHidden: true,
-  color: "#ff00ff",
   bubbleType: "hidden",
   isTough: false,
   toughClicks: 0,
-  currentClicks: 0
 }
 
 export const mockPhilosophyBubble: TestBubble = {
@@ -63,19 +53,14 @@ export const mockPhilosophyBubble: TestBubble = {
   skillLevel: SKILL_LEVELS.EXPERT as SkillLevel,
   description: "Философский пузырь для размышлений",
   insight: "Развивает критическое мышление",
-  link: undefined,
   points: 80,
   isEasterEgg: false,
   category: "Philosophy",
-  projects: [],
   isActive: true,
   isPopped: false,
-  isVisited: false,
-  color: "#9333ea",
   bubbleType: "philosophy",
   isTough: false,
   toughClicks: 0,
-  currentClicks: 0
 }
 
 const baseTestBubble: Omit<TestBubble, 'id' | 'name' | 'year' | 'category'> = {
@@ -83,19 +68,14 @@ const baseTestBubble: Omit<TestBubble, 'id' | 'name' | 'year' | 'category'> = {
   skillLevel: SKILL_LEVELS.INTERMEDIATE,
   description: "Test description",
   insight: "Test insight",
-  link: undefined,
   points: 1,
   isEasterEgg: false,
-  projects: [],
   isActive: true,
   isPopped: false,
-  isVisited: false,
-  color: "#cccccc",
   bubbleType: "regular",
   isTough: false,
   toughClicks: 0,
-  currentClicks: 0
-};
+}
 
 /**
  * Создает массив пузырей для тестирования определенного года
@@ -153,7 +133,6 @@ export function createLargeBubbleSet(count = 50): TestBubble[] {
     year: 2010 + (index % 15),
     size: [BUBBLE_SIZES.NOVICE, BUBBLE_SIZES.INTERMEDIATE, BUBBLE_SIZES.CONFIDENT, BUBBLE_SIZES.EXPERT][index % 4],
     skillLevel: [SKILL_LEVELS.NOVICE, SKILL_LEVELS.INTERMEDIATE, SKILL_LEVELS.EXPERT, SKILL_LEVELS.MASTER][index % 4],
-    link: index % 5 === 0 ? `https://example.com/bubble-${index}` : undefined,
     points: (index % 5) + 1,
     isEasterEgg: index % 10 === 0,
     category: ["frontend", "backend", "tools", "design"][index % 4],

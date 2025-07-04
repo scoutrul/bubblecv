@@ -1,13 +1,16 @@
 import { type Ref, ref, onMounted, onUnmounted } from 'vue'
-import type { PhilosophyQuestion } from '@shared/types'
+import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
-import type { SimulationNode } from './types'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import type { SimulationNode } from '@/types/canvas'
+import { GAME_CONFIG } from '@/config/game-config'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useGameStore } from '@/stores/game.store'
 import { gsap } from 'gsap'
+import type { NormalizedSkillBubble } from '@/types/normalized'
+
+import { XP_CALCULATOR } from '@/config/game-config'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -20,7 +23,6 @@ export function useCanvasInteraction(
   
   const isDragging = ref(false)
   const hoveredBubble = ref<SimulationNode | null>(null)
-  let lastHoveredId: string | null = null
   const parallaxOffset = ref({ x: 0, y: 0 })
 
   // Вспомогательная функция для показа Level Up модала
@@ -134,7 +136,7 @@ export function useCanvasInteraction(
     explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => void,
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
-    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[],
+    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[],
     getSimulation?: () => Simulation<SimulationNode, undefined> | null
   ) => {
     if (!canvasRef.value || isDragging.value) return
@@ -221,7 +223,7 @@ export function useCanvasInteraction(
           explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
           
           // Начисляем XP за секретный пузырь (используем централизованную логику)
-          const { XP_CALCULATOR } = await import('@shared/config/game-config')
+
           const secretXP = XP_CALCULATOR.getSecretBubbleXP()
           const leveledUp = await sessionStore.gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
@@ -251,7 +253,7 @@ export function useCanvasInteraction(
           
           // Удаляем пузырь со сцены
           removeBubble(clickedBubble.id, nodes)
-          return // Завершаем обработку
+          return
         }
         
         // Анимация клика - плавное изменение размера
@@ -266,23 +268,33 @@ export function useCanvasInteraction(
         }, 100)
         
         // Открываем модальное окно с деталями
-        if (clickedBubble.isEasterEgg) {
+        if (clickedBubble.isQuestion) {
           // Для философских пузырей открываем философский модал
-          const philosophyQuestion: PhilosophyQuestion = {
+          const question: Question = {
             id: `question-${clickedBubble.id}`,
-            question: clickedBubble.name,
-            context: 'Этот вопрос проверяет ваши взгляды на разработку.',
-            agreeText: 'Я согласен с этим подходом и готов работать в этом стиле.',
-            disagreeText: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
+            title: clickedBubble.name,   
+            description: clickedBubble.description,
+            question: clickedBubble.description,
+            type: 'string',
+            insight: 'string',
             options: [
-              'Я согласен с этим подходом и готов работать в этом стиле.',
-              'Я предпочитаю работать по-другому и не согласен с этим подходом.'
+              {
+                id: 1,
+                text: 'Я согласен с этим подходом и готов работать в этом стиле.',
+                response: 'string',
+                agreementLevel: 100,
+                livesLost: 1
+              },
+              {
+                id: 1,
+                text: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
+                response: 'string',
+                agreementLevel: 100,
+                livesLost: 1
+              },
             ],
-            correctAnswer: 'Я согласен с этим подходом и готов работать в этом стиле.',
-            explanation: clickedBubble.description,
-            points: GAME_CONFIG.xpPerEasterEgg
           }
-          modalStore.openPhilosophyModal(philosophyQuestion, clickedBubble.id)
+          modalStore.openPhilosophyModal(question, clickedBubble.id)
         } else {
           modalStore.openBubbleModal(clickedBubble)
         }
@@ -306,7 +318,7 @@ export function useCanvasInteraction(
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
     explodeBubble: (bubble: SimulationNode) => void,
-    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[]
+    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[]
   ) => {
     const customEvent = event as CustomEvent
     const { bubbleId, isPhilosophyNegative } = customEvent.detail
@@ -317,8 +329,6 @@ export function useCanvasInteraction(
     if (!bubble) {
       return
     }
-    
-
     
     // Начисляем опыт в зависимости от уровня экспертизы
     let leveledUp = false
@@ -337,9 +347,8 @@ export function useCanvasInteraction(
         onBubblePopped(remainingNodes)
       }
       return // Завершаем обработку здесь
-    } else if (bubble.isEasterEgg) {
-      // Философский пузырь ВСЕГДА дает базовый XP за разбиение (независимо от ответа)
-      const { XP_CALCULATOR } = await import('@shared/config/game-config')
+    } else if (bubble.isQuestion) {
+
       xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
       leveledUp = await sessionStore.gainXP(xpGained)
       createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
@@ -349,8 +358,6 @@ export function useCanvasInteraction(
         createLifeLossFloatingText(bubble.x, bubble.y)
       }
     } else {
-      // Обычный пузырь - используем централизованную логику
-      const { XP_CALCULATOR } = await import('@shared/config/game-config')
       xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
       leveledUp = await sessionStore.gainXP(xpGained)
       
@@ -420,7 +427,7 @@ export function useCanvasInteraction(
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
     explodeBubble: (bubble: SimulationNode) => void,
-    removeBubble: (bubbleId: string, nodes: SimulationNode[]) => SimulationNode[],
+    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[],
     getSimulation?: () => Simulation<SimulationNode, undefined> | null
   ) => {
     const mouseMoveHandler = (event: MouseEvent) => 

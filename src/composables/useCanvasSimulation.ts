@@ -1,6 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { Bubble } from '@shared/types'
-import type { SimulationNode } from './types'
+import type { SimulationNode } from '@/types/canvas'
 
 // Импорты всех модулей
 import { useBubbleManager } from './useBubbleManager'
@@ -8,6 +7,7 @@ import { usePhysicsSimulation } from './usePhysicsSimulation'
 import { useCanvasEffects } from './useCanvasEffects'
 import { useCanvasRenderer } from './useCanvasRenderer'
 import { useCanvasInteraction } from './useCanvasInteraction'
+import type { NormalizedSkillBubble } from '@/types/normalized'
 
 export function useCanvasSimulation(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -127,7 +127,7 @@ export function useCanvasSimulation(
       canvasEffects.createXPFloatingText,
       canvasEffects.createLifeLossFloatingText,
       explodeBubble,
-      (bubbleId: string, currentNodes: SimulationNode[]) => {
+      (bubbleId: NormalizedSkillBubble['id'], currentNodes: SimulationNode[]) => {
         const newNodes = bubbleManager.removeBubble(bubbleId, currentNodes)
         physicsSimulation.updateNodes(newNodes)
         nodes = newNodes
@@ -163,7 +163,7 @@ export function useCanvasSimulation(
   }
 
   // Обновление пузырей
-  const updateBubbles = (bubbles: Bubble[]) => {
+  const updateBubbles = (bubbles: NormalizedSkillBubble[]) => {
     const simulation = physicsSimulation.getSimulation()
     if (!simulation || !ctx) return
 
@@ -181,7 +181,7 @@ export function useCanvasSimulation(
   }
 
   // Удаление пузыря по ID
-  const removeBubble = (bubbleId: string) => {
+  const removeBubble = (bubbleId: NormalizedSkillBubble['id']) => {
     nodes = bubbleManager.removeBubble(bubbleId, nodes)
     physicsSimulation.updateNodes(nodes)
     }
@@ -232,7 +232,7 @@ export function useCanvasSimulation(
       physicsSimulation.explodeFromPoint,
       canvasEffects.createXPFloatingText,
       canvasEffects.createLifeLossFloatingText,
-      (bubbleId: string) => {
+      (bubbleId: NormalizedSkillBubble['id']) => {
         nodes = bubbleManager.removeBubble(bubbleId, nodes)
         physicsSimulation.updateNodes(nodes)
         return nodes

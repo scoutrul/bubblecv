@@ -1,8 +1,7 @@
-import type { Bubble } from '@shared/types'
+import type { NormalizedSkillBubble } from '@/types/normalized'
 
-export interface CanvasBubble extends Bubble {
+export interface CanvasBubble extends NormalizedSkillBubble {
   radius: number
-  color: string
   oscillationPhase: number
   targetRadius: number
   currentRadius: number
@@ -13,17 +12,15 @@ export interface CanvasBubble extends Bubble {
   bubbleType?: 'regular' | 'philosophy' | 'hidden'
 }
 
-export interface SimulationNode extends Bubble {
-  x: number
-  y: number
-  vx: number
-  vy: number
+export interface SimulationNode extends NormalizedSkillBubble, PositionData {
   radius: number
   baseRadius: number
   targetRadius: number
   currentRadius: number
-  color: string
   isHovered?: boolean
+  isActive?: boolean
+  isVisited?: boolean
+  isReady?: boolean
   oscillationPhase: number
   textLines?: string[]
   textScaleFactor?: number
@@ -47,6 +44,7 @@ export interface FloatingText {
   duration: number
   color: string
   type: 'xp' | 'life'
+  id: number
 }
 
 export interface ShakeConfig {
@@ -61,4 +59,4 @@ export interface PositionData {
   y: number
   vx: number
   vy: number
-} 
+}

@@ -1,35 +1,50 @@
-import type { Ref } from 'vue'
-import type { Bubble } from '@shared/types'
-import { GAME_CONFIG } from '@shared/config/game-config'
-import { SKILL_LEVELS_ARRAY, SKILL_LEVELS } from '@shared/constants/skill-levels'
-import { calculateAdaptiveSizes, wrapText, isWindows } from './canvasUtils'
-import type { SimulationNode, PositionData } from './types'
+import type { Bubble } from '@/types/data'
+import { GAME_CONFIG } from '@/config/game-config'
+import { SKILL_LEVELS, type SkillLevel } from '@/types/skill-levels'
+
+import type { SimulationNode, PositionData } from '@/types/canvas'
+
+import { isWindows } from '@/utils/ui'
+import type { NormalizedSkillBubble } from '@/types/normalized'
+
+export const calculateAdaptiveSizes = (bubbleCount: number, width: number, height: number): { min: number, max: number } => {
+  // Цель: заполнить 75% экрана пузырями
+  const screenArea = width * height * 0.75
+  const averageAreaPerBubble = screenArea / bubbleCount
+  const averageRadius = Math.sqrt(averageAreaPerBubble / Math.PI)
+  
+  // Учитываем соотношение сторон экрана для более равномерного распределения
+  const aspectRatio = width / height
+  const aspectFactor = Math.min(1.2, Math.max(0.8, aspectRatio / 1.5))
+  
+  // Увеличиваем минимальный размер для лучшей читаемости
+  const baseMinRadius = Math.max(25, averageRadius * 0.5 * aspectFactor) 
+  const baseMaxRadius = Math.min(180, averageRadius * 1.6 * aspectFactor)
+  
+  // Ограничиваем размеры чтобы пузыри всегда помещались на экране
+  const maxAllowedRadius = Math.min(width, height) / 8
+  const minRadius = Math.min(baseMinRadius, maxAllowedRadius * 0.4) 
+  const maxRadius = Math.min(baseMaxRadius, maxAllowedRadius)
+  
+  return { min: minRadius, max: maxRadius }
+}
 
 export function useBubbleManager() {
   // Сохранение позиций между фильтрациями
-  const savedPositions = new Map<string, PositionData>()
-  
-  // Для тестов - проверяем наличие глобальной переменной с тестовыми позициями
-  if (typeof window !== 'undefined' && (window as any).__testPositions) {
-    Object.entries((window as any).__testPositions).forEach(([id, pos]) => {
-      savedPositions.set(id, pos as any)
-    })
-  }
+  const savedPositions = new Map<number, PositionData>()
 
   // Создание узлов из пузырей
-  const createNodes = (bubbles: Bubble[], width: number, height: number): SimulationNode[] => {
+  const createNodes = (bubbles: NormalizedSkillBubble[], width: number, height: number): SimulationNode[] => {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
 
-    return bubbles.map((bubble, index) => {
-      // Масштабируем размер в зависимости от уровня экспертизы
-      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
+    return bubbles.map((bubble) => {
+      const expertiseConfig = bubble.skillLevel ? GAME_CONFIG.expertiseBubbles[bubble.skillLevel] : GAME_CONFIG.expertiseBubbles[SKILL_LEVELS.INTERMEDIATE]
       
-      // Проверяем, что конфигурация найдена
       if (!expertiseConfig) {
-        // Используем дефолтную конфигурацию
-        const defaultConfig = GAME_CONFIG.expertiseLevels[SKILL_LEVELS.INTERMEDIATE]
-        const skillIndex = SKILL_LEVELS_ARRAY.indexOf(SKILL_LEVELS.INTERMEDIATE)
-        const sizeRatio = (skillIndex + 1) / SKILL_LEVELS_ARRAY.length
+        const defaultConfig = GAME_CONFIG.expertiseBubbles[SKILL_LEVELS.INTERMEDIATE]
+        const skillIndex = Object.keys(GAME_CONFIG.expertiseBubbles).indexOf(SKILL_LEVELS.INTERMEDIATE)
+
+        const sizeRatio = (skillIndex + 1) / Object.keys(GAME_CONFIG.expertiseBubbles).length
         const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
         const baseRadius = calculatedRadius * defaultConfig.sizeMultiplier
         
@@ -38,58 +53,37 @@ export function useBubbleManager() {
         const node: SimulationNode = {
           ...bubble,
           radius: baseRadius,
-          baseRadius,
-          color: defaultConfig.color,
-          oscillationPhase: Math.random() * Math.PI * 2,
-          targetRadius: baseRadius,
-          currentRadius: baseRadius,
-          x: savedPos?.x ?? Math.random() * width,
-          y: savedPos?.y ?? Math.random() * height,
-          vx: savedPos?.vx ?? 0,
-          vy: savedPos?.vy ?? 0
+            baseRadius,
+            oscillationPhase: Math.random() * Math.PI * 2,
+            targetRadius: baseRadius,
+            currentRadius: baseRadius,
+            x: savedPos?.x ?? Math.random() * width,
+            y: savedPos?.y ?? Math.random() * height,
+            vx: savedPos?.vx ?? 0,
+            vy: savedPos?.vy ?? 0
+          }
+
+          return node
         }
         
-        const textResult = wrapText(bubble.name, baseRadius, SKILL_LEVELS.INTERMEDIATE)
-        node.textLines = textResult.lines
-        node.textScaleFactor = textResult.scaleFactor
+        const skillLevels = Object.keys(GAME_CONFIG.expertiseBubbles) as SkillLevel[]
+        const skillIndex = skillLevels.indexOf(bubble.skillLevel as SkillLevel)
+        const sizeRatio = (skillIndex + 1) / skillLevels.length
         
-        return node
-      }
-      
-      const skillLevels = SKILL_LEVELS_ARRAY
-      const skillIndex = skillLevels.indexOf(bubble.skillLevel)
-      const sizeRatio = (skillIndex + 1) / skillLevels.length
-      
       // Применяем множитель размера из конфигурации
       const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
       const baseRadius = calculatedRadius * expertiseConfig.sizeMultiplier
       
-      // Определяем цвет пузыря на основе уровня экспертизы
-      let bubbleColor: string
-      if (bubble.isEasterEgg) {
-        // Для философских пузырей берем основной цвет из конфига
-        bubbleColor = GAME_CONFIG.philosophyBubble.gradientColors[0]
-      } else {
-        // Для обычных пузырей используем цвет из уровня экспертизы
-        bubbleColor = expertiseConfig.color
-      }
-      
       // Обертываем текст
-      const textResult = wrapText(bubble.name, baseRadius, bubble.skillLevel)
-      
       const savedPos = savedPositions.get(bubble.id)
       
       const node: SimulationNode = {
         ...bubble,
         radius: baseRadius,
         baseRadius,
-        color: bubbleColor,
         oscillationPhase: Math.random() * Math.PI * 2,
         targetRadius: baseRadius,
         currentRadius: baseRadius,
-        textLines: textResult.lines,
-        textScaleFactor: textResult.scaleFactor,
-        // Используем сохраненные позиции, если они есть
         x: savedPos ? savedPos.x : Math.random() * width,
         y: savedPos ? savedPos.y : Math.random() * height,
         vx: savedPos ? savedPos.vx : 0,
@@ -149,24 +143,20 @@ export function useBubbleManager() {
       const padding = Math.max(minPadding, bubble.currentRadius - overlap)
       bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
       bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
-      
-      // Обновляем текстовые строки при изменении размера
-      if (Math.abs(bubble.currentRadius - bubble.baseRadius) > 1) {
-        bubble.textLines = wrapText(bubble.name, bubble.currentRadius, bubble.skillLevel).lines
-      }
+    
     })
   }
 
   // Удаление пузыря по ID и проверка на завершение года
-  const removeBubble = (bubbleId: string, nodes: SimulationNode[]): SimulationNode[] => {
+  const removeBubble = (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]): SimulationNode[] => {
     const index = nodes.findIndex(node => node.id === bubbleId)
     if (index !== -1) {
       const newNodes = [...nodes]
       newNodes.splice(index, 1)
 
       // Проверяем, нужно ли переходить на следующий год
-      const hasNonSpecialBubbles = newNodes.some(n => !n.isEasterEgg && !n.isTough && !n.isHidden)
-      if (!hasNonSpecialBubbles && newNodes.length > 0) { // Убедимся, что это не последний пузырь в игре
+      const hasNonSpecialBubbles = newNodes.some(n => !n.isQuestion && !n.isTough && !n.isHidden)
+      if (!hasNonSpecialBubbles && newNodes.length > 0) { // Убедимся, что это не последний пузырь на текузий год
         window.dispatchEvent(new CustomEvent('year-completed'))
       }
   

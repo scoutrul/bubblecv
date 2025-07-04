@@ -4,8 +4,9 @@ import type { BubbleSizes } from './client'
 export interface NormalizedSkillBubble extends Bubble {
   id: number
   isPopped: boolean
-  isActive: boolean
   isTough: boolean
+  isHidden: boolean
+  isQuestion: boolean
   toughClicks?: number
   size: BubbleSizes
 }

@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { UserSession } from '@shared/types'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import type { UserSession } from '@/types/client'
+import { GAME_CONFIG } from '@/config/game-config'
 import { useUiEventStore } from '@/stores/ui-event.store'
+import type { NormalizedSkillBubble } from '@/types/normalized'
 
 export const useSessionStore = defineStore('session', () => {
   // State
@@ -172,28 +173,14 @@ export const useSessionStore = defineStore('session', () => {
   }
 
   // Потерять жизнь за неправильный ответ на философский вопрос
+  // TODO вынести в шину управления стейтом игры
   const losePhilosophyLife = async (): Promise<boolean> => {
     if (!session.value) return false
-    
-    // Для тестов: если жизней меньше или равно количеству отнимаемых жизней, 
-    // возвращаем true (Game Over)
-    if (session.value.lives <= GAME_CONFIG.philosophyWrongLives) {
-      // Отнимаем жизни
-      await loseLives(GAME_CONFIG.philosophyWrongLives)
-      // Явно возвращаем true для Game Over
-      return true
-    }
-    
-    // Отнимаем жизни
-    await loseLives(GAME_CONFIG.philosophyWrongLives)
-    
-    // Проверяем, если после отнятия жизней их стало 0, то это Game Over
-    if (session.value.lives === 0) {
-      return true
-    }
-    
-    // В обычном случае Game Over не происходит
+
+    await loseLives()
+
     return false
+    
   }
 
   const loseLives = async (amount: number = 1): Promise<void> => {
@@ -253,7 +240,7 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
-  const visitBubble = async (bubbleId: string): Promise<void> => {
+  const visitBubble = async (bubbleId: NormalizedSkillBubble['id']): Promise<void> => {
     if (!session.value) return
 
     if (!session.value.visitedBubbles.includes(bubbleId)) {

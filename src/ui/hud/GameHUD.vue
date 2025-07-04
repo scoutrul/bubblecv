@@ -54,7 +54,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSessionStore } from '@/stores/session.store'
 import { useGameStore } from '@/stores/game.store'
 import { useUiEventStore } from '@/stores/ui-event.store'
-import { GAME_CONFIG } from '@/shared/config/game-config'
+import { GAME_CONFIG } from '@/config/game-config'
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
 import LivesDisplay from './LivesDisplay.vue'
 import XPDisplay from './XPDisplay.vue'
@@ -95,7 +95,6 @@ const unlockedAchievements = computed(() => {
   return gameStore.achievements.filter(a => a.isUnlocked).length
 })
 
-// Methods
 const animateXPGain = () => {
   isXPAnimating.value = true
   setTimeout(() => {
