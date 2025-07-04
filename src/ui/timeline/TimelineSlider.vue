@@ -62,6 +62,9 @@ import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import { gsap } from 'gsap'
 
+import { getBubblesUpToYear } from '@/utils/nodes'
+
+
 interface Props {
   currentYear: number
   startYear: number
@@ -184,7 +187,7 @@ const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
 // Computed для отслеживания завершения всех доступных пузырей до текущего года
 const isCurrentYearCompleted = computed(() => {
   // Используем накопительный метод - все пузыри до текущего года
-  const availableBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
+  const availableBubbles = getBubblesUpToYear(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
   
   if (availableBubbles.length === 0) {
     return true // Если нет доступных пузырей, считаем год завершённым

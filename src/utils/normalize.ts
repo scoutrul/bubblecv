@@ -1,8 +1,8 @@
-import type { NormalizedSkillBubble, NormalizedAchievement } from '../types/normalized'
+import type { NormalizedBubble, NormalizedAchievement } from '../types/normalized'
 import type { Bubble, Achievement } from '../types/data'
 import { XP_CALCULATOR } from '../config/game-config'
 
-export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedSkillBubble {
+export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubble {
   return {
     ...bubble,
     id,

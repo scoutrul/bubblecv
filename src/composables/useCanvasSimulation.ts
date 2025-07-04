@@ -1,5 +1,5 @@
 import { ref, type Ref } from 'vue'
-import type { SimulationNode } from '@/types/canvas'
+import type { BubbleNode } from '@/types/canvas'
 
 // Импорты всех модулей
 import { useBubbleManager } from './useBubbleManager'
@@ -7,16 +7,16 @@ import { usePhysicsSimulation } from './usePhysicsSimulation'
 import { useCanvasEffects } from './useCanvasEffects'
 import { useCanvasRenderer } from './useCanvasRenderer'
 import { useCanvasInteraction } from './useCanvasInteraction'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 export function useCanvasSimulation(
   canvasRef: Ref<HTMLCanvasElement | null>,
-  onBubblePopped?: (nodes: SimulationNode[]) => void
+  onBubblePopped?: (nodes: BubbleNode[]) => void
 ) {
   const isInitialized = ref(false)
   
   // Состояние canvas
-  let nodes: SimulationNode[] = []
+  let nodes: BubbleNode[] = []
   let ctx: CanvasRenderingContext2D | null = null
   let width = 0
   let height = 0
@@ -75,7 +75,7 @@ export function useCanvasSimulation(
   }
 
   // Взрыв пузыря с удалением
-  const explodeBubble = (bubble: SimulationNode) => {
+  const explodeBubble = (bubble: BubbleNode) => {
     // Создаем мощный эффект отталкивания от центра пузыря
     const explosionRadius = bubble.baseRadius * 5 // Радиус волны
     const explosionStrength = 18 // Сила волны
@@ -127,7 +127,7 @@ export function useCanvasSimulation(
       canvasEffects.createXPFloatingText,
       canvasEffects.createLifeLossFloatingText,
       explodeBubble,
-      (bubbleId: NormalizedSkillBubble['id'], currentNodes: SimulationNode[]) => {
+      (bubbleId: NormalizedBubble['id'], currentNodes: BubbleNode[]) => {
         const newNodes = bubbleManager.removeBubble(bubbleId, currentNodes)
         physicsSimulation.updateNodes(newNodes)
         nodes = newNodes
@@ -163,7 +163,7 @@ export function useCanvasSimulation(
   }
 
   // Обновление пузырей
-  const updateBubbles = (bubbles: NormalizedSkillBubble[]) => {
+  const updateBubbles = (bubbles: NormalizedBubble[]) => {
     const simulation = physicsSimulation.getSimulation()
     if (!simulation || !ctx) return
 
@@ -181,7 +181,7 @@ export function useCanvasSimulation(
   }
 
   // Удаление пузыря по ID
-  const removeBubble = (bubbleId: NormalizedSkillBubble['id']) => {
+  const removeBubble = (bubbleId: NormalizedBubble['id']) => {
     nodes = bubbleManager.removeBubble(bubbleId, nodes)
     physicsSimulation.updateNodes(nodes)
     }
@@ -232,7 +232,7 @@ export function useCanvasSimulation(
       physicsSimulation.explodeFromPoint,
       canvasEffects.createXPFloatingText,
       canvasEffects.createLifeLossFloatingText,
-      (bubbleId: NormalizedSkillBubble['id']) => {
+      (bubbleId: NormalizedBubble['id']) => {
         nodes = bubbleManager.removeBubble(bubbleId, nodes)
         physicsSimulation.updateNodes(nodes)
         return nodes

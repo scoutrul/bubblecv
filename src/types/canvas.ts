@@ -1,18 +1,13 @@
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
-export interface CanvasBubble extends NormalizedSkillBubble {
-  radius: number
-  oscillationPhase: number
-  targetRadius: number
-  currentRadius: number
-  baseRadius: number
-  isHovered?: boolean
-  textLines?: string[]
-  textScaleFactor?: number
-  bubbleType?: 'regular' | 'philosophy' | 'hidden'
+export interface PositionData {
+  x: number
+  y: number
+  vx: number
+  vy: number
 }
 
-export interface SimulationNode extends NormalizedSkillBubble, PositionData {
+export interface BubbleNode extends NormalizedBubble, PositionData {
   radius: number
   baseRadius: number
   targetRadius: number
@@ -22,8 +17,6 @@ export interface SimulationNode extends NormalizedSkillBubble, PositionData {
   isVisited?: boolean
   isReady?: boolean
   oscillationPhase: number
-  textLines?: string[]
-  textScaleFactor?: number
 }
 
 export interface ExplosionEffect {
@@ -52,11 +45,4 @@ export interface ShakeConfig {
   intensity: number
   startTime: number
   isShaking: boolean
-}
-
-export interface PositionData {
-  x: number
-  y: number
-  vx: number
-  vy: number
 }

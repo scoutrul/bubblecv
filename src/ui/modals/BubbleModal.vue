@@ -84,11 +84,11 @@ import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { GAME_CONFIG, XP_CALCULATOR } from '@/config/game-config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 interface Props {
   isOpen: boolean
-  bubble: NormalizedSkillBubble | null
+  bubble: NormalizedBubble | null
 }
 
 interface Emits {

@@ -1,7 +1,7 @@
 import type { Achievement, Bubble } from './data'
 import type { BubbleSizes } from './client'
 
-export interface NormalizedSkillBubble extends Bubble {
+export interface NormalizedBubble extends Bubble {
   id: number
   isPopped: boolean
   isTough: boolean

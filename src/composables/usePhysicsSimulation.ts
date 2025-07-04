@@ -1,22 +1,22 @@
 import { ref } from 'vue'
 import * as d3 from 'd3'
-import type { SimulationNode } from './types'
+import type { BubbleNode } from './types'
 
 export function usePhysicsSimulation() {
-  let simulation: d3.Simulation<SimulationNode, undefined> | null = null
+  let simulation: d3.Simulation<BubbleNode, undefined> | null = null
   let restartInterval: number = 0
 
   // Инициализация симуляции
-  const initSimulation = (width: number, height: number): d3.Simulation<SimulationNode, undefined> => {
+  const initSimulation = (width: number, height: number): d3.Simulation<BubbleNode, undefined> => {
     // Высота HUD панели (примерно 80px с отступами)
     const hudHeight = 80
     const effectiveHeight = height - hudHeight
     const centerY = (effectiveHeight / 2) + hudHeight
     
     // Инициализируем симуляцию с улучшенной физикой для импульсов
-    simulation = d3.forceSimulation<SimulationNode>()
+    simulation = d3.forceSimulation<BubbleNode>()
       .force('center', d3.forceCenter(width / 2, centerY).strength(0.003)) // Уменьшили силу центра
-      .force('collision', d3.forceCollide<SimulationNode>().radius(d => d.currentRadius + 8).strength(0.7))
+      .force('collision', d3.forceCollide<BubbleNode>().radius(d => d.currentRadius + 8).strength(0.7))
       .force('charge', d3.forceManyBody().strength(-8)) // Уменьшили отталкивание
       .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.002)) // Уменьшили притяжение к центру
       .alpha(0.3)
@@ -49,14 +49,14 @@ export function usePhysicsSimulation() {
   }
 
   // Обновление узлов симуляции
-  const updateNodes = (nodes: SimulationNode[]) => {
+  const updateNodes = (nodes: BubbleNode[]) => {
     if (!simulation) return
     simulation.nodes(nodes)
     simulation.alpha(0.5).restart()
   }
 
   // Импульсное отталкивание соседей при ховере с улучшенной инерцией
-  const pushNeighbors = (centerBubble: SimulationNode, pushRadius: number, pushStrength: number, nodes: SimulationNode[]) => {
+  const pushNeighbors = (centerBubble: BubbleNode, pushRadius: number, pushStrength: number, nodes: BubbleNode[]) => {
     let affectedCount = 0
     
     nodes.forEach(bubble => {
@@ -107,7 +107,7 @@ export function usePhysicsSimulation() {
   }
 
   // Отталкивание от точки клика как от стены (взрыв)
-  const explodeFromPoint = (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => {
+  const explodeFromPoint = (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: BubbleNode[], width: number, height: number) => {
     let affectedCount = 0
     
     nodes.forEach(bubble => {

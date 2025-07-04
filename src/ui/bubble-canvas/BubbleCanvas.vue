@@ -25,11 +25,13 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
 import { useCanvasSimulation } from '@/composables'
-import type { SimulationNode } from '@/types/canvas'
+import type { BubbleNode } from '@/types/canvas'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
+
+import { getBubblesUpToYear, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
 
 interface Props {
   currentYear: number
@@ -51,13 +53,13 @@ const canvasWidth = ref(0)
 const canvasHeight = ref(0)
 
 const getBubblesToRender = () => {
-  const regularBubbles = bubbleStore.getBubblesUpToYear(props.currentYear, sessionStore.visitedBubbles)
+  const regularBubbles = getBubblesUpToYear(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
   const hiddenBubbles = bubbleStore.activeHiddenBubbles
   return [...regularBubbles, ...hiddenBubbles]
 }
 
 // Функция для проверки и обновления года
-const checkBubblesAndAdvance = (currentNodes: SimulationNode[]) => {
+const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
   // Проверяем, остались ли на экране "основные" пузыри (обычные или крепкие)
   const hasCoreBubbles = currentNodes.some(
     n => !n.isQuestion && !n.isHidden
@@ -65,7 +67,7 @@ const checkBubblesAndAdvance = (currentNodes: SimulationNode[]) => {
 
   if (!hasCoreBubbles && props.currentYear < props.endYear) {
     // Ищем следующий год с новыми пузырями
-    const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(props.currentYear, sessionStore.visitedBubbles)
+    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
     
     if (nextYearWithBubbles !== null) {
       setTimeout(() => {
@@ -90,17 +92,17 @@ watch(() => props.currentYear, (newYear, oldYear) => {
 
   // Если движемся вперед во времени, добавляем новый скрытый пузырь
   if (newYear > oldYear) {
-    bubbleStore.addHiddenBubble()
+    createHiddenBubble()
   }
 
   const filteredBubbles = getBubblesToRender()
 
   // Проверяем, есть ли в этом году "основные" пузыри (обычные или крепкие)
-  const hasCoreBubbles = filteredBubbles.some(b => !b.isEasterEgg && !b.isHidden)
+  const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
 
   // Если основных пузырей нет, ищем следующий год, где они есть
   if (!hasCoreBubbles && newYear < props.endYear) {
-    const nextYearWithBubbles = bubbleStore.findNextYearWithNewBubbles(newYear, sessionStore.visitedBubbles)
+    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
     if (nextYearWithBubbles !== null) {
       // Плавно переключаемся на следующий доступный год
       setTimeout(() => emit('update:currentYear', nextYearWithBubbles), 300)

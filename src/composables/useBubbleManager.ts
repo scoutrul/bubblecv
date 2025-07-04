@@ -2,10 +2,10 @@ import type { Bubble } from '@/types/data'
 import { GAME_CONFIG } from '@/config/game-config'
 import { SKILL_LEVELS, type SkillLevel } from '@/types/skill-levels'
 
-import type { SimulationNode, PositionData } from '@/types/canvas'
+import type { BubbleNode, PositionData } from '@/types/canvas'
 
 import { isWindows } from '@/utils/ui'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 export const calculateAdaptiveSizes = (bubbleCount: number, width: number, height: number): { min: number, max: number } => {
   // Цель: заполнить 75% экрана пузырями
@@ -34,7 +34,7 @@ export function useBubbleManager() {
   const savedPositions = new Map<number, PositionData>()
 
   // Создание узлов из пузырей
-  const createNodes = (bubbles: NormalizedSkillBubble[], width: number, height: number): SimulationNode[] => {
+  const createNodes = (bubbles: NormalizedBubble[], width: number, height: number): BubbleNode[] => {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
 
     return bubbles.map((bubble) => {
@@ -50,7 +50,7 @@ export function useBubbleManager() {
         
         const savedPos = savedPositions.get(bubble.id)
         
-        const node: SimulationNode = {
+        const node: BubbleNode = {
           ...bubble,
           radius: baseRadius,
             baseRadius,
@@ -77,7 +77,7 @@ export function useBubbleManager() {
       // Обертываем текст
       const savedPos = savedPositions.get(bubble.id)
       
-      const node: SimulationNode = {
+      const node: BubbleNode = {
         ...bubble,
         radius: baseRadius,
         baseRadius,
@@ -95,7 +95,7 @@ export function useBubbleManager() {
   }
   
   // Обновление состояния пузырей с живой физикой
-  const updateBubbleStates = (nodes: SimulationNode[], width: number, height: number) => {
+  const updateBubbleStates = (nodes: BubbleNode[], width: number, height: number) => {
     const time = Date.now() * 0.0008
     
     nodes.forEach((bubble, index) => {
@@ -148,7 +148,7 @@ export function useBubbleManager() {
   }
 
   // Удаление пузыря по ID и проверка на завершение года
-  const removeBubble = (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]): SimulationNode[] => {
+  const removeBubble = (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]): BubbleNode[] => {
     const index = nodes.findIndex(node => node.id === bubbleId)
     if (index !== -1) {
       const newNodes = [...nodes]
@@ -166,14 +166,14 @@ export function useBubbleManager() {
   }
 
   // Сохраняем позиции узлов перед их заменой
-  const savePositions = (nodes: SimulationNode[]) => {
+  const savePositions = (nodes: BubbleNode[]) => {
     nodes.forEach(node => {
       savedPositions.set(node.id, { x: node.x, y: node.y, vx: node.vx ?? 0, vy: node.vy ?? 0 })
     })
   }
 
   // Поиск пузыря под курсором
-  const findBubbleUnderCursor = (mouseX: number, mouseY: number, nodes: SimulationNode[]): SimulationNode | null => {
+  const findBubbleUnderCursor = (mouseX: number, mouseY: number, nodes: BubbleNode[]): BubbleNode | null => {
     // Ищем в обратном порядке (сверху вниз)
     for (let i = nodes.length - 1; i >= 0; i--) {
       const bubble = nodes[i]

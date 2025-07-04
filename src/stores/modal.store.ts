@@ -4,7 +4,7 @@ import type { Bubble } from '@/types/data'
 import type { Question } from '@/types/data'
 import { useSessionStore } from '@/stores/session.store'
 import { useGameStore } from '@/stores/game.store'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 interface LevelUpData {
   level: number
@@ -32,7 +32,7 @@ export const useModalStore = defineStore('modals', () => {
   
   // Bubble Modal
   const isBubbleModalOpen = ref(false)
-  const currentBubble = ref<NormalizedSkillBubble | null>(null)
+  const currentBubble = ref<NormalizedBubble | null>(null)
   
   // Level Up Modal
   const isLevelUpModalOpen = ref(false)
@@ -50,7 +50,7 @@ export const useModalStore = defineStore('modals', () => {
   // Philosophy Question Modal
   const isPhilosophyModalOpen = ref(false)
   const currentQuestion = ref<Question | null>(null)
-  const philosophyBubbleId = ref<NormalizedSkillBubble['id']>()
+  const philosophyBubbleId = ref<NormalizedBubble['id']>()
   
   // Game Over Modal
   const isGameOverModalOpen = ref(false)
@@ -142,7 +142,7 @@ export const useModalStore = defineStore('modals', () => {
   }
 
   // Bubble Modal Actions
-  const openBubbleModal = (bubble: NormalizedSkillBubble) => {
+  const openBubbleModal = (bubble: NormalizedBubble) => {
     currentBubble.value = bubble
     isBubbleModalOpen.value = true
   }
@@ -208,7 +208,7 @@ export const useModalStore = defineStore('modals', () => {
   }
 
   // Philosophy Question Modal Actions
-  const openPhilosophyModal = (question: Question, bubbleId?: NormalizedSkillBubble['id']) => {
+  const openPhilosophyModal = (question: Question, bubbleId?: NormalizedBubble['id']) => {
     currentQuestion.value = question
     philosophyBubbleId.value = bubbleId
     isPhilosophyModalOpen.value = true

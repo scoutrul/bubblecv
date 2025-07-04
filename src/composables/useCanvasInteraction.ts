@@ -1,20 +1,20 @@
 import { type Ref, ref, onMounted, onUnmounted } from 'vue'
 import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
-import type { SimulationNode } from '@/types/canvas'
+import type { BubbleNode } from '@/types/canvas'
 import { GAME_CONFIG } from '@/config/game-config'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useGameStore } from '@/stores/game.store'
 import { gsap } from 'gsap'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 import { XP_CALCULATOR } from '@/config/game-config'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
-  onBubblePopped?: (nodes: SimulationNode[]) => void
+  onBubblePopped?: (nodes: BubbleNode[]) => void
 ) {
   const modalStore = useModalStore()
   const gameStore = useGameStore()
@@ -22,7 +22,7 @@ export function useCanvasInteraction(
   const bubbleStore = useBubbleStore()
   
   const isDragging = ref(false)
-  const hoveredBubble = ref<SimulationNode | null>(null)
+  const hoveredBubble = ref<BubbleNode | null>(null)
   const parallaxOffset = ref({ x: 0, y: 0 })
 
   // Вспомогательная функция для показа Level Up модала
@@ -57,9 +57,9 @@ export function useCanvasInteraction(
   // Обработка движения мыши
   const handleMouseMove = (
     event: MouseEvent,
-    nodes: SimulationNode[],
-    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: SimulationNode[]) => SimulationNode | null,
-    pushNeighbors: (centerBubble: SimulationNode, pushRadius: number, pushStrength: number, nodes: SimulationNode[]) => void
+    nodes: BubbleNode[],
+    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: BubbleNode[]) => BubbleNode | null,
+    pushNeighbors: (centerBubble: BubbleNode, pushRadius: number, pushStrength: number, nodes: BubbleNode[]) => void
   ) => {
     if (!canvasRef.value) return
 
@@ -129,15 +129,15 @@ export function useCanvasInteraction(
   // Обработка кликов
   const handleClick = async (
     event: MouseEvent,
-    nodes: SimulationNode[],
+    nodes: BubbleNode[],
     width: number,
     height: number,
-    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: SimulationNode[]) => SimulationNode | null,
-    explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => void,
+    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: BubbleNode[]) => BubbleNode | null,
+    explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: BubbleNode[], width: number, height: number) => void,
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
-    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[],
-    getSimulation?: () => Simulation<SimulationNode, undefined> | null
+    removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[],
+    getSimulation?: () => Simulation<BubbleNode, undefined> | null
   ) => {
     if (!canvasRef.value || isDragging.value) return
     isDragging.value = true
@@ -314,11 +314,11 @@ export function useCanvasInteraction(
   // Обработчик события удаления пузыря при нажатии "Продолжить"
   const handleBubbleContinue = async (
     event: Event,
-    nodes: SimulationNode[],
+    nodes: BubbleNode[],
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
-    explodeBubble: (bubble: SimulationNode) => void,
-    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[]
+    explodeBubble: (bubble: BubbleNode) => void,
+    removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[]
   ) => {
     const customEvent = event as CustomEvent
     const { bubbleId, isPhilosophyNegative } = customEvent.detail
@@ -418,17 +418,17 @@ export function useCanvasInteraction(
 
   // Настройка обработчиков событий
   const setupEventListeners = (
-    nodes: () => SimulationNode[],
+    nodes: () => BubbleNode[],
     width: () => number,
     height: () => number,
-    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: SimulationNode[]) => SimulationNode | null,
-    pushNeighbors: (centerBubble: SimulationNode, pushRadius: number, pushStrength: number, nodes: SimulationNode[]) => void,
-    explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: SimulationNode[], width: number, height: number) => void,
+    findBubbleUnderCursor: (mouseX: number, mouseY: number, nodes: BubbleNode[]) => BubbleNode | null,
+    pushNeighbors: (centerBubble: BubbleNode, pushRadius: number, pushStrength: number, nodes: BubbleNode[]) => void,
+    explodeFromPoint: (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: BubbleNode[], width: number, height: number) => void,
     createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
     createLifeLossFloatingText: (x: number, y: number) => void,
-    explodeBubble: (bubble: SimulationNode) => void,
-    removeBubble: (bubbleId: NormalizedSkillBubble['id'], nodes: SimulationNode[]) => SimulationNode[],
-    getSimulation?: () => Simulation<SimulationNode, undefined> | null
+    explodeBubble: (bubble: BubbleNode) => void,
+    removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[],
+    getSimulation?: () => Simulation<BubbleNode, undefined> | null
   ) => {
     const mouseMoveHandler = (event: MouseEvent) => 
       handleMouseMove(event, nodes(), findBubbleUnderCursor, pushNeighbors)

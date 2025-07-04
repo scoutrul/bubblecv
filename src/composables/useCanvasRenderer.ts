@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import type { SimulationNode } from './types'
-import { GAME_CONFIG } from '@shared/config/game-config'
+import type { BubbleNode } from '@/types/canvas'
+import { GAME_CONFIG } from '@/config/game-config'
 import { gsap } from 'gsap'
 
 interface Star {
@@ -173,7 +173,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   }
 
   // Отрисовка реалистичного пузыря с градацией по уровню экспертизы
-  const drawBubble = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+  const drawBubble = (context: CanvasRenderingContext2D, bubble: BubbleNode) => {
     context.save()
     
     // Проверяем корректность координат и размера
@@ -199,10 +199,10 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     const y = bubble.y
     
     // Особая отрисовка для скрытых пузырей
-    if (bubble.bubbleType === 'hidden') {
+    if (bubble.isHidden) {
       const hiddenConfig = GAME_CONFIG.hiddenBubble
       context.globalAlpha = hiddenConfig.opacity
-      if (hiddenConfig.hasGradient && hiddenConfig.gradientColors) {
+      if (hiddenConfig.gradientColors.length) {
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius * hiddenConfig.sizeMultiplier)
         hiddenConfig.gradientColors.forEach((color, index) => {
           const stop = index / (hiddenConfig.gradientColors.length - 1)
@@ -224,10 +224,10 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     }
     
     // Особая отрисовка для философских пузырей
-    if (bubble.isEasterEgg) {
-      const philosophyConfig = GAME_CONFIG.philosophyBubble
+    if (bubble.isQuestion) {
+      const philosophyConfig = GAME_CONFIG.questionBubble
       
-      if (philosophyConfig.hasGradient && philosophyConfig.gradientColors) {
+      if (philosophyConfig.gradientColors.length) {
         // Создаем радиальный градиент для философского пузыря
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
         
@@ -245,37 +245,18 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.beginPath()
       context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
-    } else if (bubble.isTough) {
-      // Особая отрисовка для крепких пузырей
-      const toughConfig = GAME_CONFIG.toughBubble
-      
-      // Свечение
-      context.shadowBlur = toughConfig.glowSize
-      context.shadowColor = toughConfig.glowColor
-      
-      if (toughConfig.hasGradient && toughConfig.gradientColors) {
-        const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
-        toughConfig.gradientColors.forEach((color, index) => {
-          const stop = index / (toughConfig.gradientColors.length - 1)
-          gradient.addColorStop(stop, color)
-        })
-        context.fillStyle = gradient
-      } else {
-        context.fillStyle = toughConfig.gradientColors[0] || '#FBBF24'
-      }
-      
+    } else if (bubble.isTough) {     
       context.beginPath()
       context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
-      
-      // Сбрасываем тень
+
       context.shadowBlur = 0
       context.shadowColor = 'transparent'
     } else {
       // Отрисовка обычных пузырей
-      const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel] || GAME_CONFIG.expertiseLevels.novice
+      const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel] || GAME_CONFIG.expertiseBubbles.novice
       
-      if (expertiseConfig.hasGradient && 'gradientColors' in expertiseConfig && expertiseConfig.gradientColors) {
+      if (expertiseConfig.gradientColors.length) {
         // Создаем радиальный градиент
         const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
         
@@ -299,9 +280,9 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   }
 
   // Отрисовка текста с адаптивным размером
-  const drawText = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+  const drawText = (context: CanvasRenderingContext2D, bubble: BubbleNode) => {
     // Не отображаем текст для философских и скрытых пузырей
-    if (bubble.isEasterEgg || bubble.isHidden) {
+    if (bubble.isQuestion || bubble.isHidden) {
       return
     }
     
@@ -314,7 +295,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Вычисляем коэффициент масштабирования на основе текущего радиуса
     const breathingScale = bubble.currentRadius / bubble.baseRadius
     
-    const expertiseConfig = GAME_CONFIG.expertiseLevels[bubble.skillLevel]
+    const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel]
     const sizeMultiplier = expertiseConfig.sizeMultiplier
     
     // Ограничиваем минимальный и максимальный размер шрифта
@@ -355,13 +336,13 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
 
   // Отрисовка всего канваса
   const render = (
-    nodes: SimulationNode[], 
+    nodes: BubbleNode[], 
     width: number, 
     height: number,
     shakeOffset: { x: number, y: number },
     parallaxOffset: { x: number, y: number },
     drawFloatingTexts: (context: CanvasRenderingContext2D) => void,
-    drawHoverEffect?: (context: CanvasRenderingContext2D, bubble: SimulationNode) => void
+    drawHoverEffect?: (context: CanvasRenderingContext2D, bubble: BubbleNode) => void
   ) => {
     const context = canvasRef.value?.getContext('2d')
     if (!context) return

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { ExplosionEffect, FloatingText, ShakeConfig, SimulationNode } from './types'
+import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode } from './types'
 
 import { hexToRgb } from '../utils/ui'
 
@@ -198,7 +198,7 @@ export function useCanvasEffects() {
   }
 
   // Отрисовка зоны воздействия при ховере
-  const drawHoverEffect = (context: CanvasRenderingContext2D, bubble: SimulationNode) => {
+  const drawHoverEffect = (context: CanvasRenderingContext2D, bubble: BubbleNode) => {
     const pushRadius = bubble.baseRadius * 4
     
     context.save()
@@ -221,7 +221,7 @@ export function useCanvasEffects() {
   }
 
   // Взрыв пузыря с эффектом
-  const explodeBubble = (bubble: SimulationNode) => {
+  const explodeBubble = (bubble: BubbleNode) => {
     if (!bubble || bubble.isPopped) return
     
     // Помечаем пузырь как лопнутый

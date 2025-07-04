@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import type { UserSession } from '@/types/client'
 import { GAME_CONFIG } from '@/config/game-config'
 import { useUiEventStore } from '@/stores/ui-event.store'
-import type { NormalizedSkillBubble } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 export const useSessionStore = defineStore('session', () => {
   // State
@@ -240,7 +240,7 @@ export const useSessionStore = defineStore('session', () => {
     }
   }
 
-  const visitBubble = async (bubbleId: NormalizedSkillBubble['id']): Promise<void> => {
+  const visitBubble = async (bubbleId: NormalizedBubble['id']): Promise<void> => {
     if (!session.value) return
 
     if (!session.value.visitedBubbles.includes(bubbleId)) {
