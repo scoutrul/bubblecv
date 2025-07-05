@@ -14,7 +14,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
 
   // State
   const session = ref<UserSession | null>(null)
-  const isLoading = ref(false)
 
   // Generate session ID
   const generateSessionId = (): string => {
@@ -241,7 +240,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
   return {
     currentYear,
     session,
-    isLoading,
     currentXP,
     currentLevel,
     lives,

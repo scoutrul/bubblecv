@@ -13,9 +13,7 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   let loadingPromise: Promise<void> | null = null
   const toughBubbleClicks = ref<Record<string, number>>({})
   
-  const activeHiddenBubbles = computed(() => {
-    return bubbles.value.filter((b: BubbleNode) => b.isHidden && !b.isPopped)
-  })
+  const activeHiddenBubbles = computed(() => bubbles.value.filter((b: BubbleNode) => b.isHidden && !b.isPopped))
 
   const loadBubbles = async (forceReload: boolean = false) => {
     // Если уже загружены и не принудительная перезагрузка - ничего не делаем

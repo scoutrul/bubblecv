@@ -61,6 +61,11 @@ export const getBubblesUpToYear = (bubbles: BubbleNode[], year: BubbleNode['year
   })
 }
 
+export const getBubblesToRender = (bubbles: BubbleNode[], currentYear: BubbleNode['year'], visitedBubbles: number[] = [], activeHiddenBubbles: BubbleNode[]) => {
+  const regularBubbles = getBubblesUpToYear(bubbles, currentYear, visitedBubbles)
+  return [...regularBubbles, ...activeHiddenBubbles]
+}
+
    // Найти следующий год с новыми пузырями
 export const findNextYearWithNewBubbles = (bubbles: BubbleNode[], currentYear: number, visitedBubbleIds: number[] = []): BubbleNode['year'] => {
   const availableYears = [...new Set(

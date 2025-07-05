@@ -19,13 +19,13 @@
         />
         
         <!-- Загрузочный экран -->
-        <LoadingSpinner v-if="isLoading" />
+        <LoadingSpinner v-if="bubbleStore.isLoading" />
       </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from 'vue'
 import { useCanvasSimulation } from '@/composables'
 import type { BubbleNode } from '@/types/canvas'
 import { useBubbleStore } from '@/stores/bubble.store'
@@ -33,31 +33,13 @@ import { useSessionStore } from '@/stores/session.store'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 
-import { getBubblesUpToYear, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
+import { getBubblesToRender, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
 
-const { bubbles } = useBubbleStore()
-const { currentYear } = useSessionStore()
-
-const years = bubbles.map(b => b.year)
-
-const startYear = Math.min(...years)
-const endYear = Math.max(...years)
+// Инициализация канваса с передачей callback
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
-const bubbleStore = useBubbleStore()
-const sessionStore = useSessionStore()
-const isLoading = ref<boolean>(true)
 
-// Реактивные размеры канваса
-const canvasWidth = ref(0)
-const canvasHeight = ref(0)
-
-const getBubblesToRender = () => {
-  const regularBubbles = getBubblesUpToYear(bubbleStore.bubbles, currentYear, sessionStore.visitedBubbles)
-  const hiddenBubbles = bubbleStore.activeHiddenBubbles
-  return [...regularBubbles, ...hiddenBubbles]
-}
 
 // Функция для проверки и обновления года
 const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
@@ -66,9 +48,9 @@ const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     n => !n.isQuestion && !n.isHidden
   )
 
-  if (!hasCoreBubbles && currentYear < endYear) {
+  if (!hasCoreBubbles && currentYear.value < endYear.value) {
     // Ищем следующий год с новыми пузырями
-    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, currentYear, sessionStore.visitedBubbles)
+    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, currentYear.value, sessionStore.visitedBubbles)
     
     if (nextYearWithBubbles !== null) {
       setTimeout(() => {
@@ -78,7 +60,6 @@ const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
   }
 }
 
-// Инициализация канваса с передачей callback
 const { 
   initSimulation, 
   updateBubbles, 
@@ -87,22 +68,39 @@ const {
   isInitialized
 } = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
 
+
+const bubbleStore = useBubbleStore()
+const sessionStore = useSessionStore()
+
+const years = bubbleStore.bubbles.map(b => b.year)
+
+const currentYear = computed(() => sessionStore.currentYear)
+const startYear = computed(() => Math.min(...years))
+const endYear = computed(() => Math.max(...years))
+
+
+
+
+// Реактивные размеры канваса
+const canvasWidth = ref(0)
+const canvasHeight = ref(0)
+
 // Следим за изменением года
-watch(() => currentYear, (newYear, oldYear) => {
-  if (isLoading.value || !isInitialized.value) return
+watch(() => currentYear.value, (newYear, oldYear) => {
+  if (bubbleStore.isLoading || !isInitialized.value) return
 
   // Если движемся вперед во времени, добавляем новый скрытый пузырь
   if (newYear > oldYear) {
     createHiddenBubble()
   }
 
-  const filteredBubbles = getBubblesToRender()
+  const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, currentYear.value, sessionStore.visitedBubbles, bubbleStore.activeHiddenBubbles)
 
   // Проверяем, есть ли в этом году "основные" пузыри (обычные или крепкие)
   const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
 
   // Если основных пузырей нет, ищем следующий год, где они есть
-  if (!hasCoreBubbles && newYear < endYear) {
+  if (!hasCoreBubbles && newYear < endYear.value) {
     const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
     if (nextYearWithBubbles !== null) {
       // Плавно переключаемся на следующий доступный год
@@ -118,17 +116,18 @@ watch(() => currentYear, (newYear, oldYear) => {
 })
 
 // Этот watch исправляет проблему с пустой инициализацией
-watch(() => bubbleStore.isLoading, (loading) => {
-  // Когда загрузка ЗАКОНЧИЛАСЬ и канвас уже инициализирован
-  if (loading === false && isInitialized.value) {
-    const bubblesToRender = getBubblesToRender();
-    updateBubbles(bubblesToRender);
-  }
-})
+// watch(() => bubbleStore.isLoading, (loading) => {
+//   // Когда загрузка ЗАКОНЧИЛАСЬ и канвас уже инициализирован
+//   if (loading === false && isInitialized.value) {
+//     const bubblesToRender = getBubblesToRender();
+//     updateBubbles(bubblesToRender);
+//   }
+// })
+
 
 // Реактивная инициализация и обновление
 onMounted(() => {
-  isLoading.value = true
+
   
   const resizeObserver = new ResizeObserver(entries => {
     for (const entry of entries) {
@@ -139,9 +138,9 @@ onMounted(() => {
         
         if (!isInitialized.value) {
           initSimulation(width, height)
-          const initialBubbles = getBubblesToRender()
+          const initialBubbles = getBubblesToRender(bubbleStore.bubbles, currentYear.value, sessionStore.visitedBubbles, bubbleStore.activeHiddenBubbles)
           updateBubbles(initialBubbles)
-          isLoading.value = false
+          bubbleStore.isLoading = false
         } else {
           updateSimulationSize(width, height)
         }
@@ -155,7 +154,7 @@ onMounted(() => {
 
   // Обработчик сброса игры
   const handleGameReset = async () => {
-    sessionStore.updateCurrentYear(startYear)
+    sessionStore.updateCurrentYear(startYear.value)
     
     // Ждем следующего тика, чтобы Vue успел обновить пропсы
     await nextTick()
@@ -169,10 +168,7 @@ onMounted(() => {
     window.removeEventListener('game-reset', handleGameReset)
   })
   
-  // Если пузыри уже загружены, инициализируем сразу
-  if (bubbleStore.bubbles.length > 0) {
-    // Canvas будет инициализирован через ResizeObserver
-  }
+  console.log(years, startYear.value)
 })
 </script>
 

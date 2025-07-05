@@ -1,8 +1,8 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from '@/App.vue'
-import '@/ui/styles/index.css'
-import { preventHistoryNavigation } from './utils/navigation'
+import '@/styles/index.css'
+import { preventHistoryNavigation } from '@/utils/navigation'
 
 const initApp = () => {
   preventHistoryNavigation()
