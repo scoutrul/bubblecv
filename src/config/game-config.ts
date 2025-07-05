@@ -5,6 +5,8 @@ export const GAME_CONFIG = {
   initialLives: 3,
   maxLives: 5,
 
+  TOUGH_BUBBLE_CLICKS_REQUIRED: 10,
+
   levelRequirements: {
     1: 0,     // Начальный уровень
     2: 50,    // Нужно 50 XP для достижения уровня 2

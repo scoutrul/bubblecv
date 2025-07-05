@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useGameStore } from '@/stores/game.store'
+import { useGameStore } from '@/stores/levels.store'
 import { useSessionStore } from '@/stores/session.store'
 
 interface Props {

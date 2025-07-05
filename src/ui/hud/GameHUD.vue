@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSessionStore } from '@/stores/session.store'
-import { useGameStore } from '@/stores/game.store'
+import { useGameStore } from '@/stores/levels.store'
 import { useUiEventStore } from '@/stores/ui-event.store'
 import { GAME_CONFIG } from '@/config/game-config'
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'

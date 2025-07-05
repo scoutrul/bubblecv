@@ -5,7 +5,7 @@ import { GAME_CONFIG } from '@/config/game-config'
 import { useUiEventStore } from '@/stores/ui-event.store'
 import type { NormalizedBubble } from '@/types/normalized'
 
-export const useSessionStore = defineStore('session', () => {
+export const useSessionStore = defineStore('sessionStore', () => {
   // State
   const session = ref<UserSession | null>(null)
   const isLoading = ref(false)
@@ -126,7 +126,7 @@ export const useSessionStore = defineStore('session', () => {
       uiEventStore.queueShake('level')
       leveledUp = true
       
-      const { useGameStore } = await import('@/stores/game.store')
+      const { useGameStore } = await import('@/stores/levels.store')
       const gameStore = useGameStore()
 
       // Проверяем достижения за уровни (отложенно)
@@ -159,7 +159,7 @@ export const useSessionStore = defineStore('session', () => {
   // Получить XP за правильный ответ на философский вопрос
   const gainPhilosophyXP = async (): Promise<boolean> => {
     // Проверяем достижение "Философ" (если еще не разблокировано)
-    const { useGameStore } = await import('@/stores/game.store')
+    const { useGameStore } = await import('@/stores/levels.store')
     const gameStore = useGameStore()
     
     const achievement = await gameStore.unlockAchievement('philosophy-master')
@@ -229,7 +229,7 @@ export const useSessionStore = defineStore('session', () => {
 
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
-      const { useGameStore } = await import('@/stores/game.store')
+      const { useGameStore } = await import('@/stores/levels.store')
       const gameStore = useGameStore()
       
       const achievement = await gameStore.unlockAchievement('on-the-edge')
@@ -286,7 +286,7 @@ export const useSessionStore = defineStore('session', () => {
     session.value.hasDestroyedToughBubble = true
     session.value.hasUnlockedFirstToughBubbleAchievement = true
     
-    const { useGameStore } = await import('@/stores/game.store')
+    const { useGameStore } = await import('@/stores/levels.store')
     const gameStore = useGameStore()
     
     const achievement = await gameStore.unlockAchievement('tough-bubble-popper')

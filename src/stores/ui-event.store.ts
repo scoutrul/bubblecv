@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-export const useUiEventStore = defineStore('ui-event', () => {
+export const useUiEventStore = defineStore('ui-eventStore', () => {
   const shakeQueue = ref(new Set<string>())
 
   /**

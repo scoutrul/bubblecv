@@ -9,6 +9,8 @@ export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubb
     isActive: false,
     isPopped: false,
     isTough: false,
+    isHidden: false,
+    isQuestion: false,
     toughClicks: 0,
     size: 'medium', // TODO: add size
   }

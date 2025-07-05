@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import type { Bubble } from '@/types/data'
 import type { Question } from '@/types/data'
 import { useSessionStore } from '@/stores/session.store'
-import { useGameStore } from '@/stores/game.store'
+import { useGameStore } from '@/stores/levels.store'
 import type { NormalizedBubble } from '@/types/normalized'
 
 interface LevelUpData {
@@ -23,7 +23,7 @@ export interface PendingAchievement {
   xpReward: number
 }
 
-export const useModalStore = defineStore('modals', () => {
+export const useModalStore = defineStore('modalStore', () => {
   const sessionStore = useSessionStore()
   const gameStore = useGameStore()
   

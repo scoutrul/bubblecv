@@ -32,7 +32,6 @@ const defaultBubbleNode: BubbleNode = {
   });
 
 
-
 export function createHiddenBubble(): BubbleNode {
   const hiddenBubble: BubbleNode = {
     ...defaultBubbleNode,

@@ -7,7 +7,7 @@ import type { Bubble } from '@/types/data'
 
 import { createBubble, createHiddenBubble } from '@/utils/nodes'
 
-export const useBubbleStore = defineStore('bubble', () => {
+export const useBubbleStore = defineStore('bubbleStore', () => {
   const bubbles = ref<BubbleNode[]>([])
   const isLoading = ref(false)
   const error = ref<string | null>(null)
