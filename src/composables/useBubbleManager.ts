@@ -34,7 +34,7 @@ export function useBubbleManager() {
   const savedPositions = new Map<number, PositionData>()
 
   // Создание узлов из пузырей
-  const createNodes = (bubbles: NormalizedBubble[], width: number, height: number): BubbleNode[] => {
+  const createNodes = (bubbles: BubbleNode[], width: number, height: number): BubbleNode[] => {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
 
     return bubbles.map((bubble) => {

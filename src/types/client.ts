@@ -3,7 +3,6 @@ export interface UserSession {
   currentXP: number
   currentLevel: number
   lives: number
-  unlockedContent: number[]
   visitedBubbles: number[]
   agreementScore: number
   gameCompleted: boolean
@@ -11,6 +10,7 @@ export interface UserSession {
   startTime: Date
   lastActivity: Date
   hasUnlockedFirstToughBubbleAchievement: boolean
+  currentYear: number
 }
 
 export type ModalType = 'welcome' | 'bubble' | 'achievement' | 'gameOver' | 'levelUp' | 'philosophy'

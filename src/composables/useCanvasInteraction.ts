@@ -6,7 +6,7 @@ import { GAME_CONFIG } from '@/config/game-config'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
-import { useGameStore } from '@/stores/levels.store'
+import { useLevelStore } from '@/stores/levels.store'
 import { gsap } from 'gsap'
 import type { NormalizedBubble } from '@/types/normalized'
 
@@ -17,7 +17,7 @@ export function useCanvasInteraction(
   onBubblePopped?: (nodes: BubbleNode[]) => void
 ) {
   const modalStore = useModalStore()
-  const gameStore = useGameStore()
+  const gameStore = useLevelStore()
   const sessionStore = useSessionStore()
   const bubbleStore = useBubbleStore()
   

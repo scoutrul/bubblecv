@@ -163,7 +163,7 @@ export function useCanvasSimulation(
   }
 
   // Обновление пузырей
-  const updateBubbles = (bubbles: NormalizedBubble[]) => {
+  const updateBubbles = (bubbles: BubbleNode[]) => {
     const simulation = physicsSimulation.getSimulation()
     if (!simulation || !ctx) return
 

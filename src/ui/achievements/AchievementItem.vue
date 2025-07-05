@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Achievement } from '@shared/types'
+import type { Achievement } from '@/types/data'
 
 interface Props {
   achievement: Achievement & { unlockedAt?: string }

@@ -32,18 +32,18 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useGameStore } from '@/stores/levels.store'
+import { useAchievmentStore } from '@/stores/achievements.store'
 import AchievementItem from './AchievementItem.vue'
-import type { Achievement } from '@shared/types'
+import type { Achievement } from '@/types/data'
 
 defineEmits<{
   close: []
 }>()
 
-const gameStore = useGameStore()
+const achievmentStore = useAchievmentStore()
 
 const unlockedAchievements = computed(() => 
-  gameStore.achievements.filter(achievement => achievement.unlockedAt)
+  achievmentStore.achievements.filter((achievement: Achievement) => achievement.isUnlocked)
 )
 </script>
 

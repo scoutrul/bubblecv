@@ -1,29 +1,31 @@
 <template>
-  <div class="bubble-canvas-container" ref="containerRef">
-    <!-- Canvas холст для отрисовки пузырей -->
-    <canvas
-      ref="canvasRef"
-      class="bubble-canvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
-    ></canvas>
-    
-    <!-- Временная линия -->
-    <TimelineSlider 
-      :currentYear="currentYear"
-      :start-year="startYear"
-      :end-year="endYear"
-      @update:currentYear="emit('update:currentYear', $event)"
-      class="timeline"
-    />
-    
-    <!-- Загрузочный экран -->
-    <LoadingSpinner v-if="isLoading" />
-  </div>
+    <div class="bubble-canvas-wrapper">
+      <div class="bubble-canvas-container" ref="containerRef">
+        <!-- Canvas холст для отрисовки пузырей -->
+        <canvas
+          ref="canvasRef"
+          class="bubble-canvas"
+          :width="canvasWidth"
+          :height="canvasHeight"
+        ></canvas>
+        
+        <!-- Временная линия -->
+        <TimelineSlider 
+          :currentYear="currentYear"
+          :start-year="startYear"
+          :end-year="endYear"
+          @update:currentYear="sessionStore.updateCurrentYear"
+          class="timeline"
+        />
+        
+        <!-- Загрузочный экран -->
+        <LoadingSpinner v-if="isLoading" />
+      </div>
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, watchEffect, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useCanvasSimulation } from '@/composables'
 import type { BubbleNode } from '@/types/canvas'
 import { useBubbleStore } from '@/stores/bubble.store'
@@ -33,14 +35,13 @@ import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 
 import { getBubblesUpToYear, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
 
-interface Props {
-  currentYear: number
-  startYear: number
-  endYear: number
-}
+const { bubbles } = useBubbleStore()
+const { currentYear } = useSessionStore()
 
-const props = defineProps<Props>()
-const emit = defineEmits(['update:currentYear'])
+const years = bubbles.map(b => b.year)
+
+const startYear = Math.min(...years)
+const endYear = Math.max(...years)
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const containerRef = ref<HTMLDivElement | null>(null)
@@ -53,7 +54,7 @@ const canvasWidth = ref(0)
 const canvasHeight = ref(0)
 
 const getBubblesToRender = () => {
-  const regularBubbles = getBubblesUpToYear(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
+  const regularBubbles = getBubblesUpToYear(bubbleStore.bubbles, currentYear, sessionStore.visitedBubbles)
   const hiddenBubbles = bubbleStore.activeHiddenBubbles
   return [...regularBubbles, ...hiddenBubbles]
 }
@@ -65,14 +66,14 @@ const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     n => !n.isQuestion && !n.isHidden
   )
 
-  if (!hasCoreBubbles && props.currentYear < props.endYear) {
+  if (!hasCoreBubbles && currentYear < endYear) {
     // Ищем следующий год с новыми пузырями
-    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
+    const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, currentYear, sessionStore.visitedBubbles)
     
     if (nextYearWithBubbles !== null) {
       setTimeout(() => {
-        emit('update:currentYear', nextYearWithBubbles)
-      }, 500)
+        sessionStore.updateCurrentYear(nextYearWithBubbles)
+      }, 300)
     }
   }
 }
@@ -87,7 +88,7 @@ const {
 } = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
 
 // Следим за изменением года
-watch(() => props.currentYear, (newYear, oldYear) => {
+watch(() => currentYear, (newYear, oldYear) => {
   if (isLoading.value || !isInitialized.value) return
 
   // Если движемся вперед во времени, добавляем новый скрытый пузырь
@@ -101,11 +102,11 @@ watch(() => props.currentYear, (newYear, oldYear) => {
   const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
 
   // Если основных пузырей нет, ищем следующий год, где они есть
-  if (!hasCoreBubbles && newYear < props.endYear) {
+  if (!hasCoreBubbles && newYear < endYear) {
     const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
     if (nextYearWithBubbles !== null) {
       // Плавно переключаемся на следующий доступный год
-      setTimeout(() => emit('update:currentYear', nextYearWithBubbles), 300)
+      setTimeout(() => sessionStore.updateCurrentYear(nextYearWithBubbles), 300)
     } else {
       // Если следующих годов с пузырями нет, просто обновляем канвас (он будет пуст)
       updateBubbles(filteredBubbles)
@@ -154,17 +155,13 @@ onMounted(() => {
 
   // Обработчик сброса игры
   const handleGameReset = async () => {
-    emit('update:currentYear', props.startYear)
+    sessionStore.updateCurrentYear(startYear)
     
     // Ждем следующего тика, чтобы Vue успел обновить пропсы
     await nextTick()
 
-    // После сброса немедленно проверяем, нужно ли переключить год,
-    // так как на стартовом году может не быть пузырей.
     checkBubblesAndAdvance([])
   }
-
-  window.addEventListener('game-reset', handleGameReset)
 
   onUnmounted(() => {
     resizeObserver.disconnect()
@@ -180,6 +177,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.bubble-canvas-wrapper {
+  @apply w-full h-full relative;
+}
+
 .bubble-canvas-container {
   @apply w-full h-full relative;
 }

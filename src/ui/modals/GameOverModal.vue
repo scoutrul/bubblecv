@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useGameStore } from '@/stores/levels.store'
+import { useLevelStore } from '@/stores/levels.store'
 import { useSessionStore } from '@/stores/session.store'
 
 interface Props {
@@ -73,7 +73,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const gameStore = useGameStore()
+const gameStore = useLevelStore()
 const sessionStore = useSessionStore()
 
 const currentLevel = computed(() => sessionStore.currentLevel)

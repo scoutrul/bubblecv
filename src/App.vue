@@ -4,7 +4,7 @@
     <GameHUD class="game-hud" />
 
     <!-- Основная сцена с пузырями -->
-    <BubbleCanvasContainer class="bubble-scene" />
+    <BubbleCanvas class="bubble-scene" />
     
     <!-- Кнопка сброса -->
     <ResetButton />
@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import BubbleCanvasContainer from '@/ui/bubble-canvas/BubbleCanvasContainer.vue'
+import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'

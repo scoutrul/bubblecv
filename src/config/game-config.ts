@@ -8,11 +8,11 @@ export const GAME_CONFIG = {
   TOUGH_BUBBLE_CLICKS_REQUIRED: 10,
 
   levelRequirements: {
-    1: 0,     // Начальный уровень
-    2: 50,    // Нужно 50 XP для достижения уровня 2
-    3: 100,   // Нужно 100 XP для достижения уровня 3
-    4: 150,   // Нужно 150 XP для достижения уровня 4
-    5: 200    // Нужно 200 XP для достижения уровня 5
+    1: 0,    
+    2: 50,   
+    3: 100,  
+    4: 150,  
+    5: 200   
   } as const,
   
   achievementXP: {
@@ -122,3 +122,5 @@ export const XP_CALCULATOR = {
 } as const
 
 export type GameLevelNumber = keyof typeof GAME_CONFIG.levelRequirements
+
+export const maxGameLevel = Object.keys(GAME_CONFIG.levelRequirements).length

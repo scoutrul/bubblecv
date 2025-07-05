@@ -52,8 +52,9 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSessionStore } from '@/stores/session.store'
-import { useGameStore } from '@/stores/levels.store'
+import { useLevelStore } from '@/stores/levels.store'
 import { useUiEventStore } from '@/stores/ui-event.store'
+import { useAchievmentStore } from '@/stores/achievements.store'
 import { GAME_CONFIG } from '@/config/game-config'
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
 import LivesDisplay from './LivesDisplay.vue'
@@ -68,7 +69,8 @@ const shakingComponents = ref(new Set<string>())
 
 // Stores
 const sessionStore = useSessionStore()
-const gameStore = useGameStore()
+const gameStore = useLevelStore()
+const achievementStore = useAchievmentStore()
 const uiEventStore = useUiEventStore()
 
 // Computed
@@ -92,14 +94,14 @@ const currentLevelTitle = computed(() => {
 })
 
 const unlockedAchievements = computed(() => {
-  return gameStore.achievements.filter(a => a.isUnlocked).length
+  return achievementStore.achievements.filter(a => a.isUnlocked).length
 })
 
 const animateXPGain = () => {
   isXPAnimating.value = true
   setTimeout(() => {
     isXPAnimating.value = false
-  }, GAME_CONFIG.animation.xpGain)
+  }, 200)
 }
 
 const handleProcessShakeQueue = () => {

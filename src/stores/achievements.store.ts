@@ -7,7 +7,7 @@ import { useUiEventStore } from '@/stores/ui-event.store'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 
-export const useGameStore = defineStore('achievmentStore', () => {
+export const useAchievmentStore = defineStore('achievmentStore', () => {
   const achievements = ref<Achievement[]>([])
 
   const isLoading = ref(true)

@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import { api } from '@/api'
 import { GAME_CONFIG } from '@/config/game-config'
 import type { BubbleNode } from '@/types/canvas'
-import type { Bubble } from '@/types/data'
 
 import { createBubble, createHiddenBubble } from '@/utils/nodes'
 
@@ -13,7 +12,6 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   const error = ref<string | null>(null)
   let loadingPromise: Promise<void> | null = null
   const toughBubbleClicks = ref<Record<string, number>>({})
-
   
   const activeHiddenBubbles = computed(() => {
     return bubbles.value.filter((b: BubbleNode) => b.isHidden && !b.isPopped)

@@ -5,7 +5,7 @@ import type { Level } from '@/types/levels'
 
 import { api } from '@/api'
 
-export const useGameStore = defineStore('levelStore', () => {
+export const useLevelStore = defineStore('levelStore', () => {
   const levels = ref<Level[]>([])
   const currentLevel = ref(1)
   const isLoading = ref(true)

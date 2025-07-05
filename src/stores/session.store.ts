@@ -1,26 +1,31 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserSession } from '@/types/client'
-import { GAME_CONFIG } from '@/config/game-config'
+import { GAME_CONFIG, maxGameLevel } from '@/config/game-config'
 import { useUiEventStore } from '@/stores/ui-event.store'
 import type { NormalizedBubble } from '@/types/normalized'
+import { useModalStore } from '@/stores/modal.store'
+import { useAchievmentStore } from '@/stores/achievements.store'
 
 export const useSessionStore = defineStore('sessionStore', () => {
+  const modalStore = useModalStore()
+  const uiEventStore = useUiEventStore()
+  const achievmentStore = useAchievmentStore()
+
   // State
   const session = ref<UserSession | null>(null)
   const isLoading = ref(false)
-  const error = ref<string | null>(null)
 
   // Generate session ID
   const generateSessionId = (): string => {
-    return `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `session_${Date.now()}`
   }
 
   // Getters
+  const currentYear = computed(() => session.value?.currentYear || GAME_CONFIG.initialYear)
   const currentXP = computed(() => session.value?.currentXP || 0)
   const currentLevel = computed(() => session.value?.currentLevel || 1)
   const lives = computed(() => session.value?.lives || GAME_CONFIG.maxLives)
-  const unlockedContent = computed(() => session.value?.unlockedContent || [])
   const visitedBubbles = computed(() => session.value?.visitedBubbles || [])
   const agreementScore = computed(() => session.value?.agreementScore || 0)
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
@@ -29,7 +34,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const xpProgress = computed(() => {
     if (!session.value) return 0
     const level = session.value.currentLevel
-    if (level >= 5) return 100
+    if (level >= maxGameLevel) return 100
     
     const currentLevelXP = GAME_CONFIG.levelRequirements[level as keyof typeof GAME_CONFIG.levelRequirements]
     const nextLevelXP = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
@@ -45,7 +50,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const nextLevelXP = computed(() => {
     if (!session.value) return 0
     const currentLevel = session.value.currentLevel
-    if (currentLevel >= 5) return 0 // Максимальный уровень
+    if (currentLevel >= maxGameLevel) return 0 // Максимальный уровень
     
     return GAME_CONFIG.levelRequirements[(currentLevel + 1) as keyof typeof GAME_CONFIG.levelRequirements]
   })
@@ -55,7 +60,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     const level = session.value.currentLevel
     
     // Не можем повыситься если уже максимальный уровень
-    if (level >= 5) return false
+    if (level >= maxGameLevel) return false
     
     // XP необходимый для следующего уровня
     const requiredXPForNextLevel = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
@@ -64,56 +69,13 @@ export const useSessionStore = defineStore('sessionStore', () => {
     return canLevel
   })
 
-  const isAlive = computed(() => lives.value > 0)
-
-  // Actions
-  const loadSession = async (sessionId?: string): Promise<void> => {
-    // Устанавливаем флаг загрузки перед началом операции
-    isLoading.value = true
-    error.value = null
-
-    try {
-      // Делаем небольшую задержку для тестов
-      await new Promise(resolve => setTimeout(resolve, 10))
-      
-      // Всегда генерируем новый ID сессии для новой вкладки
-      const id = generateSessionId()
-      
-      // Создаём новую сессию
-      session.value = {
-        id,
-        currentXP: 0,
-        currentLevel: 1,
-        lives: GAME_CONFIG.initialLives,
-        unlockedContent: [],
-        visitedBubbles: [],
-        agreementScore: 0,
-        gameCompleted: false,
-        hasDestroyedToughBubble: false,
-        startTime: new Date(),
-        lastActivity: new Date(),
-        hasUnlockedFirstToughBubbleAchievement: false
-      }
-
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Неизвестная ошибка'
-    } finally {
-      // Сбрасываем флаг загрузки после завершения
-      isLoading.value = false
-    }
-  }
-
   const gainXP = async (amount: number): Promise<boolean> => {
     if (!session.value) {
       return false
     }
-
-    const oldLevel = session.value.currentLevel
-    const oldXP = session.value.currentXP
     
     session.value.currentXP += amount
     
-    const uiEventStore = useUiEventStore()
     uiEventStore.queueShake('xp')
 
     // Проверяем повышение уровня в цикле, чтобы обработать несколько уровней сразу
@@ -126,18 +88,15 @@ export const useSessionStore = defineStore('sessionStore', () => {
       uiEventStore.queueShake('level')
       leveledUp = true
       
-      const { useGameStore } = await import('@/stores/levels.store')
-      const gameStore = useGameStore()
-
       // Проверяем достижения за уровни (отложенно)
       if (newLevel === 2) { // Достигли уровня 2 (первое повышение)
-        const achievement = await gameStore.unlockAchievement('first-level-master')
+        const achievement = await achievmentStore.unlockAchievement('first-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
         }
-      } else if (newLevel === 5) { // Достигли максимального уровня
-        const achievement = await gameStore.unlockAchievement('final-level-master')
+      } else if (newLevel === maxGameLevel) { // Достигли максимального уровня
+        const achievement = await achievmentStore.unlockAchievement('final-level-master')
         if (achievement) {
           // Начисляем XP за достижение
           session.value.currentXP += achievement.xpReward
@@ -148,21 +107,11 @@ export const useSessionStore = defineStore('sessionStore', () => {
     return leveledUp // Произошло ли повышение уровня
   }
 
-  // Получить XP за уровень экспертизы пузыря
-  const gainBubbleXP = async (expertiseLevel: string): Promise<boolean> => {
-    const xpAmount = GAME_CONFIG.xpPerExpertiseLevel[expertiseLevel as keyof typeof GAME_CONFIG.xpPerExpertiseLevel] || 1
-    
-    const result = await gainXP(xpAmount)
-    return result
-  }
-
   // Получить XP за правильный ответ на философский вопрос
   const gainPhilosophyXP = async (): Promise<boolean> => {
     // Проверяем достижение "Философ" (если еще не разблокировано)
-    const { useGameStore } = await import('@/stores/levels.store')
-    const gameStore = useGameStore()
     
-    const achievement = await gameStore.unlockAchievement('philosophy-master')
+    const achievement = await achievmentStore.unlockAchievement('philosophy-master')
     if (achievement) {
       // Начисляем XP только за достижение (основной XP начисляется отдельно)
       return await gainXP(achievement.xpReward)
@@ -193,9 +142,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
       session.value.gameCompleted = true
       
       // Показываем Game Over модал через modal store
-      const { useModalStore } = await import('@/stores/modal.store')
-      const modalStore = useModalStore()
-      
       modalStore.openGameOverModal({
         currentXP: session.value.currentXP,
         currentLevel: session.value.currentLevel
@@ -214,10 +160,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
     if (session.value.lives === 0) {
       session.value.gameCompleted = true
       
-      // Показываем Game Over модал через modal store
-      const { useModalStore } = await import('@/stores/modal.store')
-      const modalStore = useModalStore()
-      
       modalStore.openGameOverModal({
         currentXP: session.value.currentXP,
         currentLevel: session.value.currentLevel
@@ -229,10 +171,8 @@ export const useSessionStore = defineStore('sessionStore', () => {
 
     // Проверяем достижение "На краю" (осталась 1 жизнь)
     if (session.value.lives === 1) {
-      const { useGameStore } = await import('@/stores/levels.store')
-      const gameStore = useGameStore()
       
-      const achievement = await gameStore.unlockAchievement('on-the-edge')
+      const achievement = await achievmentStore.unlockAchievement('on-the-edge')
       if (achievement) {
         // Начисляем XP за достижение
         await gainXP(achievement.xpReward)
@@ -248,12 +188,12 @@ export const useSessionStore = defineStore('sessionStore', () => {
     }
   }
 
-  const updateAgreementScore = async (score: number): Promise<void> => {
-    if (!session.value) return
-
-    session.value.agreementScore += score
+  function updateCurrentYear(currYear: number) {
+    if(session.value) {
+      session.value.currentYear = currYear
+    }
   }
-
+  
   const resetSession = async (): Promise<void> => {
     // Сбрасываем состояние сессии
     session.value = {
@@ -261,19 +201,16 @@ export const useSessionStore = defineStore('sessionStore', () => {
       currentXP: 0,
       currentLevel: 1,
       lives: GAME_CONFIG.initialLives,
-      unlockedContent: [],
       visitedBubbles: [],
       agreementScore: 0,
       gameCompleted: false,
       hasDestroyedToughBubble: false,
       startTime: new Date(),
       lastActivity: new Date(),
-      hasUnlockedFirstToughBubbleAchievement: false
+      hasUnlockedFirstToughBubbleAchievement: false,
+      currentYear: GAME_CONFIG.initialYear
     }
 
-    // Показываем приветственную модалку
-    const { useModalStore } = await import('@/stores/modal.store')
-    const modalStore = useModalStore()
     modalStore.openWelcome()
     
     // Уведомляем компоненты о сбросе игры
@@ -286,16 +223,11 @@ export const useSessionStore = defineStore('sessionStore', () => {
     session.value.hasDestroyedToughBubble = true
     session.value.hasUnlockedFirstToughBubbleAchievement = true
     
-    const { useGameStore } = await import('@/stores/levels.store')
-    const gameStore = useGameStore()
-    
-    const achievement = await gameStore.unlockAchievement('tough-bubble-popper')
+    const achievement = await achievmentStore.unlockAchievement('tough-bubble-popper')
     if (achievement) {
       await gainXP(achievement.xpReward)
       
       // Отображаем модальное окно достижения
-      const { useModalStore } = await import('@/stores/modal.store')
-      const modalStore = useModalStore()
       
       modalStore.queueOrShowAchievement({
         title: achievement.name,
@@ -306,41 +238,26 @@ export const useSessionStore = defineStore('sessionStore', () => {
     }
   }
 
-  const clearError = (): void => {
-    error.value = null
-  }
-
-  const getSession = (): UserSession | null => {
-    return session.value
-  }
-
   return {
+    currentYear,
     session,
     isLoading,
-    error,
     currentXP,
     currentLevel,
     lives,
-    unlockedContent,
     visitedBubbles,
     agreementScore,
     gameCompleted,
     xpProgress,
     nextLevelXP,
     canLevelUp,
-    isAlive,
     hasUnlockedFirstToughBubbleAchievement,
-    loadSession,
     gainXP,
-    gainBubbleXP,
     gainPhilosophyXP,
-    loseLives,
     losePhilosophyLife,
     visitBubble,
-    updateAgreementScore,
     resetSession,
     unlockFirstToughBubbleAchievement,
-    clearError,
-    getSession
+    updateCurrentYear
   }
 }) 
