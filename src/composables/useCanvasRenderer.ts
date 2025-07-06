@@ -1,7 +1,7 @@
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import type { BubbleNode } from '@/types/canvas'
-import { GAME_CONFIG } from '@/config/game-config'
+import { GAME_CONFIG } from '@/config'
 import { gsap } from 'gsap'
 
 interface Star {

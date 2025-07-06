@@ -1,45 +1,49 @@
+type CleanupFn = () => void
 
-// Блокировка навигации по истории браузера
-export function preventHistoryNavigation() {
-    // Добавляем фиктивную запись в историю
+export function preventHistoryNavigation(): CleanupFn {
+  // Добавим фиктивную запись в историю
+  history.pushState(null, '', window.location.href)
+
+  // Обработчик попыток навигации назад
+  const onPopState = (e: PopStateEvent) => {
     history.pushState(null, '', window.location.href)
-    
-    // Блокируем попытки навигации
-    window.addEventListener('popstate', (event) => {
-      // Предотвращаем навигацию назад
-      history.pushState(null, '', window.location.href)
-      event.preventDefault()
-      event.stopPropagation()
-      return false
-    })
-    
-    // Блокируем клавиатурные сочетания для навигации
-    window.addEventListener('keydown', (event) => {
-      // Блокируем Alt + Left/Right (Back/Forward)
-      if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-        event.preventDefault()
-        event.stopPropagation()
-        return false
-      }
-      
-      // Блокируем Cmd + Left/Right на Mac
-      if (event.metaKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
-        event.preventDefault()
-        event.stopPropagation()
-        return false
-      }
-      
-      // Блокируем Backspace вне полей ввода
-      if (event.key === 'Backspace') {
-        const target = event.target as HTMLElement
-        const tagName = target.tagName.toLowerCase()
-        const isInput = tagName === 'input' || tagName === 'textarea' || target.isContentEditable
-        
-        if (!isInput) {
-          event.preventDefault()
-          event.stopPropagation()
-          return false
-        }
-      }
-    })
+    e.preventDefault?.()
+    e.stopPropagation?.()
   }
+
+  // Обработчик клавиш навигации
+  const onKeyDown = (e: KeyboardEvent) => {
+    const isNavKey = (
+      (e.altKey || e.metaKey) &&
+      (e.key === 'ArrowLeft' || e.key === 'ArrowRight')
+    )
+
+    if (isNavKey) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+
+    // Блокировка backspace вне полей ввода
+    if (e.key === 'Backspace') {
+      const target = e.target as HTMLElement
+      const tag = target.tagName.toLowerCase()
+      const isEditable = ['input', 'textarea'].includes(tag) || target.isContentEditable
+
+      if (!isEditable) {
+        e.preventDefault()
+        e.stopPropagation()
+      }
+    }
+  }
+
+  // Подписка на события
+  window.addEventListener('popstate', onPopState)
+  window.addEventListener('keydown', onKeyDown)
+
+  // Функция для отписки
+  return () => {
+    window.removeEventListener('popstate', onPopState)
+    window.removeEventListener('keydown', onKeyDown)
+  }
+}

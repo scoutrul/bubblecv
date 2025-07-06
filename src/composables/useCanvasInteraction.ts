@@ -2,7 +2,7 @@ import { type Ref, ref, onMounted, onUnmounted } from 'vue'
 import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
 import type { BubbleNode } from '@/types/canvas'
-import { GAME_CONFIG } from '@/config/game-config'
+import { GAME_CONFIG } from '@/config'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
@@ -10,7 +10,7 @@ import { useLevelStore } from '@/stores/levels.store'
 import { gsap } from 'gsap'
 import type { NormalizedBubble } from '@/types/normalized'
 
-import { XP_CALCULATOR } from '@/config/game-config'
+import { XP_CALCULATOR } from '@/config'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,

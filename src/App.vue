@@ -20,17 +20,16 @@ import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'
-import { useSessionStore } from '@/stores/session.store'
-import { useBubbleStore } from '@/stores/bubble.store'
 
-const sessionStore = useSessionStore()
-
-const bubbleStore = useBubbleStore()
+import { useApp } from '@/composables/'
 
 onMounted(async () => {
-  await bubbleStore.loadBubbles() 
-  
-  await sessionStore.resetSession()
+  const { initialize } = useApp()
+  try {
+    await initialize()
+  } catch (e) {
+    console.error('Ошибка инициализации:', e)
+  }
 })
 </script>
 

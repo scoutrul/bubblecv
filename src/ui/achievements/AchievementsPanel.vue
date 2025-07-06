@@ -32,7 +32,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useAchievmentStore } from '@/stores/achievements.store'
+import { useAchievmentStore } from '@/stores/achievement.store'
 import AchievementItem from './AchievementItem.vue'
 import type { Achievement } from '@/types/data'
 

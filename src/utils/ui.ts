@@ -1,14 +1,29 @@
-// Преобразование hex цвета в rgb для использования с alpha
-export function hexToRgb(hex: string) {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 102, g: 126, b: 234 }
+// Тип RGB-цвета
+export interface RGBColor {
+  r: number
+  g: number
+  b: number
 }
 
-export const isWindows = (): boolean => {
-  return typeof window !== 'undefined' && /Win/.test(window.navigator.platform)
+// Преобразование HEX в RGB
+export function hexToRgb(hex: string): RGBColor {
+  const cleanHex = hex.replace('#', '').trim()
+
+  if (cleanHex.length !== 6) {
+    // Fallback: синий градиент
+    return { r: 102, g: 126, b: 234 }
+  }
+
+  const bigint = parseInt(cleanHex, 16)
+
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  }
 }
-  
+
+// Проверка на Windows-платформу
+export const isWindows = (): boolean => {
+  return typeof window !== 'undefined' && /Win/.test(navigator.platform)
+}

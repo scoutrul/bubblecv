@@ -25,15 +25,14 @@ const defaultBubbleNode: BubbleNode = {
     isVisited: false,
     isReady: false,
   };
-  
-  export const createBubble = (bubble: Partial<BubbleNode>): BubbleNode => ({
-    ...defaultBubbleNode,
-    ...bubble
-  });
 
+export const createBubble = (partial: Partial<BubbleNode>): BubbleNode => ({
+  ...defaultBubbleNode,
+  ...partial
+})
 
 export function createHiddenBubble(): BubbleNode {
-  const hiddenBubble: BubbleNode = {
+  return {
     ...defaultBubbleNode,
     id: Date.now(),
     name: 'Скрытый пузырь',
@@ -43,53 +42,50 @@ export function createHiddenBubble(): BubbleNode {
     size: 'small',
     x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
     y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
-  } 
-  return hiddenBubble
-}
-
-export const getBubblesUpToYear = (bubbles: BubbleNode[], year: BubbleNode['year'], visitedBubbleIds: number[] = []): BubbleNode[] => {
-  // Этот метод теперь работает ТОЛЬКО с обычными пузырями
-  return bubbles.filter((bubble: BubbleNode) => {
-    if (bubble.isHidden) return false // Игнорируем скрытые пузыри
-    if (bubble.isQuestion) return false // Игнорируем скрытые пузыри
-
-    const isInTimeRange = bubble.year <= year
-    const isNotVisited = !visitedBubbleIds.includes(bubble.id)
-    const isNotPopped = !bubble.isPopped
-    
-    return isInTimeRange && isNotVisited && isNotPopped
-  })
-}
-
-export const getBubblesToRender = (bubbles: BubbleNode[], currentYear: BubbleNode['year'], visitedBubbles: number[] = [], activeHiddenBubbles: BubbleNode[]) => {
-  const regularBubbles = getBubblesUpToYear(bubbles, currentYear, visitedBubbles)
-  return [...regularBubbles, ...activeHiddenBubbles]
-}
-
-   // Найти следующий год с новыми пузырями
-export const findNextYearWithNewBubbles = (bubbles: BubbleNode[], currentYear: number, visitedBubbleIds: number[] = []): BubbleNode['year'] => {
-  const availableYears = [...new Set(
-    bubbles
-      .filter(bubble => !bubble.isHidden && !bubble.isQuestion)
-      .map(bubble => bubble.year)
-  )].sort((a, b) => a - b)
-  
-  for (const year of availableYears) {
-    if (year > currentYear) {
-      const newBubblesInYear = bubbles.filter(bubble => {
-        const isInYear = bubble.year === year
-        const isNotVisited = !visitedBubbleIds.includes(bubble.id)
-        const isNotPopped = !bubble.isPopped
-        const isNotHidden = !bubble.isHidden
-        const isNotQuestion = !bubble.isQuestion
-        return isInYear && isNotVisited && isNotPopped && isNotHidden && isNotQuestion
-      })
-      
-      if (newBubblesInYear.length > 0) {
-        return year
-      }
-    }
   }
-  
+}
+
+export const getBubblesUpToYear = (
+  bubbles: BubbleNode[],
+  year: number,
+  visitedBubbleIds: number[] = []
+): BubbleNode[] =>
+  bubbles.filter(b => 
+    b.year <= year &&
+    !b.isHidden &&
+    !b.isQuestion &&
+    !b.isPopped &&
+    !visitedBubbleIds.includes(b.id)
+  )
+
+export const getBubblesToRender = (
+  bubbles: BubbleNode[],
+  currentYear: number,
+  visited: number[],
+  activeHiddenBubbles: BubbleNode[]
+): BubbleNode[] =>
+  [...getBubblesUpToYear(bubbles, currentYear, visited), ...activeHiddenBubbles]
+
+export const findNextYearWithNewBubbles = (
+  bubbles: BubbleNode[],
+  currentYear: number,
+  visited: number[]
+): number => {
+  const years = [...new Set(bubbles
+    .filter(b => !b.isHidden && !b.isQuestion)
+    .map(b => b.year))].sort((a, b) => a - b)
+
+  for (const year of years) {
+    if (year <= currentYear) continue
+    const hasUnvisited = bubbles.some(b =>
+      b.year === year &&
+      !b.isHidden &&
+      !b.isQuestion &&
+      !b.isPopped &&
+      !visited.includes(b.id)
+    )
+    if (hasUnvisited) return year
+  }
+
   return currentYear
 }

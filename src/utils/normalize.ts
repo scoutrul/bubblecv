@@ -1,18 +1,23 @@
-import type { NormalizedBubble, NormalizedAchievement } from '../types/normalized'
-import type { Bubble, Achievement } from '../types/data'
-import { XP_CALCULATOR } from '../config/game-config'
+import type { Bubble, Achievement } from '@/types/data'
+import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
+import { XP_CALCULATOR } from '@/config'
+
+// Значения по умолчанию для пузыря
+const DEFAULT_BUBBLE_PROPS = {
+  isActive: false,
+  isPopped: false,
+  isTough: false,
+  isHidden: false,
+  isQuestion: false,
+  toughClicks: 0,
+  size: 'medium' as const,
+}
 
 export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubble {
   return {
     ...bubble,
+    ...DEFAULT_BUBBLE_PROPS,
     id,
-    isActive: false,
-    isPopped: false,
-    isTough: false,
-    isHidden: false,
-    isQuestion: false,
-    toughClicks: 0,
-    size: 'medium', // TODO: add size
   }
 }
 
@@ -21,6 +26,6 @@ export function normalizeAchievement(raw: Achievement): NormalizedAchievement {
     ...raw,
     xpReward: XP_CALCULATOR.getAchievementXP(raw.id),
     isUnlocked: false,
-    isShown: false
+    isShown: false,
   }
-} 
+}

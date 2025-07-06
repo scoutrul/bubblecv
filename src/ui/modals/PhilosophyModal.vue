@@ -97,7 +97,7 @@ import type { Question } from '@/types/data'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores/modal.store'
 import { useSessionStore } from '@/stores/session.store'
-import { GAME_CONFIG, XP_CALCULATOR } from '@/config/game-config'
+import { GAME_CONFIG, XP_CALCULATOR } from '@/config'
 import { computed } from 'vue'
 
 interface Props {

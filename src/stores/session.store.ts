@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { UserSession } from '@/types/client'
-import { GAME_CONFIG, maxGameLevel } from '@/config/game-config'
+import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { useUiEventStore } from '@/stores/ui-event.store'
 import type { NormalizedBubble } from '@/types/normalized'
 import { useModalStore } from '@/stores/modal.store'
-import { useAchievmentStore } from '@/stores/achievements.store'
+import { useAchievmentStore } from '@/stores/achievement.store'
 
 export const useSessionStore = defineStore('sessionStore', () => {
   const modalStore = useModalStore()
@@ -193,7 +193,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     }
   }
   
-  const resetSession = async (): Promise<void> => {
+  const startSession = async (): Promise<void> => {
     // Сбрасываем состояние сессии
     session.value = {
       id: generateSessionId(),
@@ -254,7 +254,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     gainPhilosophyXP,
     losePhilosophyLife,
     visitBubble,
-    resetSession,
+    startSession,
     unlockFirstToughBubbleAchievement,
     updateCurrentYear
   }

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api'
-import { GAME_CONFIG } from '@/config/game-config'
+import { GAME_CONFIG } from '@/config'
 import type { BubbleNode } from '@/types/canvas'
 
 import { createBubble, createHiddenBubble } from '@/utils/nodes'

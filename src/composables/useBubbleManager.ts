@@ -1,5 +1,5 @@
 import type { Bubble } from '@/types/data'
-import { GAME_CONFIG } from '@/config/game-config'
+import { GAME_CONFIG } from '@/config'
 import { SKILL_LEVELS, type SkillLevel } from '@/types/skill-levels'
 
 import type { BubbleNode, PositionData } from '@/types/canvas'
