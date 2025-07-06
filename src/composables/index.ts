@@ -6,4 +6,5 @@ export { useCanvasRenderer } from './useCanvasRenderer'
 export { useCanvasInteraction } from './useCanvasInteraction'
 export { useApp } from './useApp'
 export { useGameHUD } from './useGameHUD'
+export { useBubbleCanvas } from './useBubbleCanvas'
 
