@@ -37,99 +37,42 @@
       <AchievementsToggle 
         :unlocked-count="unlockedAchievements"
         :is-shaking="shakingComponents.has('achievements')"
-        @toggle="showAchievements = !showAchievements"
+        @toggle="toggleAchievements()"
       />
     </div>
     
     <!-- Панель достижений -->
     <AchievementsPanel 
       v-if="showAchievements"
-      @close="showAchievements = false"
+      @close="closeAchievements()"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { useSessionStore } from '@/stores/session.store'
-import { useLevelStore } from '@/stores/levels.store'
-import { useUiEventStore } from '@/stores/ui-event.store'
-import { useAchievmentStore } from '@/stores/achievement.store'
-import { GAME_CONFIG } from '@/config'
+import { useGameHUD } from '@/composables/'
+
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
 import LivesDisplay from './LivesDisplay.vue'
 import XPDisplay from './XPDisplay.vue'
 import LevelDisplay from './LevelDisplay.vue'
 import AchievementsToggle from './AchievementsToggle.vue'
 
-// State
-const showAchievements = ref(false)
-const isXPAnimating = ref(false)
-const shakingComponents = ref(new Set<string>())
-
-// Stores
-const sessionStore = useSessionStore()
-const gameStore = useLevelStore()
-const achievementStore = useAchievmentStore()
-const uiEventStore = useUiEventStore()
-
-// Computed
-const currentLevel = computed(() => sessionStore.currentLevel)
-
-const currentXP = computed(() => sessionStore.currentXP)
-
-const currentLives = computed(() => sessionStore.lives)
-const maxLives = computed(() => GAME_CONFIG.maxLives)
-
-const xpProgress = computed(() => sessionStore.xpProgress)
-
-const nextLevelXP = computed(() => {
-  const nextXP = sessionStore.nextLevelXP
-  return nextXP
-})
-
-const currentLevelTitle = computed(() => {
-  const level = gameStore.getLevelByNumber(currentLevel.value)
-  return level?.title || 'Посетитель'
-})
-
-const unlockedAchievements = computed(() => {
-  return achievementStore.achievements.filter(a => a.isUnlocked).length
-})
-
-const animateXPGain = () => {
-  isXPAnimating.value = true
-  setTimeout(() => {
-    isXPAnimating.value = false
-  }, 200)
-}
-
-const handleProcessShakeQueue = () => {
-  const componentsToShake = uiEventStore.consumeShakeQueue()
-  if (componentsToShake.size > 0) {
-    shakingComponents.value = componentsToShake
-    
-    // Очищаем состояние встряски после завершения анимации
-    setTimeout(() => {
-      shakingComponents.value.clear()
-    }, 700) // Длительность анимации + небольшой буфер
-  }
-}
-
-onMounted(() => {
-  window.addEventListener('process-shake-queue', handleProcessShakeQueue)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('process-shake-queue', handleProcessShakeQueue)
-})
-
-// Watch for XP changes to trigger animation
-watch(() => sessionStore.currentXP, (newXP, oldXP) => {
-  if (newXP > oldXP) {
-    animateXPGain()
-  }
-}, { immediate: false })
+const {
+  showAchievements,
+  isXPAnimating,
+  shakingComponents,
+  currentLevel,
+  currentXP,
+  currentLives,
+  maxLives,
+  xpProgress,
+  nextLevelXP,
+  currentLevelTitle,
+  unlockedAchievements,
+  toggleAchievements,
+  closeAchievements
+} = useGameHUD()
 </script>
 
 <style scoped>

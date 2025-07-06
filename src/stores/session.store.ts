@@ -7,6 +7,8 @@ import type { NormalizedBubble } from '@/types/normalized'
 import { useModalStore } from '@/stores/modal.store'
 import { useAchievmentStore } from '@/stores/achievement.store'
 
+import { generateSessionId } from '@/utils/ui'
+
 export const useSessionStore = defineStore('sessionStore', () => {
   const modalStore = useModalStore()
   const uiEventStore = useUiEventStore()
@@ -14,11 +16,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
 
   // State
   const session = ref<UserSession | null>(null)
-
-  // Generate session ID
-  const generateSessionId = (): string => {
-    return `session_${Date.now()}`
-  }
 
   // Getters
   const currentYear = computed(() => session.value?.currentYear || GAME_CONFIG.initialYear)

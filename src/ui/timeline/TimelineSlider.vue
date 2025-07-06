@@ -273,6 +273,10 @@ watch(() => props.currentYear, () => {
 <style scoped>
 .timeline-slider {
   @apply w-full;
+  @apply absolute bottom-8 left-1/2 transform -translate-x-1/2;
+  @apply bg-background-glass backdrop-blur-md rounded-lg p-4;
+  @apply border border-border;
+  width: min(400px, 90vw);
 }
 
 .timeline-content {

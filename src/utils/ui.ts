@@ -1,3 +1,5 @@
+import type { BubbleNode } from "@/types/canvas"
+
 // Тип RGB-цвета
 export interface RGBColor {
   r: number
@@ -26,4 +28,17 @@ export function hexToRgb(hex: string): RGBColor {
 // Проверка на Windows-платформу
 export const isWindows = (): boolean => {
   return typeof window !== 'undefined' && /Win/.test(navigator.platform)
+}
+
+  // Generate session ID
+export const generateSessionId = (): string => {
+  return `session_${Date.now()}`
+}
+
+export function getYearRange(bubbles: BubbleNode[]) {
+  const years = bubbles.map(b => b.year)
+  return {
+    startYear: Math.min(...years),
+    endYear: Math.max(...years)
+  }
 }

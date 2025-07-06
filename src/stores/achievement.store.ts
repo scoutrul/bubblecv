@@ -16,7 +16,7 @@ export const useAchievmentStore = defineStore('achievmentStore', () => {
 
   const unlockedAchievements = computed(() => achievements.value.filter(a => a.isUnlocked))
 
-  const LoadAchievments = async () => {
+  const loadAchievements = async () => {
     isLoading.value = true
 
     try {
@@ -83,7 +83,7 @@ export const useAchievmentStore = defineStore('achievmentStore', () => {
     })
   }
 
-  LoadAchievments()
+  loadAchievements()
 
   return {
     isLoading,
@@ -91,5 +91,6 @@ export const useAchievmentStore = defineStore('achievmentStore', () => {
     unlockedAchievements,
     resetAchievements,
     unlockAchievement,
+    loadAchievements
   }
 }) 

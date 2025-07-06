@@ -1,27 +1,13 @@
 <template>
-    <div class="bubble-canvas-wrapper">
-      <div class="bubble-canvas-container" ref="containerRef">
-        <!-- Canvas холст для отрисовки пузырей -->
-        <canvas
-          ref="canvasRef"
-          class="bubble-canvas"
-          :width="canvasWidth"
-          :height="canvasHeight"
-        ></canvas>
-        
-        <!-- Временная линия -->
-        <TimelineSlider 
-          :currentYear="currentYear"
-          :start-year="startYear"
-          :end-year="endYear"
-          @update:currentYear="sessionStore.updateCurrentYear"
-          class="timeline"
-        />
-        
-        <!-- Загрузочный экран -->
-        <LoadingSpinner v-if="bubbleStore.isLoading" />
-      </div>
-    </div>
+  <div class="bubble-canvas-container" ref="containerRef">
+    <!-- Canvas холст для отрисовки пузырей -->
+    <canvas
+      ref="canvasRef"
+      class="bubble-canvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
+    ></canvas>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -30,10 +16,9 @@ import { useCanvasSimulation } from '@/composables'
 import type { BubbleNode } from '@/types/canvas'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
-import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
-import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 
 import { getBubblesToRender, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
+import { getYearRange } from '@/utils/ui'
 
 // Инициализация канваса с передачей callback
 
@@ -48,7 +33,7 @@ const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     n => !n.isQuestion && !n.isHidden
   )
 
-  if (!hasCoreBubbles && currentYear.value < endYear.value) {
+  if (!hasCoreBubbles && currentYear.value < yearsRange.value.endYear) {
     // Ищем следующий год с новыми пузырями
     const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, currentYear.value, sessionStore.visitedBubbles)
     
@@ -72,14 +57,8 @@ const {
 const bubbleStore = useBubbleStore()
 const sessionStore = useSessionStore()
 
-const years = bubbleStore.bubbles.map(b => b.year)
-
 const currentYear = computed(() => sessionStore.currentYear)
-const startYear = computed(() => Math.min(...years))
-const endYear = computed(() => Math.max(...years))
-
-
-
+const yearsRange = computed(() => getYearRange(bubbleStore.bubbles))
 
 // Реактивные размеры канваса
 const canvasWidth = ref(0)
@@ -100,7 +79,7 @@ watch(() => currentYear.value, (newYear, oldYear) => {
   const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
 
   // Если основных пузырей нет, ищем следующий год, где они есть
-  if (!hasCoreBubbles && newYear < endYear.value) {
+  if (!hasCoreBubbles && newYear < yearsRange.value.endYear) {
     const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
     if (nextYearWithBubbles !== null) {
       // Плавно переключаемся на следующий доступный год
@@ -114,15 +93,6 @@ watch(() => currentYear.value, (newYear, oldYear) => {
   
   updateBubbles(filteredBubbles)
 })
-
-// Этот watch исправляет проблему с пустой инициализацией
-// watch(() => bubbleStore.isLoading, (loading) => {
-//   // Когда загрузка ЗАКОНЧИЛАСЬ и канвас уже инициализирован
-//   if (loading === false && isInitialized.value) {
-//     const bubblesToRender = getBubblesToRender();
-//     updateBubbles(bubblesToRender);
-//   }
-// })
 
 
 // Реактивная инициализация и обновление
@@ -154,7 +124,7 @@ onMounted(() => {
 
   // Обработчик сброса игры
   const handleGameReset = async () => {
-    sessionStore.updateCurrentYear(startYear.value)
+    sessionStore.updateCurrentYear(yearsRange.value.startYear)
     
     // Ждем следующего тика, чтобы Vue успел обновить пропсы
     await nextTick()
@@ -168,15 +138,10 @@ onMounted(() => {
     window.removeEventListener('game-reset', handleGameReset)
   })
   
-  console.log(years, startYear.value)
 })
 </script>
 
 <style scoped>
-.bubble-canvas-wrapper {
-  @apply w-full h-full relative;
-}
-
 .bubble-canvas-container {
   @apply w-full h-full relative;
 }
@@ -192,10 +157,4 @@ onMounted(() => {
   image-rendering: crisp-edges;
 }
 
-.timeline {
-  @apply absolute bottom-8 left-1/2 transform -translate-x-1/2;
-  @apply bg-background-glass backdrop-blur-md rounded-lg p-4;
-  @apply border border-border;
-  width: min(400px, 90vw);
-}
 </style>

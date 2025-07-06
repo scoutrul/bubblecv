@@ -11,7 +11,7 @@ export const useLevelStore = defineStore('levelStore', () => {
   const isLoading = ref(true)
 
 
-  const LoadLevels = async () => {
+  const loadLevels = async () => {
     isLoading.value = true
 
     try {
@@ -26,7 +26,7 @@ export const useLevelStore = defineStore('levelStore', () => {
 
   const getLevelByNumber = (level: Level['level']) => levels.value.find(l => l.level === level)
 
-  LoadLevels()
+  loadLevels()
 
   return {
     levels,

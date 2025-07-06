@@ -5,3 +5,5 @@ export { useCanvasEffects } from './useCanvasEffects'
 export { useCanvasRenderer } from './useCanvasRenderer'
 export { useCanvasInteraction } from './useCanvasInteraction'
 export { useApp } from './useApp'
+export { useGameHUD } from './useGameHUD'
+
