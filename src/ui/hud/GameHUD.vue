@@ -50,29 +50,37 @@
 </template>
 
 <script setup lang="ts">
-import { useGameHUD } from '@/composables/'
+import { useApp, useUi } from '@/composables/'
 
+import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
+import XPDisplay from '@/ui/hud/XPDisplay.vue'
+import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
+import AchievementsToggle from '@/ui/hud/AchievementsToggle.vue'
 import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
-import LivesDisplay from './LivesDisplay.vue'
-import XPDisplay from './XPDisplay.vue'
-import LevelDisplay from './LevelDisplay.vue'
-import AchievementsToggle from './AchievementsToggle.vue'
 
 const {
-  showAchievements,
-  isXPAnimating,
-  shakingComponents,
-  currentLevel,
-  currentXP,
-  currentLives,
-  maxLives,
-  xpProgress,
-  nextLevelXP,
-  currentLevelTitle,
-  unlockedAchievements,
-  toggleAchievements,
-  closeAchievements
-} = useGameHUD()
+  game: {
+    currentLevel,
+    currentXP,
+    currentLives,
+    maxLives,
+    xpProgress,
+    nextLevelXP,
+    currentLevelTitle,
+  },
+  achievements: {
+    unlockedAchievements,
+    toggleAchievements,
+    closeAchievements,
+    showAchievements,
+  }
+} = useApp()
+
+const {   
+    isXPAnimating,
+    shakingComponents
+  } = useUi()
+  
 </script>
 
 <style scoped>

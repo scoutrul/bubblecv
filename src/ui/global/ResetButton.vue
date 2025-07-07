@@ -1,7 +1,7 @@
 <template>
   <div class="fixed bottom-4 left-4 z-50 group">
     <button 
-      @click="handleReset"
+      @click="$emit('handleReset')"
       class="reset-button"
       title="Сбросить прогресс и начать заново"
     >
@@ -30,13 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSessionStore } from '@/stores/session.store'
-
-const sessionStore = useSessionStore()
-
-const handleReset = () => {
-  sessionStore.resetSession()
-}
+  const emit = defineEmits(['handleReset'])
 </script>
 
 <style scoped>

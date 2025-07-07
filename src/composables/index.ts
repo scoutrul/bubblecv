@@ -5,6 +5,7 @@ export { useCanvasEffects } from './useCanvasEffects'
 export { useCanvasRenderer } from './useCanvasRenderer'
 export { useCanvasInteraction } from './useCanvasInteraction'
 export { useApp } from './useApp'
-export { useGameHUD } from './useGameHUD'
+export { useUi } from './useUi'
 export { useBubbleCanvas } from './useBubbleCanvas'
+export { useAchievement } from './useAchievement'
 

@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+
 import type { UserSession } from '@/types/client'
-import { GAME_CONFIG, maxGameLevel } from '@/config'
-import { useUiEventStore } from '@/stores/ui-event.store'
 import type { NormalizedBubble } from '@/types/normalized'
-import { useModalStore } from '@/stores/modal.store'
-import { useAchievmentStore } from '@/stores/achievement.store'
+
+import { GAME_CONFIG, maxGameLevel } from '@/config'
+import { useModalStore, useUiEventStore, useAchievmentStore } from '@/stores/'
 
 import { generateSessionId } from '@/utils/ui'
 

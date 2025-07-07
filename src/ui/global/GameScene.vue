@@ -1,39 +1,37 @@
 <template>
 <div class="game-scene">
-    <GameHUD class="game-hud" />
-    <BubbleCanvas class="bubble-scene" />
     <TimelineSlider 
         :currentYear="currentYear"
         :start-year="startYear"
         :end-year="endYear"
-        @update:currentYear="sessionStore.updateCurrentYear"
+        @update:currentYear="updateCurrentYear"
         class="timeline"
     />
-    <ResetButton />
+    <GameHUD class="game-hud" />
+    <BubbleCanvas class="bubble-scene" />
+    <ResetButton @handle-reset="resetGame"/>
 </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useBubbleStore } from '@/stores/bubble.store'
-import { useSessionStore } from '@/stores/session.store'
+import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
+import ResetButton from '@/ui/global/ResetButton.vue'
+import GameHUD from '@/ui/hud/GameHUD.vue'
+import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 
-import GameHUD from '../hud/GameHUD.vue'
-import BubbleCanvas from './BubbleCanvas.vue'
-import TimelineSlider from '../timeline/TimelineSlider.vue'
-import ResetButton from './ResetButton.vue'
+import { useApp } from '@/composables'
 
-import { getYearRange } from '@/utils/ui'
-
-const sessionStore = useSessionStore()
-
-const currentYear = computed(() => sessionStore.currentYear)
-const bubbleStore = useBubbleStore()
-const { startYear, endYear } = getYearRange(bubbleStore.bubbles)
+const { 
+  resetGame, 
+  game: { startYear, endYear, currentYear, updateCurrentYear } } = useApp()
 
 </script>
 
 <style scoped>
+.timeline {
+  z-index: 1;
+}
+
 .bubble-scene {
   @apply absolute inset-0;
 }
