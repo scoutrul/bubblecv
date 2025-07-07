@@ -1,5 +1,6 @@
+import type { Level } from '@/types/levels'
 import type { Bubble, Achievement } from '@/types/data'
-import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
+import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 
 // Значения по умолчанию для пузыря
@@ -29,3 +30,12 @@ export function normalizeAchievement(raw: Achievement): NormalizedAchievement {
     isShown: false,
   }
 }
+
+export function normalizeLevels(raw: Level): NormalizedLevel {
+  return {
+    ...raw,
+    unlockedFeatures: [],
+    xpRequired: 0
+  }
+}
+

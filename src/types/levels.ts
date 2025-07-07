@@ -9,11 +9,3 @@ export interface LevelContent {
   name: string
   title: string
 }
-
-export interface LevelNormalized extends Level {
-  xpRequired: number
-  content?: LevelContent
-  unlockedFeatures?: string[]
-  lockedMessage?: string
-  congratulations?: string
-}

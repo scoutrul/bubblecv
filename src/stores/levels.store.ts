@@ -1,12 +1,12 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-import type { Level } from '@/types/levels'
+import type { NormalizedLevel } from '@/types/normalized'
 
 import { api } from '@/api'
 
 export const useLevelStore = defineStore('levelStore', () => {
-  const levels = ref<Level[]>([])
+  const levels = ref<NormalizedLevel[]>([])
   const currentLevel = ref(1)
   const isLoading = ref(true)
 
@@ -24,9 +24,7 @@ export const useLevelStore = defineStore('levelStore', () => {
     }
   }
 
-  const getLevelByNumber = (level: Level['level']) => levels.value.find(l => l.level === level)
-
-  loadLevels()
+  const getLevelByNumber = (level: number) => levels.value.find((l) => l.level === level)
 
   return {
     levels,

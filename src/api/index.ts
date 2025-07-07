@@ -2,15 +2,18 @@ import skills from '@/data/skills.json'
 import levels from '@/data/levels.json'
 import achievements from '@/data/achievements.json'
 
-import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
+import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel } from '@/types/normalized'
 import type { Bubble, Achievement } from '@/types/data'
 import type { Level } from '@/types/levels'
 
-import { normalizeSkillBubble, normalizeAchievement } from '@/utils/normalize'
+import { normalizeSkillBubble, normalizeAchievement, normalizeLevels } from '@/utils/normalize'
 
 export const api = {
-  async getLevels(): Promise<{ data: Level[] }> {
-    return { data: levels.levels }
+  async getLevels(): Promise<{ data: NormalizedLevel[] }> {
+    const data = levels.levels.map((level) =>
+      normalizeLevels(level as Level)
+    )
+    return { data }
   },
 
   async getBubbles(): Promise<{ data: NormalizedBubble[] }> {

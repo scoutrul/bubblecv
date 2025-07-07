@@ -2,7 +2,6 @@ import { type Ref, ref, onMounted, onUnmounted } from 'vue'
 import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
 import type { BubbleNode } from '@/types/canvas'
-import { GAME_CONFIG } from '@/config'
 import { useSessionStore } from '@/stores/session.store'
 import { useModalStore } from '@/stores/modal.store'
 import { useBubbleStore } from '@/stores/bubble.store'
@@ -12,14 +11,18 @@ import type { NormalizedBubble } from '@/types/normalized'
 
 import { XP_CALCULATOR } from '@/config'
 
+import { useAchievement } from '@/composables'
+
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
   onBubblePopped?: (nodes: BubbleNode[]) => void
 ) {
   const modalStore = useModalStore()
-  const gameStore = useLevelStore()
+  const levelStore = useLevelStore()
   const sessionStore = useSessionStore()
   const bubbleStore = useBubbleStore()
+
+  const useAchievements = useAchievement()
   
   const isDragging = ref(false)
   const hoveredBubble = ref<BubbleNode | null>(null)
@@ -40,7 +43,7 @@ export function useCanvasInteraction(
     }
     
     // Получаем данные нового уровня из contentLevels
-    const levelData = gameStore.getLevelByNumber(sessionStore.currentLevel)
+    const levelData = levelStore.getLevelByNumber(sessionStore.currentLevel)
     const levelUpData = {
       level: sessionStore.currentLevel,
       title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
@@ -234,7 +237,7 @@ export function useCanvasInteraction(
           }
           
           // Разблокируем достижение (отдельно от основного XP)
-          const achievement = await gameStore.unlockAchievement('secret-bubble-discoverer')
+          const achievement = await useAchievements.unlockAchievement('secret-bubble-discoverer')
           if (achievement) {
             const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
             
@@ -381,11 +384,11 @@ export function useCanvasInteraction(
     let achievement = null
     
     if (bubblesCount === 10) {
-      achievement = await gameStore.unlockAchievement('bubble-explorer-10')
+      achievement = await useAchievements.unlockAchievement('bubble-explorer-10')
     } else if (bubblesCount === 30) {
-      achievement = await gameStore.unlockAchievement('bubble-explorer-30')
+      achievement = await useAchievements.unlockAchievement('bubble-explorer-30')
     } else if (bubblesCount === 50) {
-      achievement = await gameStore.unlockAchievement('bubble-explorer-50')
+      achievement = await useAchievements.unlockAchievement('bubble-explorer-50')
     }
     
     if (achievement) {

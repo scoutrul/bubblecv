@@ -1,3 +1,4 @@
+import type { LevelContent, Level } from './levels'
 import type { Achievement, Bubble } from './data'
 import type { BubbleSizes } from './client'
 
@@ -16,4 +17,12 @@ export interface NormalizedAchievement extends Achievement {
   xpReward: number
   isUnlocked: boolean
   isShown: boolean
+}
+
+export interface NormalizedLevel extends Level {
+  xpRequired: number
+  content?: LevelContent
+  unlockedFeatures?: string[]
+  lockedMessage?: string
+  congratulations?: string
 }
