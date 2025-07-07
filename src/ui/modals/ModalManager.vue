@@ -18,8 +18,7 @@
     <BubbleModal
       :is-open="modalStore.isBubbleModalOpen"
       :bubble="modalStore.currentBubble"
-      @close="modalStore.closeBubbleModal"
-      @continue="modalStore.continueBubbleModal"
+      @close="modalStore.continueBubbleModal"
     />
 
     <!-- Game Over Modal -->

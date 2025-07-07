@@ -2,7 +2,6 @@
   <BaseModal
     :is-open="isOpen"
     @close="close"
-    data-testid="level-up-modal"
     class-name="level-up-modal-container"
   >
     <!-- Крестик для закрытия -->
@@ -10,7 +9,6 @@
       @click="close"
       class="close-button"
       aria-label="Закрыть"
-      data-testid="level-up-continue"
     >
       ×
     </button>

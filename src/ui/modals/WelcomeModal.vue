@@ -1,16 +1,7 @@
 <template>
-  <BaseModal
-    :is-open="isOpen"
-    @close="close"
-    data-testid="welcome-modal"
-    class-name="welcome-modal-container"
-  >
+  <BaseModal :is-open="isOpen" @close="close" class-name="welcome-modal-container">
     <!-- Закрытие -->
-    <button 
-      @click="close"
-      class="close-button"
-      aria-label="Закрыть"
-    >
+    <button @click="close" class="close-button" aria-label="Закрыть">
       ×
     </button>
 
@@ -31,16 +22,16 @@
     <!-- Основное сообщение -->
     <div class="welcome-content">
       <p class="intro-text">
-        Ты внутри интерактивного профиля разработчика: фронтенд-специалиста, немного фуллстакера, 
+        Ты внутри интерактивного профиля разработчика: фронтенд-специалиста, немного фуллстакера,
         продуктового архитектора и IT-мастера по вызову.
       </p>
-      
+
       <p class="twist-text">
         Но всё здесь устроено иначе.
       </p>
-      
+
       <p class="quest-text">
-        Чтобы узнать, кто стоит за этим проектом, что умеет, как мыслит и как связаться — 
+        Чтобы узнать, кто стоит за этим проектом, что умеет, как мыслит и как связаться —
         <strong>нужно пройти игру</strong>.
       </p>
     </div>
@@ -64,7 +55,7 @@
     <!-- Финальное сообщение -->
     <div class="finale-message">
       <p>
-        В финале откроются скиллы, проекты, код и контакты — и станет ясно, 
+        В финале откроются скиллы, проекты, код и контакты — и станет ясно,
         <em>совпадают ли наши цели</em>.
       </p>
     </div>
@@ -73,8 +64,8 @@
     <div class="call-to-action">
       <h3 class="ready-title">Готовы к исследованию?</h3>
       <p class="start-hint">Начинай с любого баббла.</p>
-      
-        <button @click="close" class="start-button" data-testid="welcome-continue">
+
+      <button @click="close" class="start-button">
         <span class="button-icon">🚀</span>
         Начать исследование
       </button>
@@ -111,7 +102,7 @@ const close = () => {
   max-width: 36rem;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(59, 130, 246, 0.1),
     0 0 50px rgba(59, 130, 246, 0.15);
@@ -358,12 +349,13 @@ const close = () => {
 
 /* Анимации */
 @keyframes modalEnter {
-  from { 
-    opacity: 0; 
+  from {
+    opacity: 0;
     backdrop-filter: blur(0px);
   }
-  to { 
-    opacity: 1; 
+
+  to {
+    opacity: 1;
     backdrop-filter: blur(8px);
   }
 }
@@ -373,6 +365,7 @@ const close = () => {
     opacity: 0;
     transform: translateY(-10px) scale(0.9);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -384,6 +377,7 @@ const close = () => {
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.95);
@@ -391,9 +385,12 @@ const close = () => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
@@ -403,8 +400,9 @@ const close = () => {
   from {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
   }
+
   to {
     box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
   }
 }
-</style> 
+</style>

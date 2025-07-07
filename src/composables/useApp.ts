@@ -51,13 +51,14 @@ export function useApp() {
       currentXP: computed(() => sessionStore.currentXP),
       currentLives: computed(() => sessionStore.lives),
       xpProgress: computed(() => sessionStore.xpProgress),
-      nextLevelXP: computed(() => sessionStore.nextLevelXP)
+      nextLevelXP: computed(() => sessionStore.nextLevelXP),
+      visitedBubbles: computed(() => sessionStore.visitedBubbles)
     },
     achievements: {
       unlockedAchievements: computed(() => achievements.unlockedAchievements),
-      toggleAchievements: computed(() => achievements.toggleAchievements),
-      closeAchievements: computed(() => achievements.closeAchievements),
-      showAchievements: computed(() => achievements.showAchievements),
+      showAchievements: achievements.showAchievements,
+      closeAchievements: achievements.closeAchievements,
+      toggleAchievements: achievements.toggleAchievements,
     }
   }
 }

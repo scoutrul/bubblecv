@@ -309,7 +309,7 @@ export const useModalStore = defineStore('modalStore', () => {
   }
 
   const restartGame = async () => {
-    await sessionStore.resetSession()
+    await sessionStore.startSession()
     closeGameOverModal()
     
     // Эмитим событие для перезагрузки с 2015 года

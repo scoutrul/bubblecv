@@ -48,7 +48,7 @@
     </div>
     
     <div class="game-over-actions">
-      <button @click="handleRestart" class="restart-button">
+      <button @click="resetGame" class="restart-button">
         🔄 Начать заново
       </button>
     </div>
@@ -58,8 +58,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useLevelStore } from '@/stores/levels.store'
-import { useSessionStore } from '@/stores/session.store'
+
+import { useApp } from '@/composables'
 
 interface Props {
   isVisible: boolean
@@ -73,22 +73,11 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const gameStore = useLevelStore()
-const sessionStore = useSessionStore()
+const { resetGame, game: { currentLevel, currentXP, visitedBubbles } } = useApp()
 
-const currentLevel = computed(() => sessionStore.currentLevel)
-const currentXP = computed(() => sessionStore.currentXP)
-const visitedBubblesCount = computed(() => sessionStore.visitedBubbles.length)
+const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 
-const handleRestart = async () => {
-  await sessionStore.resetSession()
-  
-  // Отправляем событие рестарта игры
-  window.dispatchEvent(new CustomEvent('game-restart'))
-  
-  emit('restart')
-  emit('close')
-}
+
 </script>
 
 <style scoped>

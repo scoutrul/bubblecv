@@ -1,8 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
-    @close="$emit('continue')"
-    data-testid="bubble-modal-wrapper"
+    @close="$emit('close')"
   >
     <div class="modal-content-wrapper">
       <!-- Header -->
@@ -23,10 +22,9 @@
           
           <!-- Крестик для закрытия -->
           <button 
-            @click="$emit('continue')"
+            @click="$emit('close')"
             class="close-button"
             aria-label="Закрыть"
-            data-testid="bubble-continue"
           >
             ×
           </button>
@@ -93,7 +91,6 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'continue'): void
 }
 
 const props = defineProps<Props>()

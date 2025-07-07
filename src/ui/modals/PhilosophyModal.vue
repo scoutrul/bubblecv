@@ -113,9 +113,6 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const modalStore = useModalStore()
-const sessionStore = useSessionStore()
-
 // Используем централизованную логику для расчета XP
 const philosophyXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP())
 const philosophyLives = 1

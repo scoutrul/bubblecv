@@ -6,14 +6,12 @@
     <div 
       v-if="isOpen" 
       class="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-      :data-testid="testId"
     >
       <Transition
         name="modal-window"
         appear
       >
         <div 
-          v-if="isOpen"
           class="relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary"
           :class="className"
           @click.stop
@@ -30,7 +28,6 @@ import { onMounted, onUnmounted } from 'vue'
 
 const props = defineProps<{
   isOpen: boolean
-  testId?: string
   className?: string
 }>()
 

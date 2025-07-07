@@ -1,7 +1,6 @@
 <template>
   <BaseModal
     :is-open="modalStore.isAchievementModalOpen"
-    data-testid="achievement-modal"
     @close="handleClose"
     class-name="achievement-modal-container"
   >
@@ -11,7 +10,6 @@
         @click="handleClose"
         class="close-button"
         aria-label="Закрыть"
-        data-testid="achievement-continue"
       >
         ×
       </button>
@@ -78,8 +76,6 @@
 import { ref, nextTick, watch } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores/modal.store'
-import { GAME_CONFIG } from '@shared/config/game-config'
-import type { PendingAchievement } from '@shared/types'
 
 const modalStore = useModalStore()
 const scrollContainer = ref<HTMLElement>()

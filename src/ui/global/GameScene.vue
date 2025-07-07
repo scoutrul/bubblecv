@@ -1,16 +1,11 @@
 <template>
-<div class="game-scene">
-    <TimelineSlider 
-        :currentYear="currentYear"
-        :start-year="startYear"
-        :end-year="endYear"
-        @update:currentYear="updateCurrentYear"
-        class="timeline"
-    />
+  <div class="game-scene">
+    <TimelineSlider :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
+      @update:currentYear="updateCurrentYear" class="timeline" />
     <GameHUD class="game-hud" />
     <BubbleCanvas class="bubble-scene" />
-    <ResetButton @handle-reset="resetGame"/>
-</div>
+    <ResetButton @handle-reset="resetGame" />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -21,9 +16,10 @@ import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 
 import { useApp } from '@/composables'
 
-const { 
-  resetGame, 
-  game: { startYear, endYear, currentYear, updateCurrentYear } } = useApp()
+const {
+  resetGame,
+  game: { startYear, endYear, currentYear, updateCurrentYear }
+} = useApp()
 
 </script>
 

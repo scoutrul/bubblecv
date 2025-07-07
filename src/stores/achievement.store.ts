@@ -83,8 +83,6 @@ export const useAchievmentStore = defineStore('achievmentStore', () => {
     })
   }
 
-  loadAchievements()
-
   return {
     isLoading,
     achievements,
