@@ -1,13 +1,13 @@
 <template>
   <BaseModal
-    :is-open="modalStore.isAchievementModalOpen"
-    @close="handleClose"
+    :is-open="isOpen"
+    @close="$emit('close')"
     class-name="achievement-modal-container"
   >
     <!-- Фиксированный хедер с крестиком -->
     <div class="relative flex-shrink-0 p-4 border-b border-amber-200">
       <button 
-        @click="handleClose"
+        @click="$emit('close')"
         class="close-button"
         aria-label="Закрыть"
       >
@@ -80,17 +80,18 @@ import { useModalStore } from '@/stores/modal.store'
 const modalStore = useModalStore()
 const scrollContainer = ref<HTMLElement>()
 
-// Автофокус на скроллируемую область при открытии модалки
-watch(() => modalStore.isAchievementModalOpen, async (isOpen) => {
-  if (isOpen) {
-    await nextTick()
-    scrollContainer.value?.focus()
-  }
-})
-
-const handleClose = () => {
-  modalStore.closeAchievementModal()
+interface Props {
+  isOpen: boolean
 }
+
+interface Emits {
+  (e: 'close'): void
+}
+
+const props = defineProps<Props>()
+
+const emit = defineEmits<Emits>()
+
 </script>
 
 <style scoped>

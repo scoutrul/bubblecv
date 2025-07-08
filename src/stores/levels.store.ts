@@ -10,7 +10,6 @@ export const useLevelStore = defineStore('levelStore', () => {
   const currentLevel = ref(1)
   const isLoading = ref(true)
 
-
   const loadLevels = async () => {
     isLoading.value = true
 
@@ -31,5 +30,6 @@ export const useLevelStore = defineStore('levelStore', () => {
     isLoading,
     currentLevel,
     getLevelByNumber,
+    loadLevels
   }
 }) 
