@@ -13,7 +13,7 @@ export interface BubbleNode extends NormalizedBubble, PositionData {
   targetRadius: number
   currentRadius: number
   isHovered?: boolean
-  isActive?: boolean
+  isActive: boolean
   isVisited?: boolean
   isReady?: boolean
   oscillationPhase: number
