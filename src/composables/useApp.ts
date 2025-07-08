@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
-import { useAchievement } from '@/composables/'
+import { useAchievement, useSession } from '@/composables/'
+import { useModals } from '@/composables/useModals'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
 
@@ -9,6 +10,8 @@ export function useApp() {
   const sessionStore = useSessionStore()
   const levelStore = useLevelStore()
   const achievements = useAchievement()
+  const { startSession, updateCurrentYear } = useSession()
+  const { openWelcome } = useModals()
 
   const isAppLoading = ref(false)
 
@@ -18,11 +21,18 @@ export function useApp() {
       await Promise.all([
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
-        sessionStore.startSession(),
+        startSession(),
       ])
+      // Открываем welcome модалку после инициализации
+      openWelcome()
     } finally {
       isAppLoading.value = false
     }
+  }
+
+  const resetGame = () => {
+    startSession()
+    openWelcome()
   }
 
   const currentLevel = computed(() => sessionStore.currentLevel)
@@ -34,8 +44,8 @@ export function useApp() {
 
   const game = {
     maxLives: GAME_CONFIG.maxLives,
-    currentYear: sessionStore.currentYear,
-    updateCurrentYear: sessionStore.updateCurrentYear,
+    currentYear: computed(() => sessionStore.currentYear),
+    updateCurrentYear: updateCurrentYear,
     currentLevel,
     currentLevelTitle,
     startYear: computed(() => yearRange.value.startYear),
@@ -49,7 +59,7 @@ export function useApp() {
 
   return {
     initialize,
-    resetGame: sessionStore.startSession,
+    resetGame,
     isAppLoading,
     game,
     achievements: {

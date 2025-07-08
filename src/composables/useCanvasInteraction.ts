@@ -1,4 +1,4 @@
-import { type Ref, ref, onMounted, onUnmounted } from 'vue'
+import { type Ref, ref } from 'vue'
 import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
 import type { BubbleNode } from '@/types/canvas'
@@ -8,10 +8,16 @@ import { useBubbleStore } from '@/stores/bubble.store'
 import { useLevelStore } from '@/stores/levels.store'
 import { gsap } from 'gsap'
 import type { NormalizedBubble } from '@/types/normalized'
-
 import { XP_CALCULATOR } from '@/config'
-
-import { useAchievement } from '@/composables'
+import { useAchievement, useSession, useModals } from '@/composables'
+import { 
+  getLevelIcon, 
+  createQuestionData, 
+  animateParallax, 
+  animateBubbleClick, 
+  animateToughBubbleHit, 
+  calculateBubbleJump 
+} from '@/utils/canvas-interaction'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -22,42 +28,17 @@ export function useCanvasInteraction(
   const sessionStore = useSessionStore()
   const bubbleStore = useBubbleStore()
 
-  const useAchievements = useAchievement()
+
+  const { gainXP, visitBubble, unlockFirstToughBubbleAchievement } = useSession()
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal } = useModals()
+  const { unlockAchievement } = useAchievement()
   
   const isDragging = ref(false)
   const hoveredBubble = ref<BubbleNode | null>(null)
   const parallaxOffset = ref({ x: 0, y: 0 })
 
-  // Вспомогательная функция для показа Level Up модала
-  const showLevelUpModal = (xpGained: number) => {
-    // Получаем иконку для уровня (такую же как в LevelDisplay)
-    const getLevelIcon = (level: number): string => {
-      switch (level) {
-        case 1: return '👋'
-        case 2: return '🤔'
-        case 3: return '📚'
-        case 4: return '🤝'
-        case 5: return '🤜🤛'
-        default: return '⭐'
-      }
-    }
-    
-    // Получаем данные нового уровня из contentLevels
-    const levelData = levelStore.getLevelByNumber(sessionStore.currentLevel)
-    const levelUpData = {
-      level: sessionStore.currentLevel,
-      title: levelData?.title || `Уровень ${sessionStore.currentLevel}`,
-      description: levelData?.description || 'Новый уровень разблокирован!',
-      icon: getLevelIcon(sessionStore.currentLevel),
-      currentXP: sessionStore.currentXP,
-      xpGained,
-      unlockedFeatures: (levelData as any)?.unlockedFeatures || []
-    }
-    
-    modalStore.openLevelUpModal(sessionStore.currentLevel, levelUpData)
-  }
 
-  // Обработка движения мыши
+
   const handleMouseMove = (
     event: MouseEvent,
     nodes: BubbleNode[],
@@ -70,28 +51,13 @@ export function useCanvasInteraction(
     const mouseX = event.clientX - rect.left
     const mouseY = event.clientY - rect.top
 
-    // Вычисляем целевое смещение для параллакса
-    const centerX = rect.width / 2
-    const centerY = rect.height / 2
-    const strength = 0.008 // Сила эффекта параллакса (еще уменьшена)
-    const targetX = (mouseX - centerX) * strength * -1
-    const targetY = (mouseY - centerY) * strength * -1
+    animateParallax(parallaxOffset.value, mouseX, mouseY, rect.width / 2, rect.height / 2)
 
-    // Анимируем смещение к целевому значению с затуханием
-    gsap.to(parallaxOffset.value, {
-      x: targetX,
-      y: targetY,
-      duration: 1.2, // Длительность анимации (увеличена для более медленного эффекта)
-      ease: 'power2.out' // Изинг для плавности
-    })
-
-    // Если идет перетаскивание, не обрабатываем ховер
     if (isDragging.value) return
 
     const newHoveredBubble = findBubbleUnderCursor(mouseX, mouseY, nodes)
 
     if (newHoveredBubble !== hoveredBubble.value) {
-      // Сброс предыдущего ховера
       if (hoveredBubble.value) {
         hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius
         hoveredBubble.value.isHovered = false
@@ -99,25 +65,20 @@ export function useCanvasInteraction(
 
       hoveredBubble.value = newHoveredBubble
 
-      // Применение нового ховера
       if (hoveredBubble.value) {
         hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius * 1.2
         hoveredBubble.value.isHovered = true
         canvasRef.value!.style.cursor = 'pointer'
         
-        // Отталкиваем соседей при начале ховера
-        const pushRadius = hoveredBubble.value.baseRadius * 3 // Уменьшили радиус воздействия
-        const pushStrength = 4 // Уменьшили силу отталкивания
+        const pushRadius = hoveredBubble.value.baseRadius * 3
+        const pushStrength = 4
         pushNeighbors(hoveredBubble.value, pushRadius, pushStrength, nodes)
-        
-  
       } else {
         canvasRef.value!.style.cursor = 'default'
       }
     }
   }
 
-  // Обработка ухода мыши
   const handleMouseLeave = () => {
     if (hoveredBubble.value) {
       hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius
@@ -129,7 +90,6 @@ export function useCanvasInteraction(
     }
   }
 
-  // Обработка кликов
   const handleClick = async (
     event: MouseEvent,
     nodes: BubbleNode[],
@@ -153,100 +113,60 @@ export function useCanvasInteraction(
       const clickedBubble = findBubbleUnderCursor(mouseX, mouseY, nodes)
 
       if (clickedBubble && !clickedBubble.isVisited) {
-        // Обработка крепких пузырей
         if (clickedBubble.isTough) {
           const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
           
           if (result.isReady) {
-            // Пузырь пробит!
-            // Помечаем пузырь как посещенный, чтобы он не появился снова.
-            // Достижение будет выдано после закрытия модалки в handleBubbleContinue.
-            await sessionStore.visitBubble(clickedBubble.id)
-
-            // Не выходим из функции, а позволяем коду ниже
-            // обработать этот пузырь как обычный (открыть модалку).
+            await visitBubble(clickedBubble.id)
           } else {
-            // Промежуточные клики дают XP
             createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
-            const leveledUp = await sessionStore.gainXP(1)
+            const result = await gainXP(1)
 
-            // Проверяем повышение уровня
-            if (leveledUp) {
-              showLevelUpModal(1)
+            if (result.leveledUp && result.levelData) {
+              openLevelUpModal(result.newLevel!, result.levelData)
             }
 
-            // --- ОБНОВЛЕННАЯ ЛОГИКА ОТСКОКА И НАБУХАНИЯ ---
-            const clickOffsetX = mouseX - clickedBubble.x
-            const clickOffsetY = mouseY - clickedBubble.y
-            const distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
+            const jump = calculateBubbleJump(mouseX, mouseY, clickedBubble)
+            clickedBubble.vx += jump.vx
+            clickedBubble.vy += jump.vy
+            clickedBubble.x += jump.x
+            clickedBubble.y += jump.y
 
-            if (distanceToCenter > 0) {
-              const dirX = clickOffsetX / distanceToCenter
-              const dirY = clickOffsetY / distanceToCenter
-              
-              const strengthFactor = Math.min(distanceToCenter / clickedBubble.radius, 1)
-              // Сила отскока теперь зависит от ТЕКУЩЕГО размера пузыря
-              const maxStrength = clickedBubble.radius * 1.5 // Еще больше отскок
-              const jumpStrength = maxStrength * strengthFactor
-
-              clickedBubble.vx -= dirX * jumpStrength
-              clickedBubble.vy -= dirY * jumpStrength
-              clickedBubble.x -= dirX * jumpStrength * 0.5
-              clickedBubble.y -= dirY * jumpStrength * 0.5
-
-              const simulation = getSimulation ? getSimulation() : null
-              if (simulation) {
-                simulation.alpha(1).restart()
-              }
+            const simulation = getSimulation ? getSimulation() : null
+            if (simulation) {
+              simulation.alpha(1).restart()
             }
             
-            // Анимация "набухания" при клике
-            gsap.killTweensOf(clickedBubble, 'targetRadius')
-            clickedBubble.targetRadius = (clickedBubble.targetRadius || clickedBubble.baseRadius) * 1.08
-            gsap.to(clickedBubble, {
-              targetRadius: clickedBubble.baseRadius,
-              duration: 1.2,
-              ease: 'elastic.out(1, 0.6)',
-              delay: 0.1
-            })
-          
-            return // Не открываем модал и не помечаем как посещенный
+            animateToughBubbleHit(clickedBubble)
+            return
           }
         }
         
-        // Пузырь считается посещенным, как только мы по нему кликнули
         clickedBubble.isVisited = true
-        await sessionStore.visitBubble(clickedBubble.id)
+        await visitBubble(clickedBubble.id)
         
-        // Специальная обработка для скрытого пузыря
         if (clickedBubble.isHidden) {
-          // Создаем мощный эффект взрыва
           const explosionRadius = clickedBubble.baseRadius * 8
           const explosionStrength = 25
           explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
           
-          // Начисляем XP за секретный пузырь (используем централизованную логику)
-
           const secretXP = XP_CALCULATOR.getSecretBubbleXP()
-          const leveledUp = await sessionStore.gainXP(secretXP)
+          const result = await gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
           
-          // Проверяем повышение уровня
-          if (leveledUp) {
-            showLevelUpModal(secretXP)
+          if (result.leveledUp && result.levelData) {
+            openLevelUpModal(result.newLevel!, result.levelData)
           }
           
-          // Разблокируем достижение (отдельно от основного XP)
-          const achievement = await useAchievements.unlockAchievement('secret-bubble-discoverer')
+          const achievement = await unlockAchievement('secret-bubble-discoverer')
           if (achievement) {
-            const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
+            const achievementResult = await gainXP(achievement.xpReward)
             
-            // Проверяем повышение уровня от XP за достижение
-            if (achievementLeveledUp) {
-              showLevelUpModal(achievement.xpReward)
+            if (achievementResult.leveledUp && achievementResult.levelData) {
+              openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
             }
             
-            modalStore.queueOrShowAchievement({
+            openAchievementModal({
               title: achievement.name,
               description: achievement.description,
               icon: achievement.icon,
@@ -254,59 +174,21 @@ export function useCanvasInteraction(
             })
           }
           
-          // Удаляем пузырь со сцены
           removeBubble(clickedBubble.id, nodes)
           return
         }
         
-        // Анимация клика - плавное изменение размера
-        const originalRadius = clickedBubble.targetRadius
-        clickedBubble.targetRadius = originalRadius * 0.9
+        animateBubbleClick(clickedBubble)
         
-        setTimeout(() => {
-          clickedBubble.targetRadius = originalRadius * 1.3
-          setTimeout(() => {
-            clickedBubble.targetRadius = originalRadius
-          }, 150)
-        }, 100)
-        
-        // Открываем модальное окно с деталями
         if (clickedBubble.isQuestion) {
-          // Для философских пузырей открываем философский модал
-          const question: Question = {
-            id: `question-${clickedBubble.id}`,
-            title: clickedBubble.name,   
-            description: clickedBubble.description,
-            question: clickedBubble.description,
-            type: 'string',
-            insight: 'string',
-            options: [
-              {
-                id: 1,
-                text: 'Я согласен с этим подходом и готов работать в этом стиле.',
-                response: 'string',
-                agreementLevel: 100,
-                livesLost: 1
-              },
-              {
-                id: 1,
-                text: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
-                response: 'string',
-                agreementLevel: 100,
-                livesLost: 1
-              },
-            ],
-          }
-          modalStore.openPhilosophyModal(question, clickedBubble.id)
+          const question = createQuestionData(clickedBubble)
+          openPhilosophyModal(question, clickedBubble.id)
         } else {
-          modalStore.openBubbleModal(clickedBubble)
+          openBubbleModal(clickedBubble)
         }
       } else if (!clickedBubble) {
-        // Клик по пустому месту - создаем взрыв отталкивания
-        const explosionRadius = Math.min(width, height) * 0.3 // 30% от размера экрана
-        const explosionStrength = 15 // Сильный взрыв
-        
-        // Создаем эффект взрыва от точки клика
+        const explosionRadius = Math.min(width, height) * 0.3
+        const explosionStrength = 15
         explodeFromPoint(mouseX, mouseY, explosionRadius, explosionStrength, nodes, width, height)
       }
     } finally {
@@ -314,7 +196,6 @@ export function useCanvasInteraction(
     }
   }
 
-  // Обработчик события удаления пузыря при нажатии "Продолжить"
   const handleBubbleContinue = async (
     event: Event,
     nodes: BubbleNode[],
@@ -324,102 +205,67 @@ export function useCanvasInteraction(
     removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[]
   ) => {
     const customEvent = event as CustomEvent
-    const { bubbleId, isPhilosophyNegative } = customEvent.detail
+    const { bubbleId, isPhilosophyNegative, skipXP } = customEvent.detail
     
-    
-    // Находим пузырь
     const bubble = nodes.find(node => node.id === bubbleId)
-    if (!bubble) {
-      return
-    }
+    if (!bubble) return
     
-    // Начисляем опыт в зависимости от уровня экспертизы
     let leveledUp = false
     let xpGained = 0
     
     if (bubble.isTough) {
-      // Для крепких пузырей XP уже начислен за клики.
-      // Здесь мы выдаем достижение и взрываем его.
-      await sessionStore.unlockFirstToughBubbleAchievement()
-      xpGained = 0 // XP за само пробитие не дается, только за клики и ачивку.
-      leveledUp = false
-      
+      await unlockFirstToughBubbleAchievement()
       explodeBubble(bubble)
       const remainingNodes = removeBubble(bubble.id, nodes)
       if (onBubblePopped) {
         onBubblePopped(remainingNodes)
       }
-      return // Завершаем обработку здесь
+      return
     } else if (bubble.isQuestion) {
-
       xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
-      leveledUp = await sessionStore.gainXP(xpGained)
+      const result = await gainXP(xpGained)
+      leveledUp = result.leveledUp
       createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
       
       if (isPhilosophyNegative) {
-        // Дополнительно показываем потерю жизни при неправильном ответе
         createLifeLossFloatingText(bubble.x, bubble.y)
       }
-    } else {
-      xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
-      leveledUp = await sessionStore.gainXP(xpGained)
       
-      // Создаём визуальный эффект получения XP при исчезновении (зеленый цвет)
+      if (result.leveledUp && result.levelData) {
+        openLevelUpModal(result.newLevel!, result.levelData)
+      }
+    } else if (!skipXP) {
+      // Обрабатываем XP только если не было уже обработано в useModals
+      xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      const result = await gainXP(xpGained)
+      leveledUp = result.leveledUp
+      
       if (xpGained > 0) {
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
       }
-    }
-
-    // Показываем Level Up модал если уровень повысился
-    if (leveledUp) {
-      showLevelUpModal(xpGained)
+      
+      if (result.leveledUp && result.levelData) {
+        console.log('Opening level up modal for bubble:', result)
+        openLevelUpModal(result.newLevel!, result.levelData)
+      }
     }
     
-    // Отмечаем пузырь как посещенный
-    await sessionStore.visitBubble(bubble.id)
+    await visitBubble(bubble.id)
     bubble.isVisited = true
     
-    // Проверяем достижения за количество пузырей ПОСЛЕ закрытия модалки
-    const bubblesCount = sessionStore.visitedBubbles.length
-    let achievement = null
+    // Achievement логика перенесена в useModals.continueBubbleModal
+    // чтобы избежать дублирования при multiple событиях
     
-    if (bubblesCount === 10) {
-      achievement = await useAchievements.unlockAchievement('bubble-explorer-10')
-    } else if (bubblesCount === 30) {
-      achievement = await useAchievements.unlockAchievement('bubble-explorer-30')
-    } else if (bubblesCount === 50) {
-      achievement = await useAchievements.unlockAchievement('bubble-explorer-50')
-    }
-    
-    if (achievement) {
-      const achievementLeveledUp = await sessionStore.gainXP(achievement.xpReward)
-      
-      // Проверяем повышение уровня от XP за достижение
-      if (achievementLeveledUp) {
-        showLevelUpModal(achievement.xpReward)
-      }
-      
-      modalStore.queueOrShowAchievement({
-        title: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-        xpReward: achievement.xpReward
-      })
-    }
-    
-    // Создаем мощный взрыв пузыря и сразу удаляем
     explodeBubble(bubble)
     
-    // Удаляем пузырь сразу - резкий эффект
     setTimeout(() => {
       const remainingNodes = removeBubble(bubbleId, nodes)
       if (onBubblePopped) {
         onBubblePopped(remainingNodes)
       }
-    }, 50) // Минимальная задержка для применения физики
+    }, 50)
   }
 
-  // Настройка обработчиков событий
   const setupEventListeners = (
     nodes: () => BubbleNode[],
     width: () => number,
@@ -442,7 +288,6 @@ export function useCanvasInteraction(
     const bubbleContinueHandler = (event: Event) =>
       handleBubbleContinue(event, nodes(), createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
 
-    // Добавляем слушатель события удаления пузыря
     window.addEventListener('bubble-continue', bubbleContinueHandler)
 
     return {
@@ -454,10 +299,6 @@ export function useCanvasInteraction(
       }
     }
   }
-
-  onMounted(() => {
-    // setupEventListeners will be called from the component with proper parameters
-  })
 
   return {
     isDragging,

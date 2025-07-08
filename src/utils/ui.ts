@@ -1,4 +1,4 @@
-import type { BubbleNode } from "@/types/canvas"
+import type { NormalizedBubble } from "@/types/normalized"
 
 // Тип RGB-цвета
 export interface RGBColor {
@@ -35,7 +35,15 @@ export const generateSessionId = (): string => {
   return `session_${Date.now()}`
 }
 
-export function getYearRange(bubbles: BubbleNode[]) {
+export function getYearRange(bubbles: NormalizedBubble[]) {
+  if (bubbles.length === 0) {
+    // Используем конфигурационный год вместо текущего
+    return {
+      startYear: 2015, // GAME_CONFIG.initialYear
+      endYear: 2015
+    }
+  }
+  
   const years = bubbles.map(b => b.year)
   return {
     startYear: Math.min(...years),

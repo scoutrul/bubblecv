@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :is-open="isOpen" @close="close" class-name="welcome-modal-container">
+  <BaseModal :is-open="isOpen" :allow-escape-close="allowEscapeClose" @close="close" class-name="welcome-modal-container">
     <!-- Закрытие -->
     <button @click="close" class="close-button" aria-label="Закрыть">
       ×
@@ -78,6 +78,7 @@ import BaseModal from '@/ui/global/BaseModal.vue'
 
 interface Props {
   isOpen: boolean
+  allowEscapeClose?: boolean
 }
 
 interface Emits {

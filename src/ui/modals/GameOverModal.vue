@@ -1,6 +1,7 @@
 <template>
   <BaseModal
     :is-open="isVisible"
+    :allow-escape-close="allowEscapeClose"
     @close="$emit('close')"
     class-name="game-over-modal-container"
   >
@@ -63,6 +64,7 @@ import { useApp } from '@/composables'
 
 interface Props {
   isVisible: boolean
+  allowEscapeClose?: boolean
 }
 
 interface Emits {

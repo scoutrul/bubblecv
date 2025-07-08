@@ -29,6 +29,7 @@ import { onMounted, onUnmounted } from 'vue'
 const props = defineProps<{
   isOpen: boolean
   className?: string
+  allowEscapeClose?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -36,7 +37,7 @@ const emit = defineEmits<{
 }>()
 
 const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.isOpen) {
+  if (event.key === 'Escape' && props.isOpen && props.allowEscapeClose !== false) {
     emit('close')
   }
 }

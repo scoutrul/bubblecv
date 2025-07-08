@@ -8,4 +8,6 @@ export { useApp } from './useApp'
 export { useUi } from './useUi'
 export { useBubbleCanvas } from './useBubbleCanvas'
 export { useAchievement } from './useAchievement'
+export { useModals } from './useModals'
+export { useSession } from './useSession'
 

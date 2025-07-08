@@ -6,31 +6,36 @@ export function useAchievement() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
   const modalStore = useModalStore()
+  
+
 
   const showAchievements = ref(false)
 
   const pendingUnlockIds = ref(new Set<string>())
 
   const unlockAchievement = async (id: string, showModal = true) => {
-    if (pendingUnlockIds.value.has(id)) return null
+    if (pendingUnlockIds.value.has(id)) {
+      return null
+    }
+    
+    const achievement = achievementStore.achievements.find(a => a.id === id)
+    if (!achievement) {
+      return null
+    }
+    
+    if (achievement.isUnlocked) {
+      return null
+    }
+    
     pendingUnlockIds.value.add(id)
 
     try {
-      const achievement = achievementStore.achievements.find(a => a.id === id)
-      if (!achievement) return null
-      if (achievement.isUnlocked) return null
-
       achievement.isUnlocked = true
       uiEventStore.queueShake('achievements')
-      await sessionStore.gainXP(achievement.xpReward)
+      // XP начисляется в useSession композабле, уберем дублирование
 
+      // Не добавляем в pending здесь - это делается в useModals.openAchievementModal
       if (showModal) {
-        modalStore.queueOrShowAchievement({
-          title: achievement.name,
-          description: achievement.description,
-          icon: achievement.icon,
-          xpReward: achievement.xpReward
-        })
         achievement.isShown = true
       }
 

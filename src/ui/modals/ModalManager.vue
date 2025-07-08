@@ -2,56 +2,63 @@
   <div>
     <!-- Welcome Modal -->
     <WelcomeModal
-      :is-open="welcome"
+      :is-open="modals.welcome"
+      :allow-escape-close="false"
       @close="closeWelcome"
     />
 
     <!-- Philosophy Modal -->
     <PhilosophyModal
-      :is-open="philosophy"
-      :question="currentQuestion"
+      :is-open="modals.philosophy"
+      :question="data.currentQuestion"
+      :allow-escape-close="false"
       @close="closePhilosophyModal"
       @answer="handlePhilosophyAnswer"
     />
 
     <!-- Bubble Modal -->
     <BubbleModal
-      :is-open="bubble"
-      :bubble="currentBubble"
+      :is-open="modals.bubble"
+      :bubble="data.currentBubble"
+      :allow-escape-close="true"
       @close="continueBubbleModal"
     />
 
     <!-- Game Over Modal -->
     <GameOverModal
-      :is-visible="gameOver"
-      :stats="gameOverStats"
+      :is-visible="modals.gameOver"
+      :stats="data.gameOverStats"
+      :allow-escape-close="false"
       @close="closeGameOverModal"
       @restart="restartGame"
     />
 
     <!-- Level Up Modal -->
     <LevelUpModal
-      :is-open="levelUp"
-      :level="levelUpData.level"
-      :title="levelUpData.title"
-      :description="levelUpData.description"
-      :icon="levelUpData.icon"
-      :current-x-p="levelUpData.currentXP"
-      :xp-gained="levelUpData.xpGained"
-      :unlocked-features="levelUpData.unlockedFeatures"
+      :is-open="modals.levelUp"
+      :level="data.levelUpData.level"
+      :title="data.levelUpData.title"
+      :description="data.levelUpData.description"
+      :icon="data.levelUpData.icon"
+      :current-x-p="data.levelUpData.currentXP"
+      :xp-gained="data.levelUpData.xpGained"
+      :unlocked-features="data.levelUpData.unlockedFeatures"
+      :allow-escape-close="false"
       @close="closeLevelUpModal"
     />
 
     <!-- Achievement Modal -->
     <AchievementModal 
-      :is-open="achievement" 
+      :is-open="modals.achievement" 
+      :achievement="data.achievement"
+      :allow-escape-close="false"
       @close="closeAchievementModal"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useModalStore } from '@/stores/modal.store'
+import { useModals } from '@/composables/useModals'
 import WelcomeModal from './WelcomeModal.vue'
 import PhilosophyModal from './PhilosophyModal.vue'
 import BubbleModal from './BubbleModal.vue'
@@ -59,33 +66,18 @@ import GameOverModal from './GameOverModal.vue'
 import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 
-const modalStore = useModalStore()
-
-const { 
-  modals: {
-    welcome,
-    bubble,
-    levelUp,
-    philosophy,
-    gameOver,
-    achievement
-},
-data: {
-  currentBubble,
-  gameOverStats,
-  currentQuestion,
-  levelUpData
-},
-  closeAchievementModal,
-  closeLevelUpModal,
-  restartGame,
+const {
+  modals,
+  data,
   closeWelcome,
   closePhilosophyModal,
   handlePhilosophyAnswer,
   continueBubbleModal,
-  closeGameOverModal
-
- } = modalStore
+  closeGameOverModal,
+  restartGame,
+  closeLevelUpModal,
+  closeAchievementModal
+} = useModals()
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
 <template>
-  <div class="timeline-slider" ref="timelineRef" v-if="currentYear">
+  <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
     <div class="timeline-content">
       <div class="timeline-header">
         <h3 class="text-lg font-semibold">Путешествие во времени</h3>
@@ -184,27 +184,32 @@ const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
   return tl
 }
 
-// Computed для отслеживания завершения всех доступных пузырей до текущего года
+// Computed для отслеживания завершения всех пузырей текущего года
 const isCurrentYearCompleted = computed(() => {
-  // Используем накопительный метод - все пузыри до текущего года
-  const availableBubbles = getBubblesUpToYear(bubbleStore.bubbles, props.currentYear, sessionStore.visitedBubbles)
+  // Берем только пузыри текущего года
+  const currentYearBubbles = bubbleStore.bubbles.filter(bubble => 
+    bubble.year === props.currentYear &&
+    !bubble.isHidden &&
+    !bubble.isQuestion
+  )
   
-  if (availableBubbles.length === 0) {
-    return true // Если нет доступных пузырей, считаем год завершённым
+  if (currentYearBubbles.length === 0) {
+    return true // Если нет пузырей в текущем году, считаем год завершённым
   }
   
-  // Проверяем, все ли доступные пузыри лопнуты
-  const hasUnpoppedBubbles = availableBubbles.some(bubble => !bubble.isPopped)
-  const isCompleted = !hasUnpoppedBubbles
+  // Проверяем, все ли пузыри текущего года посещены
+  const hasUnvisitedBubbles = currentYearBubbles.some(bubble => 
+    !sessionStore.visitedBubbles.includes(bubble.id)
+  )
   
-  return isCompleted
+  return !hasUnvisitedBubbles
 })
 
 // Debounce функция для предотвращения множественных срабатываний
 let autoSwitchTimeout: number | null = null
 
 const performAutoSwitch = async () => {
-  if (isAutoSwitching.value || props.currentYear >= props.endYear) {
+  if (isAutoSwitching.value || props.currentYear >= props.endYear || !isFinite(props.currentYear)) {
     return
   }
   
@@ -217,8 +222,11 @@ const performAutoSwitch = async () => {
     triggerGsapShakeEffect()
     
     setTimeout(() => {
-      if (props.currentYear < props.endYear) {
-        emit('update:currentYear', props.currentYear + 1)
+      if (props.currentYear < props.endYear && isFinite(props.currentYear)) {
+        const nextYear = props.currentYear + 1
+        if (isFinite(nextYear) && nextYear <= props.endYear) {
+          emit('update:currentYear', nextYear)
+        }
         
         setTimeout(() => {
           isAutoSwitching.value = false
@@ -239,23 +247,23 @@ watch(() => props.currentYear, async () => {
   }
 })
 
-// Используем watchEffect для лучшего отслеживания изменений
-watchEffect(() => {
+// Отслеживаем изменения visitedBubbles для автопереключения
+watch([() => sessionStore.visitedBubbles.length, () => props.currentYear], () => {
   // Очищаем предыдущий timeout
   if (autoSwitchTimeout) {
     clearTimeout(autoSwitchTimeout)
   }
   
-  // Проверяем завершение года с debounce
+  // Проверяем завершение года с debounce только при изменении visitedBubbles
   if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
     autoSwitchTimeout = window.setTimeout(() => {
       // Повторная проверка после задержки для уверенности
-      if (isCurrentYearCompleted.value && !isAutoSwitching.value) {
+      if (isCurrentYearCompleted.value && !isAutoSwitching.value && props.currentYear < props.endYear) {
         performAutoSwitch()
       }
-    }, 100) // Небольшая задержка для debounce
+    }, 500) // Увеличена задержка для более стабильной работы
   }
-})
+}, { flush: 'post' })
 
 // Сброс флага автопереключения при смене года вручную
 watch(() => props.currentYear, () => {

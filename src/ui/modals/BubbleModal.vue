@@ -1,6 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
+    :allow-escape-close="allowEscapeClose"
     @close="$emit('close')"
   >
     <div class="modal-content-wrapper">
@@ -87,6 +88,7 @@ import type { NormalizedBubble } from '@/types/normalized'
 interface Props {
   isOpen: boolean
   bubble: NormalizedBubble | null
+  allowEscapeClose?: boolean
 }
 
 interface Emits {

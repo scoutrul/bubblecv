@@ -1,6 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
+    :allow-escape-close="allowEscapeClose"
     @close="$emit('close')"
     class-name="achievement-modal-container"
   >
@@ -39,25 +40,25 @@
         <!-- Иконка достижения -->
         <div class="mb-6">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full shadow-lg animate-bounce">
-            <span class="text-4xl">{{ modalStore.achievementData?.icon || '🏆' }}</span>
+            <span class="text-4xl">{{ achievement?.icon || '🏆' }}</span>
           </div>
         </div>
         
         <!-- Название достижения -->
         <h3 class="text-2xl font-bold text-gray-800 mb-4">
-          {{ modalStore.achievementData?.title }}
+          {{ achievement?.title }}
         </h3>
         
         <!-- Описание -->
         <p class="text-gray-700 mb-6 leading-relaxed">
-          {{ modalStore.achievementData?.description }}
+          {{ achievement?.description }}
         </p>
         
         <!-- XP награда -->
         <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg mb-6">
           <div class="flex items-center justify-center space-x-2">
             <span class="text-2xl">✨</span>
-            <span class="font-bold text-lg">+{{ modalStore.achievementData?.xpReward }} XP</span>
+            <span class="font-bold text-lg">+{{ achievement?.xpReward }} XP</span>
             <span class="text-2xl">✨</span>
           </div>
         </div>
@@ -75,13 +76,14 @@
 <script setup lang="ts">
 import { ref, nextTick, watch } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useModalStore } from '@/stores/modal.store'
+import type { PendingAchievement } from '@/types/modals'
 
-const modalStore = useModalStore()
 const scrollContainer = ref<HTMLElement>()
 
 interface Props {
   isOpen: boolean
+  achievement: PendingAchievement | null
+  allowEscapeClose?: boolean
 }
 
 interface Emits {

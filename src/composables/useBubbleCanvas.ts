@@ -1,14 +1,17 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
-import { getBubblesToRender, findNextYearWithNewBubbles, createHiddenBubble } from '@/utils/nodes'
+import { getBubblesToRender, findNextYearWithNewBubbles, createHiddenBubble, normalizedToBubbleNode } from '@/utils/nodes'
 import { useCanvasSimulation } from '@/composables/useCanvasSimulation'
+import { useSession } from '@/composables/useSession'
 import type { BubbleNode } from '@/types/canvas'
 import { getYearRange } from '@/utils/ui'
+import { GAME_CONFIG } from '@/config'
 
 export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef: Ref<HTMLElement | null>) {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
+  const { updateCurrentYear } = useSession()
 
   // Используем утилиту для вычисления диапазона годов
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
@@ -26,7 +29,7 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
       const nextYear = findNextYearWithNewBubbles(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
       if (nextYear !== null) {
         setTimeout(() => {
-          sessionStore.updateCurrentYear(nextYear)
+          updateCurrentYear(nextYear)
         }, 300)
       }
     }
@@ -45,14 +48,14 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
       createHiddenBubble()
     }
 
-    const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles, bubbleStore.activeHiddenBubbles)
+    const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles, [])
 
     const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
 
     if (!hasCoreBubbles && newYear < endYear.value) {
       const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
       if (nextYearWithBubbles !== null) {
-        setTimeout(() => sessionStore.updateCurrentYear(nextYearWithBubbles), 300)
+        setTimeout(() => updateCurrentYear(nextYearWithBubbles), 300)
       } else {
         updateBubbles(filteredBubbles)
       }
@@ -72,9 +75,12 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
 
           if (!isInitialized.value) {
             initSimulation(width, height)
-            const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles, bubbleStore.activeHiddenBubbles)
+            const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
             updateBubbles(initialBubbles)
             bubbleStore.isLoading = false
+            
+            // НЕ вызываем checkBubblesAndAdvance при первоначальной инициализации
+            // чтобы избежать автопереключения на последний год
           } else {
             // Если нужен resize — сюда можно добавить updateSimulationSize, если будет
           }
@@ -87,9 +93,10 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
     }
 
     const handleGameReset = async () => {
-      sessionStore.updateCurrentYear(startYear.value)
+      updateCurrentYear(GAME_CONFIG.initialYear)
       await nextTick()
-      checkBubblesAndAdvance([])
+      // НЕ вызываем checkBubblesAndAdvance при reset, так как это запускает автопереключение
+      // Пузыри будут загружены через watch() при смене currentYear
     }
 
     window.addEventListener('game-reset', handleGameReset)

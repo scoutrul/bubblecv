@@ -1,9 +1,10 @@
 import type { BubbleNode } from '@/types/canvas'
+import type { NormalizedBubble } from '@/types/normalized'
 
 const defaultBubbleNode: BubbleNode = {
     id: 0,
     name: '',
-    year: 2025,
+    year: 2015,
     skillLevel: 'intermediate',
     description: '',
     isPopped: false,
@@ -31,6 +32,11 @@ export const createBubble = (partial: Partial<BubbleNode>): BubbleNode => ({
   ...partial
 })
 
+export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode => ({
+  ...defaultBubbleNode,
+  ...normalized
+})
+
 export function createHiddenBubble(): BubbleNode {
   return {
     ...defaultBubbleNode,
@@ -45,11 +51,11 @@ export function createHiddenBubble(): BubbleNode {
   }
 }
 
-export const getBubblesUpToYear = (
-  bubbles: BubbleNode[],
+export const getBubblesUpToYear = <T extends NormalizedBubble | BubbleNode>(
+  bubbles: T[],
   year: number,
   visitedBubbleIds: number[] = []
-): BubbleNode[] =>
+): T[] =>
   bubbles.filter(b => 
     b.year <= year &&
     !b.isHidden &&
@@ -59,15 +65,17 @@ export const getBubblesUpToYear = (
   )
 
 export const getBubblesToRender = (
-  bubbles: BubbleNode[],
+  bubbles: NormalizedBubble[],
   currentYear: number,
   visited: number[],
-  activeHiddenBubbles: BubbleNode[]
-): BubbleNode[] =>
-  [...getBubblesUpToYear(bubbles, currentYear, visited), ...activeHiddenBubbles]
+  activeHiddenBubbles: BubbleNode[] = []
+): BubbleNode[] => {
+  const filtered = getBubblesUpToYear(bubbles, currentYear, visited)
+  return [...filtered.map(normalizedToBubbleNode), ...(activeHiddenBubbles || [])]
+}
 
 export const findNextYearWithNewBubbles = (
-  bubbles: BubbleNode[],
+  bubbles: NormalizedBubble[],
   currentYear: number,
   visited: number[]
 ): number => {

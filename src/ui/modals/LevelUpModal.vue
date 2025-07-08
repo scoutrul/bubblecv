@@ -1,6 +1,7 @@
 <template>
   <BaseModal
     :is-open="isOpen"
+    :allow-escape-close="allowEscapeClose"
     @close="close"
     class-name="level-up-modal-container"
   >
@@ -46,9 +47,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, nextTick } from 'vue'
+import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useModalStore } from '@/stores/modal.store'
 
 interface Props {
   isOpen: boolean
@@ -59,6 +59,7 @@ interface Props {
   currentXP: number
   xpGained: number
   unlockedFeatures?: string[]
+  allowEscapeClose?: boolean
 }
 
 interface Emits {
@@ -81,8 +82,6 @@ const levelData = computed(() => ({
 const close = () => {
   emit('close')
 }
-
-const modalStore = useModalStore()
 </script>
 
 <style scoped>
