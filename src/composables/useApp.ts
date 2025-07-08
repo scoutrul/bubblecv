@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
 import { useAchievement } from '@/composables/'
-
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
 
@@ -9,7 +8,6 @@ export function useApp() {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
   const levelStore = useLevelStore()
-
   const achievements = useAchievement()
 
   const isAppLoading = ref(false)
@@ -28,34 +26,34 @@ export function useApp() {
   }
 
   const currentLevel = computed(() => sessionStore.currentLevel)
-
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
-
   const currentLevelTitle = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)
     return level?.title || 'Посетитель'
   })
 
+  const game = {
+    maxLives: GAME_CONFIG.maxLives,
+    currentYear: sessionStore.currentYear,
+    updateCurrentYear: sessionStore.updateCurrentYear,
+    currentLevel,
+    currentLevelTitle,
+    startYear: computed(() => yearRange.value.startYear),
+    endYear: computed(() => yearRange.value.endYear),
+    currentXP: computed(() => sessionStore.currentXP),
+    currentLives: computed(() => sessionStore.lives),
+    xpProgress: computed(() => sessionStore.xpProgress),
+    nextLevelXP: computed(() => sessionStore.nextLevelXP),
+    visitedBubbles: computed(() => sessionStore.visitedBubbles)
+  }
+
   return {
     initialize,
     resetGame: sessionStore.startSession,
     isAppLoading,
-    game: {
-      maxLives: GAME_CONFIG.maxLives,
-      currentYear: sessionStore.currentYear,
-      updateCurrentYear: sessionStore.updateCurrentYear,
-      currentLevel,
-      currentLevelTitle,
-      startYear: computed(() => yearRange.value.startYear), 
-      endYear: computed(() => yearRange.value.endYear),
-      currentXP: computed(() => sessionStore.currentXP),
-      currentLives: computed(() => sessionStore.lives),
-      xpProgress: computed(() => sessionStore.xpProgress),
-      nextLevelXP: computed(() => sessionStore.nextLevelXP),
-      visitedBubbles: computed(() => sessionStore.visitedBubbles)
-    },
+    game,
     achievements: {
-      unlockedAchievements: computed(() => achievements.unlockedAchievements),
+      unlockedCount: achievements.unlockedCount,
       showAchievements: achievements.showAchievements,
       closeAchievements: achievements.closeAchievements,
       toggleAchievements: achievements.toggleAchievements,

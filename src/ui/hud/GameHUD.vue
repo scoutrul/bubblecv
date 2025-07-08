@@ -35,7 +35,7 @@
     <!-- Достижения в нижнем правом углу -->
     <div class="achievements-corner">
       <AchievementsToggle 
-        :unlocked-count="unlockedAchievements"
+        :unlocked-count="unlockedCount"
         :is-shaking="shakingComponents.has('achievements')"
         @toggle="toggleAchievements()"
       />
@@ -69,7 +69,7 @@ const {
     currentLevelTitle,
   },
   achievements: {
-    unlockedAchievements,
+    unlockedCount,
     toggleAchievements,
     closeAchievements,
     showAchievements,
