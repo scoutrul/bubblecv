@@ -27,7 +27,7 @@ export function useCanvasSimulation(
   const physicsSimulation = usePhysicsSimulation()
   const canvasEffects = useCanvasEffects()
   const canvasRenderer = useCanvasRenderer(canvasRef)
-  const { initStarfield } = canvasRenderer
+  const { initStarfield, updateStarfieldSize } = canvasRenderer
   const canvasInteraction = useCanvasInteraction(canvasRef, onBubblePopped)
 
   // Обновление размеров симуляции при ресайзе окна
@@ -35,6 +35,7 @@ export function useCanvasSimulation(
     width = newWidth
     height = newHeight
     physicsSimulation.updateSimulationSize(newWidth, newHeight)
+    updateStarfieldSize(newWidth, newHeight)
   }
 
   // Обновление состояния пузырей с живой физикой

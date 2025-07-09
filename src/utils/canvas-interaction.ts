@@ -2,17 +2,6 @@ import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import { gsap } from 'gsap'
 
-export const getLevelIcon = (level: number): string => {
-  switch (level) {
-    case 1: return '👋'
-    case 2: return '🤔'
-    case 3: return '📚'
-    case 4: return '🤝'
-    case 5: return '🤜🤛'
-    default: return '⭐'
-  }
-}
-
 export const createQuestionData = (clickedBubble: BubbleNode): Question => ({
   id: `question-${clickedBubble.id}`,
   title: clickedBubble.name,   

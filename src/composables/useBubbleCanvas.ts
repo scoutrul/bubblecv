@@ -45,6 +45,7 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
   const {
     initSimulation,
     updateBubbles,
+    updateSimulationSize,
     isInitialized
   } = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
 
@@ -89,7 +90,8 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
             // НЕ вызываем checkBubblesAndAdvance при первоначальной инициализации
             // чтобы избежать автопереключения на последний год
           } else {
-            // Если нужен resize — сюда можно добавить updateSimulationSize, если будет
+            // Обновляем размеры симуляции при ресайзе
+            updateSimulationSize(width, height)
           }
         }
       }

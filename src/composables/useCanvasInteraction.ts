@@ -1,17 +1,13 @@
 import { type Ref, ref } from 'vue'
-import type { Question } from '@/types/data'
 import type { Simulation } from 'd3-force'
 import type { BubbleNode } from '@/types/canvas'
-import { useSessionStore } from '@/stores/session.store'
-import { useModalStore } from '@/stores/modal.store'
+
 import { useBubbleStore } from '@/stores/bubble.store'
-import { useLevelStore } from '@/stores/levels.store'
-import { gsap } from 'gsap'
+
 import type { NormalizedBubble } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 import { useAchievement, useSession, useModals } from '@/composables'
 import { 
-  getLevelIcon, 
   createQuestionData, 
   animateParallax, 
   animateBubbleClick, 
@@ -23,9 +19,7 @@ export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
   onBubblePopped?: (nodes: BubbleNode[]) => void
 ) {
-  const modalStore = useModalStore()
-  const levelStore = useLevelStore()
-  const sessionStore = useSessionStore()
+
   const bubbleStore = useBubbleStore()
 
 

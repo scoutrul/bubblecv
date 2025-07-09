@@ -117,6 +117,88 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     })
   }
   
+  // Обновление размеров звездного поля при ресайзе
+  const updateStarfieldSize = (width: number, height: number) => {
+    // Обновляем центральные позиции для центрального слоя звезд
+    const canvasCenter = { x: width / 2, y: height / 2 }
+    centerStars.value.forEach(star => {
+      star.centerX = canvasCenter.x
+      star.centerY = canvasCenter.y
+    })
+
+    // Пересоздаем звезды которые выходят за новые границы
+    bgStars.value = bgStars.value.filter(star => {
+      const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
+      return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
+              star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
+    })
+
+    fgStars.value = fgStars.value.filter(star => {
+      const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
+      return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
+              star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
+    })
+
+    // Добавляем новые звезды если нужно покрыть новые области
+    const neededBgStars = 70 - bgStars.value.length
+    for (let i = 0; i < neededBgStars; i++) {
+      const centerX = Math.random() * width
+      const centerY = Math.random() * height
+      const orbitRadius = Math.random() * 100 + 20
+      const angle = Math.random() * Math.PI * 2
+      
+      const newStar = {
+        x: centerX + Math.cos(angle) * orbitRadius,
+        y: centerY + Math.sin(angle) * orbitRadius,
+        radius: Math.random() * 1.2 + 0.5,
+        opacity: Math.random() * 0.4 + 0.1,
+        angle,
+        orbitRadius,
+        centerX,
+        centerY,
+        speed: (Math.random() * 0.002 + 0.001) * (Math.random() > 0.5 ? 1 : -1)
+      }
+      bgStars.value.push(newStar)
+      
+      gsap.to(newStar, {
+        opacity: Math.random() * 0.5,
+        duration: Math.random() * 3 + 2,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      })
+    }
+
+    const neededFgStars = 30 - fgStars.value.length
+    for (let i = 0; i < neededFgStars; i++) {
+      const centerX = Math.random() * width
+      const centerY = Math.random() * height
+      const orbitRadius = Math.random() * 150 + 30
+      const angle = Math.random() * Math.PI * 2
+      
+      const newStar = {
+        x: centerX + Math.cos(angle) * orbitRadius,
+        y: centerY + Math.sin(angle) * orbitRadius,
+        radius: Math.random() * 1.6 + 0.8,
+        opacity: Math.random() * 0.6 + 0.4,
+        angle,
+        orbitRadius,
+        centerX,
+        centerY,
+        speed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1)
+      }
+      fgStars.value.push(newStar)
+      
+      gsap.to(newStar, {
+        opacity: 0.1,
+        duration: Math.random() * 1.5 + 0.8,
+        ease: 'power1.inOut',
+        repeat: -1,
+        yoyo: true
+      })
+    }
+  }
+  
   // Отрисовка звездного поля
   const drawStarfield = (context: CanvasRenderingContext2D, parallaxOffset: { x: number, y: number }) => {
     // Рисуем центральный слой (вращение вокруг центра канваса)
@@ -392,6 +474,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
 
   return {
     initStarfield,
+    updateStarfieldSize,
     drawBubble,
     drawText,
     render
