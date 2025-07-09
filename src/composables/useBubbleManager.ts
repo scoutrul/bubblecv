@@ -77,9 +77,7 @@ export function useBubbleManager() {
       const newNodes = [...nodes]
       newNodes.splice(index, 1)
       const hasNonSpecialBubbles = newNodes.some(n => !n.isQuestion && !n.isTough && !n.isHidden)
-      if (!hasNonSpecialBubbles && newNodes.length > 0) {
-        window.dispatchEvent(new CustomEvent('year-completed'))
-      }
+      // Убираем dispatchEvent так как year-completed не обрабатывается
       return newNodes
     }
     return nodes

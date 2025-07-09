@@ -1,6 +1,21 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useUiEventStore, useSessionStore } from '@/stores'
 
+// Global event bridge to avoid circular dependencies
+export interface EventBridge {
+  processShakeQueue: () => void
+  resetCanvas: () => Promise<void>
+}
+
+let eventBridge: EventBridge | null = null
+
+export const setEventBridge = (bridge: EventBridge) => {
+  eventBridge = bridge
+}
+
+export const getEventBridge = (): EventBridge | null => {
+  return eventBridge
+}
 
 export function useUi() {
 
@@ -19,7 +34,7 @@ export function useUi() {
     }, 200)
   }
 
-  const handleProcessShakeQueue = () => {
+  const processShakeQueue = () => {
     const componentsToShake = uiEventStore.consumeShakeQueue()
     if (componentsToShake.size > 0) {
       shakingComponents.value = componentsToShake
@@ -29,20 +44,13 @@ export function useUi() {
     }
   }
 
-  onMounted(() => {
-    window.addEventListener('process-shake-queue', handleProcessShakeQueue)
-  })
-
-  onUnmounted(() => {
-    window.removeEventListener('process-shake-queue', handleProcessShakeQueue)
-  })
-
   watch(() => sessionStore.currentXP, (newXP, oldXP) => {
     if (newXP > oldXP) animateXPGain()
   })
 
   return {
     isXPAnimating,
-    shakingComponents
+    shakingComponents,
+    processShakeQueue
   }
-}1
+}

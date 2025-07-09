@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useSessionStore, useUiEventStore, useLevelStore } from '@/stores'
 import { useAchievement } from './useAchievement'
+import { getEventBridge } from './useUi'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { generateSessionId } from '@/utils/ui'
 import type { NormalizedBubble } from '@/types/normalized'
@@ -151,7 +152,11 @@ export function useSession() {
       currentYear: GAME_CONFIG.initialYear
     })
     
-    window.dispatchEvent(new CustomEvent('game-reset'))
+    // Заменяем dispatchEvent на прямой вызов
+    const bridge = getEventBridge()
+    if (bridge) {
+      bridge.resetCanvas()
+    }
   }
 
   const unlockFirstToughBubbleAchievement = async (): Promise<boolean> => {

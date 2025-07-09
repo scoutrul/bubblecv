@@ -4,7 +4,7 @@ import { useSessionStore } from '@/stores/session.store'
 import { useLevelStore } from '@/stores/levels.store'
 import { useSession } from './useSession'
 import { useAchievement } from './useAchievement'
-import { XP_CALCULATOR } from '@/config'
+import { getEventBridge } from './useUi'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import type { PendingAchievement, ModalStates } from '@/types/modals'
@@ -49,7 +49,11 @@ export const useModals = () => {
     if (key !== 'achievement') {
       processPendingAchievements()
     }
-    window.dispatchEvent(new CustomEvent('process-shake-queue'))
+    // Заменяем dispatchEvent на прямой вызов
+    const bridge = getEventBridge()
+    if (bridge) {
+      bridge.processShakeQueue()
+    }
   }
 
   const openWelcome = () => modalStore.openModal('welcome')
@@ -72,10 +76,6 @@ export const useModals = () => {
     if (processedBubbles.value.has(bubble.id)) {
       closeModalWithLogic('bubble')
       modalStore.setCurrentBubble(null)
-      
-      window.dispatchEvent(new CustomEvent('bubble-continue', { 
-        detail: { bubbleId: bubble.id, skipXP: true }
-      }))
       return
     }
     
@@ -125,23 +125,11 @@ export const useModals = () => {
          // Level up модалка откроется с приоритетом, закроет bubble модалку
          openLevelUpModal(result.newLevel!, result.levelData)
          modalStore.setCurrentBubble(null)
-         
-         if (bubbleId) {
-           window.dispatchEvent(new CustomEvent('bubble-continue', { 
-             detail: { bubbleId, skipXP: true } // Помечаем что XP уже обработан
-           }))
-         }
          return
        } else {
-         // Если level up не произошел, все равно помечаем XP как обработанный
+         // Если level up не произошел, просто закрываем модалку
          closeModalWithLogic('bubble')
          modalStore.setCurrentBubble(null)
-         
-         if (bubbleId) {
-           window.dispatchEvent(new CustomEvent('bubble-continue', { 
-             detail: { bubbleId, skipXP: true } // XP уже добавлен
-           }))
-         }
          return
        }
      }
@@ -149,12 +137,6 @@ export const useModals = () => {
      // Обычное закрытие если нет level up
      closeModalWithLogic('bubble')
      modalStore.setCurrentBubble(null)
-    
-      if (bubbleId) {
-        window.dispatchEvent(new CustomEvent('bubble-continue', { 
-          detail: { bubbleId } 
-        }))
-      }
     } finally {
       isProcessingBubbleModal.value = false
     }
@@ -230,12 +212,6 @@ export const useModals = () => {
     }
 
     closeModalWithLogic('philosophy')
-
-    if (bubbleId) {
-      window.dispatchEvent(new CustomEvent('bubble-continue', {
-        detail: { bubbleId, isPhilosophyNegative: isNegative }
-      }))
-    }
   }
 
   const closePhilosophyModal = () => closeModalWithLogic('philosophy')
@@ -247,7 +223,6 @@ export const useModals = () => {
     startSession()
     openWelcome()
     closeModalWithLogic('gameOver')
-    window.dispatchEvent(new CustomEvent('game-restart'))
   }
 
   const openAchievementModal = (achievement: PendingAchievement) => {

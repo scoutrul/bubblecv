@@ -35,6 +35,13 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
     }
   }
 
+  const resetCanvas = async () => {
+    updateCurrentYear(GAME_CONFIG.initialYear)
+    await nextTick()
+    // НЕ вызываем checkBubblesAndAdvance при reset, так как это запускает автопереключение
+    // Пузыри будут загружены через watch() при смене currentYear
+  }
+
   const {
     initSimulation,
     updateBubbles,
@@ -92,23 +99,14 @@ export function useBubbleCanvas(canvasRef: Ref<HTMLCanvasElement | null>, contai
       resizeObserver.observe(containerRef.value)
     }
 
-    const handleGameReset = async () => {
-      updateCurrentYear(GAME_CONFIG.initialYear)
-      await nextTick()
-      // НЕ вызываем checkBubblesAndAdvance при reset, так как это запускает автопереключение
-      // Пузыри будут загружены через watch() при смене currentYear
-    }
-
-    window.addEventListener('game-reset', handleGameReset)
-
     onUnmounted(() => {
       resizeObserver.disconnect()
-      window.removeEventListener('game-reset', handleGameReset)
     })
   })
 
   return {
     canvasWidth,
     canvasHeight,
+    resetCanvas,
   }
 }

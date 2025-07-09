@@ -288,16 +288,31 @@ export function useCanvasInteraction(
     const bubbleContinueHandler = (event: Event) =>
       handleBubbleContinue(event, nodes(), createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
 
-    window.addEventListener('bubble-continue', bubbleContinueHandler)
-
     return {
       mouseMoveHandler,
       clickHandler,
       bubbleContinueHandler,
       removeEventListeners: () => {
-        window.removeEventListener('bubble-continue', bubbleContinueHandler)
+        // No event listeners to remove anymore
       }
     }
+  }
+
+  const executeBubbleContinue = (
+    bubbleId: number,
+    nodes: BubbleNode[],
+    createXPFloatingText: (x: number, y: number, xpAmount: number, color?: string) => void,
+    createLifeLossFloatingText: (x: number, y: number) => void,
+    explodeBubble: (bubble: BubbleNode) => void,
+    removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[],
+    isPhilosophyNegative?: boolean,
+    skipXP?: boolean
+  ) => {
+    const customEvent = {
+      detail: { bubbleId, isPhilosophyNegative, skipXP }
+    } as CustomEvent
+    
+    return handleBubbleContinue(customEvent, nodes, createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
   }
 
   return {
@@ -307,6 +322,8 @@ export function useCanvasInteraction(
     handleClick,
     handleMouseLeave,
     setupEventListeners,
+    handleBubbleContinue,
+    executeBubbleContinue,
     parallaxOffset
   }
 } 
