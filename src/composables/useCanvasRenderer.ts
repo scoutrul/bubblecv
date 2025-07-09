@@ -17,19 +17,27 @@ interface Star {
 }
 
 export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
-  const bgStars = ref<Star[]>([])
-  const fgStars = ref<Star[]>([])
-  const centerStars = ref<Star[]>([]) // Новый слой звезд
+  const centerStars: Ref<Star[]> = ref([])
+  const bgStars: Ref<Star[]> = ref([])
+  const fgStars: Ref<Star[]> = ref([])
+  
+  // Сохраняем предыдущие размеры canvas для правильного ресайза
+  let previousWidth = 0
+  let previousHeight = 0
 
   // Инициализация звездного поля
   const initStarfield = (width: number, height: number) => {
+    // Сохраняем размеры
+    previousWidth = width
+    previousHeight = height
+    
     // Центральный, вращающийся слой
     const centerStarArray: Star[] = []
     const canvasCenter = { x: width / 2, y: height / 2 }
     
     for (let i = 0; i < 400; i++) {
       const angle = Math.random() * Math.PI * 2
-      const orbitRadius = Math.random() * (Math.min(width, height) * 0.4) + 50 // Радиус орбиты относительно центра
+      const orbitRadius = Math.random() * (Math.max(width, height) * 0.4) + 50 // Радиус орбиты относительно максимальной стороны
       
       centerStarArray.push({
         x: canvasCenter.x + Math.cos(angle) * orbitRadius,
@@ -121,9 +129,52 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   const updateStarfieldSize = (width: number, height: number) => {
     // Обновляем центральные позиции для центрального слоя звезд
     const canvasCenter = { x: width / 2, y: height / 2 }
+    
+    // Вычисляем коэффициент масштабирования для радиусов орбит
+    const previousMaxSize = Math.max(previousWidth, previousHeight)
+    const currentMaxSize = Math.max(width, height)
+    const scaleRatio = previousMaxSize > 0 ? currentMaxSize / previousMaxSize : 1
+    
     centerStars.value.forEach(star => {
       star.centerX = canvasCenter.x
       star.centerY = canvasCenter.y
+      
+      // Масштабируем радиус орбиты пропорционально изменению размера экрана
+      star.orbitRadius = star.orbitRadius * scaleRatio
+      
+      // Пересчитываем текущую позицию звезды с новым радиусом
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+    })
+
+    // Обновляем позиции центров орбит для bgStars - перераспределяем по новому экрану
+    bgStars.value.forEach(star => {
+      // Сохраняем относительную позицию центра орбиты
+      const relativeX = star.centerX / previousWidth || 0.5 // fallback если нет старых размеров
+      const relativeY = star.centerY / previousHeight || 0.5
+      
+      // Обновляем на новые размеры
+      star.centerX = relativeX * width
+      star.centerY = relativeY * height
+      
+      // Пересчитываем текущую позицию звезды
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+    })
+
+    // Обновляем позиции центров орбит для fgStars - перераспределяем по новому экрану  
+    fgStars.value.forEach(star => {
+      // Сохраняем относительную позицию центра орбиты
+      const relativeX = star.centerX / previousWidth || 0.5 // fallback если нет старых размеров
+      const relativeY = star.centerY / previousHeight || 0.5
+      
+      // Обновляем на новые размеры
+      star.centerX = relativeX * width
+      star.centerY = relativeY * height
+      
+      // Пересчитываем текущую позицию звезды
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
     })
 
     // Пересоздаем звезды которые выходят за новые границы
@@ -197,6 +248,10 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         yoyo: true
       })
     }
+    
+    // Сохраняем новые размеры для следующего ресайза
+    previousWidth = width
+    previousHeight = height
   }
   
   // Отрисовка звездного поля
