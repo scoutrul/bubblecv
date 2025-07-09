@@ -368,28 +368,10 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       return
     }
     
-    if (!bubble.textLines) {
-      return
-    }
-    
     context.save()
     
-    // Вычисляем коэффициент масштабирования на основе текущего радиуса
-    const breathingScale = bubble.currentRadius / bubble.baseRadius
-    
-    const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel]
-    const sizeMultiplier = expertiseConfig.sizeMultiplier
-    
-    // Ограничиваем минимальный и максимальный размер шрифта
-    const minFontSize = 9
-    const maxFontSize = 16
-    const baseFontSize = Math.max(minFontSize, 
-      Math.min(bubble.baseRadius * 0.35, maxFontSize)
-    )
-    
-    // Применяем масштаб текста с учетом дыхания
-    const scaleFactor = (bubble.textScaleFactor || 1) * breathingScale
-    const fontSize = Math.floor(baseFontSize * sizeMultiplier * scaleFactor)
+    // Простой размер шрифта относительно размера пузыря
+    const fontSize = Math.max(8, Math.min(bubble.currentRadius * 0.3, 18))
     
     context.font = `${fontSize}px Inter, sans-serif`
     context.textAlign = 'center'
@@ -398,20 +380,14 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     // Цвет текста
     context.fillStyle = bubble.isPopped ? '#FFFFFF80' : '#FFFFFF' // Полупрозрачный для лопнувших
     
-    const lineHeight = fontSize * 1.2
-    const totalHeight = bubble.textLines.length * lineHeight
-    const startY = bubble.y - totalHeight / 2 + lineHeight / 2
-    
     // Добавляем тень для лучшей читаемости
     context.shadowColor = 'rgba(0, 0, 0, 0.3)'
     context.shadowBlur = 3
     context.shadowOffsetX = 0
     context.shadowOffsetY = 1
     
-    bubble.textLines.forEach((line, index) => {
-      const y = startY + index * lineHeight
-      context.fillText(line, bubble.x, y)
-    })
+    // Отображаем название пузыря
+    context.fillText(bubble.name, bubble.x, bubble.y)
     
     context.restore()
   }
