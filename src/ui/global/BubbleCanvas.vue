@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useBubbleCanvas } from '@/composables/useBubbleCanvas'
+import { useCanvas } from '@/composables/useCanvas'
 import { useUi, setEventBridge } from '@/composables/useUi'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
@@ -21,7 +21,7 @@ const {
   canvasWidth,
   canvasHeight,
   resetCanvas
-} = useBubbleCanvas(canvasRef, containerRef)
+} = useCanvas(canvasRef, containerRef)
 
 const { processShakeQueue } = useUi()
 
