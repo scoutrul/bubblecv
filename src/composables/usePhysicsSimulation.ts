@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import * as d3 from 'd3'
-import type { BubbleNode } from './types'
+import type { BubbleNode } from '@/types/canvas'
 
 export function usePhysicsSimulation() {
   let simulation: d3.Simulation<BubbleNode, undefined> | null = null
@@ -16,7 +16,7 @@ export function usePhysicsSimulation() {
     // Инициализируем симуляцию с улучшенной физикой для импульсов
     simulation = d3.forceSimulation<BubbleNode>()
       .force('center', d3.forceCenter(width / 2, centerY).strength(0.003)) // Уменьшили силу центра
-      .force('collision', d3.forceCollide<BubbleNode>().radius(d => d.currentRadius + 8).strength(0.7))
+      .force('collision', d3.forceCollide<BubbleNode>().radius(d => d.currentRadius + 3).strength(0.7))
       .force('charge', d3.forceManyBody().strength(-8)) // Уменьшили отталкивание
       .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.002)) // Уменьшили притяжение к центру
       .alpha(0.3)
