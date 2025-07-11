@@ -13,19 +13,15 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const sessionStore = useSessionStore()
   const { updateCurrentYear } = useSession()
 
-  // Computed состояние
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
   const startYear = computed(() => yearRange.value.startYear)
   const endYear = computed(() => yearRange.value.endYear)
 
-  // Canvas размеры
   const canvasWidth = ref(0)
   const canvasHeight = ref(0)
 
-  // Функция проверки и продвижения года
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     const hasCoreBubbles = currentNodes.some(n => !n.isQuestion && !n.isHidden)
-
     if (!hasCoreBubbles && sessionStore.currentYear < endYear.value) {
       const nextYear = findNextYearWithNewBubbles(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
       if (nextYear !== null) {
@@ -36,31 +32,32 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
-  // Инициализация canvas симуляции
   const {
     initSimulation,
     updateBubbles,
     updateSimulationSize,
-    isInitialized
+    isInitialized,
+    removeBubbleFromCanvas
   } = useCanvasSimulation(canvasRef, checkBubblesAndAdvance)
 
-  // Сброс canvas
   const resetCanvas = async () => {
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
   }
 
-  // Наблюдение за изменением года
+  const removeBubble = (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
+    if (removeBubbleFromCanvas) {
+      removeBubbleFromCanvas(bubbleId, xpAmount, isPhilosophyNegative)
+    }
+  }
+
   watch(() => sessionStore.currentYear, async (newYear, oldYear) => {
     if (bubbleStore.isLoading || !isInitialized.value) return
-
     if (newYear > oldYear) {
       createHiddenBubble()
     }
-
     const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles, [])
     const hasCoreBubbles = filteredBubbles.some(b => !b.isQuestion && !b.isHidden)
-
     if (!hasCoreBubbles && newYear < endYear.value) {
       const nextYearWithBubbles = findNextYearWithNewBubbles(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles)
       if (nextYearWithBubbles !== null) {
@@ -70,11 +67,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       }
       return
     }
-
     updateBubbles(filteredBubbles)
   })
 
-  // Управление размерами canvas
   onMounted(() => {
     const resizeObserver = new ResizeObserver(entries => {
       for (const entry of entries) {
@@ -82,7 +77,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         if (width > 0 && height > 0) {
           canvasWidth.value = width
           canvasHeight.value = height
-
           if (!isInitialized.value) {
             initSimulation(width, height)
             const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
@@ -94,22 +88,18 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         }
       }
     })
-
     if (containerRef.value) {
       resizeObserver.observe(containerRef.value)
     }
-
     onUnmounted(() => {
       resizeObserver.disconnect()
     })
   })
 
   return {
-    // Canvas состояние
     canvasWidth,
     canvasHeight,
-    
-    // Методы управления
     resetCanvas,
+    removeBubble,
   }
 } 

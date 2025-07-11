@@ -13,6 +13,7 @@
 import { ref, onMounted } from 'vue'
 import { useCanvas } from '@/composables/useCanvas'
 import { useUi, setEventBridge } from '@/composables/useUi'
+import { setCanvasBridge } from '@/composables/useModals'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const containerRef = ref<HTMLElement | null>(null)
@@ -20,32 +21,35 @@ const containerRef = ref<HTMLElement | null>(null)
 const {
   canvasWidth,
   canvasHeight,
-  resetCanvas
+  resetCanvas,
+  removeBubble
 } = useCanvas(canvasRef, containerRef)
 
 const { processShakeQueue } = useUi()
 
 onMounted(() => {
-  // Устанавливаем глобальный eventBridge для связи между композициями
   setEventBridge({
     processShakeQueue,
     resetCanvas
+  })
+  setCanvasBridge({
+    removeBubble
   })
 })
 </script>
 
 <style scoped>
 .bubble-canvas-wrapper {
-  @apply w-full h-full relative;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .bubble-canvas {
-  @apply absolute inset-0 w-full h-full;
-  background: transparent;
-  cursor: default;
   display: block;
-  image-rendering: pixelated;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: crisp-edges;
+  width: 100%;
+  height: 100%;
+  background: transparent;
 }
 </style>
