@@ -27,8 +27,13 @@ export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubb
 }
 
 export function createPhilosophyBubble(questionId: string, year: number): NormalizedBubble {
+  // Создаем числовой хеш из строкового ID
+  const questionHash = questionId.split('').reduce((hash, char) => {
+    return ((hash << 5) - hash + char.charCodeAt(0)) & 0xfffffff
+  }, 0)
+  
   return {
-    id: Date.now() + Math.random(),
+    id: -(year * 100000 + questionHash), // Отрицательный ID для философских пузырей, уникальный для каждого года и вопроса
     name: 'Философский вопрос',
     year,
     skillLevel: 'expert',

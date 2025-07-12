@@ -28,7 +28,7 @@ export const useModals = () => {
   const modalStore = useModalStore()
   const sessionStore = useSessionStore()
   const levelStore = useLevelStore()
-  const { gainPhilosophyXP, losePhilosophyLife, startSession, gainXP } = useSession()
+  const { gainPhilosophyXP, losePhilosophyLife, startSession, gainXP, visitBubble } = useSession()
   const { unlockAchievement } = useAchievement()
   
   const isProcessingBubbleModal = ref(false)
@@ -220,8 +220,15 @@ export const useModals = () => {
     if (!selectedOption) return
     
     const bubbleId = modalStore.data.philosophyBubbleId
-    const canvas = getCanvasBridge()
+    console.log('🔍 Philosophy bubble ID:', bubbleId)
+    
     const isNegative = selectedOption.livesLost > 0
+    
+    // Помечаем пузырь как посещенный СРАЗУ
+    if (bubbleId) {
+      await visitBubble(bubbleId)
+      console.log('✅ Philosophy bubble marked as visited:', bubbleId)
+    }
     
     // Определяем количество XP в зависимости от agreementLevel
     const xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
@@ -273,6 +280,7 @@ export const useModals = () => {
         xpAmount: xpAmount,
         isPhilosophyNegative: isNegative
       })
+      console.log('📋 Philosophy bubble queued for removal:', bubbleId)
     }
   }
 

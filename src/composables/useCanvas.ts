@@ -54,16 +54,18 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     await nextTick()
   }
 
-  const removeBubble = (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
-    if (removeBubbleFromCanvas) {
-      removeBubbleFromCanvas(bubbleId, xpAmount, isPhilosophyNegative)
-    }
-  }
-
   const createPhilosophyBubbleForYear = (year: number): BubbleNode | null => {
     // Проверяем есть ли уже пузырь для этого года
     if (philosophyBubblesByYear.value.has(year)) {
-      return philosophyBubblesByYear.value.get(year)!
+      const existingBubble = philosophyBubblesByYear.value.get(year)!
+      // Если пузырь был лопнут, удаляем его из Map
+      if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
+        console.log('🗑️ Removing visited philosophy bubble for year', year, 'with ID', existingBubble.id)
+        philosophyBubblesByYear.value.delete(year)
+        return null
+      }
+      console.log('♻️ Reusing existing philosophy bubble for year', year, 'with ID', existingBubble.id)
+      return existingBubble
     }
     
     // Создаем новый пузырь с 30% вероятностью
@@ -74,11 +76,29 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         const philosophyBubble = createPhilosophyBubble(randomQuestion.id, year)
         const bubbleNode = normalizedToBubbleNode(philosophyBubble)
         philosophyBubblesByYear.value.set(year, bubbleNode)
+        console.log('✨ Created new philosophy bubble for year', year, 'with ID', bubbleNode.id)
         return bubbleNode
       }
     }
     
     return null
+  }
+
+  const removeBubble = (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
+    console.log('🔥 Removing bubble with ID:', bubbleId)
+    
+    // Удаляем философский пузырь из Map если он был лопнут
+    for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
+      if (bubble.id === bubbleId) {
+        console.log('🗑️ Removing philosophy bubble from Map for year', year, 'with ID', bubbleId)
+        philosophyBubblesByYear.value.delete(year)
+        break
+      }
+    }
+    
+    if (removeBubbleFromCanvas) {
+      removeBubbleFromCanvas(bubbleId, xpAmount, isPhilosophyNegative)
+    }
   }
 
   watch(() => sessionStore.currentYear, async (newYear, oldYear) => {
@@ -92,11 +112,19 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       extraBubbles.push(createHiddenBubble())
     }
     
-    // Добавляем философский пузырь если он есть для этого года
-    const philosophyBubble = createPhilosophyBubbleForYear(newYear)
-    if (philosophyBubble) {
-      extraBubbles.push(philosophyBubble)
+    // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
+    const philosophyBubbles: BubbleNode[] = []
+    for (let year = startYear.value; year <= newYear && philosophyBubbles.length < 5; year++) {
+      const philosophyBubble = createPhilosophyBubbleForYear(year)
+      if (philosophyBubble) {
+        // Проверяем, не был ли этот пузырь уже лопнут
+        const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
+        if (!isPopped) {
+          philosophyBubbles.push(philosophyBubble)
+        }
+      }
     }
+    extraBubbles.push(...philosophyBubbles)
     
     const allBubbles = [...filteredBubbles, ...extraBubbles]
     // Проверяем есть ли основные пузыри только среди filteredBubbles (обычные пузыри навыков)
@@ -128,11 +156,19 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
             const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
             const extraBubbles: BubbleNode[] = []
             
-            // Добавляем философский пузырь если он есть для текущего года
-            const philosophyBubble = createPhilosophyBubbleForYear(sessionStore.currentYear)
-            if (philosophyBubble) {
-              extraBubbles.push(philosophyBubble)
+            // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
+            const philosophyBubbles: BubbleNode[] = []
+            for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < 5; year++) {
+              const philosophyBubble = createPhilosophyBubbleForYear(year)
+              if (philosophyBubble) {
+                // Проверяем, не был ли этот пузырь уже лопнут
+                const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
+                if (!isPopped) {
+                  philosophyBubbles.push(philosophyBubble)
+                }
+              }
             }
+            extraBubbles.push(...philosophyBubbles)
             
             updateBubbles([...initialBubbles, ...extraBubbles])
             bubbleStore.isLoading = false
