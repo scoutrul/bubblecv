@@ -86,10 +86,7 @@
     transition: all 0.3s ease;
   }
   
-  .content-card:hover {
-    @apply border-border-light -translate-y-0.5;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-  }
+
   
   .btn {
     @apply px-6 py-3 rounded-lg font-semibold text-base border-none cursor-pointer;

@@ -60,7 +60,7 @@
 import { watch, ref, computed, watchEffect, nextTick } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
-import { gsap } from 'gsap'
+import { createShakeAnimation, createYearChangeAnimation } from '@/utils/animations'
 
 import { getBubblesUpToYear } from '@/utils/nodes'
 
@@ -117,71 +117,13 @@ const goToNextYear = () => {
 // 🚀 GSAP альтернатива для анимации shake (более мощная)
 const triggerGsapShakeEffect = () => {
   if (timelineRef.value) {
-    gsap.to(timelineRef.value, {
-      x: "+=2",
-      y: "+=1", 
-      duration: 0.1,
-      repeat: 5,
-      yoyo: true,
-      ease: "power2.inOut",
-      onComplete: () => {
-        gsap.set(timelineRef.value, { x: 0, y: 0 })
-      }
-    })
+    createShakeAnimation(timelineRef.value)
   }
 }
 
 // 🎨 GSAP анимация для смены года (более крутая чем CSS)
 const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
-  // Создаем timeline для сложной анимации
-  const tl = gsap.timeline()
-  
-  // Начальное состояние
-  gsap.set(yearElement, {
-    y: 25,
-    scale: 0.8,
-    opacity: 0,
-    color: "#667eea",
-    textShadow: "0 0 20px rgba(102, 126, 234, 0.5)"
-  })
-  
-  // Анимация появления с эффектами
-  tl.to(yearElement, {
-    y: 0,
-    scale: 1.15,
-    opacity: 1,
-    duration: 0.3,
-    ease: "back.out(1.7)"
-  })
-  .to(yearElement, {
-    scale: 0.95,
-    duration: 0.15,
-    ease: "power2.out"
-  })
-  .to(yearElement, {
-    scale: 1,
-    duration: 0.15,
-    ease: "power2.out"
-  })
-  // Плавный переход цвета
-  .to(yearElement, {
-    color: "#764ba2",
-    textShadow: "0 0 12px rgba(118, 75, 162, 0.3)",
-    duration: 0.2
-  }, "-=0.3")
-  .to(yearElement, {
-    color: "#8b9dc3",
-    textShadow: "0 0 8px rgba(102, 126, 234, 0.2)",
-    duration: 0.2
-  })
-  .to(yearElement, {
-    color: "#6b7280",
-    textShadow: "none",
-    duration: 0.3,
-    ease: "power2.out"
-  })
-  
-  return tl
+  return createYearChangeAnimation(yearElement)
 }
 
 // Computed для отслеживания завершения всех пузырей текущего года

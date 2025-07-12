@@ -1,13 +1,7 @@
 <template>
-  <!-- Фон для закрытия по клику вне области -->
   <div 
-    class="achievements-overlay"
-    @click="$emit('close')"
+    class="achievements-panel content-card"
   >
-    <div 
-      class="achievements-panel content-card"
-      @click.stop
-    >
     <div class="panel-header">
       <h3 class="text-lg font-semibold">🏆 Достижения</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
@@ -26,7 +20,6 @@
         />
         </div>
       </div>
-    </div>
   </div>
 </template>
 
@@ -48,27 +41,8 @@ const unlockedAchievements = computed(() =>
 </script>
 
 <style scoped>
-.achievements-overlay {
-  @apply fixed inset-0;
-  z-index: 1400;
-  pointer-events: auto;
-}
-
 .achievements-panel {
-  @apply absolute bottom-16 sm:bottom-[4rem] right-4 mb-2;
-  @apply w-72 sm:w-80;
-  z-index: 1500;
   pointer-events: auto;
-  max-height: calc(100vh - 8rem);
-  min-height: fit-content;
-}
-
-/* Для очень узких экранов */
-@media (max-width: 359px) {
-  .achievements-panel {
-    @apply right-1 left-1 w-auto;
-    max-height: calc(100vh - 6rem);
-  }
 }
 
 .achievements-grid {
@@ -100,7 +74,7 @@ const unlockedAchievements = computed(() =>
 }
 
 .close-btn {
-  @apply w-6 h-6 flex items-center justify-center rounded hover:bg-background-secondary;
+  @apply w-6 h-6 flex items-center justify-center rounded;
   pointer-events: auto;
   cursor: pointer;
 }

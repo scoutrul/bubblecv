@@ -1,6 +1,5 @@
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import { gsap } from 'gsap'
 
 export const createQuestionData = (clickedBubble: BubbleNode): Question => ({
   id: `question-${clickedBubble.id}`,
@@ -27,24 +26,8 @@ export const createQuestionData = (clickedBubble: BubbleNode): Question => ({
   ],
 })
 
-export const animateParallax = (
-  parallaxOffset: { x: number, y: number },
-  mouseX: number,
-  mouseY: number,
-  centerX: number,
-  centerY: number
-) => {
-  const strength = 0.008
-  const targetX = (mouseX - centerX) * strength * -1
-  const targetY = (mouseY - centerY) * strength * -1
-
-  gsap.to(parallaxOffset, {
-    x: targetX,
-    y: targetY,
-    duration: 1.2,
-    ease: 'power2.out'
-  })
-}
+// Функция перенесена в @/utils/animations
+export { animateParallax } from '@/utils/animations'
 
 export const animateBubbleClick = (bubble: BubbleNode) => {
   const originalRadius = bubble.targetRadius
@@ -58,16 +41,8 @@ export const animateBubbleClick = (bubble: BubbleNode) => {
   }, 100)
 }
 
-export const animateToughBubbleHit = (bubble: BubbleNode) => {
-  gsap.killTweensOf(bubble, 'targetRadius')
-  bubble.targetRadius = (bubble.targetRadius || bubble.baseRadius) * 1.08
-  gsap.to(bubble, {
-    targetRadius: bubble.baseRadius,
-    duration: 1.2,
-    ease: 'elastic.out(1, 0.6)',
-    delay: 0.1
-  })
-}
+// Функция перенесена в @/utils/animations
+export { animateToughBubbleHit } from '@/utils/animations'
 
 export const calculateBubbleJump = (
   mouseX: number,

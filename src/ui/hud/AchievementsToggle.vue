@@ -27,18 +27,21 @@ defineEmits<Emits>()
 
 <style scoped>
 .achievements-corner {
-  @apply fixed bottom-4 right-2 sm:right-4 z-50;
+  @apply w-8 h-8 sm:w-12 sm:h-12;
 }
 
 .achievements-toggle {
   @apply bg-background-secondary rounded-full;
   @apply flex items-center justify-center;
-  @apply text-lg sm:text-2xl border border-border;
-  @apply transition-all duration-200;
+  @apply text-lg sm:text-2xl border-[0.5px] border-border;
+  @apply text-text-secondary hover:text-text-primary;
+  @apply transition-all duration-300;
+  @apply hover:scale-110;
+  @apply active:scale-95;
 }
 
 .achievements-toggle:hover {
-  @apply scale-105 shadow-lg shadow-primary/20;
+  @apply shadow-xl shadow-primary/30;
 }
 
 .achievement-badge {

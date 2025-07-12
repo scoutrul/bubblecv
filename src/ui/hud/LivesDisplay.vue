@@ -22,7 +22,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { gsap } from 'gsap'
+import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils/animations'
 
 interface Props {
   currentLives: number
@@ -43,33 +43,7 @@ const startHeartbeatAnimation = () => {
   }
 
   // Создаем новую анимацию биения сердца
-  heartbeatAnimation = gsap.timeline({
-    repeat: -1,
-    defaults: { ease: "power3.inOut" }
-  })
-  .to(lastHeart.value, {
-    scale: 2.2,
-    filter: 'brightness(1.3)',
-    duration: 0.2
-  })
-  .to(lastHeart.value, {
-    scale: 0.7,
-    filter: 'brightness(1)',
-    duration: 0.15
-  })
-  .to(lastHeart.value, {
-    scale: 3,
-    filter: 'brightness(1.2)',
-    duration: 0.2
-  })
-  .to(lastHeart.value, {
-    scale: 1,
-    filter: 'brightness(1)',
-    duration: 0.15
-  })
-  .to({}, {
-    duration: 1.3 // Немного уменьшили паузу
-  })
+  heartbeatAnimation = createHeartbeatAnimation(lastHeart.value)
 }
 
 // Следим за изменением количества жизней
@@ -79,7 +53,7 @@ watch(() => props.currentLives, (newLives) => {
   } else if (heartbeatAnimation) {
     heartbeatAnimation.kill()
     if (lastHeart.value) {
-      gsap.set(lastHeart.value, { scale: 1 })
+      resetHeartAnimation(lastHeart.value)
     }
   }
 }, { immediate: true })

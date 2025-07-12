@@ -6,10 +6,6 @@ export function useAchievement() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
   const modalStore = useModalStore()
-  
-
-
-  const showAchievements = ref(false)
 
   const pendingUnlockIds = ref(new Set<string>())
 
@@ -52,11 +48,11 @@ export function useAchievement() {
   const unlockedCount = computed(() => unlockedAchievements.value.length)
 
   const toggleAchievements = () => {
-    showAchievements.value = !showAchievements.value
+    uiEventStore.toggleAchievements()
   }
 
   const closeAchievements = () => {
-    showAchievements.value = false
+    uiEventStore.closeAchievements()
   }
 
   const resetAchievements = () => {
@@ -68,7 +64,7 @@ export function useAchievement() {
 
   return {
     unlockAchievement,
-    showAchievements,
+    showAchievements: computed(() => uiEventStore.showAchievements),
     unlockedCount,
     toggleAchievements,
     closeAchievements,

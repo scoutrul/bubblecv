@@ -37,7 +37,7 @@
 .reset-button {
   @apply w-8 h-8 sm:w-12 sm:h-12 rounded-full;
   @apply flex items-center justify-center;
-  @apply bg-background-glass backdrop-blur-md border border-border;
+  @apply bg-background-glass backdrop-blur-md border-[0.5px] border-border;
   @apply text-text-secondary hover:text-text-primary;
   @apply transition-all duration-300;
   @apply hover:scale-110;
