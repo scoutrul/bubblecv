@@ -186,6 +186,55 @@ export function createYearChangeAnimation(element: HTMLElement): gsap.core.Timel
   return tl
 }
 
+/**
+ * Создает быструю GSAP анимацию года по центру экрана
+ * @param element - HTML элемент года
+ * @param onComplete - callback функция по завершению
+ * @returns Timeline анимации
+ */
+export function createYearTransitionAnimation(element: HTMLElement, onComplete?: () => void): gsap.core.Timeline {
+  const tl = gsap.timeline({
+    onComplete
+  })
+  
+  // Начальное состояние
+  gsap.set(element, {
+    scale: 0.5,
+    opacity: 0,
+    y: 50
+  })
+  
+  // Быстрая анимация появления
+  tl.to(element, {
+    scale: 1,
+    opacity: 1,
+    y: 0,
+    duration: 0.3,
+    ease: "back.out(1.7)"
+  })
+  // Пульсация
+  .to(element, {
+    scale: 1.2,
+    duration: 0.15,
+    ease: "power2.out"
+  })
+  .to(element, {
+    scale: 1.1,
+    duration: 0.15,
+    ease: "power2.inOut"
+  })
+  // Быстрое исчезновение
+  .to(element, {
+    scale: 0.8,
+    opacity: 0,
+    y: -30,
+    duration: 0.4,
+    ease: "power2.in"
+  })
+  
+  return tl
+}
+
 // ===== CANVAS АНИМАЦИИ =====
 
 /**
@@ -230,27 +279,4 @@ export function animateToughBubbleHit(bubble: BubbleNode) {
   })
 }
 
-// ===== ЗВЕЗДЫ АНИМАЦИИ =====
-
-/**
- * Анимирует звезду
- * @param star - объект звезды
- * @param options - опции анимации
- */
-export function animateStar(
-  star: any,
-  options: {
-    x?: number
-    y?: number
-    scale?: number
-    opacity?: number
-    duration?: number
-    ease?: string
-  }
-) {
-  return gsap.to(star, {
-    ...options,
-    duration: options.duration || 1,
-    ease: options.ease || 'power2.out'
-  })
-} 
+ 

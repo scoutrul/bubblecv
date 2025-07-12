@@ -15,10 +15,27 @@ const DEFAULT_BUBBLE_PROPS = {
 }
 
 export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubble {
+  // Каждый 9-й пузырь делаем tough (но не вопросы)
+  const isTough = id % 9 === 0
+  
   return {
     ...bubble,
     ...DEFAULT_BUBBLE_PROPS,
     id,
+    isTough,
+  }
+}
+
+export function createPhilosophyBubble(questionId: string, year: number): NormalizedBubble {
+  return {
+    id: Date.now() + Math.random(),
+    name: 'Философский вопрос',
+    year,
+    skillLevel: 'expert',
+    description: 'Пузырь с философским вопросом о разработке',
+    questionId,
+    ...DEFAULT_BUBBLE_PROPS,
+    isQuestion: true,
   }
 }
 

@@ -8,7 +8,9 @@ export interface NormalizedBubble extends Bubble {
   isTough: boolean
   isHidden: boolean
   isQuestion: boolean
+  questionId?: string
   toughClicks?: number
+  requiredClicks?: number
   isActive: boolean,
   size: BubbleSizes
 }

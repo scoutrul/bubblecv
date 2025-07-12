@@ -29,11 +29,11 @@ defineProps<Props>()
 
 <style scoped>
 .xp-display {
-  @apply w-full;
+  @apply w-full min-w-0;
 }
 
 .xp-row {
-  @apply w-full flex items-center gap-2 sm:gap-3 sm:justify-center;
+  @apply w-full flex items-center gap-2 sm:gap-3 sm:justify-center min-w-0;
 }
 
 .stat-title {
@@ -49,8 +49,8 @@ defineProps<Props>()
 .progress-bar {
   @apply bg-background-card rounded-full;
   @apply h-2;
-  @apply flex-1 sm:w-40 sm:flex-none sm:order-1;
-  min-width: 80px;
+  @apply flex-1 sm:order-1;
+  min-width: 60px;
 }
 
 .progress-fill {

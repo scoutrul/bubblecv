@@ -38,11 +38,6 @@
         </li>
       </ul>
     </div>
-
-    <!-- Подсказка для закрытия -->
-    <div class="click-outside-hint">
-      <span>Кликните вне окна для продолжения</span>
-    </div>
   </BaseModal>
 </template>
 
@@ -235,12 +230,6 @@ const close = () => {
 .unlocked-features li::before {
   content: '✨';
   color: var(--accent, #8b5cf6);
-}
-
-.click-outside-hint {
-  text-align: center;
-  color: var(--text-secondary, #64748b);
-  font-size: 0.875rem;
 }
 
 /* Анимации для элементов внутри модалки */

@@ -10,5 +10,4 @@ export { useModals } from './useModals'
 export { usePhysicsSimulation } from './usePhysicsSimulation'
 export { useSession } from './useSession'
 export { useUi } from './useUi'
-export { useBreakpoint } from './useBreakpoint'
 

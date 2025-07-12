@@ -20,7 +20,7 @@
       </div>
       
       <!-- Опыт: внизу на мобильных, по центру на десктопе -->
-      <div class="mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:flex sm:justify-center">
+      <div class="mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:flex sm:justify-center sm:min-w-0">
         <XPDisplay 
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"

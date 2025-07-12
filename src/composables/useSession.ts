@@ -1,4 +1,4 @@
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useSessionStore, useUiEventStore, useLevelStore } from '@/stores'
 import { useAchievement } from './useAchievement'
 import { getEventBridge } from './useUi'
@@ -11,6 +11,8 @@ export function useSession() {
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
+  
+  const yearTransitionTrigger = ref(false)
 
   const canLevelUp = computed(() => {
     if (!sessionStore.session) return false
@@ -116,6 +118,7 @@ export function useSession() {
       const achievement = await unlockAchievement('on-the-edge')
       if (achievement) {
         const result = await gainXP(achievement.xpReward)
+        // Ачивка будет показана через систему pending achievements
       }
     }
   }
@@ -128,9 +131,12 @@ export function useSession() {
     }
   }
 
-  const updateCurrentYear = (currYear: number) => {
+  const updateCurrentYear = (currYear: number, triggerAnimation: boolean = false) => {
     if (sessionStore.session) {
       sessionStore.setCurrentYear(currYear)
+      if (triggerAnimation) {
+        yearTransitionTrigger.value = !yearTransitionTrigger.value
+      }
     }
   }
   
@@ -181,6 +187,7 @@ export function useSession() {
     visitBubble,
     startSession,
     unlockFirstToughBubbleAchievement,
-    updateCurrentYear
+    updateCurrentYear,
+    yearTransitionTrigger
   }
 }

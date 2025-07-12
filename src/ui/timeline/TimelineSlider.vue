@@ -53,6 +53,8 @@
         </div>
       </div>
     </div>
+    
+
   </div>
 </template>
 
@@ -84,31 +86,57 @@ const sessionStore = useSessionStore()
 const timelineRef = ref<HTMLElement | null>(null)
 const isAutoSwitching = ref(false) // Флаг для предотвращения повторных переключений
 
+
+
 const handleYearChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const newYear = parseInt(target.value)
   
+  // Устанавливаем флаг ручного изменения года
+  isAutoSwitching.value = true
+  
   // Анимируем смену года
   requestAnimationFrame(() => {
     emit('update:currentYear', newYear)
+    
+    // Сбрасываем флаг через небольшую задержку
+    setTimeout(() => {
+      isAutoSwitching.value = false
+    }, 1000)
   })
 }
 
 const goToPreviousYear = () => {
   if (props.currentYear > props.startYear) {
+    // Устанавливаем флаг ручного изменения года
+    isAutoSwitching.value = true
+    
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear - 1)
+      
+      // Сбрасываем флаг через небольшую задержку
+      setTimeout(() => {
+        isAutoSwitching.value = false
+      }, 1000)
     })
   }
 }
 
 const goToNextYear = () => {
   if (props.currentYear < props.endYear) {
+    // Устанавливаем флаг ручного изменения года
+    isAutoSwitching.value = true
+    
     // Используем GSAP версию shake эффекта
     triggerGsapShakeEffect()
     
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear + 1)
+      
+      // Сбрасываем флаг через небольшую задержку
+      setTimeout(() => {
+        isAutoSwitching.value = false
+      }, 1000)
     })
   }
 }
@@ -124,6 +152,8 @@ const triggerGsapShakeEffect = () => {
 const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
   return createYearChangeAnimation(yearElement)
 }
+
+
 
 // Computed для отслеживания завершения всех пузырей текущего года
 const isCurrentYearCompleted = computed(() => {
@@ -167,6 +197,8 @@ const performAutoSwitch = async () => {
         const nextYear = props.currentYear + 1
         if (isFinite(nextYear) && nextYear <= props.endYear) {
           emit('update:currentYear', nextYear)
+          
+
         }
         
         setTimeout(() => {
@@ -180,31 +212,34 @@ const performAutoSwitch = async () => {
 }
 
 // Добавляем watch для анимации смены года
-watch(() => props.currentYear, async () => {
+watch(() => props.currentYear, async (newYear, oldYear) => {
+  console.log('🎯 Year changed from', oldYear, 'to', newYear)
   await nextTick()
   const yearElement = document.querySelector('.year-compact') as HTMLElement
   if (yearElement) {
     animateYearChangeWithGsap(yearElement)
   }
+  
+
 })
 
-// Отслеживаем изменения visitedBubbles для автопереключения
-watch([() => sessionStore.visitedBubbles.length, () => props.currentYear], () => {
-  // Очищаем предыдущий timeout
-  if (autoSwitchTimeout) {
-    clearTimeout(autoSwitchTimeout)
-  }
-  
-  // Проверяем завершение года с debounce только при изменении visitedBubbles
-  if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
-    autoSwitchTimeout = window.setTimeout(() => {
-      // Повторная проверка после задержки для уверенности
-      if (isCurrentYearCompleted.value && !isAutoSwitching.value && props.currentYear < props.endYear) {
-        performAutoSwitch()
-      }
-    }, 500) // Увеличена задержка для более стабильной работы
-  }
-}, { flush: 'post' })
+// Отключено: автопереключение годов теперь управляется из useCanvas.ts
+// watch([() => sessionStore.visitedBubbles.length, () => props.currentYear], () => {
+//   // Очищаем предыдущий timeout
+//   if (autoSwitchTimeout) {
+//     clearTimeout(autoSwitchTimeout)
+//   }
+//   
+//   // Проверяем завершение года с debounce только при изменении visitedBubbles
+//   if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
+//     autoSwitchTimeout = window.setTimeout(() => {
+//       // Повторная проверка после задержки для уверенности
+//       if (isCurrentYearCompleted.value && !isAutoSwitching.value && props.currentYear < props.endYear) {
+//         performAutoSwitch()
+//       }
+//     }, 500) // Увеличена задержка для более стабильной работы
+//   }
+// }, { flush: 'post' })
 
 // Сброс флага автопереключения при смене года вручную
 watch(() => props.currentYear, () => {
@@ -293,4 +328,6 @@ watch(() => props.currentYear, () => {
 .year-slider::-webkit-slider-thumb {
   @apply appearance-none w-3 h-3 bg-primary rounded-full cursor-pointer;
 }
+
+
 </style> 

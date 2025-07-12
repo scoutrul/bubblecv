@@ -1,30 +1,28 @@
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
+import questionsData from '@/data/questions.json'
 
-export const createQuestionData = (clickedBubble: BubbleNode): Question => ({
-  id: `question-${clickedBubble.id}`,
-  title: clickedBubble.name,   
-  description: clickedBubble.description,
-  question: clickedBubble.description,
-  type: 'string',
-  insight: 'string',
-  options: [
-    {
-      id: 1,
-      text: 'Я согласен с этим подходом и готов работать в этом стиле.',
-      response: 'string',
-      agreementLevel: 100,
-      livesLost: 1
-    },
-    {
-      id: 2,
-      text: 'Я предпочитаю работать по-другому и не согласен с этим подходом.',
-      response: 'string',
-      agreementLevel: 100,
-      livesLost: 1
-    },
-  ],
-})
+export const createQuestionData = (clickedBubble: BubbleNode): Question => {
+  // Если у пузыря есть questionId, используем его
+  if (clickedBubble.questionId) {
+    const question = questionsData.questions.find(q => q.id === clickedBubble.questionId)
+    if (question) {
+      return {
+        ...question,
+        title: 'Философский вопрос',
+        description: 'Ваш взгляд на разработку важен для понимания совместимости'
+      }
+    }
+  }
+  
+  // Иначе берем случайный вопрос
+  const randomQuestion = questionsData.questions[Math.floor(Math.random() * questionsData.questions.length)]
+  return {
+    ...randomQuestion,
+    title: 'Философский вопрос',
+    description: 'Ваш взгляд на разработку важен для понимания совместимости'
+  }
+}
 
 // Функция перенесена в @/utils/animations
 export { animateParallax } from '@/utils/animations'

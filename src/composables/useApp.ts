@@ -10,7 +10,7 @@ export function useApp() {
   const sessionStore = useSessionStore()
   const levelStore = useLevelStore()
   const achievements = useAchievement()
-  const { startSession, updateCurrentYear } = useSession()
+  const { startSession, updateCurrentYear, yearTransitionTrigger } = useSession()
   const { openWelcome } = useModals()
 
   const isAppLoading = ref(false)
@@ -54,7 +54,8 @@ export function useApp() {
     currentLives: computed(() => sessionStore.lives),
     xpProgress: computed(() => sessionStore.xpProgress),
     nextLevelXP: computed(() => sessionStore.nextLevelXP),
-    visitedBubbles: computed(() => sessionStore.visitedBubbles)
+    visitedBubbles: computed(() => sessionStore.visitedBubbles),
+    yearTransitionTrigger
   }
 
   return {

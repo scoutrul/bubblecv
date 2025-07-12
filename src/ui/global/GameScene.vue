@@ -14,6 +14,11 @@
       @toggle="toggleAchievements"
       @close="closeAchievements"
     />
+    
+    <!-- Анимация смены года -->
+    <YearTransition 
+      :year="currentYear"
+    />
   </div>
 </template>
 
@@ -23,12 +28,13 @@ import ResetButton from '@/ui/global/ResetButton.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
+import YearTransition from '@/ui/global/YearTransition.vue'
 
 import { useApp, useUi } from '@/composables'
 
 const {
   resetGame,
-  game: { startYear, endYear, currentYear, updateCurrentYear },
+  game: { startYear, endYear, currentYear, updateCurrentYear, yearTransitionTrigger },
   achievements: {
     unlockedCount,
     toggleAchievements,
@@ -38,6 +44,8 @@ const {
 } = useApp()
 
 const { shakingComponents } = useUi()
+
+
 
 </script>
 

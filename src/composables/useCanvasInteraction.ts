@@ -146,7 +146,7 @@ export function useCanvasInteraction(
           
           const secretXP = XP_CALCULATOR.getSecretBubbleXP()
           const result = await gainXP(secretXP)
-          createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#FFD700')
+          createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#22c55e')
           
           if (result.leveledUp && result.levelData) {
             openLevelUpModal(result.newLevel!, result.levelData)
@@ -216,17 +216,17 @@ export function useCanvasInteraction(
       }
       return
     } else if (bubble.isQuestion) {
-      xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
-      const result = await gainXP(xpGained)
-      leveledUp = result.leveledUp
-      createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
-      
-      if (isPhilosophyNegative) {
+      if (!isPhilosophyNegative) {
+        xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
+        const result = await gainXP(xpGained)
+        leveledUp = result.leveledUp
+        createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
+        
+        if (result.leveledUp && result.levelData) {
+          openLevelUpModal(result.newLevel!, result.levelData)
+        }
+      } else {
         createLifeLossFloatingText(bubble.x, bubble.y)
-      }
-      
-      if (result.leveledUp && result.levelData) {
-        openLevelUpModal(result.newLevel!, result.levelData)
       }
     } else if (!skipXP) {
       // Обрабатываем XP только если не было уже обработано в useModals

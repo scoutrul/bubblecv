@@ -23,60 +23,26 @@
         {{ question?.question }}
       </h3>
       <p class="text-text-secondary leading-relaxed">
-        {{ question?.description }}
+        {{ question?.insight }}
       </p>
     </div>
 
     <!-- Options -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Принять -->
+    <div class="space-y-3">
       <button
-        @click="handleAnswer('agree')"
-        class="group relative p-6 bg-green-500/10 hover:bg-green-500/20 
-                 border border-green-500/30 hover:border-green-500/50
-                 rounded-xl transition-all duration-200
-                 text-left focus:outline-none focus:ring-2 focus:ring-green-500/50"
+        v-for="option in shuffledOptions"
+        :key="option.id"
+        @click="handleAnswer(String(option.id))"
+        class="group relative p-4 w-full rounded-xl transition-all duration-200 text-left focus:outline-none focus:ring-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 hover:border-purple-500/50 focus:ring-purple-500/50"
       >
-        <div class="flex items-start justify-between mb-3">
-          <span class="text-2xl">✅</span>
-          <div class="text-right">
-            <div class="text-green-400 font-semibold">+{{ philosophyXP }} XP</div>
-            <div class="text-xs text-green-400/70">Награда</div>
-          </div>
+        <div class="flex items-start gap-3">
+          <span class="text-xl flex-shrink-0">🤔</span>
+          <p class="text-sm text-text-primary leading-relaxed">
+            {{ option.text }}
+          </p>
         </div>
         
-        <h4 class="font-semibold text-text-primary mb-2">Принимаю</h4>
-        <p class="text-sm text-text-secondary leading-relaxed">
-          {{ '123 Я согласен с этим утверждением и готов работать в рамках этого подхода.' }}
-        </p>
-        
-        <div class="absolute inset-0 bg-green-500/5 rounded-xl opacity-0 
-                      group-hover:opacity-100 transition-opacity duration-200"></div>
-      </button>
-
-      <!-- Не принимать -->
-      <button
-        @click="handleAnswer('disagree')"
-        class="group relative p-6 bg-red-500/10 hover:bg-red-500/20 
-                 border border-red-500/30 hover:border-red-500/50
-                 rounded-xl transition-all duration-200
-                 text-left focus:outline-none focus:ring-2 focus:ring-red-500/50"
-      >
-        <div class="flex items-start justify-between mb-3">
-          <span class="text-2xl">❌</span>
-          <div class="text-right">
-            <div class="text-red-400 font-semibold">-{{ philosophyLives }} ❤️</div>
-            <div class="text-xs text-red-400/70">Штраф</div>
-          </div>
-        </div>
-        
-        <h4 class="font-semibold text-text-primary mb-2">Не принимаю</h4>
-        <p class="text-sm text-text-secondary leading-relaxed">
-          {{ question?.options[1].text }}
-        </p>
-        
-        <div class="absolute inset-0 bg-red-500/5 rounded-xl opacity-0 
-                      group-hover:opacity-100 transition-opacity duration-200"></div>
+        <div class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-purple-500/5"></div>
       </button>
     </div>
 
@@ -107,18 +73,31 @@ interface Props {
 
 interface Emits {
   (e: 'close'): void
-  (e: 'answer', answer: 'agree' | 'disagree'): void
+  (e: 'answer', optionId: string): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+// Перемешиваем варианты ответов в случайном порядке
+const shuffledOptions = computed(() => {
+  if (!props.question?.options) return []
+  
+  const options = [...props.question.options]
+  // Простое перемешивание Fisher-Yates
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [options[i], options[j]] = [options[j], options[i]]
+  }
+  
+  return options
+})
+
 // Используем централизованную логику для расчета XP
 const philosophyXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP())
-const philosophyLives = 1
 
-const handleAnswer = (answer: 'agree' | 'disagree') => {
-  emit('answer', answer)
+const handleAnswer = (optionId: string) => {
+  emit('answer', optionId)
 }
 </script>
 

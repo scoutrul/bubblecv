@@ -382,13 +382,6 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
       context.beginPath()
       context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
-    } else if (bubble.isTough) {     
-      context.beginPath()
-      context.arc(x, y, radius, 0, Math.PI * 2)
-      context.fill()
-
-      context.shadowBlur = 0
-      context.shadowColor = 'transparent'
     } else {
       // Отрисовка обычных пузырей
       const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel] || GAME_CONFIG.expertiseBubbles.novice

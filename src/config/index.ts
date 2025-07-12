@@ -5,7 +5,7 @@ export const GAME_CONFIG = {
   initialLives: 3,
   maxLives: 5,
 
-  TOUGH_BUBBLE_CLICKS_REQUIRED: 10,
+  TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
 
   levelRequirements: {
     1: 0,    
@@ -92,6 +92,10 @@ export const XP_CALCULATOR = {
   },
   getPhilosophyBubbleXP: (): number => {
     return GAME_CONFIG.achievementXP.intermediate
+  },
+  getPhilosophyXP: (agreementLevel: number): number => {
+    const baseXP = GAME_CONFIG.achievementXP.basic
+    return baseXP + (baseXP * agreementLevel)
   },
   getSecretBubbleXP: (): number => {
     return GAME_CONFIG.achievementXP.basic
