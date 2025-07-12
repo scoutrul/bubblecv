@@ -1,17 +1,16 @@
 <template>
   <div class="xp-display">
     <div class="xp-row" :class="{ 'util-shake-hud': isShaking }">
-      <div class="xp-info">
-        <span class="stat-title">Опыт</span>
-        <span class="stat-value">{{ currentXP }} / {{ nextLevelXP }}</span>
-      </div>
-      
-      <div class="progress-bar">
-        <div 
-          class="progress-fill"
-          :style="{ width: xpPercentage + '%' }"
-        >
-          <div class="progress-shine" v-if="isAnimating"></div>
+      <div class="xp-inline">
+        <span class="stat-title mobile-text-xs">Опыт</span>
+        <span class="stat-value mobile-text-xs">{{ currentXP }} / {{ nextLevelXP }}</span>
+        <div class="progress-bar">
+          <div 
+            class="progress-fill"
+            :style="{ width: xpPercentage + '%' }"
+          >
+            <div class="progress-shine" v-if="isAnimating"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -32,27 +31,27 @@ defineProps<Props>()
 
 <style scoped>
 .xp-display {
-  @apply flex-1 flex justify-center px-4;
+  @apply w-full;
 }
 
 .xp-row {
-  @apply w-full max-w-sm;
+  @apply w-full;
 }
 
-.xp-info {
-  @apply flex justify-between items-baseline mb-1;
+.xp-inline {
+  @apply flex items-center gap-2 sm:gap-3;
 }
 
 .stat-title {
-  @apply text-sm font-semibold text-primary;
+  @apply font-semibold text-primary flex-shrink-0;
 }
 
 .stat-value {
-  @apply text-xs text-text-secondary;
+  @apply text-text-secondary flex-shrink-0;
 }
 
 .progress-bar {
-  @apply w-full bg-background-card rounded-full h-1.5;
+  @apply flex-1 bg-background-card rounded-full h-1 sm:h-1.5 min-w-0;
 }
 
 .progress-fill {

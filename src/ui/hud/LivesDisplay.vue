@@ -1,8 +1,8 @@
 <template>
   <div class="lives-display" :class="{ 'util-shake-hud': isShaking }">
     <div class="stat-header">
-      <span class="stat-title">Жизни</span>
-      <div class="hearts-container">
+      <span class="stat-title mobile-text-xs">Жизни</span>
+      <div class="hearts-container mobile-gap">
         <div 
           v-for="life in maxLives"
           :key="life"
@@ -103,20 +103,20 @@ onUnmounted(() => {
 }
 
 .stat-header {
-  @apply flex items-center gap-2;
+  @apply flex items-center gap-2 sm:gap-2;
 }
 
 .stat-title {
-  @apply text-sm font-semibold text-primary;
+  @apply font-semibold text-primary;
 }
 
 /* Стили для жизней */
 .hearts-container {
-  @apply flex gap-1;
+  @apply flex;
 }
 
 .life-heart {
-  @apply text-sm transition-all duration-300 origin-center;
+  @apply text-xs sm:text-sm transition-all duration-300 origin-center;
 }
 
 .life-lost {

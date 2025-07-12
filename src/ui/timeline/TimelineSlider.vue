@@ -2,7 +2,7 @@
   <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
     <div class="timeline-content">
       <div class="timeline-header">
-        <h3 class="text-lg font-semibold">Путешествие во времени</h3>
+        <h3 class="text-sm font-medium text-text-primary whitespace-nowrap">Путешествие во времени</h3>
         
         <!-- Компактные кнопки навигации -->
         <div class="navigation-compact">
@@ -281,10 +281,27 @@ watch(() => props.currentYear, () => {
 <style scoped>
 .timeline-slider {
   @apply w-full;
-  @apply absolute bottom-8 left-1/2 transform -translate-x-1/2;
-  @apply bg-background-glass backdrop-blur-md rounded-lg p-4;
-  @apply border border-border;
-  width: min(400px, 90vw);
+  @apply absolute bottom-4 left-1/2 transform -translate-x-1/2;
+  @apply bg-background-glass backdrop-blur-md rounded-lg;
+  @apply border border-border p-2 sm:p-3;
+  width: calc(100vw - 6rem);
+  max-width: 400px;
+}
+
+/* Скрываем заголовок и навигацию на мобильных */
+@media (max-width: 639px) {
+  .timeline-slider {
+    @apply bottom-4;
+    width: calc(100vw - 6rem);
+  }
+  
+  .timeline-header {
+    @apply hidden;
+  }
+  
+  .slider-container {
+    @apply space-y-0;
+  }
 }
 
 .timeline-content {
@@ -292,15 +309,19 @@ watch(() => props.currentYear, () => {
 }
 
 .timeline-header {
-  @apply flex justify-between items-center mb-4;
+  @apply flex justify-between items-center mb-2;
+}
+
+.timeline-header h3 {
+  @apply text-xs font-medium text-text-primary whitespace-nowrap;
 }
 
 .navigation-compact {
-  @apply flex items-center gap-1;
+  @apply flex items-center gap-0.5;
 }
 
 .nav-button-compact {
-  @apply w-6 h-6 flex items-center justify-center rounded 
+  @apply w-5 h-5 flex items-center justify-center rounded 
          bg-background-secondary hover:bg-background-card 
          disabled:opacity-30 disabled:cursor-not-allowed
          transition-all duration-150 hover:scale-105;
@@ -311,11 +332,11 @@ watch(() => props.currentYear, () => {
 }
 
 .nav-icon-compact {
-  @apply w-3 h-3;
+  @apply w-2.5 h-2.5;
 }
 
 .year-display {
-  @apply relative w-[4rem] h-[1.5rem] overflow-hidden;
+  @apply relative w-12 h-5 overflow-hidden;
 }
 
 .year-wrapper {
@@ -323,7 +344,7 @@ watch(() => props.currentYear, () => {
 }
 
 .year-compact {
-  @apply text-sm font-medium px-2 text-center absolute;
+  @apply text-xs font-medium px-1 text-center absolute;
   color: #6b7280; /* text-text-secondary */
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -333,18 +354,18 @@ watch(() => props.currentYear, () => {
 }
 
 .slider-with-labels {
-  @apply flex items-center gap-3;
+  @apply flex items-center gap-2;
 }
 
 .year-label-side {
-  @apply text-xs text-text-muted font-medium min-w-[2.5rem] text-center;
+  @apply text-xs text-text-muted font-medium min-w-8 text-center;
 }
 
 .year-slider {
-  @apply flex-1 h-2 bg-background-secondary rounded-lg appearance-none cursor-pointer;
+  @apply flex-1 h-1.5 bg-background-secondary rounded-lg appearance-none cursor-pointer;
 }
 
 .year-slider::-webkit-slider-thumb {
-  @apply appearance-none w-4 h-4 bg-primary rounded-full cursor-pointer;
+  @apply appearance-none w-3 h-3 bg-primary rounded-full cursor-pointer;
 }
 </style> 

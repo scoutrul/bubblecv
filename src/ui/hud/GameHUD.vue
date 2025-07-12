@@ -1,18 +1,30 @@
 <template>
   <div class="game-hud">
-    <!-- Верхняя панель: жизни, опыт, уровень -->
-    <div class="top-panel">
-      <!-- Левая секция: жизни -->
-      <div class="panel-section justify-start">
-        <LivesDisplay 
-          :current-lives="currentLives"
-          :max-lives="maxLives"
-          :is-shaking="shakingComponents.has('lives')"
-        />
+    <!-- Верхняя панель с адаптивной структурой -->
+    <div class="top-panel p-2 sm:p-4">
+      <!-- Жизни и уровень в одну строку на мобильных, по краям на десктопе -->
+      <div class="flex justify-between items-center sm:w-full sm:justify-between sm:order-1">
+        <!-- Жизни -->
+        <div class="sm:order-1">
+          <LivesDisplay 
+            :current-lives="currentLives"
+            :max-lives="maxLives"
+            :is-shaking="shakingComponents.has('lives')"
+          />
+        </div>
+        
+        <!-- Уровень -->
+        <div class="sm:order-3">
+          <LevelDisplay 
+            :current-level="currentLevel"
+            :level-title="currentLevelTitle"
+            :is-shaking="shakingComponents.has('level')"
+          />
+        </div>
       </div>
       
-      <!-- Центральная секция: опыт -->
-      <div class="panel-section center">
+      <!-- Опыт внизу -->
+      <div class="mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:px-8">
         <XPDisplay 
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"
@@ -21,18 +33,9 @@
           :is-shaking="shakingComponents.has('xp')"
         />
       </div>
-      
-      <!-- Правая секция: уровень -->
-      <div class="panel-section justify-end">
-        <LevelDisplay 
-          :current-level="currentLevel"
-          :level-title="currentLevelTitle"
-          :is-shaking="shakingComponents.has('level')"
-        />
-      </div>
     </div>
     
-    <!-- Достижения в нижнем правом углу -->
+    <!-- Достижения в правом нижнем углу -->
     <div class="achievements-corner">
       <AchievementsToggle 
         :unlocked-count="unlockedCount"
@@ -91,24 +94,14 @@ const {
 /* Верхняя панель */
 .top-panel {
   @apply fixed top-0 left-0 right-0;
-  @apply flex justify-between items-center;
-  @apply p-4 bg-gradient-to-b from-background-primary/90 to-transparent;
+  @apply bg-gradient-to-b from-background-primary/90 to-transparent;
+  @apply flex flex-col sm:flex-row sm:items-center;
   z-index: 1000;
 }
 
-/* Секции панели */
-.panel-section {
-  @apply flex items-center justify-center;
-  @apply min-w-0; /* Предотвращает переполнение */
-}
-
-.panel-section.center {
-  @apply flex-1 px-8; /* Центральная секция занимает доступное пространство */
-}
-
-/* Достижения в углу */
+/* Достижения в правом нижнем углу */
 .achievements-corner {
-  @apply fixed bottom-4 right-4;
+  @apply fixed bottom-4 right-2 sm:right-12;
   @apply pointer-events-auto;
   z-index: 1000;
 }

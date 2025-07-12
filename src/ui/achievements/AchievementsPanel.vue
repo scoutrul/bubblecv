@@ -55,22 +55,48 @@ const unlockedAchievements = computed(() =>
 }
 
 .achievements-panel {
-  @apply absolute bottom-[4rem] right-[1rem] mb-2 w-80;
+  @apply absolute bottom-16 sm:bottom-[4rem] right-4 mb-2;
+  @apply w-72 sm:w-80;
   z-index: 1500;
   pointer-events: auto;
   max-height: calc(100vh - 8rem);
   min-height: fit-content;
 }
 
+/* Для очень узких экранов */
+@media (max-width: 359px) {
+  .achievements-panel {
+    @apply right-1 left-1 w-auto;
+    max-height: calc(100vh - 6rem);
+  }
+}
+
 .achievements-grid {
   @apply overflow-y-auto;
   max-height: calc(100vh - 12rem);
-  padding-right: 1rem;
-  margin-right: -1rem;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
+}
+
+@media (min-width: 640px) {
+  .achievements-grid {
+    padding-right: 1rem;
+    margin-right: -1rem;
+  }
+}
+
+@media (max-width: 359px) {
+  .achievements-grid {
+    max-height: calc(100vh - 8rem);
+  }
 }
 
 .panel-header {
-  @apply flex justify-between items-center mb-4;
+  @apply flex justify-between items-center mb-2 sm:mb-4;
+}
+
+.panel-header h3 {
+  @apply text-base sm:text-lg;
 }
 
 .close-btn {

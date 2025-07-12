@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-4 left-4 z-50 group">
+  <div class="fixed bottom-4 left-2 sm:left-12 z-50 group">
     <button 
       @click="$emit('handleReset')"
       class="reset-button"
@@ -35,7 +35,7 @@
 
 <style scoped>
 .reset-button {
-  @apply w-12 h-12 rounded-full;
+  @apply w-8 h-8 sm:w-12 sm:h-12 rounded-full;
   @apply flex items-center justify-center;
   @apply bg-background-glass backdrop-blur-md border border-border;
   @apply text-text-secondary hover:text-text-primary;
@@ -49,7 +49,7 @@
 }
 
 .reset-button svg {
-  @apply transition-transform duration-300;
+  @apply w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300;
 }
 
 .reset-button:hover svg {

@@ -3,9 +3,9 @@
     <div class="level-info" :class="[levelClass, { 'util-shake-hud': isShaking }]">
       <span class="level-title-group">
         <span class="level-icon">{{ levelIcon }}</span>
-        <span :class="titleClass">Уровень {{ currentLevel }}</span>
+        <span :class="titleClass" class="mobile-text-xs">Уровень {{ currentLevel }}</span>
       </span>
-      <span :class="subtitleClass">{{ levelTitle }}</span>
+      <span :class="subtitleClass" class="mobile-text-xs">{{ levelTitle }}</span>
       <div v-if="currentLevel >= 1" class="glossy-shine"></div>
     </div>
   </div>
@@ -91,15 +91,15 @@ const subtitleClass = computed(() => {
 }
 
 .level-info {
-  @apply flex items-baseline gap-x-3 text-right p-2 rounded-lg transition-all duration-300 relative overflow-hidden;
+  @apply flex items-baseline gap-x-1 sm:gap-x-3 text-right p-1 sm:p-2 rounded-lg transition-all duration-300 relative overflow-hidden;
 }
 
 .level-title-group {
-  @apply flex items-center gap-1.5 text-sm font-semibold;
+  @apply flex items-center gap-1 sm:gap-1.5 font-semibold;
 }
 
 .level-icon {
-  @apply text-base;
+  @apply text-sm sm:text-base;
 }
 
 .glossy-shine {
@@ -122,25 +122,25 @@ const subtitleClass = computed(() => {
 
 /* --- Level 1 --- */
 .title-novice { @apply text-text-muted; }
-.subtitle-novice { @apply text-xs text-text-muted/80; }
+.subtitle-novice { @apply text-text-muted/80; }
 
 /* --- Level 2 --- */
 .level-2 { @apply bg-blue-900/30; }
 .title-interested { @apply text-blue-300; }
-.subtitle-interested { @apply text-xs text-blue-400; }
+.subtitle-interested { @apply text-blue-400; }
 
 /* --- Level 3 --- */
 .level-3 { @apply bg-green-900/30 border border-green-500/20; }
 .title-learning { @apply text-green-300; }
-.subtitle-learning { @apply text-xs text-green-400; }
+.subtitle-learning { @apply text-green-400; }
 
 /* --- Level 4 --- */
 .level-4 { @apply bg-purple-900/40 border border-purple-500/20; }
 .title-partner { @apply text-purple-300; }
-.subtitle-partner { @apply text-xs text-purple-400; }
+.subtitle-partner { @apply text-purple-400; }
 
 /* --- Level 5 --- */
 .level-5 { @apply bg-amber-900/40 border border-amber-500/20; }
 .title-bro { @apply text-amber-300; }
-.subtitle-bro { @apply text-xs text-amber-400 font-semibold; }
+.subtitle-bro { @apply text-amber-400 font-semibold; }
 </style>

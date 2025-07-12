@@ -4,7 +4,7 @@
       @update:currentYear="updateCurrentYear" class="timeline" />
     <GameHUD class="game-hud" />
     <BubbleCanvas class="bubble-scene" />
-    <ResetButton @handle-reset="resetGame" />
+    <ResetButton @handle-reset="resetGame" class="reset-button" />
   </div>
 </template>
 
@@ -34,5 +34,30 @@ const {
 
 .game-hud {
   @apply absolute top-0 right-0 z-10;
+}
+
+.reset-button {
+  z-index: 1000;
+}
+
+/* Адаптивные стили для мобильных устройств */
+@media (max-width: 559px) {
+  .timeline {
+    /* Делаем TimelineSlider более компактным на мобильных */
+    z-index: 900;
+  }
+  
+  .reset-button {
+    /* Перемещаем кнопку сброса в левый нижний угол на мобильных */
+    z-index: 900;
+  }
+}
+
+/* Очень узкие экраны (320px) */
+@media (max-width: 359px) {
+  .timeline {
+    /* Дополнительная компактность для очень узких экранов */
+    z-index: 900;
+  }
 }
 </style>

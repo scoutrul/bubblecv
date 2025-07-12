@@ -2,7 +2,7 @@
   <div class="achievements-toggle-wrapper">
     <button 
       @click="$emit('toggle')"
-      class="achievements-toggle"
+      class="achievements-toggle w-8 h-8 sm:w-12 sm:h-12"
       :class="{ 'util-shake-hud': isShaking }"
     >
       🏆
@@ -31,9 +31,9 @@ defineEmits<Emits>()
 }
 
 .achievements-toggle {
-  @apply relative w-12 h-12 bg-background-secondary rounded-full;
+  @apply relative bg-background-secondary rounded-full;
   @apply flex items-center justify-center;
-  @apply text-2xl border-2 border-border;
+  @apply text-lg sm:text-2xl border-2 border-border;
   @apply transition-all duration-200;
 }
 
@@ -42,10 +42,10 @@ defineEmits<Emits>()
 }
 
 .achievement-badge {
-  @apply absolute -top-1 -right-1;
-  @apply w-5 h-5 bg-primary rounded-full;
+  @apply absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1;
+  @apply w-4 h-4 sm:w-5 sm:h-5 bg-primary rounded-full;
   @apply text-xs font-bold text-white;
   @apply flex items-center justify-center;
-  @apply border-2 border-background-secondary;
+  @apply border border-background-secondary sm:border-2;
 }
 </style> 
