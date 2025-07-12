@@ -1,12 +1,15 @@
 <template>
   <div class="achievements-widget">
     <!-- Кнопка достижений -->
-    <AchievementsToggle 
-      :unlocked-count="unlockedCount"
-      :is-shaking="isShaking"
-      @toggle="toggleAchievements"
-      class="achievements-toggle"
-    />
+    <div class="achievements-toggle-container">
+      <AchievementsToggle 
+        :unlocked-count="unlockedCount"
+        :is-shaking="isShaking"
+        @toggle="toggleAchievements"
+        class="achievements-toggle"
+      />
+      <span class="achievement-badge" v-if="unlockedCount > 0">{{ unlockedCount }}</span>
+    </div>
     
     <!-- Панель достижений -->
     <AchievementsPanel 
@@ -50,8 +53,21 @@ const closeAchievements = () => {
   @apply z-50;
 }
 
+.achievements-toggle-container {
+  @apply relative;
+}
+
 .achievements-toggle {
   @apply relative;
+}
+
+.achievement-badge {
+  @apply absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1;
+  @apply w-4 h-4 sm:w-5 sm:h-5 bg-primary rounded-full;
+  @apply text-xs font-bold text-white;
+  @apply flex items-center justify-center;
+  @apply border border-background-secondary sm:border-2;
+  @apply z-20;
 }
 
 .achievements-panel {

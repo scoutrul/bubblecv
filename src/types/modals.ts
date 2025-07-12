@@ -9,7 +9,17 @@ export interface PendingAchievement {
   xpReward: number
 }
 
-export interface LevelUpData extends NormalizedLevel {
+export interface PendingBubbleRemoval {
+  bubbleId: number
+  xpAmount: number
+  isPhilosophyNegative: boolean
+}
+
+export interface CanvasBridge {
+  removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => void
+}
+
+export interface LevelUpData {
   level: number
   title: string
   description: string
@@ -17,6 +27,7 @@ export interface LevelUpData extends NormalizedLevel {
   currentXP: number
   xpGained: number
   unlockedFeatures: string[]
+  xpRequired: number
 }
 
 export interface ModalData {

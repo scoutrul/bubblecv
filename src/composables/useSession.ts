@@ -1,9 +1,9 @@
-import { computed, ref } from 'vue'
-import { useSessionStore, useUiEventStore, useLevelStore } from '@/stores'
-import { useAchievement } from './useAchievement'
-import { getEventBridge } from './useUi'
+import { ref, computed, watch } from 'vue'
+import { useSessionStore, useUiEventStore, useLevelStore, useModalStore } from '@/stores'
+import { useAchievement } from '@/composables/useAchievement'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { generateSessionId } from '@/utils/ui'
+import { getEventBridge } from '@/composables/useUi'
 import type { NormalizedBubble } from '@/types/normalized'
 
 export function useSession() {
@@ -11,8 +11,23 @@ export function useSession() {
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
+  const modalStore = useModalStore()
   
   const yearTransitionTrigger = ref(false)
+
+  // Функция для показа модалки ачивки
+  const showAchievementModal = (achievement: any) => {
+    // Импортируем useModals динамически чтобы избежать циклических зависимостей
+    import('@/composables/useModals').then(({ useModals }) => {
+      const { openAchievementModal } = useModals()
+      openAchievementModal({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+    })
+  }
 
   const canLevelUp = computed(() => {
     if (!sessionStore.session) return false
@@ -83,6 +98,7 @@ export function useSession() {
     const achievement = await unlockAchievement('philosophy-master')
     if (achievement) {
       const result = await gainXP(achievement.xpReward)
+      showAchievementModal(achievement)
       return result.leveledUp
     }
     
@@ -93,7 +109,7 @@ export function useSession() {
     if (!sessionStore.session) return false
 
     await loseLives()
-    return false
+    return sessionStore.session.lives === 0
   }
 
   const loseLives = async (amount: number = 1): Promise<void> => {
@@ -118,7 +134,7 @@ export function useSession() {
       const achievement = await unlockAchievement('on-the-edge')
       if (achievement) {
         const result = await gainXP(achievement.xpReward)
-        // Ачивка будет показана через систему pending achievements
+        showAchievementModal(achievement)
       }
     }
   }

@@ -55,7 +55,10 @@
         </p>
         
         <!-- XP награда -->
-        <div class="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg mb-6">
+        <div 
+          @click="$emit('close')"
+          class="xp-reward-block"
+        >
           <div class="flex items-center justify-center space-x-2">
             <span class="text-2xl">✨</span>
             <span class="font-bold text-lg">+{{ achievement?.xpReward }} XP</span>
@@ -168,5 +171,19 @@ const emit = defineEmits<Emits>()
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border: 2px solid #f59e0b;
+}
+
+/* Стили для XP блока */
+.xp-reward-block {
+  @apply bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-3 rounded-xl shadow-lg mb-6 cursor-pointer transition-all duration-200;
+}
+
+.xp-reward-block:hover {
+  @apply transform scale-105 shadow-xl;
+  background: linear-gradient(to right, #22c55e, #059669);
+}
+
+.xp-reward-block:active {
+  @apply transform scale-95;
 }
 </style> 

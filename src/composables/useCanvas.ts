@@ -24,6 +24,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   
   // Сохраняем философские пузыри для каждого года
   const philosophyBubblesByYear = ref<Map<number, BubbleNode>>(new Map())
+  // Отслеживаем использованные вопросы чтобы избежать дублирования
+  const usedQuestionIds = ref<Set<string>>(new Set())
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     // Проверяем есть ли основные пузыри навыков (исключая философские и скрытые)
@@ -50,6 +52,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
   const resetCanvas = async () => {
     philosophyBubblesByYear.value.clear()
+    usedQuestionIds.value.clear()
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
   }
@@ -60,23 +63,33 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       const existingBubble = philosophyBubblesByYear.value.get(year)!
       // Если пузырь был лопнут, удаляем его из Map
       if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
-        console.log('🗑️ Removing visited philosophy bubble for year', year, 'with ID', existingBubble.id)
         philosophyBubblesByYear.value.delete(year)
+        // Убираем вопрос из использованных, чтобы его можно было использовать снова
+        if (existingBubble.questionId) {
+          usedQuestionIds.value.delete(existingBubble.questionId)
+        }
         return null
       }
-      console.log('♻️ Reusing existing philosophy bubble for year', year, 'with ID', existingBubble.id)
       return existingBubble
     }
     
     // Создаем новый пузырь с 30% вероятностью
     if (Math.random() < 0.3) {
       const questions = questionsData.questions
-      const randomQuestion = questions[Math.floor(Math.random() * questions.length)]
-      if (randomQuestion) {
+      // Фильтруем неиспользованные вопросы
+      const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+      
+      if (availableQuestions.length > 0) {
+        const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
+        
+        // Отмечаем вопрос как использованный
+        usedQuestionIds.value.add(randomQuestion.id)
+        
         const philosophyBubble = createPhilosophyBubble(randomQuestion.id, year)
         const bubbleNode = normalizedToBubbleNode(philosophyBubble)
+        
         philosophyBubblesByYear.value.set(year, bubbleNode)
-        console.log('✨ Created new philosophy bubble for year', year, 'with ID', bubbleNode.id)
+        
         return bubbleNode
       }
     }
@@ -85,12 +98,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   const removeBubble = (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
-    console.log('🔥 Removing bubble with ID:', bubbleId)
-    
     // Удаляем философский пузырь из Map если он был лопнут
     for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
       if (bubble.id === bubbleId) {
-        console.log('🗑️ Removing philosophy bubble from Map for year', year, 'with ID', bubbleId)
         philosophyBubblesByYear.value.delete(year)
         break
       }

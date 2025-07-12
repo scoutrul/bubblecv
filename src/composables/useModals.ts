@@ -1,18 +1,14 @@
-import { computed, ref } from 'vue'
-import { useModalStore } from '@/stores/modal.store'
-import { useSessionStore } from '@/stores/session.store'
-import { useLevelStore } from '@/stores/levels.store'
-import { useSession } from './useSession'
-import { useAchievement } from './useAchievement'
-import { getEventBridge } from './useUi'
+import { ref, computed, nextTick } from 'vue'
+import { useSessionStore, useModalStore, useLevelStore } from '@/stores'
+import { useAchievement } from '@/composables/useAchievement'
+import { useSession } from '@/composables/useSession'
+import { getEventBridge } from '@/composables/useUi'
+import { GAME_CONFIG, XP_CALCULATOR } from '@/config'
+import type { NormalizedLevel, NormalizedAchievement } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import type { PendingAchievement, ModalStates } from '@/types/modals'
-import { XP_CALCULATOR } from '@/config'
-
-export interface CanvasBridge {
-  removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => void
-}
+import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement } from '@/types/modals'
 
 let canvasBridge: CanvasBridge | null = null
 
@@ -25,20 +21,16 @@ export const getCanvasBridge = (): CanvasBridge | null => {
 }
 
 export const useModals = () => {
-  const modalStore = useModalStore()
   const sessionStore = useSessionStore()
+  const modalStore = useModalStore()
   const levelStore = useLevelStore()
-  const { gainPhilosophyXP, losePhilosophyLife, startSession, gainXP, visitBubble } = useSession()
   const { unlockAchievement } = useAchievement()
+  const { gainXP, gainPhilosophyXP, losePhilosophyLife, visitBubble, startSession } = useSession()
   
   const isProcessingBubbleModal = ref(false)
   
   // Система отложенного удаления пузырей
-  const pendingBubbleRemovals = ref<Array<{
-    bubbleId: number
-    xpAmount: number
-    isPhilosophyNegative: boolean
-  }>>([])
+  const pendingBubbleRemovals = ref<Array<PendingBubbleRemoval>>([])
 
   const modals = computed(() => modalStore.modals)
   const data = computed(() => modalStore.data)
@@ -220,67 +212,38 @@ export const useModals = () => {
     if (!selectedOption) return
     
     const bubbleId = modalStore.data.philosophyBubbleId
-    console.log('🔍 Philosophy bubble ID:', bubbleId)
     
     const isNegative = selectedOption.livesLost > 0
     
     // Помечаем пузырь как посещенный СРАЗУ
     if (bubbleId) {
       await visitBubble(bubbleId)
-      console.log('✅ Philosophy bubble marked as visited:', bubbleId)
     }
     
     // Определяем количество XP в зависимости от agreementLevel
     const xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
     
-    // Даем XP за любой ответ
-    const result = await gainXP(xpAmount)
-    
+    // Обрабатываем ответ
     if (isNegative) {
-      // Отрицательный ответ - отнимаем жизни
-      for (let i = 0; i < selectedOption.livesLost; i++) {
-        const gameOver = await losePhilosophyLife()
-        if (gameOver) {
-          modalStore.setGameOverStats({
-            currentXP: sessionStore.currentXP,
-            currentLevel: sessionStore.currentLevel
-          })
-          modalStore.openModal('gameOver')
-          break
-        }
+      const isGameOver = await losePhilosophyLife()
+      if (isGameOver) {
+        modalStore.closeModal('philosophy')
+        openGameOverModal()
+        return
       }
     } else {
-      // Проверяем достижение за первый философский вопрос
-      const achievement = await unlockAchievement('philosophy-master')
-      if (achievement) {
-        const achievementResult = await gainXP(achievement.xpReward)
-        if (achievementResult.leveledUp && achievementResult.levelData) {
-          openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
-        }
-        openAchievementModal({
-          title: achievement.name,
-          description: achievement.description,
-          icon: achievement.icon,
-          xpReward: achievement.xpReward
-        })
-      }
+      await gainPhilosophyXP()
     }
     
-    // Проверяем на повышение уровня
-    if (result.leveledUp && result.levelData) {
-      openLevelUpModal(result.newLevel!, result.levelData)
-    }
+    // Закрываем модалку
+    modalStore.closeModal('philosophy')
     
-    closeModalWithLogic('philosophy')
-    
-    // Отложенное удаление пузыря
+    // Ставим пузырь в очередь на удаление
     if (bubbleId) {
-      pendingBubbleRemovals.value.push({
-        bubbleId: bubbleId,
-        xpAmount: xpAmount,
-        isPhilosophyNegative: isNegative
-      })
-      console.log('📋 Philosophy bubble queued for removal:', bubbleId)
+      const canvas = getCanvasBridge()
+      if (canvas) {
+        canvas.removeBubble(bubbleId, xpAmount, isNegative)
+      }
     }
   }
 
