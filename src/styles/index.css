@@ -10,6 +10,7 @@
   
   html, body {
     @apply h-full overflow-hidden;
+    min-width: 360px;
     /* Блокируем навигацию жестами браузера */
     overscroll-behavior: none;
     -webkit-user-select: none;

@@ -1,5 +1,5 @@
 <template>
-  <div class="achievements-toggle-wrapper">
+  <div class="achievements-corner">
     <button 
       @click="$emit('toggle')"
       class="achievements-toggle w-8 h-8 sm:w-12 sm:h-12"
@@ -26,8 +26,8 @@ defineEmits<Emits>()
 </script>
 
 <style scoped>
-.achievements-toggle-wrapper {
-  position: relative;
+.achievements-corner {
+  @apply fixed bottom-4 right-2 sm:right-4 z-50;
 }
 
 .achievements-toggle {

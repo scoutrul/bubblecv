@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-4 left-2 sm:left-12 z-50 group">
+  <div class="fixed bottom-4 left-2 sm:left-4 z-50 group">
     <button 
       @click="$emit('handleReset')"
       class="reset-button"
