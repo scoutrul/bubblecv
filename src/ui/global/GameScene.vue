@@ -5,6 +5,21 @@
     <GameHUD class="game-hud" />
     <BubbleCanvas class="bubble-scene" />
     <ResetButton @handle-reset="resetGame" class="reset-button" />
+    
+    <!-- Достижения в правом нижнем углу -->
+    <AchievementsToggle 
+      :unlocked-count="unlockedCount"
+      :is-shaking="shakingComponents.has('achievements')"
+      @toggle="toggleAchievements()"
+      class="achievements-toggle"
+    />
+    
+    <!-- Панель достижений -->
+    <AchievementsPanel 
+      v-if="showAchievements"
+      @close="closeAchievements()"
+      class="achievements-panel"
+    />
   </div>
 </template>
 
@@ -13,13 +28,23 @@ import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
+import AchievementsToggle from '@/ui/hud/AchievementsToggle.vue'
+import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
 
-import { useApp } from '@/composables'
+import { useApp, useUi } from '@/composables'
 
 const {
   resetGame,
-  game: { startYear, endYear, currentYear, updateCurrentYear }
+  game: { startYear, endYear, currentYear, updateCurrentYear },
+  achievements: {
+    unlockedCount,
+    toggleAchievements,
+    closeAchievements,
+    showAchievements,
+  }
 } = useApp()
+
+const { shakingComponents } = useUi()
 
 </script>
 
@@ -38,6 +63,14 @@ const {
 
 .reset-button {
   z-index: 1000;
+}
+
+.achievements-toggle {
+  z-index: 1000;
+}
+
+.achievements-panel {
+  z-index: 1001;
 }
 
 /* Адаптивные стили для мобильных устройств */

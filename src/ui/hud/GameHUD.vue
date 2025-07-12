@@ -39,19 +39,6 @@
         />
       </div>
     </div>
-    
-    <!-- Достижения в правом нижнем углу -->
-    <AchievementsToggle 
-      :unlocked-count="unlockedCount"
-      :is-shaking="shakingComponents.has('achievements')"
-      @toggle="toggleAchievements()"
-    />
-    
-    <!-- Панель достижений -->
-    <AchievementsPanel 
-      v-if="showAchievements"
-      @close="closeAchievements()"
-    />
   </div>
 </template>
 
@@ -61,8 +48,6 @@ import { useApp, useUi } from '@/composables/'
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
-import AchievementsToggle from '@/ui/hud/AchievementsToggle.vue'
-import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
 
 const {
   game: {
@@ -73,12 +58,6 @@ const {
     xpProgress,
     nextLevelXP,
     currentLevelTitle,
-  },
-  achievements: {
-    unlockedCount,
-    toggleAchievements,
-    closeAchievements,
-    showAchievements,
   }
 } = useApp()
 

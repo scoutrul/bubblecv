@@ -31,9 +31,9 @@ defineEmits<Emits>()
 }
 
 .achievements-toggle {
-  @apply relative bg-background-secondary rounded-full;
+  @apply bg-background-secondary rounded-full;
   @apply flex items-center justify-center;
-  @apply text-lg sm:text-2xl border-2 border-border;
+  @apply text-lg sm:text-2xl border border-border;
   @apply transition-all duration-200;
 }
 

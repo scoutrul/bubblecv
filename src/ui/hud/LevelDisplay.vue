@@ -6,14 +6,14 @@
         <span :class="titleClass" class="mobile-text-xs">Уровень {{ currentLevel }}</span>
       </span>
       <span :class="subtitleClass" class="mobile-text-xs">{{ levelTitle }}</span>
-      <div v-if="currentLevel >= 1" class="glossy-shine"></div>
+      <div v-if="currentLevel >= 2" class="level-shine"></div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onUnmounted, watch } from 'vue'
-import { gsap } from 'gsap'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils/animations'
 
 interface Props {
   currentLevel: number
@@ -23,30 +23,18 @@ interface Props {
 
 const props = defineProps<Props>()
 
-// Анимация глянцевого эффекта
-const startShineAnimation = () => {
-  gsap.killTweensOf('.glossy-shine')
-  if (props.currentLevel >= 1) {
-    const shineElement = document.querySelector('.glossy-shine')
-    if (shineElement) {
-      gsap.fromTo('.glossy-shine', 
-        { x: '-100%' },
-        {
-          x: '100%',
-          duration: 1,
-          ease: 'power1.out',
-          repeat: -1,
-          repeatDelay: 2
-        }
-      )
-    }
-  }
-}
+// GSAP анимация shine эффекта
+watch(() => props.currentLevel, (newLevel) => {
+  stopLevelShineAnimation()
+  createLevelShineAnimation(newLevel)
+}, { immediate: true })
 
-watch(() => props.currentLevel, startShineAnimation, { immediate: true })
+onMounted(() => {
+  createLevelShineAnimation(props.currentLevel)
+})
 
 onUnmounted(() => {
-  gsap.killTweensOf('.glossy-shine')
+  stopLevelShineAnimation()
 })
 
 const levelIcon = computed(() => {
@@ -102,7 +90,7 @@ const subtitleClass = computed(() => {
   @apply text-sm sm:text-base;
 }
 
-.glossy-shine {
+.level-shine {
   @apply absolute inset-0 pointer-events-none;
   background: linear-gradient(
     110deg,
@@ -117,10 +105,10 @@ const subtitleClass = computed(() => {
   transform: translateX(-100%);
   width: 100%;
   height: 100%;
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 /* --- Level 1 --- */
+.level-1 { @apply bg-transparent; }
 .title-novice { @apply text-text-muted; }
 .subtitle-novice { @apply text-text-muted/80; }
 

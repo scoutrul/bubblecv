@@ -193,4 +193,29 @@
   .mobile-button {
     @apply w-8 h-8 sm:w-12 sm:h-12;
   }
+  
+  /* Общий shine эффект */
+  .shine-effect {
+    @apply absolute inset-0 pointer-events-none overflow-hidden;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.2) 40%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.2) 60%,
+      rgba(255, 255, 255, 0.05) 75%,
+      transparent 100%
+    );
+    animation: shineMove 3s linear infinite;
+  }
+  
+  .shine-effect-rounded {
+    @apply shine-effect rounded-full;
+  }
+  
+  @keyframes shineMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
 } 
