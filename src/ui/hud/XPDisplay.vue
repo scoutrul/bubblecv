@@ -48,7 +48,7 @@ defineProps<Props>()
 
 .progress-bar {
   @apply bg-background-card rounded-full;
-  @apply h-2 sm:h-3;
+  @apply h-2;
   @apply flex-1 sm:w-40 sm:flex-none sm:order-1;
   min-width: 80px;
 }

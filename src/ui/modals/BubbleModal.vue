@@ -69,10 +69,6 @@
               + {{ xpReward }} XP
           </span>
         </div>
-        
-        <div class="click-outside-hint">
-          <span class="hint-text">Кликните крестик для продолжения</span>
-        </div>
       </div>
     </div>
   </BaseModal>
@@ -238,14 +234,6 @@ const getBubbleColor = () => {
 }
 
 .xp-text {
-  @apply text-primary font-bold text-lg;
-}
-
-.click-outside-hint {
-  @apply text-text-secondary text-sm;
-}
-
-.hint-text {
-  @apply text-xs text-gray-500 italic;
+  @apply text-success font-bold text-lg;
 }
 </style> 

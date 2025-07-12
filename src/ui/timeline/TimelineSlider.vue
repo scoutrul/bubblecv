@@ -2,7 +2,7 @@
   <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
     <div class="timeline-content">
       <div class="timeline-header">
-        <h3 class="text-sm font-medium text-text-primary whitespace-nowrap">Путешествие во времени</h3>
+        <h3 class="text-text-primary whitespace-nowrap">Путешествие во времени</h3>
         
         <!-- Компактные кнопки навигации -->
         <div class="navigation-compact">
@@ -82,7 +82,6 @@ const sessionStore = useSessionStore()
 
 // Ref для анимации shake эффекта
 const timelineRef = ref<HTMLElement | null>(null)
-const isShaking = ref(false)
 const isAutoSwitching = ref(false) // Флаг для предотвращения повторных переключений
 
 const handleYearChange = (event: Event) => {
@@ -230,22 +229,6 @@ watch(() => props.currentYear, () => {
   max-width: 400px;
 }
 
-/* Скрываем заголовок и навигацию на мобильных */
-@media (max-width: 639px) {
-  .timeline-slider {
-    @apply bottom-4;
-    width: calc(100vw - 6rem);
-  }
-  
-  .timeline-header {
-    @apply hidden;
-  }
-  
-  .slider-container {
-    @apply space-y-0;
-  }
-}
-
 .timeline-content {
   @apply w-full transition-all duration-300;
 }
@@ -254,9 +237,9 @@ watch(() => props.currentYear, () => {
   @apply flex justify-between items-center mb-2;
 }
 
-.timeline-header h3 {
-  @apply text-xs font-medium text-text-primary whitespace-nowrap;
-}
+  .timeline-header h3 {
+    @apply text-xs sm:text-sm font-medium text-text-primary whitespace-nowrap;
+  }
 
 .navigation-compact {
   @apply flex items-center gap-0.5;

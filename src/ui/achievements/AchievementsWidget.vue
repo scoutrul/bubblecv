@@ -60,16 +60,4 @@ const closeAchievements = () => {
   max-height: calc(100vh - 8rem);
   min-height: fit-content;
 }
-
-/* Для очень узких экранов */
-@media (max-width: 359px) {
-  .achievements-widget {
-    @apply right-2 left-2;
-  }
-  
-  .achievements-panel {
-    @apply right-0 left-0 w-auto;
-    max-height: calc(100vh - 6rem);
-  }
-}
 </style> 
