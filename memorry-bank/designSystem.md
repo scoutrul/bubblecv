@@ -51,8 +51,10 @@
 --category-framework: linear-gradient(135deg, #4ECDC4, #44a08d);
 --category-language: linear-gradient(135deg, #45B7D1, #96c93d);
 --category-tooling: linear-gradient(135deg, #F9CA24, #f0932b);
---category-philosophy: linear-gradient(135deg, #6C5CE7, #a55eea);
+--category-philosophy: linear-gradient(135deg, #FF0080, #FF4080, #FF8080, #B3FF80, #FFFFFF00); /* From game-config.ts */
 --category-skill: linear-gradient(135deg, #FD79A8, #fdcb6e);
+--category-project: linear-gradient(135deg, #3498db, #2980b9); /* For future Project bubbles */
+--category-user-input: linear-gradient(135deg, #9b59b6, #8e44ad); /* For future User Input bubbles */
 ```
 
 ## 📝 Типографика
@@ -248,210 +250,101 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-light));
-  color: white;
+  background: var(--primary);
+  color: var(--white);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+  background: var(--primary-light);
 }
 
-.btn-ghost {
+.btn-secondary {
   background: transparent;
   color: var(--light);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid var(--medium);
 }
 
-.btn-ghost:hover {
-  background: var(--bg-card);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-```
-
-## 🎯 Интерактивные элементы
-
-### Временная шкала
-
-```css
-.timeline {
-  position: relative;
-  width: 100%;
-  height: 60px;
-  background: var(--bg-card);
-  border-radius: 30px;
-  overflow: hidden;
-}
-
-.timeline-track {
-  height: 4px;
-  background: linear-gradient(90deg, 
-    var(--category-foundation) 0%, 
-    var(--category-language) 25%,
-    var(--category-framework) 50%,
-    var(--category-tooling) 75%,
-    var(--category-philosophy) 100%
-  );
-  margin-top: 28px;
-}
-
-.timeline-handle {
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 20px;
-  cursor: grab;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.timeline-handle:active {
-  cursor: grabbing;
-  transform: scale(1.2);
+.btn-secondary:hover {
+  background: var(--medium);
 }
 ```
 
-### Модальные окна
+## 🖼️ Иконография
+Иконки используются для визуальной идентификации типов пузырей и действий.
+- **Философский пузырь**: Иконка `(?)` или стилизованный знак вопроса.
+- **Проектный пузырь**: Иконка `</>` или портфеля.
+- **Информационный пузырь**: Иконка `(i)`.
 
+---
+
+## 🔐 Модальные окна / Оверлеи
+
+### Общая структура модального окна
 ```css
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   z-index: 1000;
 }
 
 .modal-content {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background: var(--bg-secondary);
-  border-radius: 20px;
+  border-radius: 16px;
   padding: 32px;
+  width: 90%;
   max-width: 600px;
-  width: 90vw;
-  max-height: 80vh;
-  overflow-y: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--medium);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 ```
 
-## 📱 Адаптивность
+### PhilosophyModal
+Специализированное модальное окно для философских вопросов.
 
-### Breakpoints
+**Структура**:
+- **Header**: `<h2>` с текстом вопроса.
+- **Body**: Список кнопок с вариантами ответов.
+- **Footer**: Кнопка "Показать инсайт" (появляется после ответа).
 
+**Стили для кнопок-ответов**:
 ```css
-/* Mobile first подход */
-@media (min-width: 640px) { /* sm */ }
-@media (min-width: 768px) { /* md */ }
-@media (min-width: 1024px) { /* lg */ }
-@media (min-width: 1280px) { /* xl */ }
-```
-
-### Адаптивные размеры пузырьков
-
-```css
-/* Mobile */
-.bubble { 
-  width: calc(var(--bubble-size) * 0.7); 
-  height: calc(var(--bubble-size) * 0.7); 
+.option-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--medium);
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
-/* Tablet */
-@media (min-width: 768px) {
-  .bubble { 
-    width: calc(var(--bubble-size) * 0.85); 
-    height: calc(var(--bubble-size) * 0.85); 
-  }
+.option-btn:hover {
+  border-color: var(--primary);
+  background: rgba(102, 126, 234, 0.1);
 }
 
-/* Desktop */
-@media (min-width: 1024px) {
-  .bubble { 
-    width: var(--bubble-size); 
-    height: var(--bubble-size); 
-  }
-}
-```
-
-## ✨ Анимации
-
-### Ключевые анимации
-
-```css
-/* Появление пузырьков */
-@keyframes bubbleAppear {
-  0% {
-    opacity: 0;
-    transform: scale(0) translateY(50px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
+.option-btn.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
 }
 
-/* Floating эффект */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+.option-btn.correct {
+  background: rgba(76, 175, 80, 0.2);
+  border-color: var(--success);
 }
 
-/* Shine эффект */
-@keyframes shine {
-  0% { left: -100%; }
-  100% { left: 100%; }
+.option-btn.incorrect {
+  background: rgba(244, 67, 54, 0.2);
+  border-color: var(--error);
 }
-
-/* Level up анимация */
-@keyframes levelUp {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-```
-
-## 🎨 Темная тема (по умолчанию)
-
-Дизайн оптимизирован для темной темы как основной:
-
-- Темный фон создает эффект космоса/ночного неба
-- Пузырьки светятся на темном фоне
-- Лучше фокус на интерактивных элементах
-- Современный и профессиональный вид
-- Меньше нагрузки на глаза при длительном просмотре
-
-## 🔧 Технические требования
-
-- Поддержка CSS Custom Properties
-- Backdrop-filter для глянцевых эффектов
-- CSS Grid и Flexbox для layout
-- CSS Animations для микроинтерактивности
-- GSAP для сложных анимаций пузырьков
-- Поддержка touch-событий для мобильных
-
-## 📐 Spacing System
-
-```css
-:root {
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-}
-```
-
-Эта дизайн-система обеспечит консистентный, современный и интерактивный интерфейс для Bubbles Resume! 🎨 
+``` 

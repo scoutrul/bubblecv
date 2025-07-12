@@ -38,31 +38,10 @@ export default {
           light: 'rgba(255, 255, 255, 0.2)',
           dark: 'rgba(255, 255, 255, 0.05)'
         },
-        category: {
-          foundation: {
-            from: '#FF6B6B',
-            to: '#ee5a52'
-          },
-          framework: {
-            from: '#4ECDC4',
-            to: '#44a08d'
-          },
-          language: {
-            from: '#45B7D1',
-            to: '#96c93d'
-          },
-          tooling: {
-            from: '#F9CA24',
-            to: '#f0932b'
-          },
-          philosophy: {
-            from: '#6C5CE7',
-            to: '#a55eea'
-          },
-          skill: {
-            from: '#FD79A8',
-            to: '#fdcb6e'
-          }
+        success: {
+          DEFAULT: '#22c55e',
+          dark: '#16a34a',
+          light: '#4ade80'
         }
       },
       fontFamily: {
@@ -98,7 +77,6 @@ export default {
       },
       animation: {
         'breathe': 'breathe 3s ease-in-out infinite',
-        'float': 'float 6s ease-in-out infinite',
         'shine': 'shine 2s infinite',
         'glow': 'glow 2s ease-in-out infinite alternate'
       },
@@ -106,10 +84,6 @@ export default {
         breathe: {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' }
-        },
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' }
         },
         shine: {
           '0%': { left: '-100%' },

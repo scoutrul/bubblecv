@@ -16,7 +16,7 @@
 // D3 Force Configuration
 const simulation = d3.forceSimulation(bubbles)
   .force("charge", d3.forceManyBody()
-    .strength(d => d.isEasterEgg ? -800 : -300)
+    .strength(d => d.isQuestion ? -800 : -300)
     .distanceMax(200)
   )
   .force("center", d3.forceCenter(width / 2, height / 2))
@@ -36,7 +36,7 @@ const simulation = d3.forceSimulation(bubbles)
 ```javascript
 // Easter Egg "дыхание"
 function breathingEasterEggs() {
-  const easterEggs = bubbles.filter(d => d.isEasterEgg);
+  const easterEggs = bubbles.filter(d => d.isQuestion);
   
   gsap.to(easterEggs, {
     duration: 3,

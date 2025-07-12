@@ -1,27 +1,27 @@
 <template>
   <div class="app">
-    <!-- Основная сцена с пузырями -->
-    <BubbleCanvas class="bubble-scene" :bubbles="bubbleStore.bubbles" />
-    
-    <!-- HUD интерфейс -->
-    <GameHUD class="game-hud" />
-    
-    <!-- Модальные окна -->
+    <GameScene/>
     <ModalManager />
+    <LoadingSpinner v-if="isAppLoading" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import BubbleCanvas from './widgets/bubble-canvas/ui/BubbleCanvas.vue'
-import GameHUD from './widgets/game-hud/ui/GameHUD.vue'
-import ModalManager from './shared/ui/components/ModalManager.vue'
-import { useBubbleStore } from './entities/bubble/model/bubble-store'
+import { useApp } from '@/composables/'
 
-const bubbleStore = useBubbleStore()
+import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
+import ModalManager from '@/ui/modals/ModalManager.vue'
+import GameScene from './ui/global/GameScene.vue'
+
+const { initialize, isAppLoading } = useApp()
 
 onMounted(async () => {
-  await bubbleStore.loadBubbles()
+  try {
+    await initialize()
+  } catch (e) {
+    console.error('Ошибка инициализации:', e)
+  }
 })
 </script>
 
@@ -29,13 +29,5 @@ onMounted(async () => {
 .app {
   @apply h-full w-full relative overflow-hidden;
   background: radial-gradient(ellipse at center, #1a1b23 0%, #0a0b0f 100%);
-}
-
-.bubble-scene {
-  @apply absolute inset-0;
-}
-
-.game-hud {
-  @apply absolute top-0 right-0 z-10;
 }
 </style> 

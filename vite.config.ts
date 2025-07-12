@@ -1,29 +1,19 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { resolve } from 'path'
+import { fileURLToPath } from 'url'
+/// <reference types="vitest" />
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
-      '@shared': resolve(__dirname, 'src/shared'),
-      '@entities': resolve(__dirname, 'src/entities'),
-      '@features': resolve(__dirname, 'src/features'),
-      '@widgets': resolve(__dirname, 'src/widgets'),
-      '@pages': resolve(__dirname, 'src/pages'),
-      '@app': resolve(__dirname, 'src/app')
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@ui': fileURLToPath(new URL('./src/ui', import.meta.url))
     }
   },
   server: {
-    port: 3000,
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3003',
-        changeOrigin: true
-      }
-    }
+    port: 3000
   },
   build: {
     target: 'es2015',
@@ -46,5 +36,28 @@ export default defineConfig({
   define: {
     __VUE_OPTIONS_API__: false,
     __VUE_PROD_DEVTOOLS__: false
+  },
+  test: {
+    globals: true,
+    environment: 'happy-dom',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        '**/*.spec.ts',
+        '**/*.test.ts',
+        '**/*.d.ts',
+        'dist/'
+      ],
+      thresholds: {
+        branches: 70,
+        functions: 70,
+        lines: 70,
+        statements: 70
+      }
+    },
+    include: ['src/**/*.{test,spec}.{js,ts,vue}'],
+    exclude: ['node_modules', 'dist']
   }
 }) 

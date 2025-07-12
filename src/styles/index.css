@@ -1,0 +1,218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Глобальные стили */
+@layer base {
+  * {
+    @apply box-border;
+  }
+  
+  html, body {
+    @apply h-full overflow-hidden;
+    min-width: 360px;
+    /* Блокируем навигацию жестами браузера */
+    overscroll-behavior: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-background-primary text-text-primary font-primary;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    /* Дополнительная защита от жестов на мобильных */
+    touch-action: pan-y pinch-zoom;
+    /* Блокировка pull-to-refresh */
+    overscroll-behavior-y: contain;
+  }
+  
+  #app {
+    @apply h-full;
+    /* Блокировка жестов навигации */
+    overscroll-behavior: none;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Компонентные стили */
+@layer components {
+  .bubble {
+    @apply rounded-full relative cursor-pointer border-2 border-border;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+    box-shadow: 
+      0 4px 20px rgba(0, 0, 0, 0.1),
+      0 2px 10px rgba(255, 255, 255, 0.1) inset;
+  }
+  
+  .bubble:hover {
+    @apply scale-110 border-border-light;
+    box-shadow: 
+      0 8px 40px rgba(0, 0, 0, 0.2),
+      0 4px 20px rgba(255, 255, 255, 0.2) inset;
+  }
+  
+  .bubble-novice { 
+    @apply w-12 h-12; 
+  }
+  
+  .bubble-intermediate { 
+    @apply w-16 h-16; 
+  }
+  
+  .bubble-confident { 
+    @apply w-20 h-20; 
+  }
+  
+  .bubble-expert { 
+    @apply w-24 h-24; 
+  }
+  
+  .bubble-master { 
+    @apply w-28 h-28; 
+  }
+  
+  .bubble-easter-egg {
+    @apply animate-breathe;
+    filter: hue-rotate(45deg);
+  }
+  
+  .content-card {
+    @apply bg-background-glass backdrop-blur-xl border border-border rounded-2xl p-6;
+    transition: all 0.3s ease;
+  }
+  
+
+  
+  .btn {
+    @apply px-6 py-3 rounded-lg font-semibold text-base border-none cursor-pointer;
+    @apply inline-flex items-center gap-2 transition-all duration-300 ease-in-out;
+  }
+  
+  .btn-primary {
+    @apply bg-gradient-to-r from-primary to-secondary text-white;
+  }
+  
+  .btn-primary:hover {
+    @apply scale-105 shadow-lg;
+  }
+  
+  .progress-bar {
+    @apply w-full h-3 bg-background-card rounded-full overflow-hidden border border-border;
+  }
+  
+  .progress-fill {
+    @apply h-full bg-gradient-to-r from-primary to-secondary rounded-full relative;
+    transition: width 0.5s ease;
+  }
+}
+
+/* Утилиты */
+@layer utilities {
+  .text-gradient-primary {
+    background: linear-gradient(45deg, theme('colors.primary.DEFAULT'), theme('colors.secondary.DEFAULT'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .glass-effect {
+    @apply bg-background-glass backdrop-blur-xl border border-border;
+  }
+  
+  .heading-1 {
+    @apply text-5xl font-bold leading-tight tracking-tight;
+  }
+  
+  .heading-2 {
+    @apply text-3xl font-semibold leading-tight;
+  }
+  
+  .body-large {
+    @apply text-lg leading-relaxed;
+  }
+  
+  .body-normal {
+    @apply text-base leading-normal;
+  }
+  
+  .code {
+    @apply font-mono text-sm bg-background-card px-2 py-1 rounded;
+  }
+  
+  .util-shake-hud {
+    animation: hud-shake 0.6s ease-in-out;
+  }
+
+  @keyframes hud-shake {
+    0%, 100% { transform: translate(0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-1px, -1px); }
+    20%, 40%, 60%, 80% { transform: translate(1px, 1px); }
+  }
+
+  /* Стандартные утилиты для мобильных устройств */
+  .mobile-padding {
+    @apply p-2 sm:p-4;
+  }
+  
+  .mobile-margin {
+    @apply m-2 sm:m-4;
+  }
+  
+  .mobile-text-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .mobile-text-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .mobile-gap {
+    @apply gap-1 sm:gap-2;
+  }
+  
+  .mobile-hidden {
+    @apply hidden sm:block;
+  }
+  
+  .desktop-hidden {
+    @apply block sm:hidden;
+  }
+  
+  .mobile-compact {
+    @apply w-6 h-6 sm:w-8 sm:h-8;
+  }
+  
+  .mobile-button {
+    @apply w-8 h-8 sm:w-12 sm:h-12;
+  }
+  
+  /* Общий shine эффект */
+  .shine-effect {
+    @apply absolute inset-0 pointer-events-none overflow-hidden;
+    background: linear-gradient(
+      110deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.05) 25%,
+      rgba(255, 255, 255, 0.2) 40%,
+      rgba(255, 255, 255, 0.4) 50%,
+      rgba(255, 255, 255, 0.2) 60%,
+      rgba(255, 255, 255, 0.05) 75%,
+      transparent 100%
+    );
+    animation: shineMove 3s linear infinite;
+  }
+  
+  .shine-effect-rounded {
+    @apply shine-effect rounded-full;
+  }
+  
+  @keyframes shineMove {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+} 
