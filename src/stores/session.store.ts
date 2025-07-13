@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
-import type { UserSession } from '@/types/client'
+import type { UserSession } from '@/types/session'
 
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 

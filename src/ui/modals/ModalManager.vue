@@ -3,7 +3,7 @@
     <!-- Welcome Modal -->
     <WelcomeModal
       :is-open="modals.welcome"
-      :allow-escape-close="false"
+      :allow-escape-close="true"
       @close="closeWelcome"
     />
 

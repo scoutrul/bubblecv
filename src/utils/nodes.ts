@@ -37,11 +37,13 @@ export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode
   ...normalized
 })
 
-export function createHiddenBubble(): BubbleNode {
+export function createHiddenBubble(year?: number): BubbleNode {
+  const bubbleYear = year || 2015
   return {
     ...defaultBubbleNode,
-    id: Date.now(),
+    id: -(bubbleYear * 10000 + 9999), // Уникальный отрицательный ID для скрытых пузырей
     name: 'Скрытый пузырь',
+    year: bubbleYear,
     isHidden: true,
     description: 'Этот пузырь почти невидим. Найдите его!',
     isPopped: false,

@@ -1,6 +1,5 @@
 import type { LevelContent, Level } from './levels'
 import type { Achievement, Bubble } from './data'
-import type { BubbleSizes } from './client'
 
 export interface NormalizedBubble extends Bubble {
   id: number
@@ -28,3 +27,5 @@ export interface NormalizedLevel extends Level {
   lockedMessage?: string
   congratulations?: string
 }
+
+export type BubbleSizes = "small" | "medium" | "large"

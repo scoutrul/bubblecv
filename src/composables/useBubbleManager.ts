@@ -15,7 +15,7 @@ export function useBubbleManager() {
     const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
 
     return bubbles.map(bubble => {
-      const baseRadius = calcBubbleRadius(bubble.skillLevel, sizes)
+      const baseRadius = calcBubbleRadius(bubble.skillLevel, sizes, bubble)
       const savedPos = savedPositions.get(bubble.id)
 
       return {

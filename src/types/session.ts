@@ -12,7 +12,3 @@ export interface UserSession {
   hasUnlockedFirstToughBubbleAchievement: boolean
   currentYear: number
 }
-
-export type ModalType = 'welcome' | 'bubble' | 'achievement' | 'gameOver' | 'levelUp' | 'philosophy'
-
-export type BubbleSizes = "small" | "medium" | "large"

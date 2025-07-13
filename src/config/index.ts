@@ -34,38 +34,38 @@ export const GAME_CONFIG = {
   expertiseBubbles: {
     [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
-      color: '#334155',
+      color: '#374151',
       sizeMultiplier: 0.75,
       opacity: 0.85,
-      gradientColors: ['#334155', '#475569'], // Slate
+      gradientColors: ['#1F2937', '#4B5563'], 
     },
     [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
-      color: '#064E3B',
+      color: '#4B5563',
       sizeMultiplier: 0.8,
       opacity: 0.9,
-      gradientColors: ['#064E3B', '#047857'], // Deep green
+      gradientColors: ['#6B7280', '#D1D5DB'], 
     },
     [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
-      color: '#92400E',
+      color: '#B45309',
       sizeMultiplier: 0.85,
       opacity: 0.93,
-      gradientColors: ['#92400E', '#FBBF24'], // Amber
+      gradientColors: ['#92400E', '#D97706', '#FBBF24'],
     },
     [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',
-      color: '#581C87',
+      color: '#9CA3AF',
       sizeMultiplier: 0.9,
       opacity: 0.95,
-      gradientColors: ['#581C87', '#9333EA'], // Violet
+      gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF', '#9CA3AF00'], 
     },
     [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',
       color: '#EAB308',
       sizeMultiplier: 0.95,
       opacity: 1,
-      gradientColors: ['#FEF08A', '#EAB308', '#CA8A04'], // Bright Gold
+      gradientColors: ['#FDE68A', '#F59E0B', '#CA8A04', '#CA8A0400'],
     },
   } as const,
 
