@@ -7,11 +7,6 @@
     "dev": "vite --port 3000",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "vitest",
-    "test:ui": "vitest --ui",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest --watch",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug"
@@ -24,7 +19,6 @@
     "vue-router": "^4.3.0"
   },
   "devDependencies": {
-    "@pinia/testing": "^1.0.2",
     "@playwright/test": "^1.53.1",
     "@tsconfig/node20": "^20.1.6",
     "@types/d3": "^7.4.3",
@@ -33,23 +27,18 @@
     "@typescript-eslint/eslint-plugin": "^7.4.0",
     "@typescript-eslint/parser": "^7.4.0",
     "@vitejs/plugin-vue": "^5.0.4",
-    "@vitest/coverage-v8": "^1.6.1",
     "@vue/eslint-config-prettier": "^9.0.0",
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/runtime-core": "^3.5.17",
     "@vue/runtime-dom": "^3.5.17",
-    "@vue/test-utils": "^2.4.5",
-    "@vue/tsconfig": "^0.5.1",
     "autoprefixer": "^10.4.19",
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.24.0",
-    "happy-dom": "^14.3.9",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^3.4.3",
     "typescript": "~5.4.3",
     "vite": "^5.2.8",
-    "vitest": "^1.4.0",
     "vue-tsc": "^2.0.7"
   },
   "engines": {
