@@ -51,6 +51,14 @@
           </p>
         </div>
 
+        <!-- Insight -->
+        <div v-if="bubble?.insight" class="insight-section">
+          <h3 class="section-title">Инсайт</h3>
+          <p class="insight-text">
+            {{ bubble?.insight }}
+          </p>
+        </div>
+
     
         <!-- Timeline -->
         <div class="timeline-section">
@@ -113,7 +121,7 @@ const getBubbleColor = () => {
   }
   
   const expertiseConfig = GAME_CONFIG.expertiseBubbles[props.bubble.skillLevel]
-  return expertiseConfig?.color || '#3b82f6'
+  return expertiseConfig?.gradientColors?.[0] || '#3b82f6'
 }
 </script>
 
@@ -196,6 +204,10 @@ const getBubbleColor = () => {
 
 .description-text {
   @apply text-text-secondary leading-relaxed;
+}
+
+.insight-text {
+  @apply text-text-secondary leading-relaxed italic;
 }
 
 .timeline-info {
