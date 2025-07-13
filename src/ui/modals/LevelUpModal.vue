@@ -38,12 +38,29 @@
         </li>
       </ul>
     </div>
+
+    <!-- Разблокированный бонус -->
+    <div v-if="unlockedBonus" class="unlocked-bonus">
+      <h3>🎁 Новый бонус:</h3>
+      <div 
+        class="bonus-preview"
+        @click="openUnlockedBonus"
+      >
+        <div class="bonus-preview-icon">{{ unlockedBonus.icon }}</div>
+        <div class="bonus-preview-content">
+          <div class="bonus-preview-title">{{ unlockedBonus.title }}</div>
+          <div class="bonus-preview-subtitle">Нажмите для просмотра</div>
+        </div>
+        <div class="bonus-preview-arrow">→</div>
+      </div>
+    </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
+import { useBonuses } from '@/composables'
 
 interface Props {
   isOpen: boolean
@@ -66,6 +83,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<Emits>()
+const { getUnlockedBonusForLevel, unlockBonusForLevel, openBonusModal } = useBonuses()
 
 const levelData = computed(() => ({
   level: props.level,
@@ -73,6 +91,26 @@ const levelData = computed(() => ({
   description: props.description,
   icon: props.icon
 }))
+
+const unlockedFeatures = computed(() => props.unlockedFeatures)
+
+const unlockedBonus = computed(() => 
+  getUnlockedBonusForLevel(props.level)
+)
+
+// Разблокируем бонус при открытии модалки
+onMounted(() => {
+  if (props.isOpen && props.level) {
+    unlockBonusForLevel(props.level)
+  }
+})
+
+const openUnlockedBonus = () => {
+  if (unlockedBonus.value) {
+    openBonusModal(unlockedBonus.value)
+    emit('close')
+  }
+}
 
 const close = () => {
   emit('close')
@@ -230,6 +268,61 @@ const close = () => {
 .unlocked-features li::before {
   content: '✨';
   color: var(--accent, #8b5cf6);
+}
+
+.unlocked-bonus {
+  margin-bottom: 1.5rem;
+}
+
+.unlocked-bonus h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 0.75rem;
+}
+
+.bonus-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bonus-preview:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-1px);
+}
+
+.bonus-preview-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.bonus-preview-content {
+  flex: 1;
+}
+
+.bonus-preview-title {
+  font-weight: 600;
+  color: var(--text-primary, #f1f5f9);
+  margin-bottom: 0.25rem;
+}
+
+.bonus-preview-subtitle {
+  font-size: 0.75rem;
+  color: var(--accent, #8b5cf6);
+}
+
+.bonus-preview-arrow {
+  color: var(--accent, #8b5cf6);
+  font-weight: bold;
+  flex-shrink: 0;
 }
 
 /* Анимации для элементов внутри модалки */

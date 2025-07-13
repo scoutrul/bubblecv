@@ -1,16 +1,16 @@
 <template>
-  <div class="achievements-widget">
+  <div class="bonus-widget">
     <ToggleButton
-      icon="🏆"
+      icon="🎁"
       :badge-count="unlockedCount"
       :is-shaking="isShaking"
-      position="bottom-right"
+      position="center-right"
       panel-position="bottom"
-      @toggle="toggleAchievements"
-      @close="closeAchievements"
+      @toggle="toggleBonuses"
+      @close="closeBonuses"
     >
       <template #panel="{ close }">
-        <AchievementsPanel @close="close" />
+        <BonusPanel @close="close" />
       </template>
     </ToggleButton>
   </div>
@@ -18,12 +18,12 @@
 
 <script setup lang="ts">
 import ToggleButton from '@/ui/global/ToggleButton.vue'
-import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
+import BonusPanel from '@/ui/bonuses/BonusPanel.vue'
 
 interface Props {
   unlockedCount: number
   isShaking: boolean
-  showAchievements: boolean
+  showBonuses: boolean
 }
 
 interface Emits {
@@ -34,19 +34,19 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const toggleAchievements = () => {
+const toggleBonuses = () => {
   emit('toggle')
 }
 
-const closeAchievements = () => {
+const closeBonuses = () => {
   emit('close')
 }
 </script>
 
 <style scoped>
-.achievements-widget {
-  @apply fixed bottom-4 right-2 sm:right-4;
-  @apply z-[10000];
+.bonus-widget {
+  @apply fixed bottom-20 right-2 sm:right-4 sm:bottom-24;
+  @apply z-[9999];
   pointer-events: auto;
 }
 </style> 

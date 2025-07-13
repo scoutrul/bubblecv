@@ -10,7 +10,8 @@ export const useModalStore = defineStore('modalStore', () => {
     levelUp: false,
     philosophy: false,
     gameOver: false,
-    achievement: false
+    achievement: false,
+    bonus: false
   })
 
   const data = reactive<ModalData>({
@@ -28,7 +29,8 @@ export const useModalStore = defineStore('modalStore', () => {
       xpGained: 0,
       unlockedFeatures: [],
       xpRequired: 0
-    }
+    },
+    currentBonus: null
   })
 
   const pendingAchievements = ref<PendingAchievement[]>([])
@@ -76,6 +78,10 @@ export const useModalStore = defineStore('modalStore', () => {
     data.levelUpData = levelData
   }
 
+  const setCurrentBonus = (bonus: ModalData['currentBonus']) => {
+    data.currentBonus = bonus
+  }
+
   // Простые методы для очереди achievements (без логики)
   const addPendingAchievement = (achievement: PendingAchievement) => {
     pendingAchievements.value.push(achievement)
@@ -106,6 +112,7 @@ export const useModalStore = defineStore('modalStore', () => {
     setAchievement,
     setGameOverStats,
     setLevelUpData,
+    setCurrentBonus,
 
     // Achievement queue
     addPendingAchievement,

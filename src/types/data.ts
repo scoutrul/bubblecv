@@ -37,3 +37,10 @@ export interface QuestionOption {
   agreementLevel: number
   livesLost: number
 }
+
+export interface Bonus {
+  level: number
+  title: string
+  icon: string
+  content: string
+}

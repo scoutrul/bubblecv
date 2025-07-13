@@ -4,6 +4,7 @@ import { ref } from 'vue'
 export const useUiEventStore = defineStore('ui-eventStore', () => {
   const shakeQueue = ref(new Set<string>())
   const showAchievements = ref(false)
+  const bonusesActive = ref(false)
 
   /**
    * Добавляет компонент в очередь на "встряску".
@@ -31,12 +32,23 @@ export const useUiEventStore = defineStore('ui-eventStore', () => {
     showAchievements.value = false
   }
 
+  const toggleBonusPanel = () => {
+    bonusesActive.value = !bonusesActive.value
+  }
+
+  const closeBonusPanel = () => {
+    bonusesActive.value = false
+  }
+
   return {
     shakeQueue,
     showAchievements,
+    bonusesActive,
     queueShake,
     consumeShakeQueue,
     toggleAchievements,
-    closeAchievements
+    closeAchievements,
+    toggleBonusPanel,
+    closeBonusPanel
   }
 }) 

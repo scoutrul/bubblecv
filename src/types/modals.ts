@@ -1,6 +1,6 @@
 import type { BubbleNode } from './canvas'
 import type { Question } from './data'
-import type { NormalizedLevel } from './normalized'
+import type { NormalizedLevel, NormalizedBonus } from './normalized'
 
 export interface PendingAchievement {
   title: string
@@ -37,6 +37,7 @@ export interface ModalData {
   achievement: PendingAchievement | null
   gameOverStats: { currentXP: number; currentLevel: number } | null
   levelUpData: LevelUpData
+  currentBonus: NormalizedBonus | null
 }
 
 export interface ModalStates {
@@ -46,4 +47,5 @@ export interface ModalStates {
   philosophy: boolean
   gameOver: boolean
   achievement: boolean
+  bonus: boolean
 }

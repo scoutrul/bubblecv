@@ -39,15 +39,37 @@
         />
       </div>
     </div>
+    
+    <!-- Achievements Widget -->
+    <AchievementsWidget 
+      :unlocked-count="unlockedAchievementsCount"
+      :is-shaking="isAchievementShaking"
+      :show-achievements="showAchievementPanel"
+      @toggle="toggleAchievementPanel"
+      @close="closeAchievementPanel"
+    />
+
+    <!-- Bonus Widget -->
+    <BonusWidget 
+      :unlocked-count="unlockedBonusesCount"
+      :is-shaking="isBonusShaking"
+      :show-bonuses="showBonusPanel"
+      @toggle="toggleBonusPanel"
+      @close="closeBonusPanel"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useApp, useUi } from '@/composables/'
 
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
+import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
+import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
+import { useBonuses } from '@/composables/useBonuses'
 
 const {
   game: {
@@ -58,6 +80,12 @@ const {
     xpProgress,
     nextLevelXP,
     currentLevelTitle,
+  },
+  achievements: {
+    unlockedCount: unlockedAchievementsCount,
+    toggleAchievements: toggleAchievementPanel,
+    closeAchievements: closeAchievementPanel,
+    showAchievements: showAchievementPanel,
   }
 } = useApp()
 
@@ -65,6 +93,16 @@ const {
     isXPAnimating,
     shakingComponents
   } = useUi()
+
+const { 
+  unlockedBonusesCount, 
+  showBonusPanel, 
+  toggleBonusPanel, 
+  closeBonusPanel
+} = useBonuses()
+
+const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
+const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
   
 </script>
 
@@ -79,5 +117,6 @@ const {
   @apply bg-gradient-to-b from-background-primary/90 to-transparent;
   @apply flex flex-col sm:flex-row sm:items-center;
   z-index: 1000;
+  pointer-events: auto;
 }
 </style> 

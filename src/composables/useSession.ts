@@ -1,6 +1,7 @@
 import { ref, computed, watch } from 'vue'
 import { useSessionStore, useUiEventStore, useLevelStore, useModalStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
+import { useBonuses } from '@/composables/useBonuses'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { generateSessionId } from '@/utils/ui'
 import { getEventBridge } from '@/composables/useUi'
@@ -11,6 +12,7 @@ export function useSession() {
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
+  const { unlockBonusForLevel } = useBonuses()
   const modalStore = useModalStore()
   
   const yearTransitionTrigger = ref(false)
@@ -57,6 +59,9 @@ export function useSession() {
       sessionStore.setLevel(newLevel)
       uiEventStore.queueShake('level')
       leveledUp = true
+      
+      // Разблокируем бонус для нового уровня
+      unlockBonusForLevel(newLevel)
       
       if (newLevel === 2) {
         const achievement = await unlockAchievement('first-level-master')
@@ -149,10 +154,10 @@ export function useSession() {
     resetAchievements()
     
     sessionStore.createSession({
-      id: generateSessionId(),
+      sessionId: generateSessionId(),
       currentXP: 0,
       currentLevel: 1,
-      lives: GAME_CONFIG.initialLives,
+      lives: GAME_CONFIG.maxLives,
       visitedBubbles: [],
       agreementScore: 0,
       gameCompleted: false,

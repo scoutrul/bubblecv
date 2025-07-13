@@ -54,6 +54,12 @@
       :allow-escape-close="false"
       @close="closeAchievementModal"
     />
+
+    <!-- Bonus Modal -->
+    <BonusModal 
+      :is-open="modals.bonus" 
+      @close="closeBonusModal"
+    />
   </div>
 </template>
 
@@ -65,6 +71,7 @@ import BubbleModal from './BubbleModal.vue'
 import GameOverModal from './GameOverModal.vue'
 import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
+import BonusModal from './BonusModal.vue'
 
 const {
   modals,
@@ -76,7 +83,8 @@ const {
   closeGameOverModal,
   restartGame,
   closeLevelUpModal,
-  closeAchievementModal
+  closeAchievementModal,
+  closeBonusModal
 } = useModals()
 </script>
 

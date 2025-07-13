@@ -9,6 +9,7 @@ import type { NormalizedBubble } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement } from '@/types/modals'
+import { useBonuses } from '@/composables/useBonuses'
 
 let canvasBridge: CanvasBridge | null = null
 
@@ -268,6 +269,11 @@ export const useModals = () => {
   const closeGameOverModal = () => closeModalWithLogic('gameOver')
   const restartGame = async () => {
     processedBubbles.value.clear()
+    
+    // Сбрасываем состояние бонусов
+    const { resetBonuses } = useBonuses()
+    resetBonuses()
+    
     startSession()
     openWelcome()
     closeModalWithLogic('gameOver')
@@ -284,28 +290,54 @@ export const useModals = () => {
     }
   }
   const closeAchievementModal = () => {
-    modalStore.closeModal('achievement')
+    // Проверяем есть ли еще достижения в очереди
+    if (modalStore.pendingAchievements.length > 0) {
+      const next = modalStore.getNextPendingAchievement()
+      if (next) {
+        modalStore.setAchievement(next)
+        return // Не закрываем модалку, показываем следующую
+      }
+    }
+    
+    closeModalWithLogic('achievement')
     modalStore.setAchievement(null)
-    setTimeout(() => processPendingAchievements(), 0)
   }
+
+  const closeBonusModal = () => {
+    closeModalWithLogic('bonus')
+    modalStore.setCurrentBonus(null)
+  }
+
   return {
+    // State
     modals,
     data,
     isAnyModalOpen,
     hasActiveModals,
+
+    // Open methods
     openWelcome,
-    closeWelcome,
     openBubbleModal,
-    continueBubbleModal,
     openLevelUpModal,
-    closeLevelUpModal,
     openPhilosophyModal,
-    closePhilosophyModal,
-    handlePhilosophyAnswer,
     openGameOverModal,
-    closeGameOverModal,
-    restartGame,
     openAchievementModal,
-    closeAchievementModal
+
+    // Close methods
+    closeWelcome,
+    continueBubbleModal,
+    closeLevelUpModal,
+    closePhilosophyModal,
+    closeGameOverModal,
+    closeAchievementModal,
+    closeBonusModal,
+
+    // Special handlers
+    handlePhilosophyAnswer,
+    restartGame,
+
+    // Canvas bridge
+    setCanvasBridge,
+    getCanvasBridge
   }
 }

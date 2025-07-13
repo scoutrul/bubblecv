@@ -49,7 +49,7 @@
     </div>
     
     <div class="game-over-actions">
-      <button @click="resetGame" class="restart-button">
+      <button @click="$emit('restart')" class="restart-button">
         🔄 Начать заново
       </button>
     </div>

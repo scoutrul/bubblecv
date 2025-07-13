@@ -1,19 +1,37 @@
 import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
-import { useAchievement, useSession } from '@/composables/'
+import { useAchievement, useSession, useBonuses } from '@/composables/'
 import { useModals } from '@/composables/useModals'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
+import { api } from '@/api'
 
 export function useApp() {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
   const levelStore = useLevelStore()
   const achievements = useAchievement()
+  const bonuses = useBonuses()
   const { startSession, updateCurrentYear, yearTransitionTrigger } = useSession()
   const { openWelcome } = useModals()
 
   const isAppLoading = ref(false)
+  const oldBubblesLoaded = ref(false)
+
+  // Загрузка старых пузырей при достижении 4 уровня
+  const loadOldBubblesIfNeeded = async () => {
+    if (currentLevel.value >= 4 && !oldBubblesLoaded.value) {
+      try {
+        const { data: oldBubbles } = await api.getOldBubbles()
+        // Добавляем старые пузыри к существующим
+        bubbleStore.bubbles.push(...oldBubbles)
+        oldBubblesLoaded.value = true
+        console.log('✅ Загружены пузыри из прошлого')
+      } catch (err) {
+        console.error('❌ Ошибка загрузки старых пузырей:', err)
+      }
+    }
+  }
 
   const initialize = async () => {
     isAppLoading.value = true
@@ -21,8 +39,13 @@ export function useApp() {
       await Promise.all([
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
+        bonuses.loadBonuses(),
         startSession(),
       ])
+      
+      // Проверяем нужно ли загрузить старые пузыри
+      await loadOldBubblesIfNeeded()
+      
       // Открываем welcome модалку после инициализации
       openWelcome()
     } finally {
