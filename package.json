@@ -58,17 +58,17 @@
     "animation"
   ],
   "author": {
-    "name": "Anton Shelekhov",
-    "email": "anton.shelekhov@gmail.com",
-    "url": "https://antonshelekhov.dev"
+    "name": "Anton X",
+    "email": "contact@example.com",
+    "url": "https://github.com/scoutrul"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/antonshelekhov/bubbles-resume"
+    "url": "https://github.com/scoutrul/bubble-cv"
   },
   "bugs": {
-    "url": "https://github.com/antonshelekhov/bubbles-resume/issues"
+    "url": "https://github.com/scoutrul/bubble-cv/issues"
   },
-  "homepage": "https://antonshelekhov.dev"
+  "homepage": "https://github.com/scoutrul/bubble-cv"
 }
