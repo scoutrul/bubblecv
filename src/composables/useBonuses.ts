@@ -34,6 +34,14 @@ export function useBonuses() {
   const openBonusModal = (bonus: NormalizedBonus) => {
     if (!bonus.isUnlocked) return
     
+    // Приостанавливаем Event Chain если он активен
+    const currentChain = modalStore.currentEventChain
+    if (currentChain) {
+      // Сохраняем состояние Event Chain для восстановления после закрытия бонуса
+      sessionStorage.setItem('pausedEventChain', JSON.stringify(currentChain))
+      modalStore.completeEventChain()
+    }
+    
     modalStore.setCurrentBonus(bonus)
     modalStore.openModal('bonus')
   }

@@ -57,12 +57,14 @@
       @toggle="toggleBonusPanel"
       @close="closeBonusPanel"
     />
+
+
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useApp, useUi } from '@/composables/'
+import { useApp, useUi, useModals } from '@/composables/'
 
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
@@ -70,6 +72,8 @@ import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
 import { useBonuses } from '@/composables/useBonuses'
+
+
 
 const {
   game: {
@@ -119,4 +123,6 @@ const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
   z-index: 1000;
   pointer-events: auto;
 }
+
+
 </style> 

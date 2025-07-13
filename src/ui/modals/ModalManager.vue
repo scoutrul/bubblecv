@@ -2,69 +2,60 @@
   <div>
     <!-- Welcome Modal -->
     <WelcomeModal
-      :is-open="modals.welcome"
-      :allow-escape-close="true"
+      v-if="showWelcome"
+      v-bind="welcomeProps"
       @close="closeWelcome"
     />
 
     <!-- Philosophy Modal -->
     <PhilosophyModal
-      :is-open="modals.philosophy"
-      :question="data.currentQuestion"
-      :allow-escape-close="false"
+      v-if="showPhilosophy"
+      v-bind="philosophyProps"
       @close="closePhilosophyModal"
       @answer="handlePhilosophyAnswer"
     />
 
     <!-- Bubble Modal -->
     <BubbleModal
-      :is-open="modals.bubble"
-      :bubble="data.currentBubble"
-      :allow-escape-close="true"
+      v-if="showBubble"
+      v-bind="bubbleProps"
       @close="continueBubbleModal"
     />
 
     <!-- Game Over Modal -->
     <GameOverModal
-      :is-visible="modals.gameOver"
-      :stats="data.gameOverStats"
-      :allow-escape-close="false"
+      v-if="showGameOver"
+      v-bind="gameOverProps"
       @close="closeGameOverModal"
       @restart="restartGame"
     />
 
     <!-- Level Up Modal -->
     <LevelUpModal
-      :is-open="modals.levelUp"
-      :level="data.levelUpData.level"
-      :title="data.levelUpData.title"
-      :description="data.levelUpData.description"
-      :icon="data.levelUpData.icon"
-      :current-x-p="data.levelUpData.currentXP"
-      :xp-gained="data.levelUpData.xpGained"
-      :unlocked-features="data.levelUpData.unlockedFeatures"
-      :allow-escape-close="false"
+      v-if="showLevelUp"
+      v-bind="levelUpProps"
       @close="closeLevelUpModal"
     />
 
     <!-- Achievement Modal -->
     <AchievementModal 
-      :is-open="modals.achievement" 
-      :achievement="data.achievement"
-      :allow-escape-close="false"
+      v-if="showAchievement"
+      v-bind="achievementProps"
       @close="closeAchievementModal"
     />
 
     <!-- Bonus Modal -->
     <BonusModal 
-      :is-open="modals.bonus" 
-      :allow-escape-close="true"
+      v-if="showBonus"
+      v-bind="bonusProps"
       @close="closeBonusModal"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useModalStore } from '@/stores'
 import { useModals } from '@/composables/useModals'
 import WelcomeModal from './WelcomeModal.vue'
 import PhilosophyModal from './PhilosophyModal.vue'
@@ -74,6 +65,7 @@ import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 import BonusModal from './BonusModal.vue'
 
+const modalStore = useModalStore()
 const {
   modals,
   data,
@@ -87,6 +79,87 @@ const {
   closeAchievementModal,
   closeBonusModal
 } = useModals()
+
+const currentModal = computed(() => modalStore.currentModal)
+
+// Type-safe accessors
+const safeModals = computed(() => (modals as any).value || {} as any)
+const safeData = computed(() => (data as any).value || {} as any)
+
+// Welcome Modal
+const showWelcome = computed(() => {
+  return currentModal.value?.type === 'welcome' || safeModals.value.welcome || false
+})
+const welcomeProps = computed(() => ({
+  isOpen: true,
+  allowEscapeClose: true
+}))
+
+// Philosophy Modal
+const showPhilosophy = computed(() => {
+  return currentModal.value?.type === 'philosophy' || safeModals.value.philosophy || false
+})
+const philosophyProps = computed(() => ({
+  isOpen: true,
+  question: safeData.value.currentQuestion || null,
+  allowEscapeClose: false
+}))
+
+// Bubble Modal
+const showBubble = computed(() => {
+  return currentModal.value?.type === 'bubble' || safeModals.value.bubble || false
+})
+const bubbleProps = computed(() => ({
+  isOpen: true,
+  bubble: safeData.value.currentBubble || null,
+  allowEscapeClose: true
+}))
+
+// Game Over Modal
+const showGameOver = computed(() => {
+  return currentModal.value?.type === 'gameOver' || safeModals.value.gameOver || false
+})
+const gameOverProps = computed(() => ({
+  isVisible: true,
+  stats: safeData.value.gameOverStats || null,
+  allowEscapeClose: false
+}))
+
+// Level Up Modal
+const showLevelUp = computed(() => {
+  return (currentModal.value?.type === 'levelUp' && safeData.value.levelUpData) || 
+    safeModals.value.levelUp || false
+})
+const levelUpProps = computed(() => ({
+  isOpen: true,
+  level: safeData.value.levelUpData?.level || 1,
+  title: safeData.value.levelUpData?.title || 'Новый уровень',
+  description: safeData.value.levelUpData?.description || 'Поздравляем с достижением!',
+  icon: safeData.value.levelUpData?.icon || '⭐',
+  currentXP: safeData.value.levelUpData?.currentXP || 0,
+  xpGained: safeData.value.levelUpData?.xpGained || 0,
+  unlockedFeatures: safeData.value.levelUpData?.unlockedFeatures || [],
+  allowEscapeClose: false
+}))
+
+// Achievement Modal
+const showAchievement = computed(() => {
+  return currentModal.value?.type === 'achievement' || safeModals.value.achievement || false
+})
+const achievementProps = computed(() => ({
+  isOpen: true,
+  achievement: safeData.value.achievement || null,
+  allowEscapeClose: false
+}))
+
+// Bonus Modal
+const showBonus = computed(() => {
+  return currentModal.value?.type === 'bonus' || safeModals.value.bonus || false
+})
+const bonusProps = computed(() => ({
+  isOpen: true,
+  allowEscapeClose: true
+}))
 </script>
 
 <style scoped>

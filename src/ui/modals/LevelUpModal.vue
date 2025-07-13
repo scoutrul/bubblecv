@@ -20,7 +20,6 @@
       <h2 class="level-up-title">LEVEL UP!</h2>
       <div class="new-level">
         <span class="level-number">Уровень {{ levelData.level }}</span>
-        <span class="level-name">{{ levelData.title }}</span>
       </div>
     </div>
 
@@ -221,12 +220,6 @@ const close = () => {
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--text-primary, #f1f5f9);
-}
-
-.level-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--accent, #8b5cf6);
 }
 
 .level-description {

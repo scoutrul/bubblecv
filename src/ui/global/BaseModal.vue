@@ -16,7 +16,9 @@
           :class="className"
           @click.stop
         >
-          <slot />
+          <div class="modal-content">
+            <slot />
+          </div>
         </div>
       </Transition>
     </div>
@@ -57,7 +59,7 @@ onUnmounted(() => {
 }
 
 .modal-window {
-  @apply relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary;
+  @apply relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary overflow-hidden;
 }
 
 /* Анимация фона - только прозрачность */
@@ -99,8 +101,24 @@ onUnmounted(() => {
 }
 
 /* Стили для скроллируемой области */
-.scrollable-content {
-  background: rgba(245, 158, 11, 0.8);
+.modal-content {
+  @apply flex-1 overflow-y-auto overflow-x-hidden;
+}
+
+.modal-content::-webkit-scrollbar {
+  @apply w-1;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  @apply bg-gray-400 rounded-full;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-500;
 }
 
 /* Стили для контейнера */

@@ -41,15 +41,24 @@ import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import ContactForm from './ContactForm.vue'
 import { useModalStore } from '@/stores'
+import type { NormalizedBonus } from '@/types/normalized'
+
+interface Props {
+  isOpen: boolean
+  allowEscapeClose?: boolean
+}
 
 interface Emits {
   (e: 'close'): void
 }
 
+const props = withDefaults(defineProps<Props>(), {
+  allowEscapeClose: true
+})
+
 const emit = defineEmits<Emits>()
 const modalStore = useModalStore()
 
-const isOpen = computed(() => modalStore.modals.bonus)
 const bonus = computed(() => modalStore.data.currentBonus)
 
 const close = () => {

@@ -30,6 +30,44 @@ export interface LevelUpData {
   xpRequired: number
 }
 
+// Новые интерфейсы для системы очередей
+export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus'
+
+export interface QueuedModal {
+  id: string
+  type: ModalType
+  data: any
+  priority: number
+}
+
+export const MODAL_PRIORITIES = {
+  welcome: 100,
+  gameOver: 90,
+  levelUp: 80,
+  achievement: 70,
+  philosophy: 60,
+  bubble: 50,
+  bonus: 40
+} as const
+
+// Обновленные интерфейсы для Event Chains
+export type EventChainStep = 'bubble' | 'achievement' | 'levelUp' | 'levelAchievement' | 'complete'
+
+export interface EventChain {
+  id: string
+  type: 'bubble' | 'philosophy' | 'manual'
+  pendingAchievements: PendingAchievement[]      // Обычные ачивки (bubble, philosophy, tough)
+  pendingLevelAchievements: PendingAchievement[] // Ачивки за уровень (first-level-master)
+  pendingLevelUp: { level: number; data: any } | null
+  currentStep: EventChainStep
+  context: {
+    bubble?: BubbleNode
+    question?: Question
+    bubbleId?: number
+    xpResult?: any
+  }
+}
+
 export interface ModalData {
   currentBubble: BubbleNode | null
   currentQuestion: Question | null

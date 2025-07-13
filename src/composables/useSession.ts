@@ -63,12 +63,8 @@ export function useSession() {
       // Разблокируем бонус для нового уровня
       unlockBonusForLevel(newLevel)
 
-      if (newLevel === 2) {
-        const achievement = await unlockAchievement('first-level-master')
-        if (achievement) {
-          sessionStore.addXP(achievement.xpReward)
-        }
-      } else if (newLevel === maxGameLevel) {
+      // Не обрабатываем level achievements здесь - они будут обработаны в Event Chain
+      if (newLevel === maxGameLevel) {
         const achievement = await unlockAchievement('final-level-master')
         if (achievement) {
           sessionStore.addXP(achievement.xpReward)
@@ -86,6 +82,7 @@ export function useSession() {
         leveledUp: true,
         newLevel,
         levelData: {
+          level: newLevel,
           title: levelData?.title,
           description: levelData?.description,
           currentXP: sessionStore.currentXP,
@@ -175,27 +172,13 @@ export function useSession() {
     }
   }
 
-  const unlockFirstToughBubbleAchievement = async (): Promise<boolean> => {
-    if (!sessionStore.session || sessionStore.session.hasUnlockedFirstToughBubbleAchievement) return false
 
-    sessionStore.setHasDestroyedToughBubble(true)
-    sessionStore.setHasUnlockedFirstToughBubbleAchievement(true)
-
-    const achievement = await unlockAchievement('tough-bubble-popper')
-    if (achievement) {
-      const result = await gainXP(achievement.xpReward)
-      return true
-    }
-
-    return false
-  }
 
   return {
     gainXP,
     losePhilosophyLife,
     visitBubble,
     startSession,
-    unlockFirstToughBubbleAchievement,
     updateCurrentYear,
     yearTransitionTrigger
   }

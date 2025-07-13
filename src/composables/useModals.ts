@@ -8,10 +8,15 @@ import type { NormalizedLevel, NormalizedAchievement } from '@/types/normalized'
 import type { NormalizedBubble } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement } from '@/types/modals'
+import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
+import { MODAL_PRIORITIES } from '@/types/modals'
 import { useBonuses } from '@/composables/useBonuses'
 
 let canvasBridge: CanvasBridge | null = null
+let eventChainCompletedHandler: (() => void) | null = null
+
+// Глобальное состояние для отложенного удаления пузырей
+const pendingBubbleRemovals = ref<Array<PendingBubbleRemoval>>([])
 
 export const setCanvasBridge = (bridge: CanvasBridge) => {
   canvasBridge = bridge
@@ -19,6 +24,14 @@ export const setCanvasBridge = (bridge: CanvasBridge) => {
 
 export const getCanvasBridge = (): CanvasBridge | null => {
   return canvasBridge
+}
+
+export const setEventChainCompletedHandler = (handler: () => void) => {
+  eventChainCompletedHandler = handler
+}
+
+export const getEventChainCompletedHandler = (): (() => void) | null => {
+  return eventChainCompletedHandler
 }
 
 export const useModals = () => {
@@ -29,9 +42,14 @@ export const useModals = () => {
   const { gainXP, losePhilosophyLife, visitBubble, startSession } = useSession()
   
   const isProcessingBubbleModal = ref(false)
-  
-  // Система отложенного удаления пузырей
-  const pendingBubbleRemovals = ref<Array<PendingBubbleRemoval>>([])
+
+  // Функция для обработки завершения Event Chain (вызывается из modal store)
+  const handleEventChainCompleted = () => {
+    processPendingBubbleRemovals()
+  }
+
+  // Устанавливаем обработчик для modal store
+  setEventChainCompletedHandler(handleEventChainCompleted)
 
   const modals = computed(() => modalStore.modals)
   const data = computed(() => modalStore.data)
@@ -45,20 +63,13 @@ export const useModals = () => {
     modalStore.modals.bubble || 
     modalStore.modals.levelUp || 
     modalStore.modals.philosophy || 
-    modalStore.modals.gameOver
+    modalStore.modals.gameOver ||
+    modalStore.modals.achievement ||
+    modalStore.modals.bonus
   )
 
-  const processPendingAchievements = () => {
-    if (!hasActiveModals.value && modalStore.pendingAchievements.length > 0) {
-      const next = modalStore.getNextPendingAchievement()
-      if (next) {
-        // Задержка в 0.6 секунды чтобы увидеть эффект исчезновения пузыря
-        setTimeout(() => {
-          modalStore.setAchievement(next)
-          modalStore.openModal('achievement')
-        }, 600)
-      }
-    }
+  const addPendingBubbleRemoval = (removal: PendingBubbleRemoval) => {
+    pendingBubbleRemovals.value.push(removal)
   }
 
   const processPendingBubbleRemovals = () => {
@@ -73,11 +84,16 @@ export const useModals = () => {
     }
   }
 
+  // Обновленная логика закрытия модалок для Event Chains
   const closeModalWithLogic = (key: keyof ModalStates) => {
-    modalStore.closeModal(key)
-    if (key !== 'achievement') {
-      processPendingAchievements()
+    // Если используется система event chains - используем closeCurrentModal
+    if (modalStore.currentEventChain || modalStore.currentModal) {
+      modalStore.closeCurrentModal()
+    } else {
+      // Иначе используем старый способ
+      modalStore.closeModal(key)
     }
+    
     const bridge = getEventBridge()
     if (bridge) {
       bridge.processShakeQueue()
@@ -89,131 +105,187 @@ export const useModals = () => {
     }, 50)
   }
 
-  const openWelcome = () => modalStore.openModal('welcome')
-  const closeWelcome = () => closeModalWithLogic('welcome')
-
-  const openBubbleModal = (bubble: BubbleNode) => {
-    modalStore.setCurrentBubble(bubble)
-    modalStore.openModal('bubble')
-  }
-
-  const processedBubbles = ref(new Set<number>())
-
-  const continueBubbleModal = async () => {
-    if (isProcessingBubbleModal.value) return
-    const bubble = modalStore.data.currentBubble
-    if (!bubble) return
-    if (processedBubbles.value.has(bubble.id)) {
-      closeModalWithLogic('bubble')
-      modalStore.setCurrentBubble(null)
+  // Новый метод для запуска цепочки событий пузыря
+  const startBubbleEventChain = async (bubble: BubbleNode) => {
+    if (isProcessingBubbleModal.value) {
       return
     }
-    processedBubbles.value.add(bubble.id)
+    
     isProcessingBubbleModal.value = true
+
     try {
-      const bubbleId = bubble.id
-      const canvas = getCanvasBridge()
-      if (bubble && !bubble.isQuestion && !bubble.isTough) {
-        const xpGained = bubble.skillLevel ? 
-          ({ novice: 1, intermediate: 2, confident: 3, expert: 4, master: 5 }[bubble.skillLevel] || 1) : 1
-        const result = await gainXP(xpGained)
-        const bubblesCount = sessionStore.visitedBubbles.length
-        let achievement = null
-        if (bubblesCount === 10) {
-          achievement = await unlockAchievement('bubble-explorer-10')
-        } else if (bubblesCount === 30) {
-          achievement = await unlockAchievement('bubble-explorer-30')
-        } else if (bubblesCount === 50) {
-          achievement = await unlockAchievement('bubble-explorer-50')
-        }
+      // Посещаем пузырь и получаем XP
+      visitBubble(bubble.id)
+      const xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      let xpResult = await gainXP(xpGained)
+
+      // Добавляем пузырь в очередь на удаление
+      addPendingBubbleRemoval({
+        bubbleId: bubble.id,
+        xpAmount: xpGained,
+        isPhilosophyNegative: false
+      })
+
+      // Собираем ТОЛЬКО обычные ачивки (bubble-explorer)
+      const achievements: PendingAchievement[] = []
+      const bubblesCount = sessionStore.visitedBubbles.length
+      
+      // Проверяем ачивки за количество пузырей
+      if (bubblesCount === 10) {
+        const achievement = await unlockAchievement('bubble-explorer-10')
         if (achievement) {
-          const achievementResult = await gainXP(achievement.xpReward)
-          if (achievementResult.leveledUp && achievementResult.levelData) {
-            openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
-          }
-          openAchievementModal({
+          achievements.push({
             title: achievement.name,
             description: achievement.description,
             icon: achievement.icon,
             xpReward: achievement.xpReward
           })
         }
-        if (result.leveledUp && result.levelData) {
-          openLevelUpModal(result.newLevel!, result.levelData)
-          modalStore.setCurrentBubble(null)
-          // Отложенное удаление пузыря
-          pendingBubbleRemovals.value.push({
-            bubbleId: bubble.id,
-            xpAmount: xpGained,
-            isPhilosophyNegative: false
+      } else if (bubblesCount === 30) {
+        const achievement = await unlockAchievement('bubble-explorer-30')
+        if (achievement) {
+          achievements.push({
+            title: achievement.name,
+            description: achievement.description,
+            icon: achievement.icon,
+            xpReward: achievement.xpReward
           })
-          return
-        } else {
-          closeModalWithLogic('bubble')
-          modalStore.setCurrentBubble(null)
-          // Отложенное удаление пузыря
-          pendingBubbleRemovals.value.push({
-            bubbleId: bubble.id,
-            xpAmount: xpGained,
-            isPhilosophyNegative: false
+        }
+      } else if (bubblesCount === 50) {
+        const achievement = await unlockAchievement('bubble-explorer-50')
+        if (achievement) {
+          achievements.push({
+            title: achievement.name,
+            description: achievement.description,
+            icon: achievement.icon,
+            xpReward: achievement.xpReward
           })
-          return
         }
       }
-      closeModalWithLogic('bubble')
-      modalStore.setCurrentBubble(null)
-      // Отложенное удаление пузыря
-      pendingBubbleRemovals.value.push({
-        bubbleId: bubble.id,
-        xpAmount: 0,
-        isPhilosophyNegative: false
+
+      // Собираем ОТДЕЛЬНО level ачивки
+      const levelAchievements: PendingAchievement[] = []
+      
+      // Подготавливаем level up данные
+      let pendingLevelUp = null
+
+      if (xpResult.leveledUp) {
+        pendingLevelUp = {
+          level: xpResult.newLevel!,
+          data: xpResult.levelData
+        }
+
+        // Добавляем ачивку за первый уровень В ОТДЕЛЬНЫЙ МАССИВ
+        if (xpResult.newLevel === 2) {
+          const levelAchievement = await unlockAchievement('first-level-master')
+          if (levelAchievement) {
+            // Получаем XP от level achievement тоже
+            const levelXpResult = await gainXP(levelAchievement.xpReward)
+            levelAchievements.push({
+              title: levelAchievement.name,
+              description: levelAchievement.description,
+              icon: levelAchievement.icon,
+              xpReward: levelAchievement.xpReward
+            })
+            // Обновляем xpResult если level achievement дал еще level up
+            if (levelXpResult.leveledUp) {
+              xpResult = levelXpResult
+              pendingLevelUp = {
+                level: xpResult.newLevel!,
+                data: xpResult.levelData
+              }
+            }
+          }
+        }
+      }
+
+      // Запускаем Event Chain с разделенными ачивками
+      modalStore.startEventChain({
+        type: 'bubble',
+        pendingAchievements: achievements,           // Только bubble ачивки
+        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
+        pendingLevelUp,
+        currentStep: 'bubble',
+        context: {
+          bubble,
+          xpResult
+        }
       })
+
     } finally {
       isProcessingBubbleModal.value = false
     }
   }
 
+  // Welcome Modal
+  const openWelcome = () => {
+    modalStore.enqueueModal({
+      type: 'welcome',
+      data: null,
+      priority: MODAL_PRIORITIES.welcome
+    })
+  }
+  
+  const closeWelcome = () => closeModalWithLogic('welcome')
+
+  // Bubble Modal  
+  const openBubbleModal = (bubble: BubbleNode) => {
+    // Используем новую систему Event Chains
+    startBubbleEventChain(bubble)
+  }
+
+  const continueBubbleModal = async () => {
+    // Просто закрываем модалку, Event Chain система сама продолжит цепочку
+    closeModalWithLogic('bubble')
+  }
+
+  // Level Up Modal
   const openLevelUpModal = (level: number, payload?: any) => {
-    if (modalStore.modals.achievement && modalStore.data.achievement) {
-      modalStore.addPendingAchievement(modalStore.data.achievement)
-      modalStore.closeModal('achievement')
-      modalStore.setAchievement(null)
-    }
-    if (modalStore.modals.bubble) {
-      modalStore.closeModal('bubble')
-      modalStore.setCurrentBubble(null)
-    }
-    const levelData = {
-      level,
-      title: payload?.title ?? '',
-      description: payload?.description ?? '',
-      icon: payload?.icon ?? '👋',
-      currentXP: payload?.currentXP ?? 0,
-      xpGained: payload?.xpGained ?? 0,
-      unlockedFeatures: payload?.unlockedFeatures ?? [],
-      xpRequired: payload?.xpRequired ?? 0
-    }
-    modalStore.setLevelUpData(levelData)
-    modalStore.openModal('levelUp')
+    // Level Up Modal теперь работает только через Event Chain
+    const levelData = levelStore.getLevelByNumber(level)
+    const icon = ['👋', '🤔', '📚', '🤝', '🤜🤛'][level - 1] || '⭐'
+    
+    modalStore.startEventChain({
+      type: 'manual',
+      pendingAchievements: [],
+      pendingLevelAchievements: [],
+      pendingLevelUp: {
+        level: level,
+        data: payload || {
+          level: level,
+          title: levelData?.title || `Уровень ${level}`,
+          description: levelData?.description || `Поздравляем! Вы достигли ${level} уровня!`,
+          icon: icon,
+          currentXP: sessionStore.session?.currentXP || 0,
+          xpGained: 0,
+          unlockedFeatures: levelData?.unlockedFeatures || []
+        }
+      },
+      currentStep: 'levelUp',
+      context: {}
+    })
   }
 
-  const closeLevelUpModal = () => {
-    closeModalWithLogic('levelUp')
-  }
+  const closeLevelUpModal = () => closeModalWithLogic('levelUp')
 
+  // Philosophy Modal
   const openPhilosophyModal = (question: Question, bubbleId?: BubbleNode['id']) => {
-    modalStore.setCurrentQuestion(question)
-    modalStore.setPhilosophyBubbleId(bubbleId ?? null)
-    modalStore.openModal('philosophy')
+    modalStore.enqueueModal({
+      type: 'philosophy',
+      data: { question, bubbleId },
+      priority: MODAL_PRIORITIES.philosophy
+    })
   }
 
   const handlePhilosophyAnswer = async (optionId: string) => {
     const question = modalStore.data.currentQuestion
-    const selectedOption = question?.options.find(opt => String(opt.id) === optionId)
-    if (!selectedOption) return
-    
     const bubbleId = modalStore.data.philosophyBubbleId
     
+    if (!question) return
+
+    const selectedOption = question.options.find(o => String(o.id) === optionId)
+    if (!selectedOption) return
+
     const isNegative = selectedOption.livesLost > 0
     
     // Помечаем пузырь как посещенный СРАЗУ
@@ -221,40 +293,81 @@ export const useModals = () => {
       await visitBubble(bubbleId)
     }
     
-        // Определяем количество XP в зависимости от agreementLevel
+    // Определяем количество XP в зависимости от agreementLevel
     const xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
 
     // Обрабатываем ответ
+    let xpResult = null
     if (isNegative) {
       const isGameOver = await losePhilosophyLife()
       if (isGameOver) {
-        modalStore.closeModal('philosophy')
+        closeModalWithLogic('philosophy')
         openGameOverModal()
         return
       }
     } else {
       // Начисляем XP только за положительные ответы
-      await gainXP(xpAmount)
+      xpResult = await gainXP(xpAmount)
     }
 
     // Закрываем модалку ПЕРЕД показом ачивки
-    modalStore.closeModal('philosophy')
+    closeModalWithLogic('philosophy')
 
     // Выдаем ачивку за первый философский пузырь (любой ответ)
     const achievement = await unlockAchievement('philosophy-master')
     if (achievement) {
       const achievementResult = await gainXP(achievement.xpReward)
-      if (achievementResult.leveledUp && achievementResult.levelData) {
-        openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
-      }
-      openAchievementModal({
+      
+      // Собираем ТОЛЬКО обычные ачивки (philosophy)
+      const achievements: PendingAchievement[] = [{
         title: achievement.name,
         description: achievement.description,
         icon: achievement.icon,
         xpReward: achievement.xpReward
+      }]
+
+      // Собираем ОТДЕЛЬНО level ачивки
+      const levelAchievements: PendingAchievement[] = []
+
+      // Определяем финальный xpResult (от философии + от ачивки)
+      let finalXpResult = achievementResult.leveledUp ? achievementResult : xpResult
+
+      // Добавляем level achievement если достигли уровня 2
+      if (finalXpResult && finalXpResult.leveledUp && finalXpResult.newLevel === 2) {
+        const levelAchievement = await unlockAchievement('first-level-master')
+        if (levelAchievement) {
+          // Получаем XP от level achievement тоже
+          const levelXpResult = await gainXP(levelAchievement.xpReward)
+          levelAchievements.push({
+            title: levelAchievement.name,
+            description: levelAchievement.description,
+            icon: levelAchievement.icon,
+            xpReward: levelAchievement.xpReward
+          })
+          // Обновляем finalXpResult если level achievement дал еще level up
+          if (levelXpResult.leveledUp) {
+            finalXpResult = levelXpResult
+          }
+        }
+      }
+
+      // Запускаем Event Chain для философского пузыря с разделенными ачивками
+      modalStore.startEventChain({
+        type: 'philosophy',
+        pendingAchievements: achievements,           // Только philosophy ачивка
+        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
+        pendingLevelUp: finalXpResult && finalXpResult.leveledUp ? { 
+          level: finalXpResult.newLevel!, 
+          data: finalXpResult.levelData 
+        } : null,
+        currentStep: 'achievement', // Начинаем с ачивки
+        context: { xpResult: finalXpResult, bubbleId: bubbleId || undefined }
       })
+    } else if (xpResult && xpResult.leveledUp) {
+      // Если нет ачивки, но есть level up - показываем только level up
+      openLevelUpModal(xpResult.newLevel!, xpResult.levelData)
     }
-    
+
     // Ставим пузырь в очередь на удаление
     if (bubbleId) {
       const canvas = getCanvasBridge()
@@ -265,10 +378,23 @@ export const useModals = () => {
   }
 
   const closePhilosophyModal = () => closeModalWithLogic('philosophy')
-  const openGameOverModal = () => modalStore.openModal('gameOver')
+
+  // Game Over Modal
+  const openGameOverModal = () => {
+    modalStore.enqueueModal({
+      type: 'gameOver',
+      data: {
+        currentXP: sessionStore.session?.currentXP || 0,
+        currentLevel: sessionStore.session?.currentLevel || 1
+      },
+      priority: MODAL_PRIORITIES.gameOver
+    })
+  }
+  
   const closeGameOverModal = () => closeModalWithLogic('gameOver')
+
   const restartGame = async () => {
-    processedBubbles.value.clear()
+    modalStore.clearQueue() // Очищаем очередь модалок и event chains
     
     // Сбрасываем состояние бонусов
     const { resetBonuses } = useBonuses()
@@ -278,17 +404,16 @@ export const useModals = () => {
     openWelcome()
     closeModalWithLogic('gameOver')
   }
+
+  // Achievement Modal
   const openAchievementModal = (achievement: PendingAchievement) => {
-    if (modalStore.modals.levelUp || hasActiveModals.value) {
-      modalStore.addPendingAchievement(achievement)
-    } else {
-      // Задержка в 0.6 секунды чтобы увидеть эффект исчезновения пузыря
-      setTimeout(() => {
-        modalStore.setAchievement(achievement)
-        modalStore.openModal('achievement')
-      }, 600)
-    }
+    modalStore.enqueueModal({
+      type: 'achievement',
+      data: achievement,
+      priority: MODAL_PRIORITIES.achievement
+    })
   }
+
   const closeAchievementModal = () => {
     // Проверяем есть ли еще достижения в очереди
     if (modalStore.pendingAchievements.length > 0) {
@@ -304,8 +429,83 @@ export const useModals = () => {
   }
 
   const closeBonusModal = () => {
-    closeModalWithLogic('bonus')
+    // Закрываем BonusModal
+    modalStore.closeModal('bonus')
     modalStore.setCurrentBonus(null)
+    
+    // Восстанавливаем приостановленный Event Chain если он был
+    const pausedChain = sessionStorage.getItem('pausedEventChain')
+    if (pausedChain) {
+      sessionStorage.removeItem('pausedEventChain')
+      const chain = JSON.parse(pausedChain)
+      
+      // Пропускаем LevelUp так как он уже был показан
+      if (chain.currentStep === 'levelUp') {
+        chain.currentStep = 'levelAchievement'
+      }
+      
+      // Продолжаем с того места где остановились
+      modalStore.startEventChain(chain)
+      modalStore.processEventChain()
+    }
+  }
+
+  const handleToughBubbleDestroyed = async () => {
+    // Пытаемся получить ачивку для tough пузыря
+    let achievement = await unlockAchievement('tough-bubble-popper')
+    
+    // Если не получилось, пытаемся для скрытого пузыря
+    if (!achievement) {
+      achievement = await unlockAchievement('secret-bubble-discoverer')
+    }
+    
+    if (achievement) {
+      // Сначала получаем XP от ачивки
+      let xpResult = await gainXP(achievement.xpReward)
+      
+      // Собираем ТОЛЬКО обычные ачивки (tough-bubble-popper или secret-bubble-discoverer)
+      const achievements: PendingAchievement[] = [{
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      }]
+
+      // Собираем ОТДЕЛЬНО level ачивки
+      const levelAchievements: PendingAchievement[] = []
+
+      // Если достигли уровня 2 от ачивки, добавляем level achievement
+      if (xpResult.leveledUp && xpResult.newLevel === 2) {
+        const levelAchievement = await unlockAchievement('first-level-master')
+        if (levelAchievement) {
+          // Получаем XP от level achievement тоже
+          const levelXpResult = await gainXP(levelAchievement.xpReward)
+          levelAchievements.push({
+            title: levelAchievement.name,
+            description: levelAchievement.description,
+            icon: levelAchievement.icon,
+            xpReward: levelAchievement.xpReward
+          })
+          // Обновляем xpResult если level achievement дал еще level up
+          if (levelXpResult.leveledUp) {
+            xpResult = levelXpResult
+          }
+        }
+      }
+
+      // Запускаем Event Chain для скрытого/tough пузыря с разделенными ачивками
+      modalStore.startEventChain({
+        type: 'manual',
+        pendingAchievements: achievements,           // tough или secret ачивка
+        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
+        pendingLevelUp: xpResult.leveledUp ? { 
+          level: xpResult.newLevel!, 
+          data: xpResult.levelData 
+        } : null,
+        currentStep: 'achievement', // Начинаем с ачивки
+        context: { xpResult }
+      })
+    }
   }
 
   return {
@@ -314,30 +514,84 @@ export const useModals = () => {
     data,
     isAnyModalOpen,
     hasActiveModals,
+    isProcessingBubbleModal,
 
-    // Open methods
+    // Bridge
+    addPendingBubbleRemoval,
+    processPendingBubbleRemovals,
+
+    // Event Chains
+    startBubbleEventChain,
+
+    // Welcome
     openWelcome,
-    openBubbleModal,
-    openLevelUpModal,
-    openPhilosophyModal,
-    openGameOverModal,
-    openAchievementModal,
-
-    // Close methods
     closeWelcome,
-    continueBubbleModal,
-    closeLevelUpModal,
-    closePhilosophyModal,
-    closeGameOverModal,
-    closeAchievementModal,
-    closeBonusModal,
 
-    // Special handlers
+    // Bubble
+    openBubbleModal,
+    continueBubbleModal,
+
+    // Level Up
+    openLevelUpModal,
+    closeLevelUpModal,
+
+    // Philosophy
+    openPhilosophyModal,
     handlePhilosophyAnswer,
+    closePhilosophyModal,
+
+    // Game Over
+    openGameOverModal,
+    closeGameOverModal,
     restartGame,
 
-    // Canvas bridge
-    setCanvasBridge,
-    getCanvasBridge
+    // Achievement
+    openAchievementModal,
+    closeAchievementModal,
+
+    // Bonus
+    closeBonusModal,
+
+    // Handlers
+    handleToughBubbleDestroyed
+  }
+
+
+
+  return {
+    // Event Chains
+    startBubbleEventChain,
+
+    // Welcome
+    openWelcome,
+    closeWelcome,
+
+    // Bubble
+    openBubbleModal,
+    continueBubbleModal,
+
+    // Level Up
+    openLevelUpModal,
+    closeLevelUpModal,
+
+    // Philosophy
+    openPhilosophyModal,
+    handlePhilosophyAnswer,
+    closePhilosophyModal,
+
+    // Game Over
+    openGameOverModal,
+    closeGameOverModal,
+    restartGame,
+
+    // Achievement
+    openAchievementModal,
+    closeAchievementModal,
+
+    // Bonus
+    closeBonusModal,
+
+    // Handlers
+    handleToughBubbleDestroyed
   }
 }

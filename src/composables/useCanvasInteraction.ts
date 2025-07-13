@@ -6,7 +6,7 @@ import { useBubbleStore } from '@/stores/bubble.store'
 
 import type { NormalizedBubble } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
-import { useAchievement, useSession, useModals } from '@/composables'
+import { useSession, useModals } from '@/composables'
 import { 
   createQuestionData, 
   animateParallax, 
@@ -23,9 +23,8 @@ export function useCanvasInteraction(
   const bubbleStore = useBubbleStore()
 
 
-  const { gainXP, visitBubble, unlockFirstToughBubbleAchievement } = useSession()
-  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal } = useModals()
-  const { unlockAchievement } = useAchievement()
+  const { gainXP, visitBubble } = useSession()
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal, handleToughBubbleDestroyed } = useModals()
   
   const isDragging = ref(false)
   const hoveredBubble = ref<BubbleNode | null>(null)
@@ -112,6 +111,7 @@ export function useCanvasInteraction(
           
           if (result.isReady) {
             await visitBubble(clickedBubble.id)
+            await handleToughBubbleDestroyed()
           } else {
             createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
             const result = await gainXP(1)
@@ -148,25 +148,8 @@ export function useCanvasInteraction(
           const result = await gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#22c55e')
           
-          if (result.leveledUp && result.levelData) {
-            openLevelUpModal(result.newLevel!, result.levelData)
-          }
-          
-          const achievement = await unlockAchievement('secret-bubble-discoverer')
-          if (achievement) {
-            const achievementResult = await gainXP(achievement.xpReward)
-            
-            if (achievementResult.leveledUp && achievementResult.levelData) {
-              openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
-            }
-            
-            openAchievementModal({
-              title: achievement.name,
-              description: achievement.description,
-              icon: achievement.icon,
-              xpReward: achievement.xpReward
-            })
-          }
+          // Используем Event Chain систему для скрытых пузырей
+          await handleToughBubbleDestroyed()
           
           removeBubble(clickedBubble.id, nodes)
           return
@@ -208,7 +191,7 @@ export function useCanvasInteraction(
     let xpGained = 0
     
     if (bubble.isTough) {
-      await unlockFirstToughBubbleAchievement()
+      await handleToughBubbleDestroyed()
       explodeBubble(bubble)
       const remainingNodes = removeBubble(bubble.id, nodes)
       if (onBubblePopped) {

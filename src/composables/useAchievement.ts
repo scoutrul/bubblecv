@@ -26,6 +26,15 @@ export function useAchievement() {
     pendingUnlockIds.value.add(id)
 
     try {
+      // Проверяем условия для конкретных ачивок
+      if (id === 'tough-bubble-popper') {
+        if (sessionStore.session?.hasUnlockedFirstToughBubbleAchievement) {
+          return null // Уже разблокирована
+        }
+        sessionStore.setHasDestroyedToughBubble(true)
+        sessionStore.setHasUnlockedFirstToughBubbleAchievement(true)
+      }
+
       achievement.isUnlocked = true
       uiEventStore.queueShake('achievements')
       // XP начисляется в useSession композабле, уберем дублирование

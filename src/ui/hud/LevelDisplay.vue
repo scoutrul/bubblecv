@@ -1,6 +1,10 @@
 <template>
   <div class="level-display">
-    <div class="level-info" :class="[levelClass, { 'util-shake-hud': isShaking }]">
+    <div 
+      class="level-info" 
+      :class="[levelClass, { 'util-shake-hud': isShaking, 'clickable': currentLevel >= 2 }]"
+      @click="handleLevelClick"
+    >
       <span class="level-title-group">
         <span class="level-icon">{{ levelIcon }}</span>
         <span :class="titleClass" class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
@@ -14,6 +18,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils/animations'
+import { useModals } from '@/composables/useModals'
 
 interface Props {
   currentLevel: number
@@ -22,6 +27,14 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+const { openLevelUpModal } = useModals()
+
+const handleLevelClick = () => {
+  if (props.currentLevel >= 2) {
+    openLevelUpModal(props.currentLevel)
+  }
+}
 
 // GSAP анимация shine эффекта
 watch(() => props.currentLevel, (newLevel) => {
@@ -80,6 +93,14 @@ const subtitleClass = computed(() => {
 
 .level-info {
   @apply flex items-baseline gap-x-1 sm:gap-x-3 text-right p-1 sm:p-2 rounded-lg transition-all duration-300 relative overflow-hidden;
+}
+
+.level-info.clickable {
+  @apply cursor-pointer hover:scale-105 active:scale-95;
+}
+
+.level-info.clickable:hover {
+  @apply brightness-110;
 }
 
 .level-title-group {
