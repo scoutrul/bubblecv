@@ -131,8 +131,56 @@ const close = () => {
 }
 
 /* Стилизация HTML контента */
+.bonus-html-content :deep(h1),
+.bonus-html-content :deep(h2),
+.bonus-html-content :deep(h3),
+.bonus-html-content :deep(h4),
+.bonus-html-content :deep(h5),
+.bonus-html-content :deep(h6) {
+  color: var(--text-primary, #f1f5f9);
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.bonus-html-content :deep(h1) {
+  font-size: 2rem;
+}
+
+.bonus-html-content :deep(h2) {
+  font-size: 1.5rem;
+}
+
+.bonus-html-content :deep(h3) {
+  font-size: 1.25rem;
+}
+
+.bonus-html-content :deep(h4) {
+  font-size: 1.125rem;
+}
+
+.bonus-html-content :deep(h5),
+.bonus-html-content :deep(h6) {
+  font-size: 1rem;
+}
+
+.bonus-html-content :deep(h1:first-child),
+.bonus-html-content :deep(h2:first-child),
+.bonus-html-content :deep(h3:first-child),
+.bonus-html-content :deep(h4:first-child),
+.bonus-html-content :deep(h5:first-child),
+.bonus-html-content :deep(h6:first-child) {
+  margin-top: 0;
+}
+
 .bonus-html-content :deep(p) {
   margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.bonus-html-content :deep(p:last-child) {
+  margin-bottom: 0;
 }
 
 .bonus-html-content :deep(a) {
@@ -145,18 +193,69 @@ const close = () => {
   color: var(--accent, #8b5cf6);
 }
 
-.bonus-html-content :deep(strong) {
+.bonus-html-content :deep(strong),
+.bonus-html-content :deep(b) {
   color: var(--text-primary, #f1f5f9);
   font-weight: 600;
 }
 
-.bonus-html-content :deep(ul) {
+.bonus-html-content :deep(em),
+.bonus-html-content :deep(i) {
+  font-style: italic;
+  color: var(--text-secondary, #64748b);
+}
+
+.bonus-html-content :deep(ul),
+.bonus-html-content :deep(ol) {
   margin: 1rem 0;
   padding-left: 1.5rem;
 }
 
 .bonus-html-content :deep(li) {
   margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.bonus-html-content :deep(blockquote) {
+  border-left: 4px solid var(--accent, #8b5cf6);
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--text-secondary, #64748b);
+}
+
+.bonus-html-content :deep(code) {
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--accent, #8b5cf6);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875em;
+}
+
+.bonus-html-content :deep(pre) {
+  background: var(--background, #0f172a);
+  border: 1px solid var(--border, #334155);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.bonus-html-content :deep(pre code) {
+  background: none;
+  padding: 0;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.bonus-html-content :deep(hr) {
+  border: none;
+  height: 1px;
+  background: var(--border, #334155);
+  margin: 2rem 0;
 }
 
 @media (max-width: 640px) {

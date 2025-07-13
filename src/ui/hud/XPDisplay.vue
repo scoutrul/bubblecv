@@ -30,6 +30,8 @@ defineProps<Props>()
 <style scoped>
 .xp-display {
   @apply w-full min-w-0;
+  max-width: 400px;
+  margin: auto;
 }
 
 .xp-row {

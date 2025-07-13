@@ -58,6 +58,7 @@
     <!-- Bonus Modal -->
     <BonusModal 
       :is-open="modals.bonus" 
+      :allow-escape-close="true"
       @close="closeBonusModal"
     />
   </div>
