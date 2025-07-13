@@ -29,6 +29,9 @@
         v-html="bonus.content"
         class="bonus-html-content"
       ></div>
+      
+      <!-- Форма связи для 3-го уровня -->
+      <ContactForm v-if="bonus?.level === 3" class="contact-form-container" />
     </div>
   </BaseModal>
 </template>
@@ -36,6 +39,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
+import ContactForm from './ContactForm.vue'
 import { useModalStore } from '@/stores'
 
 interface Emits {
@@ -256,6 +260,12 @@ const close = () => {
   height: 1px;
   background: var(--border, #334155);
   margin: 2rem 0;
+}
+
+.contact-form-container {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border, #334155);
 }
 
 @media (max-width: 640px) {
