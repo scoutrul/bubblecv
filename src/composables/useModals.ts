@@ -10,7 +10,7 @@ import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
 import { MODAL_PRIORITIES } from '@/types/modals'
-import { useBonuses } from '@/composables/useBonuses'
+
 
 let canvasBridge: CanvasBridge | null = null
 let eventChainCompletedHandler: (() => void) | null = null
@@ -396,13 +396,11 @@ export const useModals = () => {
   const restartGame = async () => {
     modalStore.clearQueue() // Очищаем очередь модалок и event chains
     
-    // Сбрасываем состояние бонусов
-    const { resetBonuses } = useBonuses()
-    resetBonuses()
+    const { useApp } = await import('@/composables/useApp')
+    const { resetGame } = useApp()
     
-    startSession()
-    openWelcome()
     closeModalWithLogic('gameOver')
+    resetGame()
   }
 
   // Achievement Modal

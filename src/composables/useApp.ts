@@ -54,6 +54,9 @@ export function useApp() {
   }
 
   const resetGame = () => {
+    // Сбрасываем бонусы
+    bonuses.resetBonuses()
+    // startSession сбрасывает: достижения, опыт, уровень, жизни, посещенные пузыри
     startSession()
     openWelcome()
   }

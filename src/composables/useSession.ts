@@ -147,7 +147,7 @@ export function useSession() {
     }
   }
 
-  const startSession = (options: { lives?: number } = { lives: GAME_CONFIG.initialLives }): void => {
+  const startSession = (options: { lives?: number } = { lives: GAME_CONFIG.maxLives }): void => {
     resetAchievements()
 
     sessionStore.createSession({
@@ -171,8 +171,6 @@ export function useSession() {
       bridge.resetCanvas()
     }
   }
-
-
 
   return {
     gainXP,
