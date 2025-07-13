@@ -94,17 +94,6 @@ export function useSession() {
     return { leveledUp: false }
   }
 
-  const gainPhilosophyXP = async (): Promise<boolean> => {
-    const achievement = await unlockAchievement('philosophy-master')
-    if (achievement) {
-      const result = await gainXP(achievement.xpReward)
-      showAchievementModal(achievement)
-      return result.leveledUp
-    }
-    
-    return false
-  }
-
   const losePhilosophyLife = async (): Promise<boolean> => {
     if (!sessionStore.session) return false
 
@@ -198,7 +187,6 @@ export function useSession() {
 
   return {
     gainXP,
-    gainPhilosophyXP,
     losePhilosophyLife,
     visitBubble,
     startSession,

@@ -213,7 +213,6 @@ const performAutoSwitch = async () => {
 
 // Добавляем watch для анимации смены года
 watch(() => props.currentYear, async (newYear, oldYear) => {
-  console.log('🎯 Year changed from', oldYear, 'to', newYear)
   await nextTick()
   const yearElement = document.querySelector('.year-compact') as HTMLElement
   if (yearElement) {

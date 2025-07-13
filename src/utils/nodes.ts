@@ -1,5 +1,5 @@
 import type { BubbleNode } from '@/types/canvas'
-import type { NormalizedBubble } from '@/types/normalized'
+import type { NormalizedBubble, BubbleSizes } from '@/types/normalized'
 
 const defaultBubbleNode: BubbleNode = {
     id: 0,
@@ -39,6 +39,7 @@ export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode
 
 export function createHiddenBubble(year?: number): BubbleNode {
   const bubbleYear = year || 2015
+  
   return {
     ...defaultBubbleNode,
     id: -(bubbleYear * 10000 + 9999), // Уникальный отрицательный ID для скрытых пузырей
@@ -47,7 +48,7 @@ export function createHiddenBubble(year?: number): BubbleNode {
     isHidden: true,
     description: 'Этот пузырь почти невидим. Найдите его!',
     isPopped: false,
-    size: 'small',
+    size: 'small', // Всегда маленький размер
     x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
     y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
   }

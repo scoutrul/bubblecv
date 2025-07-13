@@ -25,7 +25,7 @@ export const useModals = () => {
   const modalStore = useModalStore()
   const levelStore = useLevelStore()
   const { unlockAchievement } = useAchievement()
-  const { gainXP, gainPhilosophyXP, losePhilosophyLife, visitBubble, startSession } = useSession()
+  const { gainXP, losePhilosophyLife, visitBubble, startSession } = useSession()
   
   const isProcessingBubbleModal = ref(false)
   
@@ -220,9 +220,9 @@ export const useModals = () => {
       await visitBubble(bubbleId)
     }
     
-    // Определяем количество XP в зависимости от agreementLevel
+        // Определяем количество XP в зависимости от agreementLevel
     const xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
-    
+
     // Обрабатываем ответ
     if (isNegative) {
       const isGameOver = await losePhilosophyLife()
@@ -232,11 +232,27 @@ export const useModals = () => {
         return
       }
     } else {
-      await gainPhilosophyXP()
+      // Начисляем XP только за положительные ответы
+      await gainXP(xpAmount)
     }
-    
-    // Закрываем модалку
+
+    // Закрываем модалку ПЕРЕД показом ачивки
     modalStore.closeModal('philosophy')
+
+    // Выдаем ачивку за первый философский пузырь (любой ответ)
+    const achievement = await unlockAchievement('philosophy-master')
+    if (achievement) {
+      const achievementResult = await gainXP(achievement.xpReward)
+      if (achievementResult.leveledUp && achievementResult.levelData) {
+        openLevelUpModal(achievementResult.newLevel!, achievementResult.levelData)
+      }
+      openAchievementModal({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+    }
     
     // Ставим пузырь в очередь на удаление
     if (bubbleId) {

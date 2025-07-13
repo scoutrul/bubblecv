@@ -339,8 +339,8 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
     if (bubble.isHidden) {
       const hiddenConfig = GAME_CONFIG.hiddenBubble
       context.globalAlpha = hiddenConfig.opacity
-      if (hiddenConfig.gradientColors.length) {
-        const gradient = context.createRadialGradient(x, y, 0, x, y, radius * hiddenConfig.sizeMultiplier)
+      if (hiddenConfig.gradientColors?.length) {
+        const gradient = context.createRadialGradient(x, y, 0, x, y, radius)
         hiddenConfig.gradientColors.forEach((color, index) => {
           const stop = index / (hiddenConfig.gradientColors.length - 1)
           gradient.addColorStop(stop, color)
@@ -350,7 +350,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         context.fillStyle = '#64748B11' // fallback
       }
       context.beginPath()
-      context.arc(x, y, radius * hiddenConfig.sizeMultiplier, 0, Math.PI * 2)
+      context.arc(x, y, radius, 0, Math.PI * 2)
       context.fill()
       context.restore()
       return
@@ -398,7 +398,7 @@ export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
         
         context.fillStyle = gradient
       } else {
-        context.fillStyle = expertiseConfig.color
+        context.fillStyle = '#FFF'
       }
       
       context.beginPath()

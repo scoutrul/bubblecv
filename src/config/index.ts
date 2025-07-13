@@ -34,36 +34,26 @@ export const GAME_CONFIG = {
   expertiseBubbles: {
     [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
-      color: '#374151',
-      sizeMultiplier: 0.75,
       opacity: 0.85,
-      gradientColors: ['#1F2937', '#4B5563'], 
+      gradientColors: ['#6B7280', '#FFD5DB'], 
     },
     [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
-      color: '#4B5563',
-      sizeMultiplier: 0.8,
       opacity: 0.9,
-      gradientColors: ['#6B7280', '#D1D5DB'], 
+      gradientColors: ['#1F2937', '#DD5563'], 
     },
     [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
-      color: '#B45309',
-      sizeMultiplier: 0.85,
       opacity: 0.93,
-      gradientColors: ['#92400E', '#D97706', '#FBBF24'],
+      gradientColors: ['#D2400E', '#F97706', '#FBBF24'],
     },
     [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',
-      color: '#9CA3AF',
-      sizeMultiplier: 0.9,
       opacity: 0.95,
       gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF', '#9CA3AF00'], 
     },
     [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',
-      color: '#EAB308',
-      sizeMultiplier: 0.95,
       opacity: 1,
       gradientColors: ['#FDE68A', '#F59E0B', '#CA8A04', '#CA8A0400'],
     },
@@ -71,15 +61,13 @@ export const GAME_CONFIG = {
 
   questionBubble: {
     gradientColors: ['#FF0080', '#FF4080', '#FF8080', '#B3FF80', '#FFFFFF00'],
-    sizeMultiplier: 0.9,    
     opacity: 0.95,
     name: 'Философский вопрос'
   } as const,
 
   hiddenBubble: {
-    gradientColors: ['#00000000', '#64748B33', '#64748B11', '#FFFFFF00'], 
-    sizeMultiplier: 1.3,
     opacity: 0, 
+    gradientColors: [],
     name: 'Скрытый пузырь'
   } as const,
 

@@ -1,6 +1,6 @@
 import type { Level } from '@/types/levels'
 import type { Bubble, Achievement } from '@/types/data'
-import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel } from '@/types/normalized'
+import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, BubbleSizes } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 
 // Значения по умолчанию для пузыря
@@ -14,6 +14,22 @@ const DEFAULT_BUBBLE_PROPS = {
   size: 'medium' as const,
 }
 
+// Функция для определения размера по уровню экспертизы
+function getSizeBySkillLevel(skillLevel: string): BubbleSizes {
+  switch (skillLevel) {
+    case 'novice':
+    case 'intermediate':
+      return 'small'
+    case 'confident':
+      return 'medium'
+    case 'expert':
+    case 'master':
+      return 'large'
+    default:
+      return 'medium'
+  }
+}
+
 export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubble {
   // Каждый 9-й пузырь делаем tough (но не вопросы)
   const isTough = id % 9 === 0
@@ -23,6 +39,7 @@ export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubb
     ...DEFAULT_BUBBLE_PROPS,
     id,
     isTough,
+    size: getSizeBySkillLevel(bubble.skillLevel),
   }
 }
 
@@ -31,6 +48,11 @@ export function createPhilosophyBubble(questionId: string, year: number): Normal
   const questionHash = questionId.split('').reduce((hash, char) => {
     return ((hash << 5) - hash + char.charCodeAt(0)) & 0xfffffff
   }, 0)
+  
+  // Случайный размер для философских пузырей
+  const seed = Math.abs(year * 100000 + questionHash) % 3
+  const sizeOptions: BubbleSizes[] = ['small', 'medium', 'large']
+  const randomSize = sizeOptions[seed]
   
   return {
     id: -(year * 100000 + questionHash), // Отрицательный ID для философских пузырей, уникальный для каждого года и вопроса
@@ -41,6 +63,7 @@ export function createPhilosophyBubble(questionId: string, year: number): Normal
     questionId,
     ...DEFAULT_BUBBLE_PROPS,
     isQuestion: true,
+    size: randomSize,
   }
 }
 
