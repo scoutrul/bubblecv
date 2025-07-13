@@ -5,14 +5,14 @@
   >
     <div 
       v-if="isOpen" 
-      class="fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+      class="modal-backdrop"
     >
       <Transition
         name="modal-window"
         appear
       >
         <div 
-          class="relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary"
+          class="modal-window"
           :class="className"
           @click.stop
         >
@@ -52,6 +52,14 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.modal-backdrop {
+  @apply fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm;
+}
+
+.modal-window {
+  @apply relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary;
+}
+
 /* Анимация фона - только прозрачность */
 .modal-backdrop-enter-active,
 .modal-backdrop-leave-active {

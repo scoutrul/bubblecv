@@ -40,7 +40,7 @@ export function useApp() {
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
         bonuses.loadBonuses(),
-        startSession(),
+        startSession({ lives: GAME_CONFIG.initialLives }),
       ])
       
       // Проверяем нужно ли загрузить старые пузыри

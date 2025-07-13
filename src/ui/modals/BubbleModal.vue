@@ -7,17 +7,17 @@
     <div class="modal-content-wrapper">
       <!-- Header -->
       <div class="modal-header">
-        <div class="flex items-center gap-3">
+        <div class="header-content">
           <div 
             class="bubble-icon"
             :style="{ backgroundColor: getBubbleColor() }"
           >
-            <span class="text-white font-bold text-lg">
+            <span class="bubble-initial">
               {{ bubble?.name?.[0]?.toUpperCase() }}
             </span>
           </div>
           <div>
-            <h2 class="text-xl font-bold text-text-primary">{{ bubble?.name }}</h2>
+            <h2 class="bubble-name">{{ bubble?.name }}</h2>
           </div>
         </div>
           
@@ -134,6 +134,18 @@ const getBubbleColor = () => {
   @apply flex justify-between items-start p-6 pb-4;
   @apply border-b border-border;
   @apply relative;
+}
+
+.header-content {
+  @apply flex items-center gap-3;
+}
+
+.bubble-initial {
+  @apply text-white font-bold text-lg;
+}
+
+.bubble-name {
+  @apply text-xl font-bold text-text-primary;
 }
 
 .close-button {

@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode } from './types'
+import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode } from '@/types/canvas'
 
 import { hexToRgb } from '../utils/ui'
 
@@ -32,6 +32,7 @@ export function useCanvasEffects() {
   // Создание эффекта плавающего текста при получении XP
   const createXPFloatingText = (x: number, y: number, xpAmount: number, bubbleColor: string = '#667eea') => {
     floatingTexts.value.push({
+      id: Date.now() + Math.random(),
       x,
       y,
       text: `+${xpAmount} XP`,
@@ -46,6 +47,7 @@ export function useCanvasEffects() {
   // Создание эффекта плавающего текста при потере жизни
   const createLifeLossFloatingText = (x: number, y: number) => {
     floatingTexts.value.push({
+      id: Date.now() + Math.random(),
       x,
       y,
       text: '-❤️',

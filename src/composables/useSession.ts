@@ -14,7 +14,7 @@ export function useSession() {
   const { unlockAchievement, resetAchievements } = useAchievement()
   const { unlockBonusForLevel } = useBonuses()
   const modalStore = useModalStore()
-  
+
   const yearTransitionTrigger = ref(false)
 
   // Функция для показа модалки ачивки
@@ -34,12 +34,12 @@ export function useSession() {
   const canLevelUp = computed(() => {
     if (!sessionStore.session) return false
     const level = sessionStore.session.currentLevel
-    
+
     if (level >= maxGameLevel) return false
-    
+
     const requiredXPForNextLevel = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
     const canLevel = sessionStore.currentXP >= requiredXPForNextLevel
-    
+
     return canLevel
   })
 
@@ -47,22 +47,22 @@ export function useSession() {
     if (!sessionStore.session) {
       return { leveledUp: false }
     }
-    
+
     sessionStore.addXP(amount)
     uiEventStore.queueShake('xp')
 
     let leveledUp = false
     let newLevel = sessionStore.session.currentLevel
-    
+
     while (canLevelUp.value) {
       newLevel = sessionStore.session.currentLevel + 1
       sessionStore.setLevel(newLevel)
       uiEventStore.queueShake('level')
       leveledUp = true
-      
+
       // Разблокируем бонус для нового уровня
       unlockBonusForLevel(newLevel)
-      
+
       if (newLevel === 2) {
         const achievement = await unlockAchievement('first-level-master')
         if (achievement) {
@@ -75,13 +75,13 @@ export function useSession() {
         }
       }
     }
-    
+
     if (leveledUp) {
       const levelData = levelStore.getLevelByNumber(newLevel)
       const icon = ['👋', '🤔', '📚', '🤝', '🤜🤛'][newLevel - 1] || '⭐'
-      
+
       console.log('Level up!', { newLevel, currentXP: sessionStore.currentXP, amount })
-      
+
       return {
         leveledUp: true,
         newLevel,
@@ -95,7 +95,7 @@ export function useSession() {
         }
       }
     }
-    
+
     return { leveledUp: false }
   }
 
@@ -115,13 +115,13 @@ export function useSession() {
       uiEventStore.queueShake('lives')
       return
     }
-    
+
     sessionStore.setLives(Math.max(0, sessionStore.session.lives - amount))
-    
+
     if (sessionStore.session.lives === 0) {
       sessionStore.setGameCompleted(true)
     }
-    
+
     uiEventStore.queueShake('lives')
 
     if (sessionStore.session.lives === 1) {
@@ -149,15 +149,15 @@ export function useSession() {
       }
     }
   }
-  
-  const startSession = (): void => {
+
+  const startSession = (options: { lives?: number } = { lives: GAME_CONFIG.initialLives }): void => {
     resetAchievements()
-    
+
     sessionStore.createSession({
-      sessionId: generateSessionId(),
+      id: generateSessionId(),
       currentXP: 0,
       currentLevel: 1,
-      lives: GAME_CONFIG.maxLives,
+      lives: options.lives ?? GAME_CONFIG.initialLives,
       visitedBubbles: [],
       agreementScore: 0,
       gameCompleted: false,
@@ -167,7 +167,7 @@ export function useSession() {
       hasUnlockedFirstToughBubbleAchievement: false,
       currentYear: GAME_CONFIG.initialYear
     })
-    
+
     // Заменяем dispatchEvent на прямой вызов
     const bridge = getEventBridge()
     if (bridge) {
@@ -177,16 +177,16 @@ export function useSession() {
 
   const unlockFirstToughBubbleAchievement = async (): Promise<boolean> => {
     if (!sessionStore.session || sessionStore.session.hasUnlockedFirstToughBubbleAchievement) return false
-    
+
     sessionStore.setHasDestroyedToughBubble(true)
     sessionStore.setHasUnlockedFirstToughBubbleAchievement(true)
-    
+
     const achievement = await unlockAchievement('tough-bubble-popper')
     if (achievement) {
       const result = await gainXP(achievement.xpReward)
       return true
     }
-    
+
     return false
   }
 

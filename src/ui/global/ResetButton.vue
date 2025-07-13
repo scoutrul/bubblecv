@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-4 left-2 sm:left-4 z-50 group">
+  <div class="reset-widget group">
     <button 
       @click="$emit('handleReset')"
       class="reset-button"
@@ -21,9 +21,7 @@
         <path d="M3 21v-5h5"/>
       </svg>
     </button>
-    <div 
-      class="absolute bottom-0 left-full ml-4 px-3 py-1.5 bg-background-secondary border border-border rounded-lg shadow-lg text-sm text-text-primary whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
-    >
+    <div class="reset-tooltip">
       Сбросить игру
     </div>
   </div>
@@ -34,6 +32,10 @@
 </script>
 
 <style scoped>
+.reset-widget {
+  @apply fixed bottom-4 left-2 sm:left-4 z-50;
+}
+
 .reset-button {
   @apply w-8 h-8 sm:w-12 sm:h-12 rounded-full;
   @apply flex items-center justify-center;
@@ -54,5 +56,12 @@
 
 .reset-button:hover svg {
   @apply rotate-180;
+}
+
+.reset-tooltip {
+  @apply absolute bottom-0 left-full ml-4 px-3 py-1.5;
+  @apply bg-background-secondary border border-border rounded-lg shadow-lg;
+  @apply text-sm text-text-primary whitespace-nowrap;
+  @apply opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none;
 }
 </style> 
