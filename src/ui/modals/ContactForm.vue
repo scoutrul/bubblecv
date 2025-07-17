@@ -42,14 +42,14 @@
       />
     </div>
 
-    <button type="submit" class="submit-button" :disabled="!isFormValid">
-      Отправить сообщение
+    <button type="submit" class="submit-button" :disabled="!isFormValid || isSubmitting">
+      {{ isSubmitting ? 'Отправляется...' : 'Отправить сообщение' }}
     </button>
   </form>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
 
 interface FormData {
   message: string
@@ -63,23 +63,48 @@ const formData = reactive<FormData>({
   contact: ''
 })
 
+const isSubmitting = ref(false)
+
 const isFormValid = computed(() => {
   return formData.message.trim() && formData.name.trim() && formData.contact.trim()
 })
 
-const handleSubmit = () => {
-  if (!isFormValid.value) return
+const handleSubmit = async () => {
+  if (!isFormValid.value || isSubmitting.value) return
   
-  // TODO: Реализовать отправку в Telegram
-  console.log('Отправка сообщения:', formData)
+  isSubmitting.value = true
   
-  // Показать уведомление об успешной отправке
-  alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
-  
-  // Очистить форму
-  formData.message = ''
-  formData.name = ''
-  formData.contact = ''
+  try {
+    const response = await fetch('http://localhost:3001/api/send-message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.contact,
+        message: formData.message
+      })
+    })
+
+    const result = await response.json()
+
+    if (result.success) {
+      alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
+      
+      // Очистить форму
+      formData.message = ''
+      formData.name = ''
+      formData.contact = ''
+    } else {
+      throw new Error(result.error || 'Ошибка отправки')
+    }
+  } catch (error) {
+    console.error('Ошибка при отправке сообщения:', error)
+    alert('Произошла ошибка при отправке сообщения. Попробуйте еще раз.')
+  } finally {
+    isSubmitting.value = false
+  }
 }
 </script>
 
