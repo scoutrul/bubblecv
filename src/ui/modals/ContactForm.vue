@@ -49,7 +49,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from 'vue'
+import { reactive, computed } from 'vue'
+import { useContactForm } from '@/composables/useContactForm'
 
 interface FormData {
   message: string
@@ -63,7 +64,7 @@ const formData = reactive<FormData>({
   contact: ''
 })
 
-const isSubmitting = ref(false)
+const { isSubmitting, error, success, sendMessage, resetState } = useContactForm()
 
 const isFormValid = computed(() => {
   return formData.message.trim() && formData.name.trim() && formData.contact.trim()
@@ -72,38 +73,23 @@ const isFormValid = computed(() => {
 const handleSubmit = async () => {
   if (!isFormValid.value || isSubmitting.value) return
   
-  isSubmitting.value = true
+  resetState()
   
-  try {
-    const response = await fetch('http://localhost:3001/api/send-message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: formData.name,
-        email: formData.contact,
-        message: formData.message
-      })
-    })
+  await sendMessage({
+    name: formData.name,
+    email: formData.contact,
+    message: formData.message
+  })
 
-    const result = await response.json()
-
-    if (result.success) {
-      alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
-      
-      // Очистить форму
-      formData.message = ''
-      formData.name = ''
-      formData.contact = ''
-    } else {
-      throw new Error(result.error || 'Ошибка отправки')
-    }
-  } catch (error) {
-    console.error('Ошибка при отправке сообщения:', error)
-    alert('Произошла ошибка при отправке сообщения. Попробуйте еще раз.')
-  } finally {
-    isSubmitting.value = false
+  if (success) {
+    alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
+    
+    // Очистить форму
+    formData.message = ''
+    formData.name = ''
+    formData.contact = ''
+  } else if (error.value) {
+    alert(error.value)
   }
 }
 </script>
