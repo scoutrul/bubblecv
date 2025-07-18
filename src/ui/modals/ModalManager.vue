@@ -11,8 +11,8 @@
     <PhilosophyModal
       v-if="showPhilosophy"
       v-bind="philosophyProps"
-      @close="closePhilosophyModal"
       @answer="handlePhilosophyAnswer"
+      @customAnswer="handlePhilosophyCustomAnswer"
     />
 
     <!-- Bubble Modal -->
@@ -70,8 +70,8 @@ const {
   modals,
   data,
   closeWelcome,
-  closePhilosophyModal,
   handlePhilosophyAnswer,
+  handlePhilosophyCustomAnswer,
   continueBubbleModal,
   closeGameOverModal,
   restartGame,

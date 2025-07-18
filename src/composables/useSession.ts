@@ -124,7 +124,7 @@ export function useSession() {
     if (sessionStore.session.lives === 1) {
       const achievement = await unlockAchievement('on-the-edge')
       if (achievement) {
-        const result = await gainXP(achievement.xpReward)
+        await gainXP(achievement.xpReward)
         showAchievementModal(achievement)
       }
     }
@@ -172,12 +172,47 @@ export function useSession() {
     }
   }
 
+  const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {
+    if (!sessionStore.session) return
+    
+    if (!sessionStore.session.customPhilosophyAnswers) {
+      sessionStore.session.customPhilosophyAnswers = {}
+    }
+    
+    if (!sessionStore.session.allPhilosophyAnswers) {
+      sessionStore.session.allPhilosophyAnswers = {}
+    }
+    
+    sessionStore.session.customPhilosophyAnswers[questionId] = answer
+    sessionStore.session.allPhilosophyAnswers[questionId] = {
+      type: 'custom',
+      answer,
+      questionText
+    }
+  }
+
+  const saveSelectedPhilosophyAnswer = async (questionId: string, selectedOptionText: string, questionText: string) => {
+    if (!sessionStore.session) return
+    
+    if (!sessionStore.session.allPhilosophyAnswers) {
+      sessionStore.session.allPhilosophyAnswers = {}
+    }
+    
+    sessionStore.session.allPhilosophyAnswers[questionId] = {
+      type: 'selected',
+      answer: selectedOptionText,
+      questionText
+    }
+  }
+
   return {
     gainXP,
     losePhilosophyLife,
     visitBubble,
     startSession,
     updateCurrentYear,
-    yearTransitionTrigger
+    yearTransitionTrigger,
+    saveCustomPhilosophyAnswer,
+    saveSelectedPhilosophyAnswer
   }
 }

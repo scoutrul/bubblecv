@@ -1,7 +1,6 @@
 <template>
   <BaseModal
     :is-open="isOpen && !!question"
-    :allow-escape-close="allowEscapeClose"
     class-name="philosophy-modal-container"
   >
     <!-- Header -->
@@ -44,6 +43,29 @@
         
         <div class="option-overlay"></div>
       </button>
+      
+      <!-- Кастомный ответ -->
+      <div class="custom-answer-section">
+        <div class="custom-answer-header">
+          <span class="custom-answer-emoji">✍️</span>
+          <span class="custom-answer-title">Ваш вариант ответа</span>
+        </div>
+        
+        <textarea
+          v-model="customAnswer"
+          class="custom-answer-textarea"
+          placeholder="Поделитесь своим мнением по этому вопросу..."
+          rows="3"
+        ></textarea>
+        
+        <button
+          @click="handleCustomAnswer"
+          :disabled="!customAnswer.trim()"
+          class="custom-answer-button"
+        >
+          Ответить (+{{ customAnswerXP }} XP)
+        </button>
+      </div>
     </div>
 
     <!-- Warning -->
@@ -63,21 +85,22 @@
 import type { Question } from '@/types/data'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { XP_CALCULATOR } from '@/config'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 interface Props {
   isOpen: boolean
   question: Question | null
-  allowEscapeClose?: boolean
 }
 
 interface Emits {
-  (e: 'close'): void
   (e: 'answer', optionId: string): void
+  (e: 'customAnswer', answer: string): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const customAnswer = ref('')
 
 // Перемешиваем варианты ответов в случайном порядке
 const shuffledOptions = computed(() => {
@@ -93,11 +116,17 @@ const shuffledOptions = computed(() => {
   return options
 })
 
-// Используем централизованную логику для расчета XP
-const philosophyXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP())
+const customAnswerXP = computed(() => XP_CALCULATOR.getPhilosophyBubbleXP({isCustom: true}))
 
 const handleAnswer = (optionId: string) => {
   emit('answer', optionId)
+}
+
+const handleCustomAnswer = () => {
+  if (customAnswer.value.trim()) {
+    emit('customAnswer', customAnswer.value.trim())
+    customAnswer.value = ''
+  }
 }
 </script>
 
@@ -174,6 +203,36 @@ const handleAnswer = (optionId: string) => {
 
 .warning-text {
   @apply text-sm text-yellow-400/80 mt-1;
+}
+
+.custom-answer-section {
+  @apply mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl;
+}
+
+.custom-answer-header {
+  @apply flex items-center gap-2 mb-3;
+}
+
+.custom-answer-emoji {
+  @apply text-lg;
+}
+
+.custom-answer-title {
+  @apply text-sm font-medium text-blue-400;
+}
+
+.custom-answer-textarea {
+  @apply w-full p-3 rounded-lg border transition-colors duration-200 resize-none;
+  @apply bg-blue-500/5 border-blue-500/30 text-text-primary;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50;
+  @apply placeholder:text-text-secondary;
+}
+
+.custom-answer-button {
+  @apply mt-3 px-4 py-2 rounded-lg font-medium transition-all duration-200;
+  @apply bg-blue-500 hover:bg-blue-600 text-white;
+  @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50;
 }
 
 :deep(.philosophy-modal-container) {

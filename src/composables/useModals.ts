@@ -39,7 +39,7 @@ export const useModals = () => {
   const modalStore = useModalStore()
   const levelStore = useLevelStore()
   const { unlockAchievement } = useAchievement()
-  const { gainXP, losePhilosophyLife, visitBubble, startSession } = useSession()
+  const { gainXP, losePhilosophyLife, visitBubble } = useSession()
   
   const isProcessingBubbleModal = ref(false)
 
@@ -277,28 +277,47 @@ export const useModals = () => {
     })
   }
 
-  const handlePhilosophyAnswer = async (optionId: string) => {
+  const handlePhilosophyResponse = async (response: { type: 'selected', optionId: string } | { type: 'custom', answer: string }) => {
     const question = modalStore.data.currentQuestion
     const bubbleId = modalStore.data.philosophyBubbleId
     
     if (!question) return
 
-    const selectedOption = question.options.find(o => String(o.id) === optionId)
-    if (!selectedOption) return
+    const { useSession } = await import('@/composables/useSession')
+    const { saveSelectedPhilosophyAnswer, saveCustomPhilosophyAnswer } = useSession()
 
-    const isNegative = selectedOption.livesLost > 0
-    
+    let xpAmount: number
+    let isNegative = false
+
+    if (response.type === 'selected') {
+      // Обработка выбранного ответа
+      const selectedOption = question.options.find(o => String(o.id) === response.optionId)
+      if (!selectedOption) return
+
+      isNegative = selectedOption.livesLost > 0
+      
+      // Сохраняем выбранный ответ
+      await saveSelectedPhilosophyAnswer(question.id, selectedOption.text, question.question)
+      
+      // Определяем количество XP в зависимости от agreementLevel
+      xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
+    } else {
+      // Обработка кастомного ответа
+      await saveCustomPhilosophyAnswer(question.id, response.answer, question.question)
+      
+      xpAmount = XP_CALCULATOR.getPhilosophyBubbleXP({isCustom: true})
+    }
+
     // Помечаем пузырь как посещенный СРАЗУ
     if (bubbleId) {
       await visitBubble(bubbleId)
     }
-    
-    // Определяем количество XP в зависимости от agreementLevel
-    const xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
 
     // Обрабатываем ответ
     let xpResult = null
     if (isNegative) {
+      // Для негативных ответов: даем XP но отнимаем жизнь
+      xpResult = await gainXP(xpAmount)
       const isGameOver = await losePhilosophyLife()
       if (isGameOver) {
         closeModalWithLogic('philosophy')
@@ -306,7 +325,7 @@ export const useModals = () => {
         return
       }
     } else {
-      // Начисляем XP только за положительные ответы
+      // Начисляем XP за положительные/кастомные ответы
       xpResult = await gainXP(xpAmount)
     }
 
@@ -368,13 +387,23 @@ export const useModals = () => {
       openLevelUpModal(xpResult.newLevel!, xpResult.levelData)
     }
 
-    // Ставим пузырь в очередь на удаление
+    // Сразу лопаем пузырь и показываем XP флоат-текст
     if (bubbleId) {
       const canvas = getCanvasBridge()
       if (canvas) {
+        // Всегда показываем полученный XP
         canvas.removeBubble(bubbleId, xpAmount, isNegative)
       }
     }
+  }
+
+  // Обертки для совместимости
+  const handlePhilosophyAnswer = async (optionId: string) => {
+    await handlePhilosophyResponse({ type: 'selected', optionId })
+  }
+
+  const handlePhilosophyCustomAnswer = async (answer: string) => {
+    await handlePhilosophyResponse({ type: 'custom', answer })
   }
 
   const closePhilosophyModal = () => closeModalWithLogic('philosophy')
@@ -536,45 +565,7 @@ export const useModals = () => {
     // Philosophy
     openPhilosophyModal,
     handlePhilosophyAnswer,
-    closePhilosophyModal,
-
-    // Game Over
-    openGameOverModal,
-    closeGameOverModal,
-    restartGame,
-
-    // Achievement
-    openAchievementModal,
-    closeAchievementModal,
-
-    // Bonus
-    closeBonusModal,
-
-    // Handlers
-    handleToughBubbleDestroyed
-  }
-
-
-
-  return {
-    // Event Chains
-    startBubbleEventChain,
-
-    // Welcome
-    openWelcome,
-    closeWelcome,
-
-    // Bubble
-    openBubbleModal,
-    continueBubbleModal,
-
-    // Level Up
-    openLevelUpModal,
-    closeLevelUpModal,
-
-    // Philosophy
-    openPhilosophyModal,
-    handlePhilosophyAnswer,
+    handlePhilosophyCustomAnswer,
     closePhilosophyModal,
 
     // Game Over
