@@ -2,7 +2,7 @@
   <div class="lives-display" :class="{ 'util-shake-hud': isShaking }">
     <div class="stat-header">
       <span class="stat-title mobile-text-xs">Жизни</span>
-      <div class="hearts-container mobile-gap">
+      <div class="hearts-container">
         <div 
           v-for="life in maxLives"
           :key="life"

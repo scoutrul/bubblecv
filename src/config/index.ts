@@ -78,7 +78,7 @@ export const XP_CALCULATOR = {
   getBubbleXP: (skillLevel: SkillLevel): number => {
     return skillLevel ? GAME_CONFIG.xpPerExpertiseLevel[skillLevel] : GAME_CONFIG.xpPerExpertiseLevel[SKILL_LEVELS.NOVICE]
   },
-  getPhilosophyBubbleXP: ({isCustom}: {isCustom: boolean}): number => {
+  getPhilosophyBubbleXP: ({isCustom}: {isCustom?: boolean} = {isCustom: false}): number => {
     return isCustom ? GAME_CONFIG.achievementXP.master : GAME_CONFIG.achievementXP.intermediate
   },
   getPhilosophyXP: (agreementLevel: number): number => {

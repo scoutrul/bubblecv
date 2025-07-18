@@ -24,7 +24,7 @@ export function useCanvasInteraction(
 
 
   const { gainXP, visitBubble } = useSession()
-  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal, handleToughBubbleDestroyed } = useModals()
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal, handleToughBubbleDestroyed, handleSecretBubbleDestroyed } = useModals()
   
   const isDragging = ref(false)
   const hoveredBubble = ref<BubbleNode | null>(null)
@@ -112,6 +112,7 @@ export function useCanvasInteraction(
           if (result.isReady) {
             await visitBubble(clickedBubble.id)
             await handleToughBubbleDestroyed()
+            return  // ✅ ВАЖНО: выходим после обработки tough bubble!
           } else {
             createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
             const result = await gainXP(1)
@@ -149,7 +150,7 @@ export function useCanvasInteraction(
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#22c55e')
           
           // Используем Event Chain систему для скрытых пузырей
-          await handleToughBubbleDestroyed()
+          await handleSecretBubbleDestroyed()
           
           removeBubble(clickedBubble.id, nodes)
           return

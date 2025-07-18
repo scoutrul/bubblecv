@@ -34,6 +34,20 @@ export const getEventChainCompletedHandler = (): (() => void) | null => {
   return eventChainCompletedHandler
 }
 
+// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+
+/**
+ * Создает PendingAchievement из Achievement объекта
+ */
+const createPendingAchievement = (achievement: any): PendingAchievement => ({
+  title: achievement.name,
+  description: achievement.description,
+  icon: achievement.icon,
+  xpReward: achievement.xpReward
+})
+
+
+
 export const useModals = () => {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
@@ -42,6 +56,80 @@ export const useModals = () => {
   const { gainXP, losePhilosophyLife, visitBubble } = useSession()
   
   const isProcessingBubbleModal = ref(false)
+
+  // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ВНУТРИ useModals ===
+  
+  /**
+   * Проверяет и добавляет level achievement если достигнут уровень 2
+   */
+  const checkAndAddLevelAchievement = async (
+    xpResult: any,
+    levelAchievements: PendingAchievement[]
+  ): Promise<void> => {
+    if (xpResult?.leveledUp && xpResult.newLevel === 2) {
+      const levelAchievement = await unlockAchievement('first-level-master')
+      if (levelAchievement) {
+        levelAchievements.push(createPendingAchievement(levelAchievement))
+      }
+    }
+  }
+
+  /**
+   * Создает базовый Event Chain конфиг
+   */
+  const createEventChainConfig = (
+    type: EventChain['type'],
+    achievements: PendingAchievement[],
+    levelAchievements: PendingAchievement[],
+    xpResult: any,
+    context: any = {}
+  ) => ({
+    type,
+    pendingAchievements: achievements,
+    pendingLevelAchievements: levelAchievements,
+    // Если есть level achievements, то не показываем отдельную levelUp модалку
+    pendingLevelUp: (xpResult?.leveledUp && levelAchievements.length === 0) ? {
+      level: xpResult.newLevel!,
+      data: xpResult.levelData
+    } : null,
+    // Для tough/secret bubbles начинаем с achievement, для других типов - согласно типу
+    currentStep: (type === 'manual') ? 'achievement' as const : 'bubble' as const,
+    context
+  })
+
+  /**
+   * Обрабатывает достижение и создает Event Chain
+   */
+  const processAchievementEventChain = async (
+    achievementId: string,
+    chainType: EventChain['type'],
+    context: any = {}
+  ) => {
+    const achievement = await unlockAchievement(achievementId)
+    
+    if (achievement) {
+      // Получаем XP от основной ачивки
+      const xpResult = await gainXP(achievement.xpReward)
+      
+      // Создаем массив основных ачивок
+      const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
+      
+      // Создаем массив level ачивок
+      const levelAchievements: PendingAchievement[] = []
+      
+      // Проверяем level achievement
+      await checkAndAddLevelAchievement(xpResult, levelAchievements)
+      
+      // Запускаем Event Chain
+      modalStore.startEventChain(createEventChainConfig(
+        chainType,
+        achievements,
+        levelAchievements,
+        xpResult,
+        context
+      ))
+    }
+  }
 
   // Функция для обработки завершения Event Chain (вызывается из modal store)
   const handleEventChainCompleted = () => {
@@ -131,70 +219,33 @@ export const useModals = () => {
       const bubblesCount = sessionStore.visitedBubbles.length
       
       // Проверяем ачивки за количество пузырей
-      if (bubblesCount === 10) {
-        const achievement = await unlockAchievement('bubble-explorer-10')
+      const bubbleAchievementMap: Record<number, string> = {
+        10: 'bubble-explorer-10',
+        30: 'bubble-explorer-30',
+        50: 'bubble-explorer-50'
+      }
+      
+      const achievementId = bubbleAchievementMap[bubblesCount]
+      if (achievementId) {
+        const achievement = await unlockAchievement(achievementId)
         if (achievement) {
-          achievements.push({
-            title: achievement.name,
-            description: achievement.description,
-            icon: achievement.icon,
-            xpReward: achievement.xpReward
-          })
-        }
-      } else if (bubblesCount === 30) {
-        const achievement = await unlockAchievement('bubble-explorer-30')
-        if (achievement) {
-          achievements.push({
-            title: achievement.name,
-            description: achievement.description,
-            icon: achievement.icon,
-            xpReward: achievement.xpReward
-          })
-        }
-      } else if (bubblesCount === 50) {
-        const achievement = await unlockAchievement('bubble-explorer-50')
-        if (achievement) {
-          achievements.push({
-            title: achievement.name,
-            description: achievement.description,
-            icon: achievement.icon,
-            xpReward: achievement.xpReward
-          })
+          achievements.push(createPendingAchievement(achievement))
         }
       }
 
       // Собираем ОТДЕЛЬНО level ачивки
       const levelAchievements: PendingAchievement[] = []
       
-      // Подготавливаем level up данные
-      let pendingLevelUp = null
-
-      if (xpResult.leveledUp) {
-        pendingLevelUp = {
-          level: xpResult.newLevel!,
-          data: xpResult.levelData
-        }
-
-        // Добавляем ачивку за первый уровень В ОТДЕЛЬНЫЙ МАССИВ
-        if (xpResult.newLevel === 2) {
-          const levelAchievement = await unlockAchievement('first-level-master')
-          if (levelAchievement) {
-            // Получаем XP от level achievement тоже
-            const levelXpResult = await gainXP(levelAchievement.xpReward)
-            levelAchievements.push({
-              title: levelAchievement.name,
-              description: levelAchievement.description,
-              icon: levelAchievement.icon,
-              xpReward: levelAchievement.xpReward
-            })
-            // Обновляем xpResult если level achievement дал еще level up
-            if (levelXpResult.leveledUp) {
-              xpResult = levelXpResult
-              pendingLevelUp = {
-                level: xpResult.newLevel!,
-                data: xpResult.levelData
-              }
-            }
+      // Проверяем level achievement (включая дополнительное начисление XP для bubble chains)
+      if (xpResult.leveledUp && xpResult.newLevel === 2) {
+        const levelAchievement = await unlockAchievement('first-level-master')
+        if (levelAchievement) {
+          // Получаем XP от level achievement тоже (особенность bubble chains)
+          const levelXpResult = await gainXP(levelAchievement.xpReward)
+          levelAchievements.push(createPendingAchievement(levelAchievement))
+          // Обновляем xpResult если level achievement дал еще level up
+          if (levelXpResult.leveledUp) {
+            xpResult = levelXpResult
           }
         }
       }
@@ -204,7 +255,10 @@ export const useModals = () => {
         type: 'bubble',
         pendingAchievements: achievements,           // Только bubble ачивки
         pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp,
+        pendingLevelUp: xpResult.leveledUp ? {
+          level: xpResult.newLevel!,
+          data: xpResult.levelData
+        } : null,
         currentStep: 'bubble',
         context: {
           bubble,
@@ -337,51 +391,26 @@ export const useModals = () => {
     if (achievement) {
       const achievementResult = await gainXP(achievement.xpReward)
       
-      // Собираем ТОЛЬКО обычные ачивки (philosophy)
-      const achievements: PendingAchievement[] = [{
-        title: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-        xpReward: achievement.xpReward
-      }]
-
-      // Собираем ОТДЕЛЬНО level ачивки
-      const levelAchievements: PendingAchievement[] = []
-
       // Определяем финальный xpResult (от философии + от ачивки)
-      let finalXpResult = achievementResult.leveledUp ? achievementResult : xpResult
+      const finalXpResult = achievementResult.leveledUp ? achievementResult : xpResult
+      
+      // Создаем массив основных ачивок
+      const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
+      
+      // Создаем массив level ачивок
+      const levelAchievements: PendingAchievement[] = []
+      
+      // Проверяем level achievement
+      await checkAndAddLevelAchievement(finalXpResult, levelAchievements)
 
-      // Добавляем level achievement если достигли уровня 2
-      if (finalXpResult && finalXpResult.leveledUp && finalXpResult.newLevel === 2) {
-        const levelAchievement = await unlockAchievement('first-level-master')
-        if (levelAchievement) {
-          // Получаем XP от level achievement тоже
-          const levelXpResult = await gainXP(levelAchievement.xpReward)
-          levelAchievements.push({
-            title: levelAchievement.name,
-            description: levelAchievement.description,
-            icon: levelAchievement.icon,
-            xpReward: levelAchievement.xpReward
-          })
-          // Обновляем finalXpResult если level achievement дал еще level up
-          if (levelXpResult.leveledUp) {
-            finalXpResult = levelXpResult
-          }
-        }
-      }
-
-      // Запускаем Event Chain для философского пузыря с разделенными ачивками
-      modalStore.startEventChain({
-        type: 'philosophy',
-        pendingAchievements: achievements,           // Только philosophy ачивка
-        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp: finalXpResult && finalXpResult.leveledUp ? { 
-          level: finalXpResult.newLevel!, 
-          data: finalXpResult.levelData 
-        } : null,
-        currentStep: 'achievement', // Начинаем с ачивки
-        context: { xpResult: finalXpResult, bubbleId: bubbleId || undefined }
-      })
+      // Запускаем Event Chain для философского пузыря
+      modalStore.startEventChain(createEventChainConfig(
+        'philosophy',
+        achievements,
+        levelAchievements,
+        finalXpResult,
+        { xpResult: finalXpResult, bubbleId: bubbleId || undefined }
+      ))
     } else if (xpResult && xpResult.leveledUp) {
       // Если нет ачивки, но есть level up - показываем только level up
       openLevelUpModal(xpResult.newLevel!, xpResult.levelData)
@@ -441,7 +470,14 @@ export const useModals = () => {
     })
   }
 
-  const closeAchievementModal = () => {
+  const closeAchievementModal = async () => {
+    // Если это level achievement из Event Chain, начисляем XP
+    if (modalStore.currentEventChain && 
+        modalStore.currentEventChain.currentStep === 'levelAchievement' &&
+        modalStore.data.achievement) {
+      await gainXP(modalStore.data.achievement.xpReward)
+    }
+    
     // Проверяем есть ли еще достижения в очереди
     if (modalStore.pendingAchievements.length > 0) {
       const next = modalStore.getNextPendingAchievement()
@@ -477,62 +513,12 @@ export const useModals = () => {
     }
   }
 
+  const handleSecretBubbleDestroyed = async () => {
+    await processAchievementEventChain('secret-bubble-discoverer', 'manual')
+  }
+
   const handleToughBubbleDestroyed = async () => {
-    // Пытаемся получить ачивку для tough пузыря
-    let achievement = await unlockAchievement('tough-bubble-popper')
-    
-    // Если не получилось, пытаемся для скрытого пузыря
-    if (!achievement) {
-      achievement = await unlockAchievement('secret-bubble-discoverer')
-    }
-    
-    if (achievement) {
-      // Сначала получаем XP от ачивки
-      let xpResult = await gainXP(achievement.xpReward)
-      
-      // Собираем ТОЛЬКО обычные ачивки (tough-bubble-popper или secret-bubble-discoverer)
-      const achievements: PendingAchievement[] = [{
-        title: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-        xpReward: achievement.xpReward
-      }]
-
-      // Собираем ОТДЕЛЬНО level ачивки
-      const levelAchievements: PendingAchievement[] = []
-
-      // Если достигли уровня 2 от ачивки, добавляем level achievement
-      if (xpResult.leveledUp && xpResult.newLevel === 2) {
-        const levelAchievement = await unlockAchievement('first-level-master')
-        if (levelAchievement) {
-          // Получаем XP от level achievement тоже
-          const levelXpResult = await gainXP(levelAchievement.xpReward)
-          levelAchievements.push({
-            title: levelAchievement.name,
-            description: levelAchievement.description,
-            icon: levelAchievement.icon,
-            xpReward: levelAchievement.xpReward
-          })
-          // Обновляем xpResult если level achievement дал еще level up
-          if (levelXpResult.leveledUp) {
-            xpResult = levelXpResult
-          }
-        }
-      }
-
-      // Запускаем Event Chain для скрытого/tough пузыря с разделенными ачивками
-      modalStore.startEventChain({
-        type: 'manual',
-        pendingAchievements: achievements,           // tough или secret ачивка
-        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp: xpResult.leveledUp ? { 
-          level: xpResult.newLevel!, 
-          data: xpResult.levelData 
-        } : null,
-        currentStep: 'achievement', // Начинаем с ачивки
-        context: { xpResult }
-      })
-    }
+    await processAchievementEventChain('tough-bubble-popper', 'manual')
   }
 
   return {
@@ -581,6 +567,7 @@ export const useModals = () => {
     closeBonusModal,
 
     // Handlers
-    handleToughBubbleDestroyed
+    handleToughBubbleDestroyed,
+    handleSecretBubbleDestroyed
   }
 }
