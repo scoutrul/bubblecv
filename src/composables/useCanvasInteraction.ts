@@ -110,8 +110,25 @@ export function useCanvasInteraction(
           const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
           
           if (result.isReady) {
+            // Обновляем статус пузыря
+            clickedBubble.isReady = true
+            clickedBubble.isVisited = true
+            
             await visitBubble(clickedBubble.id)
             await handleToughBubbleDestroyed()
+            
+            // Создаем эффект взрыва и осколков (ДО установки isPopped)
+            const canvasEffects = await import('./useCanvasEffects')
+            canvasEffects.useCanvasEffects().explodeBubble(clickedBubble)
+            
+            // Взрываем пузырь
+            const explosionRadius = clickedBubble.baseRadius * 8
+            const explosionStrength = 25
+            explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
+            
+            // Удаляем пузырь
+            removeBubble(clickedBubble.id, nodes)
+
             return  // ✅ ВАЖНО: выходим после обработки tough bubble!
           } else {
             createXPFloatingText(mouseX, mouseY, 1, '#22c55e')
@@ -131,7 +148,7 @@ export function useCanvasInteraction(
             if (simulation) {
               simulation.alpha(1).restart()
             }
-            
+
             animateToughBubbleHit(clickedBubble)
             return
           }

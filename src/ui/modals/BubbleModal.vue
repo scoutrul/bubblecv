@@ -10,7 +10,7 @@
         <div class="header-content">
           <div 
             class="bubble-icon"
-            :style="{ backgroundColor: getBubbleColor() }"
+            :style="{ backgroundColor: getBubbleColor(bubble) }"
           >
             <span class="bubble-initial">
               {{ bubble?.name?.[0]?.toUpperCase() }}
@@ -85,13 +85,14 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { GAME_CONFIG, XP_CALCULATOR } from '@/config'
+import { XP_CALCULATOR } from '@/config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
 import type { NormalizedBubble } from '@/types/normalized'
+import { getBubbleColor } from '@/utils/bubble'
 
 interface Props {
   isOpen: boolean
-  bubble: NormalizedBubble | null
+  bubble: NormalizedBubble
   allowEscapeClose?: boolean
 }
 
@@ -114,15 +115,7 @@ const xpReward = computed(() => {
   return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
 })
 
-const getBubbleColor = () => {
-  if (!props.bubble) return '#3b82f6'
-  if (props.bubble.isQuestion) {
-    return GAME_CONFIG.expertiseBubbles[props.bubble.skillLevel].gradientColors[0]
-  }
-  
-  const expertiseConfig = GAME_CONFIG.expertiseBubbles[props.bubble.skillLevel]
-  return expertiseConfig?.gradientColors?.[0] || '#3b82f6'
-}
+
 </script>
 
 <style scoped>

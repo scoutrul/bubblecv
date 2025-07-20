@@ -50,7 +50,7 @@ export function useCanvasSimulation(
     )
     const context = canvasRef.value.getContext('2d')
     if (context) {
-      canvasEffects.drawExplosionEffects(context)
+      canvasEffects.drawDebrisEffects(context, nodes)
     }
   }
 
@@ -61,9 +61,15 @@ export function useCanvasSimulation(
   }
 
   const explodeBubble = (bubble: BubbleNode) => {
+    // Создаем эффекты взрыва и крепиша
+    canvasEffects.explodeBubble(bubble)
+    
+    // Физический взрыв для отталкивания соседних пузырей
     const explosionRadius = bubble.baseRadius * 5
     const explosionStrength = 18
     physicsSimulation.explodeFromPoint(bubble.x, bubble.y, explosionRadius, explosionStrength, nodes, width, height)
+    
+    // Сохраняем позиции и удаляем пузырь
     bubbleManager.savePositions([bubble])
     nodes = bubbleManager.removeBubble(bubble.id, nodes)
     const simulation = physicsSimulation.getSimulation()

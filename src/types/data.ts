@@ -16,7 +16,7 @@ export interface Achievement {
   icon: string
   isUnlocked: boolean
   xpReward: number
-  isShown?: boolean
+  isShown: boolean
   points?: number 
 }
 

@@ -40,12 +40,12 @@ export const GAME_CONFIG = {
     [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
       opacity: 0.9,
-      gradientColors: ['#1F2937', '#DD5563'], 
+      gradientColors: ['#FF2937', '#DD5563'], 
     },
     [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
       opacity: 0.93,
-      gradientColors: ['#D2400E', '#F97706', '#FBBF24'],
+      gradientColors: ['#FBBF24', '#F97706', '#D2400E'],
     },
     [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',

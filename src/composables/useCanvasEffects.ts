@@ -1,12 +1,13 @@
 import { ref } from 'vue'
-import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode } from '@/types/canvas'
-
-import { hexToRgb } from '../utils/ui'
+import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode, DebrisParticle } from '@/types/canvas'
+import { getBubbleColor } from '@/utils/bubble'
+import { hexToRgb } from '@/utils/ui'
 
 export function useCanvasEffects() {
   // Массивы эффектов
   const explosionEffects = ref<ExplosionEffect[]>([])
   const floatingTexts = ref<FloatingText[]>([])
+  const debrisParticles = ref<DebrisParticle[]>([])
 
   // Параметры тряски
   const shakeConfig: ShakeConfig = {
@@ -59,6 +60,33 @@ export function useCanvasEffects() {
     })
   }
 
+  // Создание (осколков) при взрыве пузыря
+  const createDebrisEffect = (x: number, y: number, radius: number, color: string = '#667eea') => {
+    const particleCount = Math.floor(radius / 3) + 5 // Количество частиц зависит от размера пузыря
+    const startTime = Date.now()
+    
+    for (let i = 0; i < particleCount; i++) {
+      const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5
+      const speed = Math.random() * 10 // Увеличиваем скорость для космоса
+      const size = Math.random() * 10
+      
+      const particle: DebrisParticle = {
+        id: Date.now() + Math.random() + i,
+        x: x + Math.cos(angle) * (radius * 0.3),
+        y: y + Math.sin(angle) * (radius * 0.3),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size,
+        opacity: 1,
+        color,
+        startTime,
+        duration: Math.random() * 5000,
+      }
+      
+      debrisParticles.value.push(particle)
+    }
+  }
+
   // Запуск тряски экрана
   const startShake = () => {
     shakeConfig.isShaking = true
@@ -87,69 +115,6 @@ export function useCanvasEffects() {
       x: Math.cos(angle) * intensity,
       y: Math.sin(angle) * intensity
     }
-  }
-
-  // Отрисовка эффектов взрыва
-  const drawExplosionEffects = (context: CanvasRenderingContext2D) => {
-    const currentTime = Date.now()
-    
-    // Обновляем и отрисовываем каждый эффект взрыва
-    explosionEffects.value = explosionEffects.value.filter(effect => {
-      const elapsed = currentTime - effect.startTime
-      const duration = 1000 // 1 секунда анимации
-      
-      if (elapsed > duration) {
-        return false // Удаляем завершенные эффекты
-      }
-      
-      // Прогресс анимации от 0 до 1
-      const progress = elapsed / duration
-      
-      // Радиус расширяется от 0 до maxRadius
-      effect.radius = effect.maxRadius * progress
-      
-      // Прозрачность убывает от 1 до 0
-      effect.opacity = 1 - progress
-      
-      context.save()
-      
-      // Сбрасываем линию пунктира если была установлена
-      context.setLineDash([])
-      
-      // Внешнее кольцо взрыва
-      context.beginPath()
-      context.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2)
-      context.strokeStyle = `rgba(255, 100, 100, ${effect.opacity * 0.8})`
-      context.lineWidth = 4
-      context.stroke()
-      
-      // Внутреннее кольцо взрыва
-      context.beginPath()
-      context.arc(effect.x, effect.y, effect.radius * 0.7, 0, Math.PI * 2)
-      context.strokeStyle = `rgba(255, 200, 100, ${effect.opacity * 0.6})`
-      context.lineWidth = 2
-      context.stroke()
-      
-      // Центральная вспышка
-      if (progress < 0.3) {
-        const flashOpacity = effect.opacity * (1 - progress / 0.3)
-        const flashGradient = context.createRadialGradient(
-          effect.x, effect.y, 0,
-          effect.x, effect.y, effect.radius * 0.3
-        )
-        flashGradient.addColorStop(0, `rgba(255, 255, 255, ${flashOpacity})`)
-        flashGradient.addColorStop(1, `rgba(255, 255, 255, 0)`)
-        
-        context.beginPath()
-        context.arc(effect.x, effect.y, effect.radius * 0.3, 0, Math.PI * 2)
-        context.fillStyle = flashGradient
-        context.fill()
-      }
-      
-      context.restore()
-      
-      return true // Оставляем эффект
-    })
   }
 
   // Отрисовка плавающих текстов XP и жизней
@@ -199,23 +164,97 @@ export function useCanvasEffects() {
     }
   }
 
+  // Отрисовка осколков
+  const drawDebrisEffects = (context: CanvasRenderingContext2D, bubbles: BubbleNode[] = []) => {
+    const currentTime = Date.now()
+    
+    // Обновляем и отрисовываем каждый осколок
+    debrisParticles.value = debrisParticles.value.filter(particle => {
+      const elapsed = currentTime - particle.startTime
+      const progress = elapsed / particle.duration
+      
+      if (progress >= 1) {
+        return false // Удаляем завершенные частицы
+      }
+      
+      // Обновляем позицию без гравитации (космос)
+      particle.x += particle.vx
+      particle.y += particle.vy
+      
+      // Проверяем столкновения с пузырями
+      for (const bubble of bubbles) {
+
+        const dx = particle.x - bubble.x
+        const dy = particle.y - bubble.y
+        const distance = Math.sqrt(dx * dx + dy * dy)
+        const collisionDistance = bubble.currentRadius + particle.size / 2
+        
+        if (distance < collisionDistance) {
+          // Столкновение произошло - отскакиваем осколок
+          const normalX = dx / distance
+          const normalY = dy / distance
+          
+          // Вычисляем скорость отражения
+          const dotProduct = particle.vx * normalX + particle.vy * normalY
+          
+          // Отражение с потерей энергии (коэффициент упругости 0.7)
+          const elasticity = 0.7
+          particle.vx = (particle.vx - 2 * dotProduct * normalX) * elasticity
+          particle.vy = (particle.vy - 2 * dotProduct * normalY) * elasticity
+          
+          // Немного уменьшаем размер осколка при столкновении
+          particle.size *= 0.9
+          
+          // Сдвигаем осколок за пределы пузыря чтобы избежать застревания
+          const overlap = collisionDistance - distance + 1
+          particle.x += normalX * overlap
+          particle.y += normalY * overlap
+          
+          break // Обрабатываем только одно столкновение за кадр
+        }
+      }
+      
+      
+      // Прозрачность убывает со временем
+      particle.opacity = 1 - progress
+      
+      // Отрисовка осколка
+      context.save()
+      context.translate(particle.x, particle.y)
+      
+      const rgb = hexToRgb(particle.color)
+      context.fillStyle = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${particle.opacity})`
+      
+      // Рисуем осколок как круг
+      const halfSize = particle.size / 2
+      context.beginPath()
+      context.arc(0, 0, halfSize, 0, Math.PI * 2)
+      context.fill()
+      
+      context.restore()
+      
+      return true // Оставляем частицу
+    })
+  }
+
   // Отрисовка зоны воздействия при ховере
   const drawHoverEffect = (context: CanvasRenderingContext2D, bubble: BubbleNode) => {
-    const pushRadius = bubble.baseRadius * 4
+    if (!bubble.isHovered) return
     
     context.save()
     
-    // Градиентный эффект расходящихся волн (без пунктирной линии)
+    // Создаем градиент для свечения
     const gradient = context.createRadialGradient(
-      bubble.x, bubble.y, bubble.currentRadius,
-      bubble.x, bubble.y, pushRadius
+      bubble.x, bubble.y, 0,
+      bubble.x, bubble.y, bubble.currentRadius * 1.5
     )
-    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)')
-    gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.05)')
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 0.3)')
+    gradient.addColorStop(0.7, 'rgba(255, 255, 255, 0.1)')
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
     
+    // Рисуем свечение
     context.beginPath()
-    context.arc(bubble.x, bubble.y, pushRadius, 0, Math.PI * 2)
+    context.arc(bubble.x, bubble.y, bubble.currentRadius * 1.5, 0, Math.PI * 2)
     context.fillStyle = gradient
     context.fill()
     
@@ -232,6 +271,10 @@ export function useCanvasEffects() {
     // Создаем эффект взрыва с явным указанием координат и радиуса
     if (bubble.x !== undefined && bubble.y !== undefined && bubble.currentRadius !== undefined) {
       createExplosionEffect(bubble.x, bubble.y, bubble.currentRadius)
+      
+      // Создаем крепиш (осколки) с цветом пузыря
+      const bubbleColor = getBubbleColor(bubble)
+      createDebrisEffect(bubble.x, bubble.y, bubble.currentRadius, bubbleColor)
     }
   }
 
@@ -239,6 +282,7 @@ export function useCanvasEffects() {
   const clearAllEffects = () => {
     explosionEffects.value = []
     floatingTexts.value = []
+    debrisParticles.value = []
     shakeConfig.isShaking = false
   }
 
@@ -247,15 +291,15 @@ export function useCanvasEffects() {
     createExplosionEffect,
     createXPFloatingText,
     createLifeLossFloatingText,
+    createDebrisEffect,
     explodeBubble,
     
     // Тряска
     startShake,
     calculateShakeOffset,
     
-    // Отрисовка
-    drawExplosionEffects,
     drawFloatingTexts,
+    drawDebrisEffects,
     drawHoverEffect,
     
     // Управление
@@ -263,6 +307,7 @@ export function useCanvasEffects() {
     
     // Геттеры
     getExplosionEffects: () => explosionEffects.value,
-    getFloatingTexts: () => floatingTexts.value
+    getFloatingTexts: () => floatingTexts.value,
+    getDebrisParticles: () => debrisParticles.value
   }
 } 

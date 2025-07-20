@@ -3,9 +3,8 @@ import { useSessionStore, useModalStore, useLevelStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useSession } from '@/composables/useSession'
 import { getEventBridge } from '@/composables/useUi'
-import { GAME_CONFIG, XP_CALCULATOR } from '@/config'
-import type { NormalizedLevel, NormalizedAchievement } from '@/types/normalized'
-import type { NormalizedBubble } from '@/types/normalized'
+import { XP_CALCULATOR } from '@/config'
+import type { NormalizedAchievement } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
@@ -15,7 +14,6 @@ import { MODAL_PRIORITIES } from '@/types/modals'
 let canvasBridge: CanvasBridge | null = null
 let eventChainCompletedHandler: (() => void) | null = null
 
-// Глобальное состояние для отложенного удаления пузырей
 const pendingBubbleRemovals = ref<Array<PendingBubbleRemoval>>([])
 
 export const setCanvasBridge = (bridge: CanvasBridge) => {
@@ -39,7 +37,7 @@ export const getEventChainCompletedHandler = (): (() => void) | null => {
 /**
  * Создает PendingAchievement из Achievement объекта
  */
-const createPendingAchievement = (achievement: any): PendingAchievement => ({
+const createPendingAchievement = (achievement: NormalizedAchievement): PendingAchievement => ({
   title: achievement.name,
   description: achievement.description,
   icon: achievement.icon,
@@ -57,11 +55,7 @@ export const useModals = () => {
   
   const isProcessingBubbleModal = ref(false)
 
-  // === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ВНУТРИ useModals ===
-  
-  /**
-   * Проверяет и добавляет level achievement если достигнут уровень 2
-   */
+
   const checkAndAddLevelAchievement = async (
     xpResult: any,
     levelAchievements: PendingAchievement[]
@@ -87,12 +81,10 @@ export const useModals = () => {
     type,
     pendingAchievements: achievements,
     pendingLevelAchievements: levelAchievements,
-    // Если есть level achievements, то не показываем отдельную levelUp модалку
     pendingLevelUp: (xpResult?.leveledUp && levelAchievements.length === 0) ? {
       level: xpResult.newLevel!,
       data: xpResult.levelData
     } : null,
-    // Для tough/secret bubbles начинаем с achievement, для других типов - согласно типу
     currentStep: (type === 'manual') ? 'achievement' as const : 'bubble' as const,
     context
   })
@@ -102,8 +94,7 @@ export const useModals = () => {
    */
   const processAchievementEventChain = async (
     achievementId: string,
-    chainType: EventChain['type'],
-    context: any = {}
+    chainType: EventChain['type']
   ) => {
     const achievement = await unlockAchievement(achievementId)
     
@@ -125,8 +116,7 @@ export const useModals = () => {
         chainType,
         achievements,
         levelAchievements,
-        xpResult,
-        context
+        xpResult
       ))
     }
   }
@@ -532,10 +522,6 @@ export const useModals = () => {
     // Bridge
     addPendingBubbleRemoval,
     processPendingBubbleRemovals,
-
-    // Event Chains
-    startBubbleEventChain,
-
     // Welcome
     openWelcome,
     closeWelcome,

@@ -86,7 +86,7 @@ onUnmounted(() => {
 
 /* Стили для жизней */
 .hearts-container {
-  @apply flex;
+  @apply flex gap-1;
 }
 
 .life-heart {

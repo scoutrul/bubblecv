@@ -46,3 +46,16 @@ export interface ShakeConfig {
   startTime: number
   isShaking: boolean
 }
+
+export interface DebrisParticle {
+  id: number
+  x: number
+  y: number
+  vx: number
+  vy: number
+  size: number
+  opacity: number
+  color: string
+  startTime: number
+  duration: number
+}

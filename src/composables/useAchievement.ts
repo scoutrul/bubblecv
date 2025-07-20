@@ -37,9 +37,7 @@ export function useAchievement() {
 
       achievement.isUnlocked = true
       uiEventStore.queueShake('achievements')
-      // XP начисляется в useSession композабле, уберем дублирование
 
-      // Не добавляем в pending здесь - это делается в useModals.openAchievementModal
       if (showModal) {
         achievement.isShown = true
       }

@@ -41,3 +41,14 @@ export function calcBubbleRadius(bubbleSkillLevel: SkillLevel | undefined, sizes
 
   return calculatedRadius
 }
+
+
+export const getBubbleColor = (bubble: NormalizedBubble) => {
+  if (!bubble) return '#3b82f6'
+  if (bubble.isQuestion) {
+    return GAME_CONFIG.expertiseBubbles[bubble.skillLevel].gradientColors[0]
+  }
+  
+  const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel]
+  return expertiseConfig?.gradientColors?.[0] || '#3b82f6'
+}
