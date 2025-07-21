@@ -16,18 +16,18 @@
     <!-- Заголовок -->
     <div class="welcome-header">
       <h2 class="mystery-title">Привет. Я — Мистер Икс.</h2>
-      <p class="mystery-subtitle">Создатель этого резюме-игры.</p>
+      <p class="mystery-subtitle">Создатель этой резюме-игры.</p>
     </div>
 
     <!-- Основное сообщение -->
     <div class="welcome-content">
       <p class="intro-text">
-        Ты внутри интерактивного профиля разработчика: фронтенд-специалиста, немного фуллстакера,
+        Ты внутри интерактивного профиля разработчика: <nobr>фронтенд-специалиста</nobr>, немного фуллстакера,
         продуктового архитектора и IT-мастера по вызову.
       </p>
 
       <p class="twist-text">
-        Но всё здесь устроено иначе.
+        Но здесь всё устроено иначе.
       </p>
 
       <p class="quest-text">
@@ -97,17 +97,8 @@ const close = () => {
 :deep(.welcome-modal-container) {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   border: 2px solid #3b82f6;
-  border-radius: 1rem;
-  padding: 2.5rem;
-  width: 100%;
-  max-width: 36rem;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(59, 130, 246, 0.1),
-    0 0 50px rgba(59, 130, 246, 0.15);
-  position: relative;
+  width: 600px;
+  padding: 2rem;
 }
 
 /* Vue Transition классы */
@@ -189,14 +180,14 @@ const close = () => {
 
 .avatar-glow {
   position: absolute;
-  top: -0.5rem;
-  left: -0.5rem;
-  right: -0.5rem;
-  bottom: -0.5rem;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   border-radius: 50%;
-  opacity: 0.3;
-  animation: glow 3s ease-in-out infinite alternate;
+  opacity: 0.7;
+  animation: glow 1s ease-in-out infinite alternate;
   z-index: 1;
 }
 
@@ -336,57 +327,15 @@ const close = () => {
 }
 
 .start-button:hover {
-  transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-}
-
-.start-button:active {
-  transform: translateY(0);
 }
 
 .button-icon {
   font-size: 1.1rem;
 }
 
-/* Анимации */
-@keyframes modalEnter {
-  from {
-    opacity: 0;
-    backdrop-filter: blur(0px);
-  }
-
-  to {
-    opacity: 1;
-    backdrop-filter: blur(8px);
-  }
-}
-
-@keyframes modalScale {
-  from {
-    opacity: 0;
-    transform: translateY(-10px) scale(0.9);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes modalLeave {
-  from {
-    opacity: 1;
-    transform: scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-}
 
 @keyframes pulse {
-
   0%,
   100% {
     transform: scale(1);
@@ -399,7 +348,7 @@ const close = () => {
 
 @keyframes glow {
   from {
-    box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 20px rgba(59, 130, 246, 1);
   }
 
   to {

@@ -25,8 +25,7 @@
 
     <!-- Скроллируемая область контента -->
     <div
-      ref="scrollContainer"
-      class="flex-1 overflow-y-auto scrollable-content"
+      class="scrollable-content"
       tabindex="0"
     >
       <!-- Фоновые эффекты -->
@@ -79,9 +78,6 @@
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
 import type { PendingAchievement } from '@/types/modals'
-import { ref } from 'vue'
-
-const scrollContainer = ref<HTMLElement>()
 
 interface Props {
   isOpen: boolean
@@ -100,6 +96,23 @@ const emit = defineEmits<Emits>()
 </script>
 
 <style scoped>
+/* Стили для контейнера */
+:deep(.achievement-modal-container) {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 2px solid #f59e0b;
+
+  .modal-content {
+    padding: 1rem;
+    margin: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    max-width: 480px
+  }
+}
+
 .modal-header {
   @apply relative flex-shrink-0 p-4 border-b border-amber-200;
 }
@@ -130,7 +143,7 @@ const emit = defineEmits<Emits>()
 }
 
 .achievement-icon-container {
-  @apply mb-6;
+  @apply my-2;
 }
 
 .achievement-icon {
@@ -186,15 +199,14 @@ const emit = defineEmits<Emits>()
 
 .close-button {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: -0.5rem;
+  right: -0.5rem;
   width: 2rem;
   height: 2rem;
   color: #92400e;
   font-size: 1.5rem;
   font-weight: bold;
   line-height: 1;
-  background: rgba(255, 255, 255, 0.2);
   border: none;
   cursor: pointer;
   transition: all 0.2s;
@@ -202,7 +214,6 @@ const emit = defineEmits<Emits>()
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
   z-index: 10;
 }
 
@@ -218,43 +229,6 @@ const emit = defineEmits<Emits>()
   padding-right: 8px;
   scrollbar-width: thin;
   scrollbar-color: rgba(245, 158, 11, 0.4) rgba(245, 158, 11, 0.1);
-}
-
-.scrollable-content:focus {
-  box-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.3);
-}
-
-/* Кастомные стили для скроллбара WebKit */
-.scrollable-content::-webkit-scrollbar {
-  width: 8px;
-}
-
-.scrollable-content::-webkit-scrollbar-track {
-  background: rgba(245, 158, 11, 0.1);
-  border-radius: 4px;
-  margin: 8px 0;
-}
-
-.scrollable-content::-webkit-scrollbar-thumb {
-  background: rgba(245, 158, 11, 0.4);
-  border-radius: 4px;
-  border: 1px solid rgba(245, 158, 11, 0.1);
-}
-
-.scrollable-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(245, 158, 11, 0.6);
-}
-
-.scrollable-content::-webkit-scrollbar-thumb:active {
-  background: rgba(245, 158, 11, 0.8);
-}
-
-/* Стили для контейнера */
-:deep(.achievement-modal-container) {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 2px solid #f59e0b;
 }
 
 /* Стили для XP блока */

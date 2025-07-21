@@ -5,14 +5,6 @@
     @close="$emit('close')"
     class-name="game-over-modal-container"
   >
-    <!-- Крестик для закрытия -->
-    <button
-      @click="$emit('close')"
-      class="close-button"
-      aria-label="Закрыть"
-    >
-      ×
-    </button>
 
     <div class="game-over-header">
       <div class="skull-icon">💀</div>
@@ -85,29 +77,13 @@ const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 <style scoped>
 :deep(.game-over-modal-container) {
   @apply bg-background-primary border border-border rounded-lg shadow-xl;
-  @apply p-6 max-w-md w-full mx-4;
+  @apply p-6 max-w-lg w-full mx-4;
   @apply transform transition-all duration-300;
   @apply text-center relative;
 }
 
 .game-over-modal {
   @apply text-center relative;
-}
-
-.close-button {
-  @apply absolute top-4 right-4;
-  @apply w-8 h-8 rounded-full;
-  @apply bg-gray-100 hover:bg-gray-200;
-  @apply border border-gray-300 hover:border-gray-400;
-  @apply text-gray-600 hover:text-gray-800;
-  @apply font-bold text-xl leading-none;
-  @apply transition-all duration-200;
-  @apply flex items-center justify-center;
-  cursor: pointer;
-}
-
-.close-button:hover {
-  transform: scale(1.05);
 }
 
 .game-over-header {
@@ -140,11 +116,11 @@ const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 }
 
 .philosophy-subtext {
-  @apply text-amber-700 dark:text-amber-300 text-xs leading-relaxed;
+  @apply text-amber-700 dark:text-amber-300 text-sm leading-relaxed;
 }
 
 .retry-suggestion {
-  @apply text-amber-600 dark:text-amber-400 text-xs;
+  @apply text-amber-600 dark:text-amber-400 text-sm;
   @apply border-t border-amber-200 dark:border-amber-700 pt-3 mt-3;
 }
 

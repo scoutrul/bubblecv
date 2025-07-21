@@ -131,6 +131,13 @@ const handleCustomAnswer = () => {
 </script>
 
 <style scoped>
+:deep(.philosophy-modal-container) {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 2px solid #8b5cf6;
+  padding: 2rem;
+  max-width: 800px;
+}
+
 .modal-header {
   @apply text-center mb-6;
 }
@@ -223,7 +230,7 @@ const handleCustomAnswer = () => {
 
 .custom-answer-textarea {
   @apply w-full p-3 rounded-lg border transition-colors duration-200 resize-none;
-  @apply bg-blue-500/5 border-blue-500/30 text-text-primary;
+  @apply bg-blue-100/5 border-blue-500/30 text-text-primary;
   @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50;
   @apply placeholder:text-text-secondary;
 }
@@ -233,22 +240,6 @@ const handleCustomAnswer = () => {
   @apply bg-blue-500 hover:bg-blue-600 text-white;
   @apply disabled:opacity-50 disabled:cursor-not-allowed;
   @apply focus:outline-none focus:ring-2 focus:ring-blue-500/50;
-}
-
-:deep(.philosophy-modal-container) {
-  cursor: default;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  border: 2px solid #8b5cf6;
-  border-radius: 1rem;
-  padding: 2rem;
-  max-width: calc(100vw - 4rem);
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow:
-    0 25px 50px -12px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(139, 92, 246, 0.1),
-    0 0 50px rgba(139, 92, 246, 0.15);
-  position: relative;
 }
 
 /* Добавляем декоративный фоновый эффект */

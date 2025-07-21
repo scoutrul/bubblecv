@@ -64,7 +64,13 @@ onUnmounted(() => {
 }
 
 .modal-window {
-  @apply relative cursor-default max-w-[90%] w-[480px] max-h-[90vh] flex flex-col modal-container bg-background-primary overflow-hidden;
+  @apply relative cursor-default max-h-[90vh] flex flex-col modal-container bg-background-primary overflow-hidden;
+  width: fit-content;
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(59, 130, 246, 0.1),
+    0 0 50px rgba(59, 130, 246, 0.15);
+  border-radius: 1rem;  
 }
 
 /* Анимация фона - только прозрачность */
@@ -107,30 +113,23 @@ onUnmounted(() => {
 
 /* Стили для скроллируемой области */
 .modal-content {
-  @apply flex-1 overflow-y-auto overflow-x-hidden;
+  @apply flex-1 py-6 mt-4 mx-[-6px] px-[20px];
+  @apply overflow-y-auto overflow-x-hidden;
 }
 
 .modal-content::-webkit-scrollbar {
-  @apply w-1;
+  @apply w-3 ;
 }
 
 .modal-content::-webkit-scrollbar-track {
-  @apply bg-gray-100 rounded-full;
+  @apply bg-gray-600 rounded-full;
 }
 
 .modal-content::-webkit-scrollbar-thumb {
-  @apply bg-gray-400 rounded-full;
+  @apply bg-gray-800 rounded-full;
 }
 
 .modal-content::-webkit-scrollbar-thumb:hover {
-  @apply bg-gray-500;
-}
-
-/* Стили для контейнера */
-:deep(.achievement-modal-container) {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border-radius: 1rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 2px solid #f59e0b;
+  @apply bg-gray-700;
 }
 </style>

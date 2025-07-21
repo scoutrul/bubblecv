@@ -3,6 +3,7 @@
     :is-open="isOpen"
     :allow-escape-close="allowEscapeClose"
     @close="$emit('close')"
+    class="bubble-modal-container"
   >
     <div class="modal-content-wrapper">
       <!-- Header -->
@@ -77,6 +78,13 @@
               + {{ xpReward }} XP
           </span>
         </div>
+        <button
+          @click="$emit('close')"
+          aria-label="Закрыть"
+          class="close-text"
+        >
+          закрыть
+        </button>
       </div>
     </div>
   </BaseModal>
@@ -119,8 +127,14 @@ const xpReward = computed(() => {
 </script>
 
 <style scoped>
+:deep(.bubble-modal-container .modal-content) {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  border: 2px solid #3b82f6;
+  max-width: 420px;
+}
+
 .modal-content-wrapper {
-  @apply w-full;
+  @apply w-full max-w-[480px];
 }
 
 .modal-header {
@@ -155,6 +169,16 @@ const xpReward = computed(() => {
 
 .close-button:hover {
   transform: scale(1.05);
+}
+
+.close-text {
+  @apply text-success font-bold text-lg;
+  text-decoration: underline;
+}
+
+.close-text:hover {
+  @apply text-success-light font-bold text-lg;
+  text-underline-offset: 2px;
 }
 
 .bubble-icon {
