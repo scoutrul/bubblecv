@@ -16,240 +16,103 @@ interface Star {
   speed: number
 }
 
+function createStars(count: number, width: number, height: number, radiusRange: [number, number], opacityRange: [number, number], orbitRadiusRange: [number, number], speedRange: [number, number], isCenter: boolean = false): Star[] {
+  const stars: Star[] = []
+  const canvasCenter = { x: width / 2, y: height / 2 }
+  for (let i = 0; i < count; i++) {
+    const angle = Math.random() * Math.PI * 2
+    const orbitRadius = Math.random() * (orbitRadiusRange[1] - orbitRadiusRange[0]) + orbitRadiusRange[0]
+    const centerX = isCenter ? canvasCenter.x : Math.random() * width
+    const centerY = isCenter ? canvasCenter.y : Math.random() * height
+    stars.push({
+      x: centerX + Math.cos(angle) * orbitRadius,
+      y: centerY + Math.sin(angle) * orbitRadius,
+      radius: Math.random() * (radiusRange[1] - radiusRange[0]) + radiusRange[0],
+      opacity: Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0],
+      angle,
+      orbitRadius,
+      centerX,
+      centerY,
+      speed: (Math.random() * (speedRange[1] - speedRange[0]) + speedRange[0]) * (Math.random() > 0.5 ? 1 : -1)
+    })
+  }
+  return stars
+}
+
+function animateStars(stars: Star[], opacityRange: [number, number], durationRange: [number, number]) {
+  stars.forEach(star => {
+    gsap.to(star, {
+      opacity: Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0],
+      duration: Math.random() * (durationRange[1] - durationRange[0]) + durationRange[0],
+      ease: 'power1.inOut',
+      repeat: -1,
+      yoyo: true
+    })
+  })
+}
+
 export function useCanvasRenderer(canvasRef: Ref<HTMLCanvasElement | null>) {
   const centerStars: Ref<Star[]> = ref([])
   const bgStars: Ref<Star[]> = ref([])
   const fgStars: Ref<Star[]> = ref([])
   
-  // Сохраняем предыдущие размеры canvas для правильного ресайза
   let previousWidth = 0
   let previousHeight = 0
 
-  // Инициализация звездного поля
   const initStarfield = (width: number, height: number) => {
-    // Сохраняем размеры
     previousWidth = width
     previousHeight = height
-    
-    // Центральный, вращающийся слой
-    const centerStarArray: Star[] = []
-    const canvasCenter = { x: width / 2, y: height / 2 }
-    
-    for (let i = 0; i < 400; i++) {
-      const angle = Math.random() * Math.PI * 2
-      const orbitRadius = Math.random() * (Math.max(width, height) * 0.4) + 50 // Радиус орбиты относительно максимальной стороны
-      
-      centerStarArray.push({
-        x: canvasCenter.x + Math.cos(angle) * orbitRadius,
-        y: canvasCenter.y + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * 1 + 0.3, // Мелкие звезды
-        opacity: Math.random() * 0.3 + 0.1, // Тусклые (0.1 - 0.4)
-        angle,
-        orbitRadius,
-        centerX: canvasCenter.x, // Центр всегда в середине канваса
-        centerY: canvasCenter.y,
-        speed: (Math.random() * 0.0005) // Медленное вращение
-      })
-    }
-    centerStars.value = centerStarArray
-    centerStars.value.forEach(star => {
-      gsap.to(star, {
-        opacity: Math.random() * 0.3 + 0.1,
-        duration: Math.random() * 4 + 3,
-        ease: 'power1.inOut',
-        repeat: -1,
-        yoyo: true
-      })
-    })
-
-    // Задний, статичный слой
-    const bgStarArray: Star[] = []
-    for (let i = 0; i < 70; i++) { // Больше тусклых звезд
-      const centerX = Math.random() * width
-      const centerY = Math.random() * height
-      const orbitRadius = Math.random() * 100 + 20
-      const angle = Math.random() * Math.PI * 2
-      
-      bgStarArray.push({
-        x: centerX + Math.cos(angle) * orbitRadius,
-        y: centerY + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * 1.2 + 0.5,
-        opacity: Math.random() * 0.4 + 0.1, // (0.1 - 0.5)
-        angle,
-        orbitRadius,
-        centerX,
-        centerY,
-        speed: (Math.random() * 0.002 + 0.001) * (Math.random() > 0.5 ? 1 : -1) // Случайное направление
-      })
-    }
-    bgStars.value = bgStarArray
-    bgStars.value.forEach(star => {
-      gsap.to(star, {
-        opacity: Math.random() * 0.5,
-        duration: Math.random() * 3 + 2,
-        ease: 'power1.inOut',
-        repeat: -1,
-        yoyo: true
-      })
-    })
-
-    // Передний, подвижный слой
-    const fgStarArray: Star[] = []
-    for (let i = 0; i < 30; i++) { // Меньше ярких звезд
-      const centerX = Math.random() * width
-      const centerY = Math.random() * height
-      const orbitRadius = Math.random() * 150 + 30
-      const angle = Math.random() * Math.PI * 2
-      
-      fgStarArray.push({
-        x: centerX + Math.cos(angle) * orbitRadius,
-        y: centerY + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * 1.6 + 0.8, // Крупнее
-        opacity: Math.random() * 0.6 + 0.4, // Ярче (0.4 - 1.0)
-        angle,
-        orbitRadius,
-        centerX,
-        centerY,
-        speed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1) // Быстрее и случайное направление
-      })
-    }
-    fgStars.value = fgStarArray
-    fgStars.value.forEach(star => {
-      gsap.to(star, {
-        opacity: 0.1,
-        duration: Math.random() * 1.5 + 0.8,
-        ease: 'power1.inOut',
-        repeat: -1,
-        yoyo: true
-      })
-    })
+    // Центральный слой
+    centerStars.value = createStars(400, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005], true)
+    animateStars(centerStars.value, [0.1, 0.4], [3, 7])
+    // Задний слой
+    bgStars.value = createStars(70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
+    animateStars(bgStars.value, [0.1, 0.5], [2, 5])
+    // Передний слой
+    fgStars.value = createStars(30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
+    animateStars(fgStars.value, [0.1, 0.1], [0.8, 2.3])
   }
-  
-  // Обновление размеров звездного поля при ресайзе
-  const updateStarfieldSize = (width: number, height: number) => {
-    // Обновляем центральные позиции для центрального слоя звезд
+
+  function updateStarPositions(stars: Star[], width: number, height: number, prevWidth: number, prevHeight: number, isCenter: boolean = false) {
     const canvasCenter = { x: width / 2, y: height / 2 }
-    
-    // Вычисляем коэффициент масштабирования для радиусов орбит
-    const previousMaxSize = Math.max(previousWidth, previousHeight)
+    const previousMaxSize = Math.max(prevWidth, prevHeight)
     const currentMaxSize = Math.max(width, height)
     const scaleRatio = previousMaxSize > 0 ? currentMaxSize / previousMaxSize : 1
-    
-    centerStars.value.forEach(star => {
-      star.centerX = canvasCenter.x
-      star.centerY = canvasCenter.y
-      
-      // Масштабируем радиус орбиты пропорционально изменению размера экрана
-      star.orbitRadius = star.orbitRadius * scaleRatio
-      
-      // Пересчитываем текущую позицию звезды с новым радиусом
-      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
-      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
-    })
-
-    // Обновляем позиции центров орбит для bgStars - перераспределяем по новому экрану
-    bgStars.value.forEach(star => {
-      // Сохраняем относительную позицию центра орбиты
-      const relativeX = star.centerX / previousWidth || 0.5 // fallback если нет старых размеров
-      const relativeY = star.centerY / previousHeight || 0.5
-      
-      // Обновляем на новые размеры
-      star.centerX = relativeX * width
-      star.centerY = relativeY * height
-      
-      // Пересчитываем текущую позицию звезды
-      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
-      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
-    })
-
-    // Обновляем позиции центров орбит для fgStars - перераспределяем по новому экрану  
-    fgStars.value.forEach(star => {
-      // Сохраняем относительную позицию центра орбиты
-      const relativeX = star.centerX / previousWidth || 0.5 // fallback если нет старых размеров
-      const relativeY = star.centerY / previousHeight || 0.5
-      
-      // Обновляем на новые размеры
-      star.centerX = relativeX * width
-      star.centerY = relativeY * height
-      
-      // Пересчитываем текущую позицию звезды
-      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
-      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
-    })
-
-    // Пересоздаем звезды которые выходят за новые границы
-    bgStars.value = bgStars.value.filter(star => {
-      const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
-      return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
-              star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
-    })
-
-    fgStars.value = fgStars.value.filter(star => {
-      const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
-      return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
-              star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
-    })
-
-    // Добавляем новые звезды если нужно покрыть новые области
-    const neededBgStars = 70 - bgStars.value.length
-    for (let i = 0; i < neededBgStars; i++) {
-      const centerX = Math.random() * width
-      const centerY = Math.random() * height
-      const orbitRadius = Math.random() * 100 + 20
-      const angle = Math.random() * Math.PI * 2
-      
-      const newStar = {
-        x: centerX + Math.cos(angle) * orbitRadius,
-        y: centerY + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * 1.2 + 0.5,
-        opacity: Math.random() * 0.4 + 0.1,
-        angle,
-        orbitRadius,
-        centerX,
-        centerY,
-        speed: (Math.random() * 0.002 + 0.001) * (Math.random() > 0.5 ? 1 : -1)
+    stars.forEach(star => {
+      if (isCenter) {
+        star.centerX = canvasCenter.x
+        star.centerY = canvasCenter.y
+        star.orbitRadius = star.orbitRadius * scaleRatio
+      } else {
+        const relativeX = star.centerX / prevWidth || 0.5
+        const relativeY = star.centerY / prevHeight || 0.5
+        star.centerX = relativeX * width
+        star.centerY = relativeY * height
       }
-      bgStars.value.push(newStar)
-      
-      gsap.to(newStar, {
-        opacity: Math.random() * 0.5,
-        duration: Math.random() * 3 + 2,
-        ease: 'power1.inOut',
-        repeat: -1,
-        yoyo: true
-      })
-    }
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+    })
+  }
 
-    const neededFgStars = 30 - fgStars.value.length
-    for (let i = 0; i < neededFgStars; i++) {
-      const centerX = Math.random() * width
-      const centerY = Math.random() * height
-      const orbitRadius = Math.random() * 150 + 30
-      const angle = Math.random() * Math.PI * 2
-      
-      const newStar = {
-        x: centerX + Math.cos(angle) * orbitRadius,
-        y: centerY + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * 1.6 + 0.8,
-        opacity: Math.random() * 0.6 + 0.4,
-        angle,
-        orbitRadius,
-        centerX,
-        centerY,
-        speed: (Math.random() * 0.003 + 0.001) * (Math.random() > 0.5 ? 1 : -1)
-      }
-      fgStars.value.push(newStar)
-      
-      gsap.to(newStar, {
-        opacity: 0.1,
-        duration: Math.random() * 1.5 + 0.8,
-        ease: 'power1.inOut',
-        repeat: -1,
-        yoyo: true
+  const updateStarfieldSize = (width: number, height: number) => {
+    updateStarPositions(centerStars.value, width, height, previousWidth, previousHeight, true)
+    updateStarPositions(bgStars.value, width, height, previousWidth, previousHeight)
+    updateStarPositions(fgStars.value, width, height, previousWidth, previousHeight)
+    // Пересоздаём звёзды, выходящие за границы, и добавляем новые
+    function filterAndAdd(stars: Ref<Star[]>, count: number, width: number, height: number, radiusRange: [number, number], opacityRange: [number, number], orbitRadiusRange: [number, number], speedRange: [number, number]) {
+      stars.value = stars.value.filter(star => {
+        const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
+        return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
+                star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
       })
+      const needed = count - stars.value.length
+      if (needed > 0) {
+        const newStars = createStars(needed, width, height, radiusRange, opacityRange, orbitRadiusRange, speedRange)
+        stars.value.push(...newStars)
+      }
     }
-    
-    // Сохраняем новые размеры для следующего ресайза
+    filterAndAdd(bgStars, 70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
+    filterAndAdd(fgStars, 30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
     previousWidth = width
     previousHeight = height
   }
