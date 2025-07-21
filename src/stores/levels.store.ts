@@ -16,6 +16,7 @@ export const useLevelStore = defineStore('levelStore', () => {
     try {
       const { data } = await api.getLevels()
       levels.value = data
+      console.log('🔄 Уровни загружены:', levels.value) 
     } catch (err) {
       console.error('❌ Ошибка загрузки уровней:', err)
     } finally {
@@ -23,7 +24,9 @@ export const useLevelStore = defineStore('levelStore', () => {
     }
   }
 
-  const getLevelByNumber = (level: number) => levels.value.find((l) => l.level === level)
+  const getLevelByNumber = (level: number) => {
+    return levels.value.find((l: NormalizedLevel) => l.level === level)
+  }
 
   return {
     levels,

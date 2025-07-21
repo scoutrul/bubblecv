@@ -37,6 +37,7 @@ export function useApp() {
     isAppLoading.value = true
     try {
       await Promise.all([
+        levelStore.loadLevels(),
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
         bonuses.loadBonuses(),
@@ -65,6 +66,7 @@ export function useApp() {
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
   const currentLevelTitle = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)
+
     return level?.title || 'Посетитель'
   })
 

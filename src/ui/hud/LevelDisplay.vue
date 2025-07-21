@@ -10,7 +10,7 @@
         <span :class="titleClass" class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
       </span>
       <span :class="subtitleClass" class="mobile-text-xs whitespace-nowrap">{{ levelTitle }}</span>
-      <div v-if="currentLevel >= 2" class="level-shine"></div>
+      <div v-if="currentLevel >= 1" class="level-shine"></div>
     </div>
   </div>
 </template>
