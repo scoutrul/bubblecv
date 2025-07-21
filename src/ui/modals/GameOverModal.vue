@@ -6,25 +6,25 @@
     class-name="game-over-modal-container"
   >
     <!-- Крестик для закрытия -->
-    <button 
+    <button
       @click="$emit('close')"
       class="close-button"
       aria-label="Закрыть"
     >
       ×
     </button>
-    
+
     <div class="game-over-header">
       <div class="skull-icon">💀</div>
       <h2 class="game-over-title">GAME OVER</h2>
       <p class="game-over-subtitle">Все жизни потеряны!</p>
-      
+
       <div class="philosophy-message">
         <p class="philosophy-text">
           🤔 <strong>Наши цели и ценности не совпадают.</strong>
         </p>
         <p class="philosophy-subtext">
-          Видимо, мы по-разному смотрим на разработку и командную работу. 
+          Видимо, мы по-разному смотрим на разработку и командную работу.
           Эффективное сотрудничество в таких условиях будет затруднительно.
         </p>
         <p class="retry-suggestion">
@@ -32,7 +32,7 @@
         </p>
       </div>
     </div>
-    
+
     <div class="game-over-stats">
       <div class="stat-row">
         <span class="stat-label">Достигнутый уровень:</span>
@@ -47,7 +47,7 @@
         <span class="stat-value">{{ visitedBubblesCount }}</span>
       </div>
     </div>
-    
+
     <div class="game-over-actions">
       <button @click="$emit('restart')" class="restart-button">
         🔄 Начать заново
@@ -179,4 +179,4 @@ const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 .restart-button:hover {
   box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
 }
-</style> 
+</style>

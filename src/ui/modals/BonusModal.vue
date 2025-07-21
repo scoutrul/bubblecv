@@ -68,8 +68,8 @@ const close = () => {
 
 <style scoped>
 :deep(.bonus-modal-container) {
-  background: var(--background-secondary, #1e293b);
-  border: 1px solid var(--border, #334155);
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 2rem;
   width: 100%;
@@ -87,7 +87,7 @@ const close = () => {
   right: 1rem;
   width: 2rem;
   height: 2rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   font-size: 1.5rem;
   font-weight: bold;
   line-height: 1;
@@ -102,7 +102,7 @@ const close = () => {
 }
 
 .close-button:hover {
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   background: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
@@ -120,7 +120,7 @@ const close = () => {
 .bonus-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
@@ -128,7 +128,7 @@ const close = () => {
   display: inline-block;
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
   background: rgba(139, 92, 246, 0.1);
   border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 1rem;
@@ -140,7 +140,7 @@ const close = () => {
 }
 
 .bonus-html-content {
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 /* Стилизация HTML контента */
@@ -150,7 +150,7 @@ const close = () => {
 .bonus-html-content :deep(h4),
 .bonus-html-content :deep(h5),
 .bonus-html-content :deep(h6) {
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   font-weight: 700;
   margin-top: 2rem;
   margin-bottom: 1rem;
@@ -197,25 +197,25 @@ const close = () => {
 }
 
 .bonus-html-content :deep(a) {
-  color: var(--primary, #3b82f6);
+  color: var(--primary);
   text-decoration: underline;
   transition: color 0.2s;
 }
 
 .bonus-html-content :deep(a:hover) {
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
 }
 
 .bonus-html-content :deep(strong),
 .bonus-html-content :deep(b) {
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .bonus-html-content :deep(em),
 .bonus-html-content :deep(i) {
   font-style: italic;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .bonus-html-content :deep(ul),
@@ -230,16 +230,16 @@ const close = () => {
 }
 
 .bonus-html-content :deep(blockquote) {
-  border-left: 4px solid var(--accent, #8b5cf6);
+  border-left: 4px solid var(--accent);
   margin: 1.5rem 0;
   padding-left: 1rem;
   font-style: italic;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .bonus-html-content :deep(code) {
   background: rgba(139, 92, 246, 0.1);
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
@@ -247,8 +247,8 @@ const close = () => {
 }
 
 .bonus-html-content :deep(pre) {
-  background: var(--background, #0f172a);
-  border: 1px solid var(--border, #334155);
+  background: var(--background);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -261,20 +261,20 @@ const close = () => {
 .bonus-html-content :deep(pre code) {
   background: none;
   padding: 0;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
 }
 
 .bonus-html-content :deep(hr) {
   border: none;
   height: 1px;
-  background: var(--border, #334155);
+  background: var(--border);
   margin: 2rem 0;
 }
 
 .contact-form-container {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid var(--border, #334155);
+  border-top: 1px solid var(--border);
 }
 
 @media (max-width: 640px) {

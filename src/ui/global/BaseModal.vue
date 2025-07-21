@@ -90,10 +90,10 @@ onUnmounted(() => {
 }
 
 .modal-container {
-  background: var(--background-primary, #1e293b);
+  background: var(--background-primary);
   border-radius: 1rem;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border, #334155);
+  border: 1px solid var(--border);
 }
 
 .close-button {

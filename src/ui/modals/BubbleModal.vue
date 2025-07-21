@@ -8,7 +8,7 @@
       <!-- Header -->
       <div class="modal-header">
         <div class="header-content">
-          <div 
+          <div
             class="bubble-icon"
             :style="{ backgroundColor: getBubbleColor(bubble) }"
           >
@@ -20,9 +20,9 @@
             <h2 class="bubble-name">{{ bubble?.name }}</h2>
           </div>
         </div>
-          
+
           <!-- Крестик для закрытия -->
-          <button 
+          <button
             @click="$emit('close')"
             class="close-button"
             aria-label="Закрыть"
@@ -59,7 +59,7 @@
           </p>
         </div>
 
-    
+
         <!-- Timeline -->
         <div class="timeline-section">
             <h3 class="section-title">Год появления</h3>
@@ -110,7 +110,7 @@ const skillLevelClass = computed(() => {
 
 const xpReward = computed(() => {
   if (!props.bubble) return 0
-  
+
   // Используем централизованную логику для расчета XP
   return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
 })
@@ -219,26 +219,8 @@ const xpReward = computed(() => {
   @apply flex items-center gap-3;
 }
 
-.timeline-start,
-.timeline-end {
+.timeline-start {
   @apply text-sm font-medium text-text-primary;
-}
-
-.timeline-line {
-  @apply flex-1 h-px bg-border;
-}
-
-.easter-egg-section {
-  @apply bg-gradient-to-r from-purple-50 to-pink-50;
-  @apply border border-purple-200 rounded-lg p-4;
-}
-
-.easter-egg-badge {
-  @apply text-purple-800 font-medium mb-2;
-}
-
-.easter-egg-text {
-  @apply text-purple-700 text-sm;
 }
 
 .modal-footer {
@@ -253,4 +235,4 @@ const xpReward = computed(() => {
 .xp-text {
   @apply text-success font-bold text-lg;
 }
-</style> 
+</style>

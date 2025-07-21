@@ -72,9 +72,9 @@ const isFormValid = computed(() => {
 
 const handleSubmit = async () => {
   if (!isFormValid.value || isSubmitting.value) return
-  
+
   resetState()
-  
+
   await sendMessage({
     name: formData.name,
     email: formData.contact,
@@ -83,7 +83,7 @@ const handleSubmit = async () => {
 
   if (success) {
     alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
-    
+
     // Очистить форму
     formData.message = ''
     formData.name = ''
@@ -124,8 +124,7 @@ const handleSubmit = async () => {
 .form-input:focus,
 .form-textarea:focus {
   @apply outline-none ring-2;
-  border-color: var(--primary, #3b82f6);
-  ring-color: rgba(59, 130, 246, 0.3);
+  border-color: var(--primary);
 }
 
 .submit-button {
@@ -143,4 +142,4 @@ const handleSubmit = async () => {
   @apply opacity-50 cursor-not-allowed;
   background: var(--text-secondary, #64748b);
 }
-</style> 
+</style>

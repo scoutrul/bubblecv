@@ -80,12 +80,12 @@ const handleClick = () => {
 
 .bonus-title {
   @apply font-medium text-text-primary text-sm;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
 }
 
 .bonus-level {
   @apply text-xs text-text-secondary mt-1;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
 }
 
 .bonus-status {

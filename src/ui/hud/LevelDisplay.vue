@@ -1,7 +1,7 @@
 <template>
   <div class="level-display">
-    <div 
-      class="level-info" 
+    <div
+      class="level-info"
       :class="[levelClass, { 'util-shake-hud': isShaking, 'clickable': currentLevel >= 2 }]"
       @click="handleLevelClick"
     >
@@ -95,14 +95,6 @@ const subtitleClass = computed(() => {
   @apply flex items-baseline gap-x-1 sm:gap-x-3 text-right p-1 sm:p-2 rounded-lg transition-all duration-300 relative overflow-hidden;
 }
 
-.level-info.clickable {
-  @apply cursor-pointer hover:scale-105 active:scale-95;
-}
-
-.level-info.clickable:hover {
-  @apply brightness-110;
-}
-
 .level-title-group {
   @apply flex items-center gap-1 sm:gap-1.5 font-semibold;
 }
@@ -128,28 +120,4 @@ const subtitleClass = computed(() => {
   height: 100%;
 }
 
-/* --- Level 1 --- */
-.level-1 { @apply bg-transparent; }
-.title-novice { @apply text-text-muted; }
-.subtitle-novice { @apply text-text-muted/80; }
-
-/* --- Level 2 --- */
-.level-2 { @apply bg-blue-900/30; }
-.title-interested { @apply text-blue-300; }
-.subtitle-interested { @apply text-blue-400; }
-
-/* --- Level 3 --- */
-.level-3 { @apply bg-green-900/30 border border-green-500/20; }
-.title-learning { @apply text-green-300; }
-.subtitle-learning { @apply text-green-400; }
-
-/* --- Level 4 --- */
-.level-4 { @apply bg-purple-900/40 border border-purple-500/20; }
-.title-partner { @apply text-purple-300; }
-.subtitle-partner { @apply text-purple-400; }
-
-/* --- Level 5 --- */
-.level-5 { @apply bg-amber-900/40 border border-amber-500/20; }
-.title-bro { @apply text-amber-300; }
-.subtitle-bro { @apply text-amber-400 font-semibold; }
 </style>

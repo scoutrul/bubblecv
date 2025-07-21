@@ -7,14 +7,14 @@
   >
     <!-- Фиксированный хедер с крестиком -->
     <div class="modal-header">
-      <button 
+      <button
         @click="$emit('close')"
         class="close-button"
         aria-label="Закрыть"
       >
         ×
       </button>
-      
+
       <!-- Заголовок в хедере -->
       <div class="header-title">
         <h2 class="header-text">
@@ -22,9 +22,9 @@
         </h2>
       </div>
     </div>
-    
+
     <!-- Скроллируемая область контента -->
-    <div 
+    <div
       ref="scrollContainer"
       class="flex-1 overflow-y-auto scrollable-content"
       tabindex="0"
@@ -34,7 +34,7 @@
         <div class="bg-effect-1"></div>
         <div class="bg-effect-2"></div>
       </div>
-      
+
       <!-- Содержимое с отступом для скроллбара -->
       <div class="modal-content">
         <!-- Иконка достижения -->
@@ -43,19 +43,19 @@
             <span class="achievement-emoji">{{ achievement?.icon || '🏆' }}</span>
           </div>
         </div>
-        
+
         <!-- Название достижения -->
         <h3 class="achievement-title">
           {{ achievement?.title }}
         </h3>
-        
+
         <!-- Описание -->
         <p class="achievement-description">
           {{ achievement?.description }}
         </p>
-        
+
         <!-- XP награда -->
-        <div 
+        <div
           @click="$emit('close')"
           class="xp-reward-block"
         >
@@ -67,7 +67,7 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Декоративные звезды (привязаны к основному контейнеру) -->
     <div class="decorative-star star-1">⭐</div>
     <div class="decorative-star star-2">🌟</div>
@@ -270,4 +270,4 @@ const emit = defineEmits<Emits>()
 .xp-reward-block:active {
   @apply transform scale-95;
 }
-</style> 
+</style>

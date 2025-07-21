@@ -1,11 +1,11 @@
 <template>
   <div class="toggle-button-widget">
-    <div 
+    <div
       class="toggle-button-container"
       @click="handleToggle"
     >
       <div class="button-container">
-        <button 
+        <button
           ref="toggleButton"
           class="toggle-button"
           :class="{ 'util-shake-hud': isShaking }"
@@ -14,16 +14,16 @@
         </button>
         <div class="shine-overlay" v-if="badgeCount > 0"></div>
       </div>
-      
+
       <!-- Уведомление о новых элементах -->
       <div v-if="badgeCount > 0" class="notification-badge">
         {{ badgeCount }}
       </div>
     </div>
-    
+
     <!-- Панель -->
     <Transition name="slide-panel">
-      <div 
+      <div
         v-if="isPanelOpen"
         class="panel-wrapper"
         :class="panelPosition"
@@ -76,7 +76,7 @@ const closePanel = () => {
 const startShineAnimation = () => {
   if (props.badgeCount > 0 && !shineAnimationActive) {
     const randomDelay = Math.random() * 3000
-    
+
     setTimeout(() => {
       if (props.badgeCount > 0) {
         createShineAnimation('.button-container .shine-overlay', {
@@ -122,13 +122,6 @@ onUnmounted(() => {
 }
 
 /* Позиции виджета */
-.toggle-button-widget.bottom-right {
-  @apply fixed bottom-4 right-2 sm:right-4 z-50;
-}
-
-.toggle-button-widget.center-right {
-  @apply fixed right-4 top-1/2 transform -translate-y-1/2 z-50;
-}
 
 .toggle-button-container {
   @apply relative;
@@ -178,7 +171,7 @@ onUnmounted(() => {
   @apply flex items-center justify-center;
   @apply border border-background-secondary sm:border-2;
   @apply z-20;
-  background: var(--accent, #8b5cf6);
+  background: var(--accent);
   min-width: 1rem;
 }
 
@@ -186,11 +179,11 @@ onUnmounted(() => {
   .toggle-button-widget.center-right {
     @apply right-2;
   }
-  
+
   .toggle-button {
     @apply w-6 h-6 text-base;
   }
-  
+
   .notification-badge {
     @apply w-3 h-3 text-xs;
     min-width: 0.75rem;
@@ -204,23 +197,6 @@ onUnmounted(() => {
   @apply z-[10000];
   max-height: calc(100vh - 8rem);
   min-height: fit-content;
-}
-
-.panel-wrapper.left {
-  @apply absolute right-16 top-0 w-80 max-w-[90vw];
-  @apply z-[10000];
-}
-
-@media (max-width: 639px) {
-  .panel-wrapper.left {
-    @apply right-12 w-72;
-  }
-}
-
-@media (max-width: 359px) {
-  .panel-wrapper.left {
-    @apply right-10 w-64;
-  }
 }
 
 /* Анимации панели */
@@ -238,14 +214,4 @@ onUnmounted(() => {
   opacity: 0;
   transform: translateY(10px);
 }
-
-.slide-panel-enter-from.left {
-  opacity: 0;
-  transform: translateX(100%);
-}
-
-.slide-panel-leave-to.left {
-  opacity: 0;
-  transform: translateX(100%);
-}
-</style> 
+</style>

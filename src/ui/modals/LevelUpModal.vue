@@ -6,14 +6,14 @@
     class-name="level-up-modal-container"
   >
     <!-- Крестик для закрытия -->
-    <button 
+    <button
       @click="close"
       class="close-button"
       aria-label="Закрыть"
     >
       ×
     </button>
-    
+
     <!-- Заголовок с анимацией -->
     <div class="level-up-header">
       <div class="level-icon-large">{{ levelData.icon }}</div>
@@ -41,7 +41,7 @@
     <!-- Разблокированный бонус -->
     <div v-if="unlockedBonus" class="unlocked-bonus">
       <h3>🎁 Новый бонус:</h3>
-      <div 
+      <div
         class="bonus-preview"
         @click="openUnlockedBonus"
       >
@@ -93,7 +93,7 @@ const levelData = computed(() => ({
 
 const unlockedFeatures = computed(() => props.unlockedFeatures)
 
-const unlockedBonus = computed(() => 
+const unlockedBonus = computed(() =>
   getUnlockedBonusForLevel(props.level)
 )
 
@@ -118,8 +118,8 @@ const close = () => {
 
 <style scoped>
 :deep(.level-up-modal-container) {
-  background: var(--background-secondary, #1e293b);
-  border: 1px solid var(--border, #334155);
+  background: var(--background-secondary);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 2rem;
   width: 100%;
@@ -131,42 +131,13 @@ const close = () => {
   cursor: default;
 }
 
-/* Vue Transition классы */
-.modal-enter-active {
-  transition: all 0.3s ease-out;
-}
-
-.modal-leave-active {
-  transition: all 0.2s ease-in;
-}
-
-.modal-enter-from {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-enter-from .level-up-modal {
-  opacity: 0;
-  transform: translateY(-10px) scale(0.9);
-}
-
-.modal-leave-to {
-  opacity: 0;
-  backdrop-filter: blur(0px);
-}
-
-.modal-leave-to .level-up-modal {
-  opacity: 0;
-  transform: scale(0.95);
-}
-
 .close-button {
   position: absolute;
   top: 1rem;
   right: 1rem;
   width: 2rem;
   height: 2rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   font-size: 1.5rem;
   font-weight: bold;
   line-height: 1;
@@ -181,7 +152,7 @@ const close = () => {
 }
 
 .close-button:hover {
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   background: rgba(255, 255, 255, 0.1);
   transform: scale(1.05);
 }
@@ -200,9 +171,9 @@ const close = () => {
 .level-up-title {
   font-size: 2rem;
   font-weight: 900;
-  color: var(--primary, #3b82f6);
+  color: var(--primary);
   margin-bottom: 0.5rem;
-  background: linear-gradient(to right, var(--primary, #3b82f6), var(--accent, #8b5cf6));
+  background: linear-gradient(to right, var(--primary), var(--accent));
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -219,7 +190,7 @@ const close = () => {
 .level-number {
   font-size: 1.25rem;
   font-weight: bold;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
 }
 
 .level-description {
@@ -228,7 +199,7 @@ const close = () => {
 }
 
 .level-description p {
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   line-height: 1.6;
 }
 
@@ -239,7 +210,7 @@ const close = () => {
 .unlocked-features h3 {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   margin-bottom: 0.75rem;
 }
 
@@ -251,7 +222,7 @@ const close = () => {
 
 .unlocked-features li {
   font-size: 0.875rem;
-  color: var(--text-secondary, #64748b);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -260,7 +231,7 @@ const close = () => {
 
 .unlocked-features li::before {
   content: '✨';
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
 }
 
 .unlocked-bonus {
@@ -270,7 +241,7 @@ const close = () => {
 .unlocked-bonus h3 {
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   margin-bottom: 0.75rem;
 }
 
@@ -303,17 +274,17 @@ const close = () => {
 
 .bonus-preview-title {
   font-weight: 600;
-  color: var(--text-primary, #f1f5f9);
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
 .bonus-preview-subtitle {
   font-size: 0.75rem;
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
 }
 
 .bonus-preview-arrow {
-  color: var(--accent, #8b5cf6);
+  color: var(--accent);
   font-weight: bold;
   flex-shrink: 0;
 }
@@ -368,4 +339,4 @@ const close = () => {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
-</style> 
+</style>
