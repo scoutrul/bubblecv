@@ -134,7 +134,7 @@ const levelUpProps = computed(() => ({
   isOpen: true,
   level: safeData.value.levelUpData?.level || 1,
   title: safeData.value.levelUpData?.title || 'Новый уровень',
-  description: safeData.value.levelUpData?.description || 'Поздравляем с достижением!',
+  description: safeData.value.levelUpData?.description || '',
   icon: safeData.value.levelUpData?.icon || '⭐',
   currentXP: safeData.value.levelUpData?.currentXP || 0,
   xpGained: safeData.value.levelUpData?.xpGained || 0,

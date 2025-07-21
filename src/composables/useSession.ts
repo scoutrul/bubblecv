@@ -70,9 +70,7 @@ export function useSession() {
 
     if (leveledUp) {
       const levelData = levelStore.getLevelByNumber(newLevel)
-      const icon = ['👋', '🤔', '📚', '🤝', '🤜🤛'][newLevel - 1] || '⭐'
-
-      console.log('Level up!', { newLevel, currentXP: sessionStore.currentXP, amount })
+      const icon = levelData?.icon || '⭐'
 
       return {
         leveledUp: true,

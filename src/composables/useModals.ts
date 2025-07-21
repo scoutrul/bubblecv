@@ -268,6 +268,12 @@ export const useModals = () => {
       data: null,
       priority: MODAL_PRIORITIES.welcome
     })
+    // todo поправить очереди модалок вижу два функицонала
+    modalStore.enqueueModal({
+      type: 'levelUp',
+      data: null,
+      priority: MODAL_PRIORITIES.levelUp
+    })
   }
 
   const closeWelcome = () => closeModalWithLogic('welcome')

@@ -17,7 +17,7 @@
     <!-- Заголовок с анимацией -->
     <div class="level-up-header">
       <div class="level-icon-large">{{ levelData.icon }}</div>
-      <h2 class="level-up-title">LEVEL UP!</h2>
+      <h2 class="level-up-title" v-if="levelData.level > 1">LEVEL UP!</h2>
       <div class="new-level">
         <span class="level-number">Уровень {{ levelData.level }}</span>
       </div>
