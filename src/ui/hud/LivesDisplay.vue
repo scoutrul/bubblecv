@@ -3,15 +3,14 @@
     <div class="stat-header">
       <span class="stat-title mobile-text-xs">Жизни</span>
       <div class="hearts-container">
-        <div
-          v-for="life in maxLives"
+        <div 
+          v-for="(life, index) in maxLives"
           :key="life"
           class="life-heart"
-          :class="{
-            'life-lost': life > currentLives,
-            'last-life': currentLives === 1 && life === 1
+          :class="{ 
+            'life-lost': life > currentLives
           }"
-          :ref="life === 1 ? 'lastHeart' : undefined"
+          :ref="el => heartRefs[index] = el as HTMLElement"
         >
           ❤️
         </div>
@@ -21,8 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils/animations'
-import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface Props {
   currentLives: number
@@ -31,37 +30,38 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const lastHeart = ref<HTMLElement | null>(null)
+
+const heartRefs = ref<HTMLElement[]>([])
 let heartbeatAnimation: gsap.core.Timeline | null = null
 
-const startHeartbeatAnimation = () => {
-  if (!lastHeart.value) return
+const startHeartbeatOnLastAlive = () => {
+  const lastAliveIndex = props.currentLives - 1
+  const el = heartRefs.value[lastAliveIndex]
 
-  // Останавливаем предыдущую анимацию, если она есть
+  if (!el) return
+
+  // Убиваем старую анимацию
   if (heartbeatAnimation) {
     heartbeatAnimation.kill()
   }
 
-  // Создаем новую анимацию биения сердца
-  heartbeatAnimation = createHeartbeatAnimation(lastHeart.value)
+  // Сбрасываем все сердца
+  heartRefs.value.forEach((ref, i) => {
+    if (ref && i !== lastAliveIndex) {
+      resetHeartAnimation(ref)
+    }
+  })
+
+  // Стартуем новую на нужном
+  heartbeatAnimation = createHeartbeatAnimation(el)
 }
 
-// Следим за изменением количества жизней
-watch(() => props.currentLives, (newLives) => {
-  if (newLives === 1) {
-    startHeartbeatAnimation()
-  } else if (heartbeatAnimation) {
-    heartbeatAnimation.kill()
-    if (lastHeart.value) {
-      resetHeartAnimation(lastHeart.value)
-    }
-  }
+watch(() => props.currentLives, () => {
+  startHeartbeatOnLastAlive()
 }, { immediate: true })
 
 onMounted(() => {
-  if (props.currentLives === 1) {
-    startHeartbeatAnimation()
-  }
+  startHeartbeatOnLastAlive()
 })
 
 onUnmounted(() => {
@@ -84,17 +84,16 @@ onUnmounted(() => {
   @apply font-semibold text-primary;
 }
 
-/* Стили для жизней */
 .hearts-container {
   @apply flex gap-1;
 }
 
 .life-heart {
-  @apply text-xs sm:text-sm transition-all duration-300 origin-center;
+  @apply transition-all duration-300 origin-center;
 }
 
 .life-lost {
-  @apply opacity-30 grayscale;
+  @apply opacity-30 !grayscale;
 }
 
 .last-life {
