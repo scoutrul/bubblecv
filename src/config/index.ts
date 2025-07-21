@@ -1,4 +1,4 @@
-import { SKILL_LEVELS, type SkillLevel } from '../types/skill-levels'
+import { SKILL_LEVELS, type SkillLevel } from '@/types/skill-levels'
 
 export const GAME_CONFIG = {
   initialYear: 2015,
@@ -35,12 +35,12 @@ export const GAME_CONFIG = {
     [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
       opacity: 0.85,
-      gradientColors: ['#6B7280', '#FFD5DB'],
+      gradientColors: ['#6B72F0', '#6B72F00F'],
     },
     [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
       opacity: 0.9,
-      gradientColors: ['#FF2937', '#DD5563'],
+      gradientColors: ['#DF2937', '#FF2937', '#DD55630F'],
     },
     [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
@@ -50,7 +50,7 @@ export const GAME_CONFIG = {
     [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',
       opacity: 0.95,
-      gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF', '#9CA3AF00'],
+      gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF0F', '#9CA3AF00'],
     },
     [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',

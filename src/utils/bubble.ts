@@ -3,14 +3,13 @@ import type {SkillLevel} from '@/types/skill-levels'
 import type {BubbleSizes, NormalizedBubble} from '@/types/normalized'
 
 export function calculateAdaptiveSizes(): { min: number; max: number } {
-  // Фиксированные размеры как для больших экранов
   return { min: 35, max: 120 }
 }
 
 // Маппинг размеров на пиксели
 const SIZE_TO_PIXELS: Record<BubbleSizes, number> = {
-  small: 50,
-  medium: 70,
+  small: 40,
+  medium: 60,
   large: 90
 }
 
