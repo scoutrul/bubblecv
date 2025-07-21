@@ -5,7 +5,6 @@ export function useAchievement() {
   const achievementStore = useAchievmentStore()
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
-  const modalStore = useModalStore()
 
   const pendingUnlockIds = ref(new Set<string>())
 
@@ -13,16 +12,16 @@ export function useAchievement() {
     if (pendingUnlockIds.value.has(id)) {
       return null
     }
-    
+
     const achievement = achievementStore.achievements.find(a => a.id === id)
     if (!achievement) {
       return null
     }
-    
+
     if (achievement.isUnlocked) {
       return null
     }
-    
+
     pendingUnlockIds.value.add(id)
 
     try {
@@ -47,8 +46,8 @@ export function useAchievement() {
       pendingUnlockIds.value.delete(id)
     }
   }
-  
-  const unlockedAchievements = computed(() => 
+
+  const unlockedAchievements = computed(() =>
     achievementStore.achievements.filter(a => a.isUnlocked)
   )
 

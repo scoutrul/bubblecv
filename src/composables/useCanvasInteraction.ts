@@ -7,12 +7,12 @@ import { useBubbleStore } from '@/stores/bubble.store'
 import type { NormalizedBubble } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 import { useSession, useModals } from '@/composables'
-import { 
-  createQuestionData, 
-  animateParallax, 
-  animateBubbleClick, 
-  animateToughBubbleHit, 
-  calculateBubbleJump 
+import {
+  createQuestionData,
+  animateParallax,
+  animateBubbleClick,
+  animateToughBubbleHit,
+  calculateBubbleJump
 } from '@/utils/canvas-interaction'
 
 export function useCanvasInteraction(
@@ -24,8 +24,8 @@ export function useCanvasInteraction(
 
 
   const { gainXP, visitBubble } = useSession()
-  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, openAchievementModal, handleToughBubbleDestroyed, handleSecretBubbleDestroyed } = useModals()
-  
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, handleToughBubbleDestroyed, handleSecretBubbleDestroyed } = useModals()
+
   const isDragging = ref(false)
   const hoveredBubble = ref<BubbleNode | null>(null)
   const parallaxOffset = ref({ x: 0, y: 0 })
@@ -62,7 +62,7 @@ export function useCanvasInteraction(
         hoveredBubble.value.targetRadius = hoveredBubble.value.baseRadius * 1.2
         hoveredBubble.value.isHovered = true
         canvasRef.value!.style.cursor = 'pointer'
-        
+
         const pushRadius = hoveredBubble.value.baseRadius * 3
         const pushStrength = 4
         pushNeighbors(hoveredBubble.value, pushRadius, pushStrength, nodes)
@@ -108,24 +108,24 @@ export function useCanvasInteraction(
       if (clickedBubble && !clickedBubble.isVisited) {
         if (clickedBubble.isTough) {
           const result = bubbleStore.incrementToughBubbleClicks(clickedBubble.id)
-          
+
           if (result.isReady) {
             // Обновляем статус пузыря
             clickedBubble.isReady = true
             clickedBubble.isVisited = true
-            
+
             await visitBubble(clickedBubble.id)
             await handleToughBubbleDestroyed()
-            
+
             // Создаем эффект взрыва и осколков (ДО установки isPopped)
             const canvasEffects = await import('./useCanvasEffects')
             canvasEffects.useCanvasEffects().explodeBubble(clickedBubble)
-            
+
             // Взрываем пузырь
             const explosionRadius = clickedBubble.baseRadius * 8
             const explosionStrength = 25
             explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
-            
+
             // Удаляем пузырь
             removeBubble(clickedBubble.id, nodes)
 
@@ -153,28 +153,27 @@ export function useCanvasInteraction(
             return
           }
         }
-        
+
         clickedBubble.isVisited = true
         await visitBubble(clickedBubble.id)
-        
+
         if (clickedBubble.isHidden) {
           const explosionRadius = clickedBubble.baseRadius * 8
           const explosionStrength = 25
           explodeFromPoint(clickedBubble.x, clickedBubble.y, explosionRadius, explosionStrength, nodes, width, height)
-          
+
           const secretXP = XP_CALCULATOR.getSecretBubbleXP()
-          const result = await gainXP(secretXP)
           createXPFloatingText(clickedBubble.x, clickedBubble.y, secretXP, '#22c55e')
-          
+
           // Используем Event Chain систему для скрытых пузырей
           await handleSecretBubbleDestroyed()
-          
+
           removeBubble(clickedBubble.id, nodes)
           return
         }
-        
+
         animateBubbleClick(clickedBubble)
-        
+
         if (clickedBubble.isQuestion) {
           const question = createQuestionData(clickedBubble)
           openPhilosophyModal(question, clickedBubble.id)
@@ -201,13 +200,13 @@ export function useCanvasInteraction(
   ) => {
     const customEvent = event as CustomEvent
     const { bubbleId, isPhilosophyNegative, skipXP } = customEvent.detail
-    
+
     const bubble = nodes.find(node => node.id === bubbleId)
     if (!bubble) return
-    
+
     let leveledUp = false
     let xpGained = 0
-    
+
     if (bubble.isTough) {
       await handleToughBubbleDestroyed()
       explodeBubble(bubble)
@@ -220,9 +219,9 @@ export function useCanvasInteraction(
       if (!isPhilosophyNegative) {
         xpGained = XP_CALCULATOR.getPhilosophyBubbleXP()
         const result = await gainXP(xpGained)
-        leveledUp = result.leveledUp
+
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
-        
+
         if (result.leveledUp && result.levelData) {
           openLevelUpModal(result.newLevel!, result.levelData)
         }
@@ -233,26 +232,26 @@ export function useCanvasInteraction(
       // Обрабатываем XP только если не было уже обработано в useModals
       xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
       const result = await gainXP(xpGained)
-      leveledUp = result.leveledUp
-      
+
+
       if (xpGained > 0) {
         createXPFloatingText(bubble.x, bubble.y, xpGained, '#22c55e')
       }
-      
+
       if (result.leveledUp && result.levelData) {
         console.log('Opening level up modal for bubble:', result)
         openLevelUpModal(result.newLevel!, result.levelData)
       }
     }
-    
+
     await visitBubble(bubble.id)
     bubble.isVisited = true
-    
+
     // Achievement логика перенесена в useModals.continueBubbleModal
     // чтобы избежать дублирования при multiple событиях
-    
+
     explodeBubble(bubble)
-    
+
     setTimeout(() => {
       const remainingNodes = removeBubble(bubbleId, nodes)
       if (onBubblePopped) {
@@ -274,12 +273,12 @@ export function useCanvasInteraction(
     removeBubble: (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]) => BubbleNode[],
     getSimulation?: () => Simulation<BubbleNode, undefined> | null
   ) => {
-    const mouseMoveHandler = (event: MouseEvent) => 
+    const mouseMoveHandler = (event: MouseEvent) =>
       handleMouseMove(event, nodes(), findBubbleUnderCursor, pushNeighbors)
-    
-    const clickHandler = (event: MouseEvent) => 
+
+    const clickHandler = (event: MouseEvent) =>
       handleClick(event, nodes(), width(), height(), findBubbleUnderCursor, explodeFromPoint, createXPFloatingText, createLifeLossFloatingText, removeBubble, getSimulation)
-    
+
     const bubbleContinueHandler = (event: Event) =>
       handleBubbleContinue(event, nodes(), createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
 
@@ -306,7 +305,7 @@ export function useCanvasInteraction(
     const customEvent = {
       detail: { bubbleId, isPhilosophyNegative, skipXP }
     } as CustomEvent
-    
+
     return handleBubbleContinue(customEvent, nodes, createXPFloatingText, createLifeLossFloatingText, explodeBubble, removeBubble)
   }
 
@@ -321,4 +320,4 @@ export function useCanvasInteraction(
     executeBubbleContinue,
     parallaxOffset
   }
-} 
+}

@@ -57,9 +57,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useBonuses } from '@/composables'
+import { computed, onMounted } from 'vue'
 
 interface Props {
   isOpen: boolean

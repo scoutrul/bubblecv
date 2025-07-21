@@ -77,9 +77,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import type { PendingAchievement } from '@/types/modals'
+import { ref } from 'vue'
 
 const scrollContainer = ref<HTMLElement>()
 

@@ -16,9 +16,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
 import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils/animations'
 import { useModals } from '@/composables/useModals'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 
 interface Props {
   currentLevel: number

@@ -1,25 +1,23 @@
-import { ref, computed, watch } from 'vue'
-import { useSessionStore, useUiEventStore, useLevelStore, useModalStore } from '@/stores'
-import { useAchievement } from '@/composables/useAchievement'
-import { useBonuses } from '@/composables/useBonuses'
-import { GAME_CONFIG, maxGameLevel } from '@/config'
-import { generateSessionId } from '@/utils/ui'
-import { getEventBridge } from '@/composables/useUi'
-import type { NormalizedBubble } from '@/types/normalized'
+import {computed, ref} from 'vue'
+import {useLevelStore, useModalStore, useSessionStore, useUiEventStore} from '@/stores'
+import {useAchievement} from '@/composables/useAchievement'
+import {useBonuses} from '@/composables/useBonuses'
+import {GAME_CONFIG, maxGameLevel} from '@/config'
+import {generateSessionId} from '@/utils/ui'
+import {getEventBridge} from '@/composables/useUi'
+import type {NormalizedBubble} from '@/types/normalized'
 
 export function useSession() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
-  const { unlockBonusForLevel } = useBonuses()
-  const modalStore = useModalStore()
+  const { unlockBonusForLevel, resetBonuses } = useBonuses()
 
   const yearTransitionTrigger = ref(false)
 
   // Функция для показа модалки ачивки
   const showAchievementModal = (achievement: any) => {
-    // Импортируем useModals динамически чтобы избежать циклических зависимостей
     import('@/composables/useModals').then(({ useModals }) => {
       const { openAchievementModal } = useModals()
       openAchievementModal({
@@ -38,9 +36,7 @@ export function useSession() {
     if (level >= maxGameLevel) return false
 
     const requiredXPForNextLevel = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
-    const canLevel = sessionStore.currentXP >= requiredXPForNextLevel
-
-    return canLevel
+    return sessionStore.currentXP >= requiredXPForNextLevel
   })
 
   const gainXP = async (amount: number): Promise<{ leveledUp: boolean; newLevel?: number; levelData?: any }> => {
@@ -148,41 +144,44 @@ export function useSession() {
   }
 
   const startSession = (options: { lives?: number } = { lives: GAME_CONFIG.maxLives }): void => {
-    resetAchievements()
 
-    sessionStore.createSession({
-      id: generateSessionId(),
-      currentXP: 0,
-      currentLevel: 1,
-      lives: options.lives ?? GAME_CONFIG.initialLives,
-      visitedBubbles: [],
-      agreementScore: 0,
-      gameCompleted: false,
-      hasDestroyedToughBubble: false,
-      startTime: new Date(),
-      lastActivity: new Date(),
-      hasUnlockedFirstToughBubbleAchievement: false,
-      currentYear: GAME_CONFIG.initialYear
+    new Promise((resolve) => {
+      sessionStore.createSession({
+        id: generateSessionId(),
+        currentXP: 0,
+        currentLevel: 1,
+        lives: options.lives ?? GAME_CONFIG.initialLives,
+        visitedBubbles: [],
+        agreementScore: 0,
+        gameCompleted: false,
+        hasDestroyedToughBubble: false,
+        startTime: new Date(),
+        lastActivity: new Date(),
+        hasUnlockedFirstToughBubbleAchievement: false,
+        currentYear: GAME_CONFIG.initialYear
+      })
+      resolve(true)
+    }).then(() => {
+      const bridge = getEventBridge()
+      if (bridge) {
+        bridge.resetCanvas()
+      }
+      resetAchievements()
+      resetBonuses()
     })
-
-    // Заменяем dispatchEvent на прямой вызов
-    const bridge = getEventBridge()
-    if (bridge) {
-      bridge.resetCanvas()
-    }
   }
 
   const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {
     if (!sessionStore.session) return
-    
+
     if (!sessionStore.session.customPhilosophyAnswers) {
       sessionStore.session.customPhilosophyAnswers = {}
     }
-    
+
     if (!sessionStore.session.allPhilosophyAnswers) {
       sessionStore.session.allPhilosophyAnswers = {}
     }
-    
+
     sessionStore.session.customPhilosophyAnswers[questionId] = answer
     sessionStore.session.allPhilosophyAnswers[questionId] = {
       type: 'custom',
@@ -193,11 +192,11 @@ export function useSession() {
 
   const saveSelectedPhilosophyAnswer = async (questionId: string, selectedOptionText: string, questionText: string) => {
     if (!sessionStore.session) return
-    
+
     if (!sessionStore.session.allPhilosophyAnswers) {
       sessionStore.session.allPhilosophyAnswers = {}
     }
-    
+
     sessionStore.session.allPhilosophyAnswers[questionId] = {
       type: 'selected',
       answer: selectedOptionText,

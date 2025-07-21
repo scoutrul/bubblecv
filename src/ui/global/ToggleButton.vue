@@ -35,8 +35,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, type Ref } from 'vue'
 import { createShineAnimation, stopShineAnimation } from '@/utils/animations'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 interface Props {
   icon: string

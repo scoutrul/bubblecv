@@ -1,6 +1,6 @@
 import type { BubbleNode } from './canvas'
 import type { Question } from './data'
-import type { NormalizedLevel, NormalizedBonus } from './normalized'
+import type { NormalizedBonus } from './normalized'
 
 export interface PendingAchievement {
   title: string

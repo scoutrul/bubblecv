@@ -40,8 +40,8 @@ export function useCanvasSimulation(
     if (!canvasRef.value) return
     const shakeOffset = canvasEffects.calculateShakeOffset()
     canvasRenderer.render(
-      nodes, 
-      width, 
+      nodes,
+      width,
       height,
       shakeOffset,
       canvasInteraction.parallaxOffset.value,
@@ -63,12 +63,12 @@ export function useCanvasSimulation(
   const explodeBubble = (bubble: BubbleNode) => {
     // Создаем эффекты взрыва и крепиша
     canvasEffects.explodeBubble(bubble)
-    
+
     // Физический взрыв для отталкивания соседних пузырей
     const explosionRadius = bubble.baseRadius * 5
     const explosionStrength = 18
     physicsSimulation.explodeFromPoint(bubble.x, bubble.y, explosionRadius, explosionStrength, nodes, width, height)
-    
+
     // Сохраняем позиции и удаляем пузырь
     bubbleManager.savePositions([bubble])
     nodes = bubbleManager.removeBubble(bubble.id, nodes)
@@ -148,10 +148,6 @@ export function useCanvasSimulation(
     simulation.alpha(1).restart()
   }
 
-  const removeBubble = (bubbleId: NormalizedBubble['id']) => {
-    nodes = bubbleManager.removeBubble(bubbleId, nodes)
-    physicsSimulation.updateNodes(nodes)
-    }
   const destroySimulation = () => {
     if (animationId) {
       cancelAnimationFrame(animationId)
@@ -168,14 +164,14 @@ export function useCanvasSimulation(
   }
   const handleMouseMove = (event: MouseEvent) => {
     canvasInteraction.handleMouseMove(
-      event, 
-      nodes, 
-      bubbleManager.findBubbleUnderCursor, 
+      event,
+      nodes,
+      bubbleManager.findBubbleUnderCursor,
       physicsSimulation.pushNeighbors
     )
   }
   const handleClick = (event: MouseEvent) => {
-    canvasInteraction.handleClick(
+    return canvasInteraction.handleClick(
       event,
       nodes,
       width,
@@ -205,4 +201,4 @@ export function useCanvasSimulation(
     isInitialized,
     removeBubbleFromCanvas
   }
-} 
+}

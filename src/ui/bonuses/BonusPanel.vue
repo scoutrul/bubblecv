@@ -4,15 +4,15 @@
       <h3 class="text-lg font-semibold">🎁 Бонусы</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
     </div>
-    
+
     <div class="bonuses-grid">
       <div v-if="bonuses.length === 0" class="bonus-placeholder">
         <span class="text-text-muted">Проходите уровни, чтобы разблокировать бонусы!</span>
       </div>
-      
+
       <div v-else class="space-y-2">
         <BonusItem
-          v-for="bonus in bonuses" 
+          v-for="bonus in bonuses"
           :key="bonus.id"
           :bonus="bonus"
           @click="openBonusModal(bonus)"
@@ -23,9 +23,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useBonuses } from '@/composables'
 import BonusItem from './BonusItem.vue'
+import { onMounted } from 'vue';
 
 defineEmits<{
   close: []
@@ -86,4 +86,4 @@ onMounted(async () => {
   backdrop-filter: blur(10px);
   background: rgba(30, 41, 59, 0.95);
 }
-</style> 
+</style>

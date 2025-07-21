@@ -10,10 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { useCanvas } from '@/composables/useCanvas'
 import { useUi, setEventBridge } from '@/composables/useUi'
 import { setCanvasBridge } from '@/composables/useModals'
+import { onMounted, ref } from 'vue'
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const containerRef = ref<HTMLElement | null>(null)

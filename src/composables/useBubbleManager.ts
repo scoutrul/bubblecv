@@ -12,7 +12,7 @@ export function useBubbleManager() {
   const savedPositions = new Map<number, PositionData>()
 
   const createNodes = (bubbles: BubbleNode[], width: number, height: number): BubbleNode[] => {
-    const sizes = calculateAdaptiveSizes(bubbles.length, width, height)
+    const sizes = calculateAdaptiveSizes()
 
     return bubbles.map(bubble => {
       const baseRadius = calcBubbleRadius(bubble.skillLevel, sizes, bubble)
@@ -76,8 +76,7 @@ export function useBubbleManager() {
     if (index !== -1) {
       const newNodes = [...nodes]
       newNodes.splice(index, 1)
-      const hasNonSpecialBubbles = newNodes.some(n => !n.isQuestion && !n.isTough && !n.isHidden)
-      // Убираем dispatchEvent так как year-completed не обрабатывается
+
       return newNodes
     }
     return nodes

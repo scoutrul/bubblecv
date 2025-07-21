@@ -50,7 +50,6 @@ export const useBonusStore = defineStore('bonusStore', () => {
     })
   }
 
-  // Сброс состояния бонусов при рестарте игры
   const resetBonuses = () => {
     bonuses.value.forEach((bonus) => {
       bonus.isUnlocked = false

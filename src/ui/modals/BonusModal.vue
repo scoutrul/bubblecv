@@ -5,14 +5,14 @@
     class-name="bonus-modal-container"
   >
     <!-- Крестик для закрытия -->
-    <button 
+    <button
       @click="close"
       class="close-button"
       aria-label="Закрыть"
     >
       ×
     </button>
-    
+
     <!-- Заголовок с иконкой -->
     <div class="bonus-header">
       <div class="bonus-icon-large">{{ bonus?.icon }}</div>
@@ -24,12 +24,12 @@
 
     <!-- Контент бонуса -->
     <div class="bonus-content">
-      <div 
-        v-if="bonus?.content" 
+      <div
+        v-if="bonus?.content"
         v-html="bonus.content"
         class="bonus-html-content"
       ></div>
-      
+
       <!-- Форма связи для 3-го уровня -->
       <ContactForm v-if="bonus?.level === 3" class="contact-form-container" />
     </div>
@@ -37,11 +37,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import ContactForm from './ContactForm.vue'
 import { useModalStore } from '@/stores'
-import type { NormalizedBonus } from '@/types/normalized'
+import { computed } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -282,13 +281,13 @@ const close = () => {
     padding: 1.5rem;
     max-width: 95vw;
   }
-  
+
   .bonus-icon-large {
     font-size: 2.5rem;
   }
-  
+
   .bonus-title {
     font-size: 1.5rem;
   }
 }
-</style> 
+</style>

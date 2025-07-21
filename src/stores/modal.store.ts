@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
-import { reactive, ref, computed, nextTick } from 'vue'
-import type { ModalStates, ModalData, PendingAchievement, LevelUpData, QueuedModal, ModalType, EventChain } from '@/types/modals'
-import { getEventChainCompletedHandler } from '@/composables/useModals'
+import {defineStore} from 'pinia'
+import {computed, nextTick, reactive, ref} from 'vue'
+import type {EventChain, LevelUpData, ModalData, ModalStates, PendingAchievement, QueuedModal} from '@/types/modals'
+import {getEventChainCompletedHandler} from '@/composables/useModals'
 
 export const useModalStore = defineStore('modalStore', () => {
   // State - только данные
@@ -54,12 +54,10 @@ export const useModalStore = defineStore('modalStore', () => {
 
   // Event Chain методы
   const startEventChain = (chain: Omit<EventChain, 'id'>) => {
-    const chainWithId: EventChain = {
+    currentEventChain.value = {
       ...chain,
       id: `chain_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     }
-    
-    currentEventChain.value = chainWithId
     processEventChain()
   }
 
@@ -67,7 +65,7 @@ export const useModalStore = defineStore('modalStore', () => {
     if (!currentEventChain.value) return
 
     const chain = currentEventChain.value
-    
+
     switch (chain.currentStep) {
       case 'bubble':
         if (chain.context.bubble) {
@@ -82,7 +80,7 @@ export const useModalStore = defineStore('modalStore', () => {
           continueEventChain()
         }
         break
-        
+
       case 'levelUp':
         if (chain.pendingLevelUp) {
           showModal({
@@ -96,7 +94,7 @@ export const useModalStore = defineStore('modalStore', () => {
           continueEventChain()
         }
         break
-        
+
       case 'achievement':
         if (chain.pendingAchievements.length > 0) {
           const achievement = chain.pendingAchievements.shift()!
@@ -111,7 +109,7 @@ export const useModalStore = defineStore('modalStore', () => {
           continueEventChain()
         }
         break
-        
+
       case 'levelAchievement':
         if (chain.pendingLevelAchievements.length > 0) {
           const achievement = chain.pendingLevelAchievements.shift()!
@@ -126,7 +124,7 @@ export const useModalStore = defineStore('modalStore', () => {
           continueEventChain()
         }
         break
-        
+
       case 'complete':
         completeEventChain()
         break
@@ -137,7 +135,7 @@ export const useModalStore = defineStore('modalStore', () => {
     if (!currentEventChain.value) return
 
     const chain = currentEventChain.value
-    
+
     // Определяем следующий шаг согласно правильному порядку
     switch (chain.currentStep) {
       case 'bubble':
@@ -171,13 +169,13 @@ export const useModalStore = defineStore('modalStore', () => {
       default:
         chain.currentStep = 'complete'
     }
-    
+
     processEventChain()
   }
 
   const completeEventChain = () => {
     currentEventChain.value = null
-    
+
     // Обрабатываем отложенные удаления пузырей после завершения Event Chain
     nextTick(() => {
       const handler = getEventChainCompletedHandler()
@@ -222,7 +220,7 @@ export const useModalStore = defineStore('modalStore', () => {
 
   const showModal = (modal: QueuedModal) => {
     currentModal.value = modal
-    
+
     // Устанавливаем данные для модалки
     switch (modal.type) {
       case 'bubble':

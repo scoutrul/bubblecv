@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { useBonusStore, useModalStore, useSessionStore, useUiEventStore } from '@/stores'
+import { useBonusStore, useModalStore, useUiEventStore } from '@/stores'
 import type { NormalizedBonus } from '@/types/normalized'
 
 export function useBonuses() {
@@ -33,7 +33,7 @@ export function useBonuses() {
 
   const openBonusModal = (bonus: NormalizedBonus) => {
     if (!bonus.isUnlocked) return
-    
+
     // Приостанавливаем Event Chain если он активен
     const currentChain = modalStore.currentEventChain
     if (currentChain) {
@@ -41,7 +41,7 @@ export function useBonuses() {
       sessionStorage.setItem('pausedEventChain', JSON.stringify(currentChain))
       modalStore.completeEventChain()
     }
-    
+
     modalStore.setCurrentBonus(bonus)
     modalStore.openModal('bonus')
   }
@@ -83,4 +83,4 @@ export function useBonuses() {
     unlockBonusForLevel,
     resetBonuses
   }
-} 
+}

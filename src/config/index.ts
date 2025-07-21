@@ -8,39 +8,39 @@ export const GAME_CONFIG = {
   TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
 
   levelRequirements: {
-    1: 0,    
-    2: 50,   
-    3: 100,  
-    4: 150,  
-    5: 200   
+    1: 0,
+    2: 50,
+    3: 100,
+    4: 150,
+    5: 200
   } as const,
-  
+
   achievementXP: {
-    basic: 5,        
-    intermediate: 8,  
-    advanced: 12,    
-    master: 15       
+    basic: 5,
+    intermediate: 8,
+    advanced: 12,
+    master: 15
   } as const,
-  
+
   xpPerExpertiseLevel: {
     [SKILL_LEVELS.NOVICE]: 3,
-    [SKILL_LEVELS.INTERMEDIATE]: 5, 
+    [SKILL_LEVELS.INTERMEDIATE]: 5,
     [SKILL_LEVELS.CONFIDENT]: 7,
     [SKILL_LEVELS.EXPERT]: 9,
     [SKILL_LEVELS.MASTER]: 12
   } as const,
-  
+
 
   expertiseBubbles: {
     [SKILL_LEVELS.NOVICE]: {
       name: 'Новичок',
       opacity: 0.85,
-      gradientColors: ['#6B7280', '#FFD5DB'], 
+      gradientColors: ['#6B7280', '#FFD5DB'],
     },
     [SKILL_LEVELS.INTERMEDIATE]: {
       name: 'С опытом',
       opacity: 0.9,
-      gradientColors: ['#FF2937', '#DD5563'], 
+      gradientColors: ['#FF2937', '#DD5563'],
     },
     [SKILL_LEVELS.CONFIDENT]: {
       name: 'Уверенный',
@@ -50,7 +50,7 @@ export const GAME_CONFIG = {
     [SKILL_LEVELS.EXPERT]: {
       name: 'Эксперт',
       opacity: 0.95,
-      gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF', '#9CA3AF00'], 
+      gradientColors: ['#E5E7EB', '#D1D5DB', '#9CA3AF', '#9CA3AF00'],
     },
     [SKILL_LEVELS.MASTER]: {
       name: 'Мастер',
@@ -66,7 +66,7 @@ export const GAME_CONFIG = {
   } as const,
 
   hiddenBubble: {
-    opacity: 0, 
+    opacity: 0,
     gradientColors: [],
     name: 'Скрытый пузырь'
   } as const,
@@ -74,7 +74,7 @@ export const GAME_CONFIG = {
 } as const
 
 // Централизованные функции для расчета XP
-export const XP_CALCULATOR = {  
+export const XP_CALCULATOR = {
   getBubbleXP: (skillLevel: SkillLevel): number => {
     return skillLevel ? GAME_CONFIG.xpPerExpertiseLevel[skillLevel] : GAME_CONFIG.xpPerExpertiseLevel[SKILL_LEVELS.NOVICE]
   },
@@ -112,7 +112,5 @@ export const XP_CALCULATOR = {
   },
 
 } as const
-
-export type GameLevelNumber = keyof typeof GAME_CONFIG.levelRequirements
 
 export const maxGameLevel = Object.keys(GAME_CONFIG.levelRequirements).length

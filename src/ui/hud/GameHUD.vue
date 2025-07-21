@@ -4,24 +4,24 @@
     <div class="top-panel p-2 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:w-full sm:gap-4">
       <!-- Жизни: слева на мобильных и десктопе -->
       <div class="flex justify-between items-center sm:justify-start sm:order-1">
-        <LivesDisplay 
+        <LivesDisplay
           :current-lives="currentLives"
           :max-lives="maxLives"
           :is-shaking="shakingComponents.has('lives')"
         />
         <!-- Уровень на мобильных справа -->
         <div class="sm:hidden">
-          <LevelDisplay 
+          <LevelDisplay
             :current-level="currentLevel"
             :level-title="currentLevelTitle"
             :is-shaking="shakingComponents.has('level')"
           />
         </div>
       </div>
-      
+
       <!-- Опыт: внизу на мобильных, по центру на десктопе -->
       <div class="mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:flex sm:justify-center sm:min-w-0">
-        <XPDisplay 
+        <XPDisplay
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"
           :xp-percentage="xpProgress"
@@ -29,19 +29,19 @@
           :is-shaking="shakingComponents.has('xp')"
         />
       </div>
-      
+
       <!-- Уровень: только на десктопе справа -->
       <div class="hidden sm:block sm:order-3">
-        <LevelDisplay 
+        <LevelDisplay
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
           :is-shaking="shakingComponents.has('level')"
         />
       </div>
     </div>
-    
+
     <!-- Achievements Widget -->
-    <AchievementsWidget 
+    <AchievementsWidget
       :unlocked-count="unlockedAchievementsCount"
       :is-shaking="isAchievementShaking"
       :show-achievements="showAchievementPanel"
@@ -50,7 +50,7 @@
     />
 
     <!-- Bonus Widget -->
-    <BonusWidget 
+    <BonusWidget
       :unlocked-count="unlockedBonusesCount"
       :is-shaking="isBonusShaking"
       :show-bonuses="showBonusPanel"
@@ -63,8 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useApp, useUi, useModals } from '@/composables/'
+import { useApp, useUi } from '@/composables/'
 
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
@@ -72,6 +71,7 @@ import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
 import { useBonuses } from '@/composables/useBonuses'
+import { computed } from 'vue'
 
 
 
@@ -93,21 +93,21 @@ const {
   }
 } = useApp()
 
-const {   
+const {
     isXPAnimating,
     shakingComponents
   } = useUi()
 
-const { 
-  unlockedBonusesCount, 
-  showBonusPanel, 
-  toggleBonusPanel, 
+const {
+  unlockedBonusesCount,
+  showBonusPanel,
+  toggleBonusPanel,
   closeBonusPanel
 } = useBonuses()
 
 const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
 const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
-  
+
 </script>
 
 <style scoped>
@@ -125,4 +125,4 @@ const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
 }
 
 
-</style> 
+</style>

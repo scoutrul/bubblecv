@@ -1,9 +1,8 @@
-import { GAME_CONFIG } from '@/config'
-import { SKILL_LEVELS } from '@/types/skill-levels'
-import type { SkillLevel } from '@/types/skill-levels'
-import type { NormalizedBubble, BubbleSizes } from '@/types/normalized'
+import {GAME_CONFIG} from '@/config'
+import type {SkillLevel} from '@/types/skill-levels'
+import type {BubbleSizes, NormalizedBubble} from '@/types/normalized'
 
-export function calculateAdaptiveSizes(bubbleCount: number, width: number, height: number): { min: number; max: number } {
+export function calculateAdaptiveSizes(): { min: number; max: number } {
   // Фиксированные размеры как для больших экранов
   return { min: 35, max: 120 }
 }
@@ -29,17 +28,10 @@ export function calcBubbleRadius(bubbleSkillLevel: SkillLevel | undefined, sizes
     return SIZE_TO_PIXELS[bubble.size]
   }
 
-  // Fallback для старой логики (если size не задан)
-  const expertiseConfig = bubbleSkillLevel
-    ? GAME_CONFIG.expertiseBubbles[bubbleSkillLevel]
-    : GAME_CONFIG.expertiseBubbles[SKILL_LEVELS.INTERMEDIATE]
-
   const skillLevels = Object.keys(GAME_CONFIG.expertiseBubbles) as SkillLevel[]
   const skillIndex = skillLevels.indexOf(bubbleSkillLevel as SkillLevel)
   const sizeRatio = (skillIndex + 1) / skillLevels.length
-  const calculatedRadius = sizes.min + (sizes.max - sizes.min) * sizeRatio
-
-  return calculatedRadius
+  return sizes.min + (sizes.max - sizes.min) * sizeRatio
 }
 
 
@@ -48,7 +40,7 @@ export const getBubbleColor = (bubble: NormalizedBubble) => {
   if (bubble.isQuestion) {
     return GAME_CONFIG.expertiseBubbles[bubble.skillLevel].gradientColors[0]
   }
-  
+
   const expertiseConfig = GAME_CONFIG.expertiseBubbles[bubble.skillLevel]
   return expertiseConfig?.gradientColors?.[0] || '#3b82f6'
 }

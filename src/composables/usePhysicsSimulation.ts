@@ -1,4 +1,3 @@
-import { ref } from 'vue'
 import * as d3 from 'd3'
 import type { BubbleNode } from '@/types/canvas'
 
@@ -12,7 +11,7 @@ export function usePhysicsSimulation() {
     const hudHeight = 80
     const effectiveHeight = height - hudHeight
     const centerY = (effectiveHeight / 2) + hudHeight
-    
+
     // Инициализируем симуляцию с улучшенной физикой для импульсов
     simulation = d3.forceSimulation<BubbleNode>()
       .force('center', d3.forceCenter(width / 2, centerY).strength(0.003)) // Уменьшили силу центра
@@ -58,35 +57,35 @@ export function usePhysicsSimulation() {
   // Импульсное отталкивание соседей при ховере с улучшенной инерцией
   const pushNeighbors = (centerBubble: BubbleNode, pushRadius: number, pushStrength: number, nodes: BubbleNode[]) => {
     let affectedCount = 0
-    
+
     nodes.forEach(bubble => {
       if (bubble.id === centerBubble.id) return
-      
+
       const dx = bubble.x - centerBubble.x
       const dy = bubble.y - centerBubble.y
       const distance = Math.sqrt(dx * dx + dy * dy)
-      
+
       // Если пузырь в радиусе воздействия
       if (distance < pushRadius && distance > 0) {
         // Нормализуем вектор направления
         const normalizedDx = dx / distance
         const normalizedDy = dy / distance
-        
+
         // Возвращаем более сильное отталкивание, но улучшаем обработку скорости
         const force = pushStrength * (1 - distance / pushRadius) * 3
-        
+
         // Применяем импульс к скорости более мягко для лучшей инерции
         const currentVx = bubble.vx || 0
         const currentVy = bubble.vy || 0
-        
+
         // Добавляем к существующей скорости, а не заменяем её
         bubble.vx = currentVx + normalizedDx * force
         bubble.vy = currentVy + normalizedDy * force
-        
+
         // Также немного сдвигаем позицию для мгновенного эффекта
         bubble.x += normalizedDx * force * 0.5
         bubble.y += normalizedDy * force * 0.5
-        
+
         // Более мягкое ограничение максимальной скорости для сохранения инерции
         const maxVelocity = 15 // Возвращаем более высокую скорость
         const currentVelocity = Math.sqrt(bubble.vx ** 2 + bubble.vy ** 2)
@@ -95,11 +94,11 @@ export function usePhysicsSimulation() {
           bubble.vx = bubble.vx * scale
           bubble.vy = bubble.vy * scale
         }
-        
+
         affectedCount++
       }
     })
-    
+
     // Перезапускаем симуляцию для хорошего отклика
     if (simulation && affectedCount > 0) {
       simulation.alpha(0.5).restart()
@@ -109,12 +108,12 @@ export function usePhysicsSimulation() {
   // Отталкивание от точки клика как от стены (взрыв)
   const explodeFromPoint = (clickX: number, clickY: number, explosionRadius: number, explosionStrength: number, nodes: BubbleNode[], width: number, height: number) => {
     let affectedCount = 0
-    
+
     nodes.forEach(bubble => {
       const dx = bubble.x - clickX
       const dy = bubble.y - clickY
       const distance = Math.sqrt(dx * dx + dy * dy)
-      
+
       // Если пузырь в радиусе взрыва
       if (distance < explosionRadius) {
         // Если пузырь прямо в центре клика, отталкиваем в случайном направлении
@@ -128,18 +127,18 @@ export function usePhysicsSimulation() {
           normalizedDx = dx / distance
           normalizedDy = dy / distance
         }
-        
+
         // Сила взрыва убывает с расстоянием (как от стены)
         const force = explosionStrength * (1 - distance / explosionRadius) * 4
-        
+
         // Применяем мощный импульс для эффекта взрыва
         bubble.vx = (bubble.vx || 0) + normalizedDx * force
         bubble.vy = (bubble.vy || 0) + normalizedDy * force
-        
+
         // Немедленно сдвигаем позицию для мгновенного эффекта
         bubble.x += normalizedDx * force * 0.8
         bubble.y += normalizedDy * force * 0.8
-        
+
         // Ограничиваем максимальную скорость для контроля
         const maxVelocity = 20 // Высокая скорость для эффекта взрыва
         const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
@@ -148,16 +147,16 @@ export function usePhysicsSimulation() {
           bubble.vx = (bubble.vx || 0) * scale
           bubble.vy = (bubble.vy || 0) * scale
         }
-        
+
         // Убеждаемся что пузыри не выходят за границы экрана
         const padding = bubble.currentRadius + 5
         bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
         bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
-        
+
         affectedCount++
       }
     })
-    
+
     // Сильно перезапускаем симуляцию для драматичного эффекта
     if (simulation && affectedCount > 0) {
       simulation.alpha(0.8).restart()
@@ -170,7 +169,7 @@ export function usePhysicsSimulation() {
       clearInterval(restartInterval)
       restartInterval = 0
     }
-    
+
     if (simulation) {
       simulation.stop()
       simulation = null
@@ -186,4 +185,4 @@ export function usePhysicsSimulation() {
     stopSimulation,
     getSimulation: () => simulation
   }
-} 
+}

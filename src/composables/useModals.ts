@@ -1,4 +1,4 @@
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { useSessionStore, useModalStore, useLevelStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useSession } from '@/composables/useSession'
@@ -52,7 +52,7 @@ export const useModals = () => {
   const levelStore = useLevelStore()
   const { unlockAchievement } = useAchievement()
   const { gainXP, losePhilosophyLife, visitBubble } = useSession()
-  
+
   const isProcessingBubbleModal = ref(false)
 
 
@@ -97,20 +97,20 @@ export const useModals = () => {
     chainType: EventChain['type']
   ) => {
     const achievement = await unlockAchievement(achievementId)
-    
+
     if (achievement) {
       // Получаем XP от основной ачивки
       const xpResult = await gainXP(achievement.xpReward)
-      
+
       // Создаем массив основных ачивок
       const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
-      
+
       // Создаем массив level ачивок
       const levelAchievements: PendingAchievement[] = []
-      
+
       // Проверяем level achievement
       await checkAndAddLevelAchievement(xpResult, levelAchievements)
-      
+
       // Запускаем Event Chain
       modalStore.startEventChain(createEventChainConfig(
         chainType,
@@ -131,16 +131,16 @@ export const useModals = () => {
 
   const modals = computed(() => modalStore.modals)
   const data = computed(() => modalStore.data)
-  
-  const isAnyModalOpen = computed(() => 
+
+  const isAnyModalOpen = computed(() =>
     Object.values(modalStore.modals).some(v => v)
   )
 
   const hasActiveModals = computed(() =>
-    modalStore.modals.welcome || 
-    modalStore.modals.bubble || 
-    modalStore.modals.levelUp || 
-    modalStore.modals.philosophy || 
+    modalStore.modals.welcome ||
+    modalStore.modals.bubble ||
+    modalStore.modals.levelUp ||
+    modalStore.modals.philosophy ||
     modalStore.modals.gameOver ||
     modalStore.modals.achievement ||
     modalStore.modals.bonus
@@ -171,12 +171,12 @@ export const useModals = () => {
       // Иначе используем старый способ
       modalStore.closeModal(key)
     }
-    
+
     const bridge = getEventBridge()
     if (bridge) {
       bridge.processShakeQueue()
     }
-    
+
     // Обрабатываем отложенные удаления пузырей после закрытия всех модалок
     setTimeout(() => {
       processPendingBubbleRemovals()
@@ -188,12 +188,12 @@ export const useModals = () => {
     if (isProcessingBubbleModal.value) {
       return
     }
-    
+
     isProcessingBubbleModal.value = true
 
     try {
       // Посещаем пузырь и получаем XP
-      visitBubble(bubble.id)
+      await visitBubble(bubble.id)
       const xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
       let xpResult = await gainXP(xpGained)
 
@@ -207,14 +207,14 @@ export const useModals = () => {
       // Собираем ТОЛЬКО обычные ачивки (bubble-explorer)
       const achievements: PendingAchievement[] = []
       const bubblesCount = sessionStore.visitedBubbles.length
-      
+
       // Проверяем ачивки за количество пузырей
       const bubbleAchievementMap: Record<number, string> = {
         10: 'bubble-explorer-10',
         30: 'bubble-explorer-30',
         50: 'bubble-explorer-50'
       }
-      
+
       const achievementId = bubbleAchievementMap[bubblesCount]
       if (achievementId) {
         const achievement = await unlockAchievement(achievementId)
@@ -225,7 +225,7 @@ export const useModals = () => {
 
       // Собираем ОТДЕЛЬНО level ачивки
       const levelAchievements: PendingAchievement[] = []
-      
+
       // Проверяем level achievement (включая дополнительное начисление XP для bubble chains)
       if (xpResult.leveledUp && xpResult.newLevel === 2) {
         const levelAchievement = await unlockAchievement('first-level-master')
@@ -269,13 +269,13 @@ export const useModals = () => {
       priority: MODAL_PRIORITIES.welcome
     })
   }
-  
+
   const closeWelcome = () => closeModalWithLogic('welcome')
 
-  // Bubble Modal  
+  // Bubble Modal
   const openBubbleModal = (bubble: BubbleNode) => {
     // Используем новую систему Event Chains
-    startBubbleEventChain(bubble)
+    return startBubbleEventChain(bubble)
   }
 
   const continueBubbleModal = async () => {
@@ -288,7 +288,7 @@ export const useModals = () => {
     // Level Up Modal теперь работает только через Event Chain
     const levelData = levelStore.getLevelByNumber(level)
     const icon = ['👋', '🤔', '📚', '🤝', '🤜🤛'][level - 1] || '⭐'
-    
+
     modalStore.startEventChain({
       type: 'manual',
       pendingAchievements: [],
@@ -324,7 +324,7 @@ export const useModals = () => {
   const handlePhilosophyResponse = async (response: { type: 'selected', optionId: string } | { type: 'custom', answer: string }) => {
     const question = modalStore.data.currentQuestion
     const bubbleId = modalStore.data.philosophyBubbleId
-    
+
     if (!question) return
 
     const { useSession } = await import('@/composables/useSession')
@@ -339,16 +339,16 @@ export const useModals = () => {
       if (!selectedOption) return
 
       isNegative = selectedOption.livesLost > 0
-      
+
       // Сохраняем выбранный ответ
       await saveSelectedPhilosophyAnswer(question.id, selectedOption.text, question.question)
-      
+
       // Определяем количество XP в зависимости от agreementLevel
       xpAmount = XP_CALCULATOR.getPhilosophyXP(selectedOption.agreementLevel)
     } else {
       // Обработка кастомного ответа
       await saveCustomPhilosophyAnswer(question.id, response.answer, question.question)
-      
+
       xpAmount = XP_CALCULATOR.getPhilosophyBubbleXP({isCustom: true})
     }
 
@@ -380,16 +380,16 @@ export const useModals = () => {
     const achievement = await unlockAchievement('philosophy-master')
     if (achievement) {
       const achievementResult = await gainXP(achievement.xpReward)
-      
+
       // Определяем финальный xpResult (от философии + от ачивки)
       const finalXpResult = achievementResult.leveledUp ? achievementResult : xpResult
-      
+
       // Создаем массив основных ачивок
       const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
-      
+
       // Создаем массив level ачивок
       const levelAchievements: PendingAchievement[] = []
-      
+
       // Проверяем level achievement
       await checkAndAddLevelAchievement(finalXpResult, levelAchievements)
 
@@ -438,15 +438,15 @@ export const useModals = () => {
       priority: MODAL_PRIORITIES.gameOver
     })
   }
-  
+
   const closeGameOverModal = () => closeModalWithLogic('gameOver')
 
   const restartGame = async () => {
     modalStore.clearQueue() // Очищаем очередь модалок и event chains
-    
+
     const { useApp } = await import('@/composables/useApp')
     const { resetGame } = useApp()
-    
+
     closeModalWithLogic('gameOver')
     resetGame()
   }
@@ -462,12 +462,12 @@ export const useModals = () => {
 
   const closeAchievementModal = async () => {
     // Если это level achievement из Event Chain, начисляем XP
-    if (modalStore.currentEventChain && 
+    if (modalStore.currentEventChain &&
         modalStore.currentEventChain.currentStep === 'levelAchievement' &&
         modalStore.data.achievement) {
       await gainXP(modalStore.data.achievement.xpReward)
     }
-    
+
     // Проверяем есть ли еще достижения в очереди
     if (modalStore.pendingAchievements.length > 0) {
       const next = modalStore.getNextPendingAchievement()
@@ -476,7 +476,7 @@ export const useModals = () => {
         return // Не закрываем модалку, показываем следующую
       }
     }
-    
+
     closeModalWithLogic('achievement')
     modalStore.setAchievement(null)
   }
@@ -485,18 +485,18 @@ export const useModals = () => {
     // Закрываем BonusModal
     modalStore.closeModal('bonus')
     modalStore.setCurrentBonus(null)
-    
+
     // Восстанавливаем приостановленный Event Chain если он был
     const pausedChain = sessionStorage.getItem('pausedEventChain')
     if (pausedChain) {
       sessionStorage.removeItem('pausedEventChain')
       const chain = JSON.parse(pausedChain)
-      
+
       // Пропускаем LevelUp так как он уже был показан
       if (chain.currentStep === 'levelUp') {
         chain.currentStep = 'levelAchievement'
       }
-      
+
       // Продолжаем с того места где остановились
       modalStore.startEventChain(chain)
       modalStore.processEventChain()

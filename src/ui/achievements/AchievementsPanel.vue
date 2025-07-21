@@ -1,20 +1,20 @@
 <template>
-  <div 
+  <div
     class="achievements-panel content-card"
   >
     <div class="panel-header">
       <h3 class="text-lg font-semibold">🏆 Достижения</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
     </div>
-    
+
     <div class="achievements-grid">
       <div v-if="unlockedAchievements.length === 0" class="achievement-placeholder">
         <span class="text-text-muted">Пока нет достижений. Исследуйте пузыри, чтобы их разблокировать!</span>
       </div>
-      
+
       <div v-else class="space-y-2">
         <AchievementItem
-          v-for="achievement in unlockedAchievements" 
+          v-for="achievement in unlockedAchievements"
           :key="achievement.id"
           :achievement="achievement"
         />
@@ -24,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useAchievmentStore } from '@/stores/achievement.store'
 import AchievementItem from './AchievementItem.vue'
 import type { Achievement } from '@/types/data'
+import { computed } from 'vue';
 
 defineEmits<{
   close: []
@@ -35,7 +35,7 @@ defineEmits<{
 
 const achievmentStore = useAchievmentStore()
 
-const unlockedAchievements = computed(() => 
+const unlockedAchievements = computed(() =>
   achievmentStore.achievements.filter((achievement: Achievement) => achievement.isUnlocked)
 )
 </script>
@@ -82,4 +82,4 @@ const unlockedAchievements = computed(() =>
 .achievement-placeholder {
   @apply text-center py-8;
 }
-</style> 
+</style>

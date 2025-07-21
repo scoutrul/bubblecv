@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     v-if="visible"
     class="year-transition"
   >
@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { createYearTransitionAnimation } from '@/utils/animations'
 
 interface Props {
@@ -25,9 +25,9 @@ const yearTextRef = ref<HTMLElement | null>(null)
 const animateYear = async () => {
   visible.value = true
   await nextTick()
-  
+
   if (!yearTextRef.value) return
-  
+
   // Используем GSAP анимацию
   createYearTransitionAnimation(yearTextRef.value, () => {
     visible.value = false
@@ -58,4 +58,4 @@ watch(() => props.year, (newYear, oldYear) => {
   background-clip: text;
   text-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
 }
-</style> 
+</style>

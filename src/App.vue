@@ -7,12 +7,12 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import { useApp } from '@/composables/'
 
 import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
 import GameScene from './ui/global/GameScene.vue'
+import { onMounted } from 'vue'
 
 const { initialize, isAppLoading } = useApp()
 
@@ -30,4 +30,4 @@ onMounted(async () => {
   @apply h-full w-full relative overflow-hidden;
   background: radial-gradient(ellipse at center, #1a1b23 0%, #0a0b0f 100%);
 }
-</style> 
+</style>

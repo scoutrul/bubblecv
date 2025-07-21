@@ -57,10 +57,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 
 import { useApp } from '@/composables'
+import { computed } from 'vue'
 
 interface Props {
   isVisible: boolean
@@ -75,7 +75,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const { resetGame, game: { currentLevel, currentXP, visitedBubbles } } = useApp()
+const { game: { currentLevel, currentXP, visitedBubbles } } = useApp()
 
 const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 

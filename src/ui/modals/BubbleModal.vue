@@ -83,12 +83,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { XP_CALCULATOR } from '@/config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
 import type { NormalizedBubble } from '@/types/normalized'
 import { getBubbleColor } from '@/utils/bubble'
+import { computed } from 'vue'
 
 interface Props {
   isOpen: boolean

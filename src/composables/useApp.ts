@@ -12,7 +12,7 @@ export function useApp() {
   const levelStore = useLevelStore()
   const achievements = useAchievement()
   const bonuses = useBonuses()
-  const { startSession, updateCurrentYear, yearTransitionTrigger } = useSession()
+  const session = useSession()
   const { openWelcome } = useModals()
 
   const isAppLoading = ref(false)
@@ -40,12 +40,12 @@ export function useApp() {
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
         bonuses.loadBonuses(),
-        startSession({ lives: GAME_CONFIG.initialLives }),
+        session.startSession({ lives: GAME_CONFIG.initialLives }),
       ])
-      
+
       // Проверяем нужно ли загрузить старые пузыри
       await loadOldBubblesIfNeeded()
-      
+
       // Открываем welcome модалку после инициализации
       openWelcome()
     } finally {
@@ -57,7 +57,7 @@ export function useApp() {
     // Сбрасываем бонусы
     bonuses.resetBonuses()
     // startSession сбрасывает: достижения, опыт, уровень, жизни, посещенные пузыри
-    startSession()
+    session.startSession()
     openWelcome()
   }
 
@@ -71,7 +71,7 @@ export function useApp() {
   const game = {
     maxLives: GAME_CONFIG.maxLives,
     currentYear: computed(() => sessionStore.currentYear),
-    updateCurrentYear: updateCurrentYear,
+    updateCurrentYear: session.updateCurrentYear,
     currentLevel,
     currentLevelTitle,
     startYear: computed(() => yearRange.value.startYear),
@@ -81,7 +81,7 @@ export function useApp() {
     xpProgress: computed(() => sessionStore.xpProgress),
     nextLevelXP: computed(() => sessionStore.nextLevelXP),
     visitedBubbles: computed(() => sessionStore.visitedBubbles),
-    yearTransitionTrigger
+    yearTransitionTrigger: session.yearTransitionTrigger
   }
 
   return {

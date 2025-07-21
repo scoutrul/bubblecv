@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useUiEventStore, useSessionStore } from '@/stores'
 
 export interface EventBridge {

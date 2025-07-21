@@ -38,14 +38,14 @@
     />
 
     <!-- Achievement Modal -->
-    <AchievementModal 
+    <AchievementModal
       v-if="showAchievement"
       v-bind="achievementProps"
       @close="closeAchievementModal"
     />
 
     <!-- Bonus Modal -->
-    <BonusModal 
+    <BonusModal
       v-if="showBonus"
       v-bind="bonusProps"
       @close="closeBonusModal"
@@ -54,7 +54,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 import { useModalStore } from '@/stores'
 import { useModals } from '@/composables/useModals'
 import WelcomeModal from './WelcomeModal.vue'
@@ -64,6 +63,7 @@ import GameOverModal from './GameOverModal.vue'
 import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 import BonusModal from './BonusModal.vue'
+import { computed } from 'vue'
 
 const modalStore = useModalStore()
 const {
@@ -127,7 +127,7 @@ const gameOverProps = computed(() => ({
 
 // Level Up Modal
 const showLevelUp = computed(() => {
-  return (currentModal.value?.type === 'levelUp' && safeData.value.levelUpData) || 
+  return (currentModal.value?.type === 'levelUp' && safeData.value.levelUpData) ||
     safeModals.value.levelUp || false
 })
 const levelUpProps = computed(() => ({
@@ -164,4 +164,4 @@ const bonusProps = computed(() => ({
 
 <style scoped>
 
-</style> 
+</style>

@@ -2,16 +2,17 @@
   <Transition
     name="modal-backdrop"
     appear
+    @after-leave="onAfterLeave"
   >
-    <div 
-      v-if="isOpen" 
+    <div
+      v-if="isOpen"
       class="modal-backdrop"
     >
       <Transition
         name="modal-window"
         appear
       >
-        <div 
+        <div
           class="modal-window"
           :class="className"
           @click.stop
@@ -26,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue';
 
 const props = defineProps<{
   isOpen: boolean
@@ -39,9 +40,13 @@ const emit = defineEmits<{
 }>()
 
 const handleKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && props.isOpen && props.allowEscapeClose !== false) {
+  if (event.key === 'Escape' && props.isOpen && props.allowEscapeClose) {
     emit('close')
   }
+}
+
+const onAfterLeave = () => {
+  emit('close')
 }
 
 onMounted(() => {
@@ -128,4 +133,4 @@ onUnmounted(() => {
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   border: 2px solid #f59e0b;
 }
-</style> 
+</style>

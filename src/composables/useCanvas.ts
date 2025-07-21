@@ -21,7 +21,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
   const canvasWidth = ref(0)
   const canvasHeight = ref(0)
-  
+
   // Сохраняем философские пузыри для каждого года
   const philosophyBubblesByYear = ref<Map<number, BubbleNode>>(new Map())
   // Сохраняем скрытые пузыри для каждого года
@@ -33,7 +33,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     // Проверяем есть ли основные пузыри навыков (исключая философские и скрытые)
     const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
     const hasCoreBubbles = coreBubbles.length > 0
-    
+
     if (!hasCoreBubbles && sessionStore.currentYear < endYear.value) {
       const nextYear = findNextYearWithNewBubbles(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
       if (nextYear !== null) {
@@ -75,28 +75,28 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       }
       return existingBubble
     }
-    
+
     // Создаем новый пузырь с 30% вероятностью
     if (Math.random() < 0.3) {
       const questions = questionsData.questions
       // Фильтруем неиспользованные вопросы
       const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
-      
+
       if (availableQuestions.length > 0) {
         const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
-        
+
         // Отмечаем вопрос как использованный
         usedQuestionIds.value.add(randomQuestion.id)
-        
+
         const philosophyBubble = createPhilosophyBubble(randomQuestion.id, year)
         const bubbleNode = normalizedToBubbleNode(philosophyBubble)
-        
+
         philosophyBubblesByYear.value.set(year, bubbleNode)
-        
+
         return bubbleNode
       }
     }
-    
+
     return null
   }
 
@@ -111,11 +111,11 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       }
       return existingBubble
     }
-    
+
     // Создаем скрытый пузырь для каждого года
     const hiddenBubble = createHiddenBubble(year)
     hiddenBubblesByYear.value.set(year, hiddenBubble)
-    
+
     return hiddenBubble
   }
 
@@ -127,7 +127,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         break
       }
     }
-    
+
     // Удаляем скрытый пузырь из Map если он был лопнут
     for (const [year, bubble] of hiddenBubblesByYear.value.entries()) {
       if (bubble.id === bubbleId) {
@@ -135,18 +135,18 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         break
       }
     }
-    
+
     if (removeBubbleFromCanvas) {
       removeBubbleFromCanvas(bubbleId, xpAmount, isPhilosophyNegative)
     }
   }
 
-  watch(() => sessionStore.currentYear, async (newYear, oldYear) => {
+  watch(() => sessionStore.currentYear, async (newYear) => {
     if (bubbleStore.isLoading || !isInitialized.value) return
-    
+
     const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles, [])
     const extraBubbles: BubbleNode[] = []
-    
+
     // Добавляем ВСЕ скрытые пузыри до текущего года включительно
     const hiddenBubbles: BubbleNode[] = []
     for (let year = startYear.value; year <= newYear; year++) {
@@ -160,7 +160,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       }
     }
     extraBubbles.push(...hiddenBubbles)
-    
+
     // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
     const philosophyBubbles: BubbleNode[] = []
     for (let year = startYear.value; year <= newYear && philosophyBubbles.length < 5; year++) {
@@ -174,13 +174,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       }
     }
     extraBubbles.push(...philosophyBubbles)
-    
+
     const allBubbles = [...filteredBubbles, ...extraBubbles]
     // Проверяем есть ли основные пузыри только среди filteredBubbles (обычные пузыри навыков)
     const hasCoreBubbles = filteredBubbles.some(b => !b.isPopped)
-    
+
     updateBubbles(allBubbles)
-    
+
     if (!hasCoreBubbles) {
       checkBubblesAndAdvance(allBubbles)
     }
@@ -201,7 +201,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
             initSimulation(width, height)
             const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
             const extraBubbles: BubbleNode[] = []
-            
+
             // Добавляем ВСЕ скрытые пузыри до текущего года включительно
             const hiddenBubbles: BubbleNode[] = []
             for (let year = startYear.value; year <= sessionStore.currentYear; year++) {
@@ -215,7 +215,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
               }
             }
             extraBubbles.push(...hiddenBubbles)
-            
+
             // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
             const philosophyBubbles: BubbleNode[] = []
             for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < 5; year++) {
@@ -229,9 +229,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
               }
             }
             extraBubbles.push(...philosophyBubbles)
-            
+
             updateBubbles([...initialBubbles, ...extraBubbles])
-            bubbleStore.isLoading = false
           } else {
             updateSimulationSize(width, height)
           }
@@ -252,4 +251,4 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     resetCanvas,
     removeBubble,
   }
-} 
+}

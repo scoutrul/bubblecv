@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-export default defineConfig({
+defineConfig({
   testDir: './tests',
   timeout: 60000,
   fullyParallel: true,
@@ -44,4 +44,4 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 30000,
   },
-}); 
+});

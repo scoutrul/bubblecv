@@ -5,9 +5,9 @@
     <GameHUD class="game-hud" />
     <BubbleCanvas class="bubble-scene" />
     <ResetButton @handle-reset="resetGame" class="reset-button" />
-    
+
     <!-- Анимация смены года -->
-    <YearTransition 
+    <YearTransition
       :year="currentYear"
     />
   </div>
@@ -20,11 +20,11 @@ import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import YearTransition from '@/ui/global/YearTransition.vue'
 
-import { useApp, useUi } from '@/composables'
+import { useApp } from '@/composables'
 
 const {
   resetGame,
-  game: { startYear, endYear, currentYear, updateCurrentYear, yearTransitionTrigger }
+  game: { startYear, endYear, currentYear, updateCurrentYear }
 } = useApp()
 </script>
 
@@ -51,7 +51,7 @@ const {
     /* Делаем TimelineSlider более компактным на мобильных */
     z-index: 900;
   }
-  
+
   .reset-button {
     /* Перемещаем кнопку сброса в левый нижний угол на мобильных */
     z-index: 900;

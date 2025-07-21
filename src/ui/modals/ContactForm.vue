@@ -49,7 +49,6 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
 import { useContactForm } from '@/composables/useContactForm'
 
 interface FormData {

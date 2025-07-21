@@ -1,5 +1,5 @@
 import type { BubbleNode } from '@/types/canvas'
-import type { NormalizedBubble, BubbleSizes } from '@/types/normalized'
+import type { NormalizedBubble } from '@/types/normalized'
 
 const defaultBubbleNode: BubbleNode = {
     id: 0,
@@ -27,11 +27,6 @@ const defaultBubbleNode: BubbleNode = {
     isReady: false,
   };
 
-export const createBubble = (partial: Partial<BubbleNode>): BubbleNode => ({
-  ...defaultBubbleNode,
-  ...partial
-})
-
 export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode => ({
   ...defaultBubbleNode,
   ...normalized
@@ -39,7 +34,7 @@ export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode
 
 export function createHiddenBubble(year?: number): BubbleNode {
   const bubbleYear = year || 2015
-  
+
   return {
     ...defaultBubbleNode,
     id: -(bubbleYear * 10000 + 9999), // Уникальный отрицательный ID для скрытых пузырей
@@ -59,7 +54,7 @@ export const getBubblesUpToYear = <T extends NormalizedBubble | BubbleNode>(
   year: number,
   visitedBubbleIds: number[] = []
 ): T[] =>
-  bubbles.filter(b => 
+  bubbles.filter(b =>
     b.year <= year &&
     !b.isHidden &&
     !b.isQuestion &&

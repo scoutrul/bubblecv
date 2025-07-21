@@ -34,30 +34,30 @@
         @click="handleAnswer(String(option.id))"
         class="option-button group"
       >
-        <div class="option-content">
+        <span class="option-content">
           <span class="option-emoji">🤔</span>
           <p class="option-text">
             {{ option.text }}
           </p>
-        </div>
-        
-        <div class="option-overlay"></div>
+        </span>
+
+        <span class="option-overlay"></span>
       </button>
-      
+
       <!-- Кастомный ответ -->
       <div class="custom-answer-section">
         <div class="custom-answer-header">
           <span class="custom-answer-emoji">✍️</span>
           <span class="custom-answer-title">Ваш вариант ответа</span>
         </div>
-        
+
         <textarea
           v-model="customAnswer"
           class="custom-answer-textarea"
           placeholder="Поделитесь своим мнением по этому вопросу..."
           rows="3"
         ></textarea>
-        
+
         <button
           @click="handleCustomAnswer"
           :disabled="!customAnswer.trim()"
@@ -105,14 +105,14 @@ const customAnswer = ref('')
 // Перемешиваем варианты ответов в случайном порядке
 const shuffledOptions = computed(() => {
   if (!props.question?.options) return []
-  
+
   const options = [...props.question.options]
   // Простое перемешивание Fisher-Yates
   for (let i = options.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [options[i], options[j]] = [options[j], options[i]]
   }
-  
+
   return options
 })
 
@@ -244,7 +244,7 @@ const handleCustomAnswer = () => {
   max-width: calc(100vw - 4rem);
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 
+  box-shadow:
     0 25px 50px -12px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(139, 92, 246, 0.1),
     0 0 50px rgba(139, 92, 246, 0.15);
@@ -256,10 +256,10 @@ const handleCustomAnswer = () => {
   content: '';
   position: absolute;
   inset: 0;
-  background: 
+  background:
     radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
   border-radius: inherit;
   pointer-events: none;
 }
-</style> 
+</style>

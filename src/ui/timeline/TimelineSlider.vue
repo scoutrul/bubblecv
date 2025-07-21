@@ -3,11 +3,11 @@
     <div class="timeline-content">
       <div class="timeline-header">
         <h3 class="text-text-primary whitespace-nowrap">Путешествие во времени</h3>
-        
+
         <!-- Компактные кнопки навигации -->
         <div class="navigation-compact">
-          <button 
-            @click="goToPreviousYear" 
+          <button
+            @click="goToPreviousYear"
             :disabled="currentYear <= startYear"
             class="nav-button-compact"
             title="Предыдущий год"
@@ -16,15 +16,15 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
           </button>
-          
+
           <div class="year-display">
             <div class="year-wrapper">
               <span class="year-compact">{{ currentYear }}</span>
             </div>
           </div>
-          
-          <button 
-            @click="goToNextYear" 
+
+          <button
+            @click="goToNextYear"
             :disabled="currentYear >= endYear"
             class="nav-button-compact"
             title="Следующий год"
@@ -35,11 +35,11 @@
           </button>
         </div>
       </div>
-      
+
       <div class="slider-container">
         <div class="slider-with-labels">
           <span class="year-label-side">{{ startYear }}</span>
-          
+
           <input
             :value="currentYear"
             @input="handleYearChange"
@@ -48,18 +48,18 @@
             :max="endYear"
             class="year-slider"
           />
-          
+
           <span class="year-label-side">{{ endYear }}</span>
         </div>
       </div>
     </div>
-    
+
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { watch, ref, computed, watchEffect, nextTick } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import { createShakeAnimation, createYearChangeAnimation } from '@/utils/animations'
@@ -91,14 +91,14 @@ const isAutoSwitching = ref(false) // Флаг для предотвращени
 const handleYearChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const newYear = parseInt(target.value)
-  
+
   // Устанавливаем флаг ручного изменения года
   isAutoSwitching.value = true
-  
+
   // Анимируем смену года
   requestAnimationFrame(() => {
     emit('update:currentYear', newYear)
-    
+
     // Сбрасываем флаг через небольшую задержку
     setTimeout(() => {
       isAutoSwitching.value = false
@@ -110,10 +110,10 @@ const goToPreviousYear = () => {
   if (props.currentYear > props.startYear) {
     // Устанавливаем флаг ручного изменения года
     isAutoSwitching.value = true
-    
+
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear - 1)
-      
+
       // Сбрасываем флаг через небольшую задержку
       setTimeout(() => {
         isAutoSwitching.value = false
@@ -126,13 +126,13 @@ const goToNextYear = () => {
   if (props.currentYear < props.endYear) {
     // Устанавливаем флаг ручного изменения года
     isAutoSwitching.value = true
-    
+
     // Используем GSAP версию shake эффекта
     triggerGsapShakeEffect()
-    
+
     requestAnimationFrame(() => {
       emit('update:currentYear', props.currentYear + 1)
-      
+
       // Сбрасываем флаг через небольшую задержку
       setTimeout(() => {
         isAutoSwitching.value = false
@@ -158,21 +158,21 @@ const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
 // Computed для отслеживания завершения всех пузырей текущего года
 const isCurrentYearCompleted = computed(() => {
   // Берем только пузыри текущего года
-  const currentYearBubbles = bubbleStore.bubbles.filter(bubble => 
+  const currentYearBubbles = bubbleStore.bubbles.filter(bubble =>
     bubble.year === props.currentYear &&
     !bubble.isHidden &&
     !bubble.isQuestion
   )
-  
+
   if (currentYearBubbles.length === 0) {
     return true // Если нет пузырей в текущем году, считаем год завершённым
   }
-  
+
   // Проверяем, все ли пузыри текущего года посещены
-  const hasUnvisitedBubbles = currentYearBubbles.some(bubble => 
+  const hasUnvisitedBubbles = currentYearBubbles.some(bubble =>
     !sessionStore.visitedBubbles.includes(bubble.id)
   )
-  
+
   return !hasUnvisitedBubbles
 })
 
@@ -183,24 +183,24 @@ const performAutoSwitch = async () => {
   if (isAutoSwitching.value || props.currentYear >= props.endYear || !isFinite(props.currentYear)) {
     return
   }
-  
+
   isAutoSwitching.value = true
-  
+
   await nextTick()
-  
+
   setTimeout(() => {
     // Используем GSAP версию shake эффекта
     triggerGsapShakeEffect()
-    
+
     setTimeout(() => {
       if (props.currentYear < props.endYear && isFinite(props.currentYear)) {
         const nextYear = props.currentYear + 1
         if (isFinite(nextYear) && nextYear <= props.endYear) {
           emit('update:currentYear', nextYear)
-          
+
 
         }
-        
+
         setTimeout(() => {
           isAutoSwitching.value = false
         }, 500)
@@ -212,13 +212,13 @@ const performAutoSwitch = async () => {
 }
 
 // Добавляем watch для анимации смены года
-watch(() => props.currentYear, async (newYear, oldYear) => {
+watch(() => props.currentYear, async () => {
   await nextTick()
   const yearElement = document.querySelector('.year-compact') as HTMLElement
   if (yearElement) {
     animateYearChangeWithGsap(yearElement)
   }
-  
+
 
 })
 
@@ -228,7 +228,7 @@ watch(() => props.currentYear, async (newYear, oldYear) => {
 //   if (autoSwitchTimeout) {
 //     clearTimeout(autoSwitchTimeout)
 //   }
-//   
+//
 //   // Проверяем завершение года с debounce только при изменении visitedBubbles
 //   if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
 //     autoSwitchTimeout = window.setTimeout(() => {
@@ -280,8 +280,8 @@ watch(() => props.currentYear, () => {
 }
 
 .nav-button-compact {
-  @apply w-5 h-5 flex items-center justify-center rounded 
-         bg-background-secondary hover:bg-background-card 
+  @apply w-5 h-5 flex items-center justify-center rounded
+         bg-background-secondary hover:bg-background-card
          disabled:opacity-30 disabled:cursor-not-allowed
          transition-all duration-150 hover:scale-105;
 }
@@ -329,4 +329,4 @@ watch(() => props.currentYear, () => {
 }
 
 
-</style> 
+</style>

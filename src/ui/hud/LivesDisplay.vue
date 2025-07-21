@@ -3,11 +3,11 @@
     <div class="stat-header">
       <span class="stat-title mobile-text-xs">Жизни</span>
       <div class="hearts-container">
-        <div 
+        <div
           v-for="life in maxLives"
           :key="life"
           class="life-heart"
-          :class="{ 
+          :class="{
             'life-lost': life > currentLives,
             'last-life': currentLives === 1 && life === 1
           }"
@@ -21,8 +21,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils/animations'
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 
 interface Props {
   currentLives: number
@@ -36,7 +36,7 @@ let heartbeatAnimation: gsap.core.Timeline | null = null
 
 const startHeartbeatAnimation = () => {
   if (!lastHeart.value) return
-  
+
   // Останавливаем предыдущую анимацию, если она есть
   if (heartbeatAnimation) {
     heartbeatAnimation.kill()
@@ -101,4 +101,4 @@ onUnmounted(() => {
   @apply text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.7)] will-change-transform;
   filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.7));
 }
-</style> 
+</style>
