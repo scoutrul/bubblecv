@@ -166,7 +166,7 @@ onUnmounted(() => {
 
 .notification-badge {
   @apply absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1;
-  @apply w-4 h-4 sm:w-5 sm:h-5 rounded-full;
+  @apply w-6 h-6 rounded-full;
   @apply text-xs font-bold text-white;
   @apply flex items-center justify-center;
   @apply border border-background-secondary sm:border-2;
@@ -181,11 +181,11 @@ onUnmounted(() => {
   }
 
   .toggle-button {
-    @apply w-6 h-6 text-base;
+    @apply w-8 h-8 text-base;
   }
 
   .notification-badge {
-    @apply w-3 h-3 text-xs;
+    @apply w-4 h-4 text-xs;
     min-width: 0.75rem;
   }
 }
