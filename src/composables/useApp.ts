@@ -70,12 +70,19 @@ export function useApp() {
     return level?.title || 'Посетитель'
   })
 
+  const currentLevelIcon = computed(() => {
+    const level = levelStore.getLevelByNumber(currentLevel.value)
+
+    return level?.icon || '👋'
+  })
+
   const game = {
     maxLives: GAME_CONFIG.maxLives,
     currentYear: computed(() => sessionStore.currentYear),
     updateCurrentYear: session.updateCurrentYear,
     currentLevel,
     currentLevelTitle,
+    currentLevelIcon,
     startYear: computed(() => yearRange.value.startYear),
     endYear: computed(() => yearRange.value.endYear),
     currentXP: computed(() => sessionStore.currentXP),

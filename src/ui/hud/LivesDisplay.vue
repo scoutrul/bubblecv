@@ -77,7 +77,7 @@ onUnmounted(() => {
 }
 
 .stat-header {
-  @apply flex items-center gap-2 sm:gap-2;
+  @apply flex items-center gap-2;
 }
 
 .stat-title {
@@ -90,6 +90,7 @@ onUnmounted(() => {
 
 .life-heart {
   @apply transition-all duration-300 origin-center;
+  @apply text-sm lg:text-base;
 }
 
 .life-lost {

@@ -1,6 +1,7 @@
 export interface Level {
   level: number
   title: string
+  icon: string
   description: string
   hint?: string
 }

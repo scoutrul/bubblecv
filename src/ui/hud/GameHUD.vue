@@ -15,6 +15,7 @@
             :current-level="currentLevel"
             :level-title="currentLevelTitle"
             :is-shaking="shakingComponents.has('level')"
+            :level-icon="currentLevelIcon"
           />
         </div>
       </div>
@@ -36,6 +37,7 @@
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
           :is-shaking="shakingComponents.has('level')"
+          :level-icon="currentLevelIcon"
         />
       </div>
     </div>
@@ -84,6 +86,7 @@ const {
     xpProgress,
     nextLevelXP,
     currentLevelTitle,
+    currentLevelIcon,
   },
   achievements: {
     unlockedCount: unlockedAchievementsCount,

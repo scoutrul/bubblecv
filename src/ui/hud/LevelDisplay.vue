@@ -2,14 +2,14 @@
   <div class="level-display">
     <div
       class="level-info"
-      :class="[levelClass, { 'util-shake-hud': isShaking, 'clickable': currentLevel >= 2 }]"
+      :class="[{ 'util-shake-hud': isShaking, 'clickable': currentLevel >= 2 }]"
       @click="handleLevelClick"
     >
       <span class="level-title-group">
         <span class="level-icon">{{ levelIcon }}</span>
-        <span :class="titleClass" class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
+        <span class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
       </span>
-      <span :class="subtitleClass" class="mobile-text-xs whitespace-nowrap">{{ levelTitle }}</span>
+      <span class="mobile-text-xs whitespace-nowrap">{{ levelTitle }}</span>
       <div v-if="currentLevel >= 1" class="level-shine"></div>
     </div>
   </div>
@@ -24,6 +24,7 @@ interface Props {
   currentLevel: number
   levelTitle: string
   isShaking: boolean
+  levelIcon: string
 }
 
 const props = defineProps<Props>()
@@ -31,9 +32,7 @@ const props = defineProps<Props>()
 const { openLevelUpModal } = useModals()
 
 const handleLevelClick = () => {
-  if (props.currentLevel >= 2) {
-    openLevelUpModal(props.currentLevel)
-  }
+  openLevelUpModal(props.currentLevel)
 }
 
 // GSAP анимация shine эффекта
@@ -50,45 +49,11 @@ onUnmounted(() => {
   stopLevelShineAnimation()
 })
 
-const levelIcon = computed(() => {
-  switch (props.currentLevel) {
-    case 1: return '👋'
-    case 2: return '🤔'
-    case 3: return '📚'
-    case 4: return '🤝'
-    case 5: return '🤜🤛'
-    default: return '⭐'
-  }
-})
-
-const levelClass = computed(() => `level-${props.currentLevel}`)
-
-const titleClass = computed(() => {
-  switch (props.currentLevel) {
-    case 1: return 'title-novice'
-    case 2: return 'title-interested'
-    case 3: return 'title-learning'
-    case 4: return 'title-partner'
-    case 5: return 'title-bro'
-    default: return 'title-novice'
-  }
-})
-
-const subtitleClass = computed(() => {
-  switch (props.currentLevel) {
-    case 1: return 'subtitle-novice'
-    case 2: return 'subtitle-interested'
-    case 3: return 'subtitle-learning'
-    case 4: return 'subtitle-partner'
-    case 5: return 'subtitle-bro'
-    default: return 'subtitle-novice'
-  }
-})
 </script>
 
 <style scoped>
 .level-display {
-  @apply flex-shrink-0;
+  @apply flex-shrink-0 cursor-pointer;
 }
 
 .level-info {
