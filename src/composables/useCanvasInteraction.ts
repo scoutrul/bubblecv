@@ -11,9 +11,10 @@ import {
   createQuestionData,
   animateParallax,
   animateBubbleClick,
-  animateToughBubbleHit,
   calculateBubbleJump
 } from '@/utils/canvas-interaction'
+
+import { animateToughBubbleHit } from '@/utils/animations'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,

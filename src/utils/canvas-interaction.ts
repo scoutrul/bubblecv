@@ -39,9 +39,6 @@ export const animateBubbleClick = (bubble: BubbleNode) => {
   }, 100)
 }
 
-// Функция перенесена в @/utils/animations
-export { animateToughBubbleHit } from '@/utils/animations'
-
 export const calculateBubbleJump = (
   mouseX: number,
   mouseY: number,
