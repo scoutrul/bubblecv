@@ -287,7 +287,6 @@ export const useModals = () => {
   const openLevelUpModal = (level: number, payload?: any) => {
     // Level Up Modal теперь работает только через Event Chain
     const levelData = levelStore.getLevelByNumber(level)
-    const icon = ['👋', '🤔', '📚', '🤝', '🤜🤛'][level - 1] || '⭐'
 
     modalStore.startEventChain({
       type: 'manual',
@@ -299,7 +298,6 @@ export const useModals = () => {
           level: level,
           title: levelData?.title || `Уровень ${level}`,
           description: levelData?.description || `Поздравляем! Вы достигли ${level} уровня!`,
-          icon: icon,
           currentXP: sessionStore.session?.currentXP || 0,
           xpGained: 0,
         }
