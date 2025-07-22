@@ -9,7 +9,7 @@
         <span class="level-icon">{{ levelIcon }}</span>
         <span class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
       </span>
-      <span class="mobile-text-xs whitespace-nowrap">{{ levelTitle }}</span>
+      <span class="mobile-text-xs whitespace-nowrap text-primary">{{ levelTitle }}</span>
       <div v-if="currentLevel >= 1" class="level-shine"></div>
     </div>
   </div>
