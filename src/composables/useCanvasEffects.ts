@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import type { ExplosionEffect, FloatingText, ShakeConfig, BubbleNode, DebrisParticle } from '@/types/canvas'
 import { getBubbleColor } from '@/utils/bubble'
 import { hexToRgb } from '@/utils/ui'
+import { createExplosionEffect, createDebrisEffect } from '@/utils/animations'
 
 export function useCanvasEffects() {
   // Массивы эффектов
@@ -17,17 +18,9 @@ export function useCanvasEffects() {
     isShaking: false // Флаг активной тряски
   }
 
-  // Создание эффекта взрыва
-  const createExplosionEffect = (x: number, y: number, radius: number) => {
-    const explosionEffect: ExplosionEffect = {
-      x,
-      y,
-      radius: 0,
-      maxRadius: radius * 2,
-      opacity: 1,
-      startTime: Date.now()
-    }
-    explosionEffects.value.push(explosionEffect)
+  // Создание эффекта взрыва (теперь через утилиту)
+  const addExplosionEffect = (x: number, y: number, radius: number) => {
+    createExplosionEffect(explosionEffects.value, x, y, radius)
   }
 
   // Создание эффекта плавающего текста при получении XP
@@ -60,31 +53,9 @@ export function useCanvasEffects() {
     })
   }
 
-  // Создание (осколков) при взрыве пузыря
-  const createDebrisEffect = (x: number, y: number, radius: number, color: string = '#667eea') => {
-    const particleCount = Math.floor(radius / 3) + 5 // Количество частиц зависит от размера пузыря
-    const startTime = Date.now()
-
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5
-      const speed = Math.random() * 10 // Увеличиваем скорость для космоса
-      const size = Math.random() * 10
-
-      const particle: DebrisParticle = {
-        id: Date.now() + Math.random() + i,
-        x: x + Math.cos(angle) * (radius * 0.3),
-        y: y + Math.sin(angle) * (radius * 0.3),
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        size,
-        opacity: 1,
-        color,
-        startTime,
-        duration: Math.random() * 5000,
-      }
-
-      debrisParticles.value.push(particle)
-    }
+  // Создание (осколков) при взрыве пузыря (теперь через утилиту)
+  const addDebrisEffect = (x: number, y: number, radius: number, color: string = '#667eea') => {
+    createDebrisEffect(debrisParticles.value, x, y, radius, color)
   }
 
   // Запуск тряски экрана
@@ -264,17 +235,11 @@ export function useCanvasEffects() {
   // Взрыв пузыря с эффектом
   const explodeBubble = (bubble: BubbleNode) => {
     if (!bubble || bubble.isPopped) return
-
-    // Помечаем пузырь как лопнутый
     bubble.isPopped = true
-
-    // Создаем эффект взрыва с явным указанием координат и радиуса
     if (bubble.x !== undefined && bubble.y !== undefined && bubble.currentRadius !== undefined) {
-      createExplosionEffect(bubble.x, bubble.y, bubble.currentRadius)
-
-      // Создаем крепиш (осколки) с цветом пузыря
+      addExplosionEffect(bubble.x, bubble.y, bubble.currentRadius)
       const bubbleColor = getBubbleColor(bubble)
-      createDebrisEffect(bubble.x, bubble.y, bubble.currentRadius, bubbleColor)
+      addDebrisEffect(bubble.x, bubble.y, bubble.currentRadius, bubbleColor)
     }
   }
 
@@ -287,22 +252,20 @@ export function useCanvasEffects() {
   }
 
   return {
-    // Эффекты
-    createExplosionEffect,
-    createXPFloatingText,
-    createLifeLossFloatingText,
-    createDebrisEffect,
-    explodeBubble,
+    addExplosionEffect,
+    addDebrisEffect,
+    clearAllEffects,
 
-    // Тряска
+    explodeBubble,
+    
     startShake,
     calculateShakeOffset,
-
+    
     drawFloatingTexts,
     drawDebrisEffects,
     drawHoverEffect,
-
-    // Управление
-    clearAllEffects,
+    
+    createXPFloatingText,
+    createLifeLossFloatingText,
   }
 }

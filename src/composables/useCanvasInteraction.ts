@@ -9,12 +9,11 @@ import { XP_CALCULATOR } from '@/config'
 import { useSession, useModals } from '@/composables'
 import {
   createQuestionData,
-  animateParallax,
-  animateBubbleClick,
-  calculateBubbleJump
-} from '@/utils/canvas-interaction'
+} from '@/utils/bubble'
 
-import { animateToughBubbleHit } from '@/utils/animations'
+import { animateToughBubbleHit, calculateBubbleJump, animateParallax } from '@/utils/animations'
+import { useCanvasEffects } from './useCanvasEffects'
+import { getBubbleColor } from '@/utils/bubble'
 
 export function useCanvasInteraction(
   canvasRef: Ref<HTMLCanvasElement | null>,
@@ -22,6 +21,8 @@ export function useCanvasInteraction(
 ) {
 
   const bubbleStore = useBubbleStore()
+  
+  const { addExplosionEffect, addDebrisEffect } = useCanvasEffects()
 
 
   const { gainXP, visitBubble } = useSession()
@@ -150,7 +151,12 @@ export function useCanvasInteraction(
               simulation.alpha(1).restart()
             }
 
+            addExplosionEffect(clickedBubble.x, clickedBubble.y, clickedBubble.currentRadius)
+            const bubbleColor = getBubbleColor(clickedBubble)
+            addDebrisEffect(clickedBubble.x, clickedBubble.y, clickedBubble.currentRadius, bubbleColor)
+
             animateToughBubbleHit(clickedBubble)
+
             return
           }
         }
@@ -172,8 +178,6 @@ export function useCanvasInteraction(
           removeBubble(clickedBubble.id, nodes)
           return
         }
-
-        animateBubbleClick(clickedBubble)
 
         if (clickedBubble.isQuestion) {
           const question = createQuestionData(clickedBubble)
