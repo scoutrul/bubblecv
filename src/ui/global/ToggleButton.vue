@@ -1,5 +1,5 @@
 <template>
-  <div class="toggle-button-widget">
+  <div class="toggle-button-widget" :class="{ 'toggle-button-widget--grey': !badgeCount}">
     <div
       class="toggle-button-container"
       @click="handleToggle"
@@ -119,6 +119,19 @@ onUnmounted(() => {
 <style scoped>
 .toggle-button-widget {
   @apply relative;
+}
+
+.toggle-button-widget--grey {
+  @apply filter grayscale;
+}
+
+.button-container {
+  @apply shadow-md shadow-background-card/50;
+  @apply transition-all duration-300;
+}
+
+.button-container:hover {
+  @apply shadow-xl shadow-background-card/100;
 }
 
 /* Позиции виджета */
