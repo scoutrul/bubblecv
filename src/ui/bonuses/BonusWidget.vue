@@ -48,5 +48,6 @@ const closeBonuses = () => {
   @apply fixed bottom-20 right-2 sm:right-4 sm:bottom-24;
   @apply z-[9999];
   pointer-events: auto;
+  cursor: pointer;
 }
 </style> 

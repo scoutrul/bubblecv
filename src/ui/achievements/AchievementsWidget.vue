@@ -48,5 +48,6 @@ const closeAchievements = () => {
   @apply fixed bottom-4 right-2 sm:right-4;
   @apply z-[10000];
   pointer-events: auto;
+  cursor: pointer;
 }
 </style> 
