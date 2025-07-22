@@ -79,7 +79,6 @@ export function normalizeAchievement(raw: Achievement): NormalizedAchievement {
 export function normalizeLevels(raw: Level): NormalizedLevel {
   return {
     ...raw,
-    unlockedFeatures: [],
     xpRequired: 0
   }
 }

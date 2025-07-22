@@ -81,7 +81,6 @@ export function useSession() {
           description: levelData?.description,
           currentXP: sessionStore.currentXP,
           xpGained: amount,
-          unlockedFeatures: levelData?.unlockedFeatures ?? [],
           icon
         }
       }

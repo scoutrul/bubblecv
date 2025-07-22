@@ -28,7 +28,6 @@ export const useModalStore = defineStore('modalStore', () => {
       icon: '👋',
       currentXP: 0,
       xpGained: 0,
-      unlockedFeatures: [],
       xpRequired: 0
     },
     currentBonus: null

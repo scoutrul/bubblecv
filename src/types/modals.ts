@@ -26,7 +26,6 @@ export interface LevelUpData {
   icon: string
   currentXP: number
   xpGained: number
-  unlockedFeatures: string[]
   xpRequired: number
 }
 

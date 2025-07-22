@@ -28,16 +28,6 @@
       <p>{{ levelData.description }}</p>
     </div>
 
-    <!-- Разблокированные возможности -->
-    <div v-if="unlockedFeatures.length > 0" class="unlocked-features">
-      <h3>🔓 Разблокировано:</h3>
-      <ul>
-        <li v-for="feature in unlockedFeatures" :key="feature">
-          {{ feature }}
-        </li>
-      </ul>
-    </div>
-
     <!-- Разблокированный бонус -->
     <div v-if="unlockedBonus" class="unlocked-bonus">
       <h3>🎁 Новый бонус:</h3>
@@ -69,7 +59,6 @@ interface Props {
   icon: string
   currentXP: number
   xpGained: number
-  unlockedFeatures?: string[]
   allowEscapeClose?: boolean
 }
 
@@ -77,9 +66,7 @@ interface Emits {
   (e: 'close'): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  unlockedFeatures: () => []
-})
+const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 const { getUnlockedBonusForLevel, unlockBonusForLevel, openBonusModal } = useBonuses()
@@ -90,8 +77,6 @@ const levelData = computed(() => ({
   description: props.description,
   icon: props.icon
 }))
-
-const unlockedFeatures = computed(() => props.unlockedFeatures)
 
 const unlockedBonus = computed(() =>
   getUnlockedBonusForLevel(props.level)
@@ -201,37 +186,6 @@ const close = () => {
 .level-description p {
   color: var(--text-secondary);
   line-height: 1.6;
-}
-
-.unlocked-features {
-  margin-bottom: 1.5rem;
-}
-
-.unlocked-features h3 {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.75rem;
-}
-
-.unlocked-features ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.unlocked-features li {
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.unlocked-features li::before {
-  content: '✨';
-  color: var(--accent);
 }
 
 .unlocked-bonus {

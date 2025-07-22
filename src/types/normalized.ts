@@ -23,7 +23,6 @@ export interface NormalizedAchievement extends Achievement {
 export interface NormalizedLevel extends Level {
   xpRequired: number
   content?: LevelContent
-  unlockedFeatures?: string[]
   lockedMessage?: string
   congratulations?: string
 }

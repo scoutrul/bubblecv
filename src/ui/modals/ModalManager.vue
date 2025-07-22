@@ -138,7 +138,6 @@ const levelUpProps = computed(() => ({
   icon: safeData.value.levelUpData?.icon || '⭐',
   currentXP: safeData.value.levelUpData?.currentXP || 0,
   xpGained: safeData.value.levelUpData?.xpGained || 0,
-  unlockedFeatures: safeData.value.levelUpData?.unlockedFeatures || [],
   allowEscapeClose: false
 }))
 

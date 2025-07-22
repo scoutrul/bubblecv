@@ -308,7 +308,6 @@ export const useModals = () => {
           icon: icon,
           currentXP: sessionStore.session?.currentXP || 0,
           xpGained: 0,
-          unlockedFeatures: levelData?.unlockedFeatures || []
         }
       },
       currentStep: 'levelUp',
