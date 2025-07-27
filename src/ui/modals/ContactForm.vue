@@ -50,6 +50,7 @@
 
 <script setup lang="ts">
 import { useContactForm } from '@/composables/useContactForm'
+import { computed, reactive } from 'vue'
 
 interface FormData {
   message: string

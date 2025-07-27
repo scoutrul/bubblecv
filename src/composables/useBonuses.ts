@@ -1,5 +1,6 @@
 import { computed } from 'vue'
 import { useBonusStore, useModalStore, useUiEventStore } from '@/stores'
+import { BonusUseCaseFactory } from '@/usecases/bonus'
 import type { NormalizedBonus } from '@/types/normalized'
 
 export function useBonuses() {
@@ -7,12 +8,26 @@ export function useBonuses() {
   const modalStore = useModalStore()
   const uiEventStore = useUiEventStore()
 
+  // Создаем фабрику use cases
+  const factory = new BonusUseCaseFactory(
+    bonusStore,
+    modalStore,
+    uiEventStore
+  )
+
+  // Создаем экземпляры use cases
+  const unlockBonusUseCase = factory.createUnlockBonusUseCase()
+  const openBonusModalUseCase = factory.createOpenBonusModalUseCase()
+  const getBonusUseCase = factory.createGetBonusUseCase()
+  const resetBonusesUseCase = factory.createResetBonusesUseCase()
+  const bonusUiUseCase = factory.createBonusUiUseCase()
+
   const bonuses = computed(() => bonusStore.bonuses)
   const unlockedBonuses = computed(() => bonusStore.unlockedBonuses)
   const isLoading = computed(() => bonusStore.isLoading)
 
   // UI состояния для панели бонусов
-  const showBonusPanel = computed(() => uiEventStore.bonusesActive)
+  const showBonusPanel = computed(() => bonusUiUseCase.isBonusPanelActive())
   const unlockedBonusesCount = computed(() => unlockedBonuses.value.length)
 
   const loadBonuses = async () => {
@@ -20,30 +35,23 @@ export function useBonuses() {
     bonusStore.updateUnlockedBonuses()
   }
 
-  const getBonusByLevel = (level: number) => bonusStore.getBonusByLevel(level)
+  const getBonusByLevel = (level: number) => {
+    const result = getBonusUseCase.getBonusByLevel({ level })
+    return result.success ? result.bonus : undefined
+  }
 
   // Управление панелью бонусов
   const toggleBonusPanel = () => {
-    uiEventStore.toggleBonusPanel()
+    bonusUiUseCase.toggleBonusPanel()
   }
 
   const closeBonusPanel = () => {
-    uiEventStore.closeBonusPanel()
+    bonusUiUseCase.closeBonusPanel()
   }
 
-  const openBonusModal = (bonus: NormalizedBonus) => {
-    if (!bonus.isUnlocked) return
-
-    // Приостанавливаем Event Chain если он активен
-    const currentChain = modalStore.currentEventChain
-    if (currentChain) {
-      // Сохраняем состояние Event Chain для восстановления после закрытия бонуса
-      sessionStorage.setItem('pausedEventChain', JSON.stringify(currentChain))
-      modalStore.completeEventChain()
-    }
-
-    modalStore.setCurrentBonus(bonus)
-    modalStore.openModal('bonus')
+  const openBonusModal = async (bonus: NormalizedBonus) => {
+    const result = await openBonusModalUseCase.execute({ bonus })
+    return result.success
   }
 
   const closeBonusModal = () => {
@@ -53,18 +61,18 @@ export function useBonuses() {
 
   // Получить разблокированный бонус для определенного уровня (для LevelUpModal)
   const getUnlockedBonusForLevel = (level: number) => {
-    const bonus = bonusStore.getBonusByLevel(level)
-    return bonus?.isUnlocked ? bonus : null
+    return getBonusUseCase.getUnlockedBonusForLevel(level)
   }
 
   // Разблокировать бонус при повышении уровня
-  const unlockBonusForLevel = (level: number) => {
-    bonusStore.unlockBonusForLevel(level)
+  const unlockBonusForLevel = async (level: number) => {
+    const result = await unlockBonusUseCase.execute({ level })
+    return result.success ? result.bonus : null
   }
 
   // Сброс бонусов при рестарте игры
   const resetBonuses = () => {
-    bonusStore.resetBonuses()
+    resetBonusesUseCase.execute()
   }
 
   return {

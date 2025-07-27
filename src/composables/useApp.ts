@@ -101,6 +101,13 @@ export function useApp() {
       showAchievements: achievements.showAchievements,
       closeAchievements: achievements.closeAchievements,
       toggleAchievements: achievements.toggleAchievements,
+    },
+    bonuses: {
+      unlockedCount: bonuses.unlockedBonusesCount,
+      unlockedBonuses: bonuses.unlockedBonuses,
+      showBonuses: bonuses.showBonusPanel,
+      closeBonuses: bonuses.closeBonusPanel,
+      toggleBonuses: bonuses.toggleBonusPanel,
     }
   }
 }

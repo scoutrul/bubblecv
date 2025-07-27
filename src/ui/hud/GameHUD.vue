@@ -57,6 +57,7 @@
       :unlocked-count="unlockedBonusesCount"
       :is-shaking="isBonusShaking"
       :show-bonuses="showBonusPanel"
+      :unlocked-bonuses="unlockedBonuses"
       @toggle="toggleBonusPanel"
       @close="closeBonusPanel"
     />
@@ -66,8 +67,6 @@
 
 <script setup lang="ts">
 import { useApp, useUi } from '@/composables/'
-import { useBonuses } from '@/composables/useBonuses'
-
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
@@ -92,6 +91,13 @@ const {
     showAchievements: showAchievementPanel,
     toggleAchievements: toggleAchievementPanel,
     closeAchievements: closeAchievementPanel
+  },
+  bonuses: {
+    unlockedCount: unlockedBonusesCount,
+    unlockedBonuses,
+    showBonuses: showBonusPanel,
+    toggleBonuses: toggleBonusPanel,
+    closeBonuses: closeBonusPanel
   }
 } = useApp()
 
@@ -99,14 +105,6 @@ const {
   isXPAnimating,
   shakingComponents
 } = useUi()
-
-// Bonus composable
-const {
-  unlockedBonusesCount,
-  showBonusPanel,
-  toggleBonusPanel,
-  closeBonusPanel
-} = useBonuses()
 
 const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
 const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
