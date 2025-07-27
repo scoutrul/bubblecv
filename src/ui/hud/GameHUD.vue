@@ -47,6 +47,7 @@
       :unlocked-count="unlockedAchievementsCount"
       :is-shaking="isAchievementShaking"
       :show-achievements="showAchievementPanel"
+      :unlocked-achievements="unlockedAchievements"
       @toggle="toggleAchievementPanel"
       @close="closeAchievementPanel"
     />
@@ -60,22 +61,19 @@
       @close="closeBonusPanel"
     />
 
-
   </div>
 </template>
 
 <script setup lang="ts">
 import { useApp, useUi } from '@/composables/'
+import { useBonuses } from '@/composables/useBonuses'
 
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
-import { useBonuses } from '@/composables/useBonuses'
 import { computed } from 'vue'
-
-
 
 const {
   game: {
@@ -90,17 +88,19 @@ const {
   },
   achievements: {
     unlockedCount: unlockedAchievementsCount,
-    toggleAchievements: toggleAchievementPanel,
-    closeAchievements: closeAchievementPanel,
+    unlockedAchievements,
     showAchievements: showAchievementPanel,
+    toggleAchievements: toggleAchievementPanel,
+    closeAchievements: closeAchievementPanel
   }
 } = useApp()
 
 const {
-    isXPAnimating,
-    shakingComponents
-  } = useUi()
+  isXPAnimating,
+  shakingComponents
+} = useUi()
 
+// Bonus composable
 const {
   unlockedBonusesCount,
   showBonusPanel,
@@ -126,6 +126,5 @@ const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
   z-index: 1000;
   pointer-events: auto;
 }
-
 
 </style>

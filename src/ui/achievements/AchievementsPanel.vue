@@ -24,20 +24,18 @@
 </template>
 
 <script setup lang="ts">
-import { useAchievmentStore } from '@/stores/achievement.store'
 import AchievementItem from './AchievementItem.vue'
 import type { Achievement } from '@/types/data'
-import { computed } from 'vue';
+
+interface Props {
+  unlockedAchievements: Achievement[]
+}
+
+defineProps<Props>()
 
 defineEmits<{
   close: []
 }>()
-
-const achievmentStore = useAchievmentStore()
-
-const unlockedAchievements = computed(() =>
-  achievmentStore.achievements.filter((achievement: Achievement) => achievement.isUnlocked)
-)
 </script>
 
 <style scoped>

@@ -97,6 +97,7 @@ export function useApp() {
     game,
     achievements: {
       unlockedCount: achievements.unlockedCount,
+      unlockedAchievements: achievements.unlockedAchievements,
       showAchievements: achievements.showAchievements,
       closeAchievements: achievements.closeAchievements,
       toggleAchievements: achievements.toggleAchievements,

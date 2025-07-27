@@ -1,57 +1,36 @@
-import { useAchievmentStore, useUiEventStore, useSessionStore, useModalStore } from '@/stores'
-import { computed, ref } from 'vue'
+import { useAchievmentStore, useUiEventStore, useSessionStore } from '@/stores'
+import { computed } from 'vue'
+import { AchievementUseCaseFactory } from '@/usecases/achievement'
 
 export function useAchievement() {
   const achievementStore = useAchievmentStore()
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
 
-  const pendingUnlockIds = ref(new Set<string>())
-
-  const unlockAchievement = async (id: string, showModal = true) => {
-    if (pendingUnlockIds.value.has(id)) {
-      return null
-    }
-
-    const achievement = achievementStore.achievements.find(a => a.id === id)
-    if (!achievement) {
-      return null
-    }
-
-    if (achievement.isUnlocked) {
-      return null
-    }
-
-    pendingUnlockIds.value.add(id)
-
-    try {
-      // Проверяем условия для конкретных ачивок
-      if (id === 'tough-bubble-popper') {
-        if (sessionStore.session?.hasUnlockedFirstToughBubbleAchievement) {
-          return null // Уже разблокирована
-        }
-        sessionStore.setHasDestroyedToughBubble(true)
-        sessionStore.setHasUnlockedFirstToughBubbleAchievement(true)
-      }
-
-      achievement.isUnlocked = true
-      uiEventStore.queueShake('achievements')
-
-      if (showModal) {
-        achievement.isShown = true
-      }
-
-      return achievement
-    } finally {
-      pendingUnlockIds.value.delete(id)
-    }
-  }
-
-  const unlockedAchievements = computed(() =>
-    achievementStore.achievements.filter(a => a.isUnlocked)
+  // Создаем фабрику use cases
+  const factory = new AchievementUseCaseFactory(
+    achievementStore,
+    sessionStore,
+    uiEventStore
   )
 
-  const unlockedCount = computed(() => unlockedAchievements.value.length)
+  // Создаем экземпляры use cases
+  const unlockAchievementUseCase = factory.createUnlockAchievementUseCase()
+  const resetAchievementsUseCase = factory.createResetAchievementsUseCase()
+  const getAchievementsUseCase = factory.createGetAchievementsUseCase()
+
+  const unlockAchievement = async (id: string, showModal = true) => {
+    const result = await unlockAchievementUseCase.execute({ id, showModal })
+    return result.success ? result.achievement : null
+  }
+
+  const unlockedAchievements = computed(() => 
+    getAchievementsUseCase.getUnlockedAchievements()
+  )
+
+  const unlockedCount = computed(() => 
+    getAchievementsUseCase.getUnlockedCount()
+  )
 
   const toggleAchievements = () => {
     uiEventStore.toggleAchievements()
@@ -62,13 +41,11 @@ export function useAchievement() {
   }
 
   const resetAchievements = () => {
-    achievementStore.achievements.forEach(a => {
-      a.isUnlocked = false
-      a.isShown = false
-    })
+    resetAchievementsUseCase.execute()
   }
 
   return {
+    unlockedAchievements,
     unlockAchievement,
     showAchievements: computed(() => uiEventStore.showAchievements),
     unlockedCount,
