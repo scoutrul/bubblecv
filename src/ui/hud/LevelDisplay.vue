@@ -37,7 +37,6 @@ const handleLevelClick = () => {
 
 // GSAP анимация shine эффекта
 watch(() => props.currentLevel, (newLevel) => {
-  stopLevelShineAnimation()
   createLevelShineAnimation(newLevel)
 }, { immediate: true })
 

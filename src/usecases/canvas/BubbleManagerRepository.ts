@@ -1,24 +1,18 @@
-import { computed, ref } from 'vue'
-import { useBubbleStore } from '@/stores'
-
+import type { BubbleManagerRepository as IBubbleManagerRepository } from './types'
+import type { BubbleNode, PositionData } from '@/types/canvas'
 import { isWindows } from '@/utils/ui'
 import { calculateAdaptiveSizes, calcBubbleRadius } from '@/utils/bubble'
 
-import type { BubbleNode, PositionData } from '@/types/canvas'
-import type { NormalizedBubble } from '@/types/normalized'
+export class BubbleManagerRepository implements IBubbleManagerRepository {
+  private savedPositions = new Map<number, PositionData>()
 
-export function useBubbleManager() {
-  const bubbleStore = useBubbleStore()
-  const savedPositions = new Map<number, PositionData>()
-
-  const createNodes = (bubbles: BubbleNode[], width: number, height: number): BubbleNode[] => {
+  createNodes(bubbles: BubbleNode[], width: number, height: number): BubbleNode[] {
     const sizes = calculateAdaptiveSizes()
-
-    return bubbles.map(bubble => {
+    return bubbles.map((bubble, index) => {
       const baseRadius = calcBubbleRadius(bubble.skillLevel, sizes, bubble)
-      const savedPos = savedPositions.get(bubble.id)
-
-      return {
+      const savedPos = this.savedPositions.get(bubble.id)
+      
+      const node = {
         ...bubble,
         radius: baseRadius,
         baseRadius,
@@ -30,10 +24,12 @@ export function useBubbleManager() {
         vx: savedPos?.vx ?? 0,
         vy: savedPos?.vy ?? 0
       }
+      
+      return node
     })
   }
 
-  const updateBubbleStates = (nodes: BubbleNode[], width: number, height: number) => {
+  updateBubbleStates(nodes: BubbleNode[], width: number, height: number): void {
     const time = Date.now() * 0.0008
 
     nodes.forEach((bubble, index) => {
@@ -49,6 +45,9 @@ export function useBubbleManager() {
       const oscillationY = Math.cos(time * 0.6 + phase) * 0.2
       const randomX = (Math.random() - 0.5) * 0.05
       const randomY = (Math.random() - 0.5) * 0.05
+
+      const oldX = bubble.x
+      const oldY = bubble.y
 
       bubble.x += oscillationX + randomX
       bubble.y += oscillationY + randomY
@@ -68,23 +67,13 @@ export function useBubbleManager() {
       const padding = Math.max(minPadding, bubble.currentRadius - overlap)
       bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
       bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
+
     })
   }
 
-  const removeBubble = (bubbleId: NormalizedBubble['id'], nodes: BubbleNode[]): BubbleNode[] => {
-    const index = nodes.findIndex(node => node.id === bubbleId)
-    if (index !== -1) {
-      const newNodes = [...nodes]
-      newNodes.splice(index, 1)
-
-      return newNodes
-    }
-    return nodes
-  }
-
-  const savePositions = (nodes: BubbleNode[]) => {
+  savePositions(nodes: BubbleNode[]): void {
     nodes.forEach(node => {
-      savedPositions.set(node.id, {
+      this.savedPositions.set(node.id, {
         x: node.x,
         y: node.y,
         vx: node.vx ?? 0,
@@ -93,7 +82,17 @@ export function useBubbleManager() {
     })
   }
 
-  const findBubbleUnderCursor = (mouseX: number, mouseY: number, nodes: BubbleNode[]): BubbleNode | null => {
+  removeBubble(bubbleId: number, nodes: BubbleNode[]): BubbleNode[] {
+    const index = nodes.findIndex(node => node.id === bubbleId)
+    if (index !== -1) {
+      const newNodes = [...nodes]
+      newNodes.splice(index, 1)
+      return newNodes
+    }
+    return nodes
+  }
+
+  findBubbleUnderCursor(mouseX: number, mouseY: number, nodes: BubbleNode[]): BubbleNode | null {
     for (let i = nodes.length - 1; i >= 0; i--) {
       const bubble = nodes[i]
       const dx = mouseX - bubble.x
@@ -105,24 +104,7 @@ export function useBubbleManager() {
     return null
   }
 
-  const clearSavedPositions = () => {
-    savedPositions.clear()
+  clearSavedPositions(): void {
+    this.savedPositions.clear()
   }
-
-  const toughBubbleClicks = ref<Record<string, number>>({})
-
-  const activeHiddenBubbles = computed(() =>
-    bubbleStore.bubbles.filter(b => b.isHidden && !b.isPopped)
-  )
-
-  return {
-    createNodes,
-    savePositions,
-    updateBubbleStates,
-    removeBubble,
-    findBubbleUnderCursor,
-    clearSavedPositions,
-    toughBubbleClicks,
-    activeHiddenBubbles
-  }
-}
+} 

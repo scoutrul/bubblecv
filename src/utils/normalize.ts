@@ -1,6 +1,7 @@
 import type { Level } from '@/types/levels'
 import type { Bubble, Achievement, Bonus } from '@/types/data'
 import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, BubbleSizes } from '@/types/normalized'
+import type { Question } from '@/types/data'
 import { XP_CALCULATOR } from '@/config'
 
 // Значения по умолчанию для пузыря
@@ -43,9 +44,9 @@ export function normalizeSkillBubble(bubble: Bubble, id: number): NormalizedBubb
   }
 }
 
-export function createPhilosophyBubble(questionId: string, year: number): NormalizedBubble {
+export function createPhilosophyBubble(question: Question, year: number): NormalizedBubble {
   // Создаем числовой хеш из строкового ID
-  const questionHash = questionId.split('').reduce((hash, char) => {
+  const questionHash = question.id.split('').reduce((hash, char) => {
     return ((hash << 5) - hash + char.charCodeAt(0)) & 0xfffffff
   }, 0)
   
@@ -59,8 +60,10 @@ export function createPhilosophyBubble(questionId: string, year: number): Normal
     name: 'Философский вопрос',
     year,
     skillLevel: 'expert',
-    description: 'Пузырь с философским вопросом о разработке',
-    questionId,
+    description: question.question,
+    insight: question.insight,
+    questionId: question.id,
+    questionData: question, // Сохраняем полные данные вопроса
     ...DEFAULT_BUBBLE_PROPS,
     isQuestion: true,
     size: randomSize,

@@ -1,0 +1,7 @@
+export { CanvasUseCase } from './CanvasUseCase'
+export { CanvasUseCaseFactory } from './CanvasUseCaseFactory'
+export { PhysicsRepository } from './PhysicsRepository'
+export { EffectsRepository } from './EffectsRepository'
+export { CanvasRepository } from './CanvasRepository'
+export { BubbleManagerRepository } from './BubbleManagerRepository'
+export type * from './types' 

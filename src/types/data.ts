@@ -23,11 +23,9 @@ export interface Achievement {
 export interface Question {
   id: string
   type: string
-  title: string
   question: string
   options: QuestionOption[]
   insight: string
-  description: string
 }
 
 export interface QuestionOption {

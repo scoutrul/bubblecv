@@ -235,140 +235,17 @@ export function createYearTransitionAnimation(element: HTMLElement, onComplete?:
   return tl
 }
 
-// ===== CANVAS АНИМАЦИИ =====
 
-/**
- * Анимирует параллакс эффект
- * @param parallaxOffset - объект с координатами смещения
- * @param mouseX - X координата мыши
- * @param mouseY - Y координата мыши
- * @param centerX - X центра экрана
- * @param centerY - Y центра экрана
- */
-export function animateParallax(
-  parallaxOffset: { x: number, y: number },
-  mouseX: number,
-  mouseY: number,
-  centerX: number,
-  centerY: number
-) {
-  const strength = 0.008
-  const targetX = (mouseX - centerX) * strength * -1
-  const targetY = (mouseY - centerY) * strength * -1
-
-  gsap.to(parallaxOffset, {
-    x: targetX,
-    y: targetY,
-    duration: 1.2,
-    ease: 'power2.out'
-  })
-}
 
 /**
  * Анимирует удар по прочному пузырю
  * @param bubble - пузырь для анимации
  */
 
-export const calculateBubbleJump = (
-  mouseX: number,
-  mouseY: number,
-  bubble: BubbleNode
-) => {
 
-  const clickOffsetX = mouseX - bubble.x
-  const clickOffsetY = mouseY - bubble.y
-  const distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
 
-  if (distanceToCenter > 0) {
-    const dirX = clickOffsetX / distanceToCenter
-    const dirY = clickOffsetY / distanceToCenter
-    
-    const strengthFactor = Math.min(distanceToCenter / bubble.radius, 1)
-    const maxStrength = bubble.radius * 1.5
-    const jumpStrength = maxStrength * strengthFactor
 
-    return {
-      vx: -dirX * jumpStrength,
-      vy: -dirY * jumpStrength,
-      x: -dirX * jumpStrength * 0.5,
-      y: -dirY * jumpStrength * 0.5
-    }
-  }
 
-  return { vx: 0, vy: 0, x: 0, y: 0 }
-}
 
-export function animateToughBubbleHit(bubble: BubbleNode) {
-  gsap.killTweensOf(bubble, 'targetRadius')
-  bubble.targetRadius = (bubble.targetRadius || bubble.baseRadius) * 1.5;
-  gsap.to(bubble, {
-    targetRadius: bubble.baseRadius,
-    duration: 1,
-    ease: 'elastic.out(1, 0.6)',
-  })
-}
-
-// ===== ВЗРЫВЫ И ОСКОЛКИ (Bubble Effects) =====
-
-/**
- * Добавляет эффект взрыва в переданный массив эффектов
- * @param explosionEffects - массив эффектов взрыва
- * @param x - координата X
- * @param y - координата Y
- * @param radius - радиус пузыря
- */
-export function createExplosionEffect(
-  explosionEffects: Array<any>,
-  x: number,
-  y: number,
-  radius: number
-) {
-  const effect = {
-    x,
-    y,
-    radius: 0,
-    maxRadius: radius * 2,
-    opacity: 1,
-    startTime: Date.now()
-  }
-  explosionEffects.push(effect)
-}
-
-/**
- * Добавляет осколки в переданный массив частиц
- * @param debrisParticles - массив частиц
- * @param x - координата X
- * @param y - координата Y
- * @param radius - радиус пузыря
- * @param color - цвет осколков
- */
-export function createDebrisEffect(
-  debrisParticles: Array<any>,
-  x: number,
-  y: number,
-  radius: number,
-  color: string = '#667eea'
-) {
-  const particleCount = Math.floor(radius / 3) + 5
-  const startTime = Date.now()
-  for (let i = 0; i < particleCount; i++) {
-    const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5
-    const speed = Math.random() * 10
-    const size = Math.random() * 10
-    const particle = {
-      id: Date.now() + Math.random() + i,
-      x: x + Math.cos(angle) * (radius * 0.3),
-      y: y + Math.sin(angle) * (radius * 0.3),
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      size,
-      opacity: 1,
-      color,
-      startTime,
-      duration: Math.random() * 5000,
-    }
-    debrisParticles.push(particle)
-  }
-}
 
  
