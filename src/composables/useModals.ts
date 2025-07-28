@@ -393,15 +393,20 @@ export const useModals = () => {
     // Обрабатываем ответ
     let xpResult = null
     if (isNegative) {
+      console.log('💔 handlePhilosophyResponse: Неправильный ответ - отнимаем жизнь')
       // Для негативных ответов: даем XP но отнимаем жизнь
       xpResult = await gainXP(xpAmount)
+      console.log('💔 handlePhilosophyResponse: Вызываем losePhilosophyLife()')
       const isGameOver = await losePhilosophyLife()
+      console.log(`💔 handlePhilosophyResponse: Результат losePhilosophyLife: isGameOver = ${isGameOver}`)
       if (isGameOver) {
+        console.log('💀 handlePhilosophyResponse: Игра окончена - показываем Game Over')
         closeModalWithLogic('philosophy')
         openGameOverModal()
         return
       }
     } else {
+      console.log('✅ handlePhilosophyResponse: Правильный ответ - только XP')
       // Начисляем XP за положительные/кастомные ответы
       xpResult = await gainXP(xpAmount)
     }

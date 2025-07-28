@@ -1,3 +1,4 @@
+import { GAME_CONFIG } from '@/config'
 import type {
   ResetGameParams,
   ResetGameResult,
@@ -13,8 +14,8 @@ export class ResetGameUseCase {
 
   async execute(params: ResetGameParams): Promise<ResetGameResult> {
     try {
-      // Создаем новую сессию
-      await this.sessionStore.startSession({ lives: 3 })
+      // Создаем новую сессию с максимальным количеством жизней
+      await this.sessionStore.startSession({ lives: GAME_CONFIG.maxLives })
 
       // Открываем welcome модалку
       this.modalStore.openWelcome()

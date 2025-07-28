@@ -151,6 +151,30 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     if (canvasUseCase.value) {
       const bubble = canvasUseCase.value.findBubbleById(bubbleId)
       if (bubble) {
+        // Создаем floating text эффекты перед удалением пузыря
+        if (xpAmount !== undefined) {
+          // Показываем XP (зеленый текст вверх)
+          canvasUseCase.value.createFloatingText({
+            x: bubble.x,
+            y: bubble.y,
+            text: `+${xpAmount} XP`,
+            type: 'xp',
+            color: '#22c55e'
+          })
+        }
+
+        if (isPhilosophyNegative) {
+          // Показываем потерю жизни (красный текст вниз)
+          canvasUseCase.value.createFloatingText({
+            x: bubble.x,
+            y: bubble.y,
+            text: '💔',
+            type: 'life',
+            color: '#ef4444'
+          })
+        }
+
+        // Удаляем пузырь
         canvasUseCase.value.explodeBubble({
           bubble,
           nodes: canvasUseCase.value.findBubbleById(bubbleId) ? [bubble] : [],

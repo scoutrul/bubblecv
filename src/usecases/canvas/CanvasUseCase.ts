@@ -255,6 +255,10 @@ export class CanvasUseCase implements ICanvasUseCase {
     return this.canvasDomain.nodes.find(node => node.id === bubbleId)
   }
 
+  createFloatingText(params: { x: number; y: number; text: string; type: 'xp' | 'life'; color?: string }): void {
+    this.effectsRepository.createFloatingText(params)
+  }
+
   destroyCanvas(): void {
     if (this.canvasDomain.animationId) {
       cancelAnimationFrame(this.canvasDomain.animationId)

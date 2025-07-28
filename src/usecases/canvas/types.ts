@@ -191,6 +191,7 @@ export interface CanvasUseCase {
   explodeBubble(params: ExplodeBubbleParams): Promise<ExplodeBubbleResult>
   removePhilosophyBubble(bubbleId: number): Promise<void>
   findBubbleById(bubbleId: number): BubbleNode | undefined
+  createFloatingText(params: { x: number; y: number; text: string; type: 'xp' | 'life'; color?: string }): void
   destroyCanvas(): void
   render(): void
   animate(): void
