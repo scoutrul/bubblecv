@@ -298,6 +298,7 @@ export const useModals = () => {
           level: level,
           title: levelData?.title || `Уровень ${level}`,
           description: levelData?.description || `Поздравляем! Вы достигли ${level} уровня!`,
+          icon: levelData?.icon || '✨',
           currentXP: sessionStore.session?.currentXP || 0,
           xpGained: 0,
         }
