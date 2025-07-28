@@ -377,8 +377,14 @@ export class CanvasUseCase implements ICanvasUseCase {
         if (bubble.id !== undefined) {
           await this.useSession.visitBubble(bubble.id)
         }
+        
+        // Сначала показываем модалку с информацией о пузыре
+        this.modalStore.openBubbleModal(bubble)
+        
+        // Потом обрабатываем ачивку
         await this.modalStore.handleToughBubbleDestroyed()
         
+        // И только потом разбиваем пузырь
         await this.explodeBubble({ bubble, nodes, width, height })
         return { bubblePopped: true }
       } else {
