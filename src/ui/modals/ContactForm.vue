@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="contact-form">
+  <form v-if="!success && !error" @submit.prevent="handleSubmit" class="contact-form">
     <div class="form-group">
       <label for="message" class="form-label">
         Ваше сообщение или впечатление
@@ -37,7 +37,7 @@
         v-model="formData.contact"
         type="text"
         class="form-input"
-        placeholder="Email, Telegram или другой способ связи"
+        placeholder="Email, Telegram, телефон или другой способ связи"
         required
       />
     </div>
@@ -46,11 +46,36 @@
       {{ isSubmitting ? 'Отправляется...' : 'Отправить сообщение' }}
     </button>
   </form>
+
+  <!-- Сообщение об успехе -->
+  <div v-else-if="success" class="status-container success-container">
+    <div class="status-icon">✅</div>
+    <h3 class="status-title">Сообщение отправлено!</h3>
+    <p class="status-text">
+      Спасибо за ваше сообщение! Я свяжусь с вами в ближайшее время.
+    </p>
+    <button @click="resetForm" class="action-button">
+      Отправить еще
+    </button>
+  </div>
+
+  <!-- Сообщение об ошибке -->
+  <div v-else-if="error" class="status-container error-container">
+    <div class="status-icon">❌</div>
+    <h3 class="status-title">Ошибка отправки</h3>
+    <p class="status-text">
+      {{ error }}
+    </p>
+    <button @click="resetForm" class="action-button">
+      Попробовать снова
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useContactForm } from '@/composables/useContactForm'
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
+import type { ContactMessage } from '@/usecases/contact'
 
 interface FormData {
   message: string
@@ -73,24 +98,23 @@ const isFormValid = computed(() => {
 const handleSubmit = async () => {
   if (!isFormValid.value || isSubmitting.value) return
 
-  resetState()
-
-  await sendMessage({
-    name: formData.name,
-    email: formData.contact,
-    message: formData.message
-  })
-
-  if (success) {
-    alert('Спасибо за сообщение! Я свяжусь с вами в ближайшее время.')
-
-    // Очистить форму
-    formData.message = ''
-    formData.name = ''
-    formData.contact = ''
-  } else if (error.value) {
-    alert(error.value)
+  const messageData: ContactMessage = {
+    name: formData.name.trim(),
+    contact: formData.contact.trim(), 
+    message: formData.message.trim()
   }
+
+  await sendMessage(messageData)
+}
+
+const resetForm = () => {
+  // Очистить форму
+  formData.message = ''
+  formData.name = ''
+  formData.contact = ''
+  
+  // Сбросить состояние
+  resetState()
 }
 </script>
 
@@ -141,5 +165,75 @@ const handleSubmit = async () => {
 .submit-button:disabled {
   @apply opacity-50 cursor-not-allowed;
   background: var(--text-secondary, #64748b);
+}
+
+/* Общие стили для статусных контейнеров */
+.status-container {
+  @apply text-center space-y-6 py-8;
+}
+
+.status-icon {
+  @apply text-6xl mb-4;
+  animation: bounce 0.6s ease-in-out;
+}
+
+.status-title {
+  @apply text-2xl font-bold mb-2;
+  color: var(--text-primary, #f1f5f9);
+}
+
+.status-text {
+  @apply text-lg mb-6;
+  color: var(--text-secondary, #64748b);
+  line-height: 1.6;
+}
+
+.action-button {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
+  background: var(--accent, #8b5cf6);
+  color: white;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.action-button:hover {
+  @apply transform scale-105;
+  background: var(--primary, #3b82f6);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+/* Специфичные стили для ошибки */
+.error-container .status-icon {
+  color: #ef4444;
+}
+
+/* Специфичные стили для успеха */
+.success-container .status-icon {
+  color: #22c55e;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@media (max-width: 640px) {
+  .status-icon {
+    @apply text-5xl;
+  }
+  
+  .status-title {
+    @apply text-xl;
+  }
+  
+  .status-text {
+    @apply text-base;
+  }
 }
 </style>

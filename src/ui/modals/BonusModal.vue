@@ -30,8 +30,8 @@
         class="bonus-html-content"
       ></div>
 
-      <!-- Форма связи для 3-го уровня -->
-      <ContactForm v-if="bonus?.level === 3" class="contact-form-container" />
+      <!-- Форма связи для бонусов типа "form" -->
+      <ContactForm v-if="bonus?.type === 'form'" class="contact-form-container" />
     </div>
   </BaseModal>
 </template>

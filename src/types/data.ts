@@ -40,5 +40,6 @@ export interface Bonus {
   level: number
   title: string
   icon: string
+  type: 'text' | 'form' 
   content: string
 }

@@ -1,101 +1,46 @@
-import { ref } from 'vue'
-import { useSessionStore } from '@/stores'
-
-interface ContactMessage {
-    name: string
-    email: string
-    message: string
-}
+import { computed } from 'vue'
+import { useContactFormStore, useSessionStore } from '@/stores'
+import { ContactUseCaseFactory } from '@/usecases/contact'
+import type { ContactMessage } from '@/usecases/contact'
 
 export function useContactForm() {
-    const isSubmitting = ref(false)
-    const error = ref<string | null>(null)
-    const success = ref(false)
-    const sessionStore = useSessionStore()
+  const contactFormStore = useContactFormStore()
+  const sessionStore = useSessionStore()
 
-    const sendMessage = async (data: ContactMessage) => {
-        if (!data.message) {
-            error.value = 'Сообщение обязательно для заполнения'
-            return false
-        }
+  // Создаем адаптер для session store
+  const sessionAdapter = {
+    session: { value: sessionStore.session }
+  }
 
-        isSubmitting.value = true
-        error.value = null
-        success.value = false
+  // Создаем фабрику use cases
+  const factory = new ContactUseCaseFactory(
+    contactFormStore,
+    sessionAdapter
+  )
 
-        try {
-            const TELEGRAM_BOT_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
-            const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID
+  // Создаем экземпляры use cases
+  const sendMessageUseCase = factory.createSendMessageUseCase()
+  const resetContactFormUseCase = factory.createResetContactFormUseCase()
 
-            if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-                throw new Error('Telegram конфигурация не настроена')
-            }
+  // Computed свойства для состояния формы
+  const isSubmitting = computed(() => contactFormStore.isSubmitting)
+  const error = computed(() => contactFormStore.error)
+  const success = computed(() => contactFormStore.success)
 
-                  // Получаем все философские ответы (выбранные + кастомные)
-      const allAnswers = sessionStore.session?.allPhilosophyAnswers || {}
-      const hasAnswers = Object.keys(allAnswers).length > 0
+  const sendMessage = async (data: ContactMessage) => {
+    const result = await sendMessageUseCase.execute({ message: data })
+    return result.success
+  }
 
-      // Формируем секцию со всеми философскими ответами
-      let philosophyAnswersText = ''
-      if (hasAnswers) {
-        philosophyAnswersText = '\n\n🤔 <b>Философские ответы пользователя:</b>\n'
-        Object.entries(allAnswers).forEach(([questionId, answerData], index) => {
-          const icon = answerData.type === 'custom' ? '💭' : '✅'
-          const typeText = answerData.type === 'custom' ? 'Свой ответ' : 'Выбрал'
-          
-          philosophyAnswersText += `\n<b>${index + 1}.</b> <i>${answerData.questionText}</i>\n${icon} <b>${typeText}:</b> "${answerData.answer}"\n`
-        })
-      }
+  const resetState = () => {
+    resetContactFormUseCase.execute()
+  }
 
-            const text = `
-📬 <b>Новое сообщение с сайта:</b>
-
-👤 <b>Имя:</b> ${data.name || 'Не указано'}
-✉️ <b>Email:</b> ${data.email || 'Не указано'}
-📝 <b>Сообщение:</b>
-${data.message}${philosophyAnswersText}
-      `.trim()
-
-            const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    chat_id: TELEGRAM_CHAT_ID,
-                    text,
-                    parse_mode: 'HTML'
-                })
-            })
-
-            const result = await response.json()
-
-            if (result.ok) {
-                success.value = true
-                return true
-            } else {
-                error.value = result.description || 'Ошибка отправки в Telegram'
-                return false
-            }
-        } catch (err) {
-            console.error('Ошибка при отправке сообщения:', err)
-            error.value = 'Произошла ошибка при отправке сообщения'
-            return false
-        } finally {
-            isSubmitting.value = false
-        }
-    }
-
-    const resetState = () => {
-        error.value = null
-        success.value = false
-    }
-
-    return {
-        isSubmitting,
-        error,
-        success,
-        sendMessage,
-        resetState
-    }
+  return {
+    isSubmitting,
+    error,
+    success,
+    sendMessage,
+    resetState
+  }
 } 
