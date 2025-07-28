@@ -30,6 +30,12 @@ export const GAME_CONFIG = {
     [SKILL_LEVELS.MASTER]: 12
   } as const,
 
+  // UI анимации
+  animations: {
+    xpGain: 200,
+    shake: 700
+  } as const,
+
 
   expertiseBubbles: {
     [SKILL_LEVELS.NOVICE]: {
