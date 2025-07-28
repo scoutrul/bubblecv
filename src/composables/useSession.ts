@@ -1,19 +1,16 @@
 import { computed, ref } from 'vue'
-import { useLevelStore, useModalStore, useSessionStore, useUiEventStore } from '@/stores'
+import { useLevelStore, useSessionStore, useUiEventStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useBonuses } from '@/composables/useBonuses'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { getEventBridge } from '@/composables/useUi'
 import { SessionUseCaseFactory } from '@/usecases/session'
 import type { NormalizedBubble } from '@/types/normalized'
-import { type Ref } from 'vue'
-import type { UserSession } from '@/types/session'
 
 export function useSession() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
-  const modalStore = useModalStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
   const { unlockBonusForLevel, resetBonuses } = useBonuses()
 
@@ -85,16 +82,6 @@ export function useSession() {
       adapters.canvasAdapter
     )
   }
-
-  const canLevelUp = computed(() => {
-    if (!sessionStore.session) return false
-    const level = sessionStore.session.currentLevel
-
-    if (level >= maxGameLevel) return false
-
-    const requiredXPForNextLevel = GAME_CONFIG.levelRequirements[(level + 1) as keyof typeof GAME_CONFIG.levelRequirements]
-    return sessionStore.currentXP >= requiredXPForNextLevel
-  })
 
   const gainXP = async (amount: number): Promise<{ leveledUp: boolean; newLevel?: number; levelData?: any }> => {
     

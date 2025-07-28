@@ -2,9 +2,17 @@ import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
 import { useAchievement, useSession, useBonuses } from '@/composables/'
 import { useModals } from '@/composables/useModals'
+import { AppUseCaseFactory, AppRepositoryImpl } from '@/usecases/app'
+import type { 
+  AppSessionStore, 
+  AppBubbleStore, 
+  AppLevelStore, 
+  AppAchievementStore, 
+  AppBonusStore, 
+  AppModalStore 
+} from '@/usecases/app'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
-import { api } from '@/api'
 
 export function useApp() {
   const bubbleStore = useBubbleStore()
@@ -16,62 +24,108 @@ export function useApp() {
   const { openWelcome } = useModals()
 
   const isAppLoading = ref(false)
-  const oldBubblesLoaded = ref(false)
 
-  // Загрузка старых пузырей при достижении 4 уровня
-  const loadOldBubblesIfNeeded = async () => {
-    if (currentLevel.value >= 4 && !oldBubblesLoaded.value) {
-      try {
-        const { data: oldBubbles } = await api.getOldBubbles()
-        // Добавляем старые пузыри к существующим
-        bubbleStore.bubbles.push(...oldBubbles)
-        oldBubblesLoaded.value = true
-        console.log('✅ Загружены пузыри из прошлого')
-      } catch (err) {
-        console.error('❌ Ошибка загрузки старых пузырей:', err)
-      }
+  // Создаем адаптеры для stores
+  const createAdapters = () => {
+    return {
+      sessionAdapter: {
+        session: {
+          currentLevel: sessionStore.currentLevel,
+          currentXP: sessionStore.currentXP,
+          lives: sessionStore.lives,
+          currentYear: sessionStore.currentYear,
+          visitedBubbles: sessionStore.visitedBubbles
+        },
+        xpProgress: sessionStore.xpProgress,
+        nextLevelXP: sessionStore.nextLevelXP,
+        startSession: (params: { lives: number }) => session.startSession(params),
+        updateCurrentYear: (year: number, triggerAnimation?: boolean) => session.updateCurrentYear(year, triggerAnimation),
+        yearTransitionTrigger: session.yearTransitionTrigger
+      } as AppSessionStore,
+      bubbleAdapter: {
+        bubbles: bubbleStore.bubbles as any,
+        loadBubbles: () => bubbleStore.loadBubbles(),
+        addBubbles: (bubbles: any[]) => bubbleStore.bubbles.push(...bubbles)
+      } as AppBubbleStore,
+      levelAdapter: {
+        levels: levelStore.levels,
+        loadLevels: () => levelStore.loadLevels(),
+        getLevelByNumber: (level: number) => levelStore.getLevelByNumber(level)
+      } as AppLevelStore,
+      achievementAdapter: {
+        achievements: [] as any,
+        unlockedCount: achievements.unlockedCount.value,
+        unlockedAchievements: achievements.unlockedAchievements.value,
+        loadAchievements: () => achievements.loadAchievements(),
+        showAchievements: () => achievements.toggleAchievements(),
+        closeAchievements: () => achievements.closeAchievements(),
+        toggleAchievements: () => achievements.toggleAchievements()
+      } as AppAchievementStore,
+      bonusAdapter: {
+        bonuses: bonuses.bonuses.value,
+        unlockedBonusesCount: bonuses.unlockedBonusesCount.value,
+        unlockedBonuses: bonuses.unlockedBonuses.value,
+        loadBonuses: () => bonuses.loadBonuses(),
+        showBonusPanel: () => bonuses.toggleBonusPanel(),
+        closeBonusPanel: () => bonuses.closeBonusPanel(),
+        toggleBonusPanel: () => bonuses.toggleBonusPanel()
+      } as AppBonusStore,
+      modalAdapter: {
+        openWelcome: () => openWelcome()
+      } as AppModalStore,
+      repositoryAdapter: new AppRepositoryImpl()
     }
+  }
+
+  // Создаем фабрику use cases
+  const createFactory = () => {
+    const adapters = createAdapters()
+    return new AppUseCaseFactory(
+      adapters.sessionAdapter,
+      adapters.bubbleAdapter,
+      adapters.levelAdapter,
+      adapters.achievementAdapter,
+      adapters.bonusAdapter,
+      adapters.modalAdapter,
+      adapters.repositoryAdapter
+    )
   }
 
   const initialize = async () => {
     isAppLoading.value = true
     try {
-      await Promise.all([
-        levelStore.loadLevels(),
-        bubbleStore.loadBubbles(),
-        achievements.loadAchievements(),
-        bonuses.loadBonuses(),
-      ])
-
-      // Создаем сессию отдельно и ждем завершения
-      await session.startSession({ lives: GAME_CONFIG.initialLives })
-
-      // Проверяем нужно ли загрузить старые пузыри
-      await loadOldBubblesIfNeeded()
-
-      // Открываем welcome модалку после инициализации
-      openWelcome()
+      const factory = createFactory()
+      const useCase = factory.createInitializeAppUseCase()
+      
+      const result = await useCase.execute({ lives: GAME_CONFIG.initialLives })
+      
+      if (!result.success) {
+        console.error('Ошибка инициализации приложения:', result.error)
+      }
     } finally {
       isAppLoading.value = false
     }
   }
 
   const resetGame = async () => {
-    await session.startSession()
-    openWelcome()
+    const factory = createFactory()
+    const useCase = factory.createResetGameUseCase()
+    
+    const result = await useCase.execute({})
+    
+    if (!result.success) {
+      console.error('Ошибка сброса игры:', result.error)
+    }
   }
 
+  // Реактивные computed для состояния игры
   const currentLevel = computed(() => sessionStore.currentLevel)
-  const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
   const currentLevelTitle = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)
-
     return level?.title || 'Посетитель'
   })
-
   const currentLevelIcon = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)
-
     return level?.icon || '👋'
   })
 
@@ -82,8 +136,14 @@ export function useApp() {
     currentLevel,
     currentLevelTitle,
     currentLevelIcon,
-    startYear: computed(() => yearRange.value.startYear),
-    endYear: computed(() => yearRange.value.endYear),
+    startYear: computed(() => {
+      const yearRange = getYearRange(bubbleStore.bubbles)
+      return yearRange.startYear
+    }),
+    endYear: computed(() => {
+      const yearRange = getYearRange(bubbleStore.bubbles)
+      return yearRange.endYear
+    }),
     currentXP: computed(() => sessionStore.currentXP),
     currentLives: computed(() => sessionStore.lives),
     xpProgress: computed(() => sessionStore.xpProgress),
