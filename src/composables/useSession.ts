@@ -1,32 +1,89 @@
-import {computed, ref} from 'vue'
-import {useLevelStore, useModalStore, useSessionStore, useUiEventStore} from '@/stores'
-import {useAchievement} from '@/composables/useAchievement'
-import {useBonuses} from '@/composables/useBonuses'
-import {GAME_CONFIG, maxGameLevel} from '@/config'
-import {generateSessionId} from '@/utils/ui'
-import {getEventBridge} from '@/composables/useUi'
-import type {NormalizedBubble} from '@/types/normalized'
+import { computed, ref } from 'vue'
+import { useLevelStore, useModalStore, useSessionStore, useUiEventStore } from '@/stores'
+import { useAchievement } from '@/composables/useAchievement'
+import { useBonuses } from '@/composables/useBonuses'
+import { GAME_CONFIG, maxGameLevel } from '@/config'
+import { getEventBridge } from '@/composables/useUi'
+import { SessionUseCaseFactory } from '@/usecases/session'
+import type { NormalizedBubble } from '@/types/normalized'
+import { type Ref } from 'vue'
+import type { UserSession } from '@/types/session'
 
 export function useSession() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
   const levelStore = useLevelStore()
+  const modalStore = useModalStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
   const { unlockBonusForLevel, resetBonuses } = useBonuses()
 
   const yearTransitionTrigger = ref(false)
 
-  // Функция для показа модалки ачивки
-  const showAchievementModal = (achievement: any) => {
-    import('@/composables/useModals').then(({ useModals }) => {
-      const { openAchievementModal } = useModals()
-      openAchievementModal({
-        title: achievement.name,
-        description: achievement.description,
-        icon: achievement.icon,
-        xpReward: achievement.xpReward
-      })
-    })
+  // Функция для создания адаптеров с актуальными данными
+  const createAdapters = () => {
+    return {
+      sessionAdapter: {
+        session: sessionStore.session,
+        currentXP: sessionStore.currentXP,
+        createSession: sessionStore.createSession,
+        addXP: sessionStore.addXP,
+        setLevel: sessionStore.setLevel,
+        setLives: sessionStore.setLives,
+        setGameCompleted: sessionStore.setGameCompleted,
+        addVisitedBubble: sessionStore.addVisitedBubble,
+        setCurrentYear: sessionStore.setCurrentYear
+      },
+      levelAdapter: {
+        getLevelByNumber: levelStore.getLevelByNumber
+      },
+      achievementAdapter: {
+        unlockAchievement: (id: string, showModal?: boolean) => unlockAchievement(id, showModal),
+        resetAchievements
+      },
+      bonusAdapter: {
+        unlockBonusForLevel,
+        resetBonuses
+      },
+      uiEventAdapter: {
+        queueShake: uiEventStore.queueShake
+      },
+      modalAdapter: {
+        openAchievementModal: (achievement: any) => {
+          // Используем useModals для открытия модалки достижения
+          import('@/composables/useModals').then(({ useModals }) => {
+            const { openAchievementModal } = useModals()
+            openAchievementModal({
+              title: achievement.name,
+              description: achievement.description,
+              icon: achievement.icon,
+              xpReward: achievement.xpReward
+            })
+          })
+        }
+      },
+      canvasAdapter: {
+        resetCanvas: () => {
+          const bridge = getEventBridge()
+          if (bridge) {
+            bridge.resetCanvas()
+          }
+        }
+      }
+    }
+  }
+
+  // Функция для создания фабрики с актуальными данными
+  const createFactory = () => {
+    const adapters = createAdapters()
+    return new SessionUseCaseFactory(
+      adapters.sessionAdapter,
+      adapters.levelAdapter,
+      adapters.achievementAdapter,
+      adapters.bonusAdapter,
+      adapters.uiEventAdapter,
+      adapters.modalAdapter,
+      adapters.canvasAdapter
+    )
   }
 
   const canLevelUp = computed(() => {
@@ -40,165 +97,66 @@ export function useSession() {
   })
 
   const gainXP = async (amount: number): Promise<{ leveledUp: boolean; newLevel?: number; levelData?: any }> => {
-    if (!sessionStore.session) {
-      return { leveledUp: false }
-    }
-
-    sessionStore.addXP(amount)
-    uiEventStore.queueShake('xp')
-
-    let leveledUp = false
-    let newLevel = sessionStore.session.currentLevel
-
-    while (canLevelUp.value) {
-      newLevel = sessionStore.session.currentLevel + 1
-      sessionStore.setLevel(newLevel)
-      uiEventStore.queueShake('level')
-      leveledUp = true
-
-      // Разблокируем бонус для нового уровня
-      unlockBonusForLevel(newLevel)
-
-      // Не обрабатываем level achievements здесь - они будут обработаны в Event Chain
-      if (newLevel === maxGameLevel) {
-        const achievement = await unlockAchievement('final-level-master')
-        if (achievement) {
-          sessionStore.addXP(achievement.xpReward)
-        }
-      }
-    }
-
-    if (leveledUp) {
-      const levelData = levelStore.getLevelByNumber(newLevel)
-      const icon = levelData?.icon || '⭐'
-
+    
+    const factory = createFactory()
+    const gainXPUseCase = factory.createGainXPUseCase()
+    const result = await gainXPUseCase.execute({ amount })
+    
+    if (result.success && result.leveledUp) {
       return {
         leveledUp: true,
-        newLevel,
-        levelData: {
-          level: newLevel,
-          title: levelData?.title,
-          description: levelData?.description,
-          currentXP: sessionStore.currentXP,
-          xpGained: amount,
-          icon
-        }
+        newLevel: result.newLevel,
+        levelData: result.levelData
       }
     }
-
+    
     return { leveledUp: false }
   }
 
   const losePhilosophyLife = async (): Promise<boolean> => {
-    if (!sessionStore.session) return false
-
-    await loseLives()
-    return sessionStore.session.lives === 0
+    const factory = createFactory()
+    const loseLivesUseCase = factory.createLoseLivesUseCase()
+    const result = await loseLivesUseCase.execute({ amount: 1 })
+    return result.success && result.gameCompleted
   }
 
   const loseLives = async (amount: number = 1): Promise<void> => {
-    if (!sessionStore.session) return
-
-    if (amount >= sessionStore.session.lives) {
-      sessionStore.setLives(0)
-      sessionStore.setGameCompleted(true)
-      uiEventStore.queueShake('lives')
-      return
-    }
-
-    sessionStore.setLives(Math.max(0, sessionStore.session.lives - amount))
-
-    if (sessionStore.session.lives === 0) {
-      sessionStore.setGameCompleted(true)
-    }
-
-    uiEventStore.queueShake('lives')
-
-    if (sessionStore.session.lives === 1) {
-      const achievement = await unlockAchievement('on-the-edge')
-      if (achievement) {
-        await gainXP(achievement.xpReward)
-        showAchievementModal(achievement)
-      }
-    }
+    const factory = createFactory()
+    const loseLivesUseCase = factory.createLoseLivesUseCase()
+    await loseLivesUseCase.execute({ amount })
   }
 
   const visitBubble = async (bubbleId: NormalizedBubble['id']): Promise<void> => {
-    if (!sessionStore.session) return
-
-    if (!sessionStore.session.visitedBubbles.includes(bubbleId)) {
-      sessionStore.addVisitedBubble(bubbleId)
-    }
+    const factory = createFactory()
+    const visitBubbleUseCase = factory.createVisitBubbleUseCase()
+    await visitBubbleUseCase.execute({ bubbleId })
   }
 
   const updateCurrentYear = (currYear: number, triggerAnimation: boolean = false) => {
-    if (sessionStore.session) {
-      sessionStore.setCurrentYear(currYear)
-      if (triggerAnimation) {
-        yearTransitionTrigger.value = !yearTransitionTrigger.value
-      }
+    const factory = createFactory()
+    const updateCurrentYearUseCase = factory.createUpdateCurrentYearUseCase()
+    updateCurrentYearUseCase.execute({ year: currYear, triggerAnimation })
+    if (triggerAnimation) {
+      yearTransitionTrigger.value = !yearTransitionTrigger.value
     }
   }
 
-  const startSession = (options: { lives?: number } = { lives: GAME_CONFIG.maxLives }): void => {
-
-    new Promise((resolve) => {
-      sessionStore.createSession({
-        id: generateSessionId(),
-        currentXP: 0,
-        currentLevel: 1,
-        lives: options.lives ?? GAME_CONFIG.initialLives,
-        visitedBubbles: [],
-        agreementScore: 0,
-        gameCompleted: false,
-        hasDestroyedToughBubble: false,
-        startTime: new Date(),
-        lastActivity: new Date(),
-        hasUnlockedFirstToughBubbleAchievement: false,
-        currentYear: GAME_CONFIG.initialYear
-      })
-      resolve(true)
-    }).then(() => {
-      const bridge = getEventBridge()
-      if (bridge) {
-        bridge.resetCanvas()
-      }
-      resetAchievements()
-      resetBonuses()
-    })
+  const startSession = async (options: { lives?: number } = { lives: GAME_CONFIG.maxLives }): Promise<void> => {
+    const factory = createFactory()
+    const startSessionUseCase = factory.createStartSessionUseCase()
+    await startSessionUseCase.execute({ lives: options.lives })
   }
 
   const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {
-    if (!sessionStore.session) return
-
-    if (!sessionStore.session.customPhilosophyAnswers) {
-      sessionStore.session.customPhilosophyAnswers = {}
-    }
-
-    if (!sessionStore.session.allPhilosophyAnswers) {
-      sessionStore.session.allPhilosophyAnswers = {}
-    }
-
-    sessionStore.session.customPhilosophyAnswers[questionId] = answer
-    sessionStore.session.allPhilosophyAnswers[questionId] = {
-      type: 'custom',
-      answer,
-      questionText
-    }
+    const factory = createFactory()
+    const savePhilosophyAnswerUseCase = factory.createSavePhilosophyAnswerUseCase()
+    await savePhilosophyAnswerUseCase.executeCustomAnswer({ questionId, answer, questionText })
   }
 
   const saveSelectedPhilosophyAnswer = async (questionId: string, selectedOptionText: string, questionText: string) => {
-    if (!sessionStore.session) return
-
-    if (!sessionStore.session.allPhilosophyAnswers) {
-      sessionStore.session.allPhilosophyAnswers = {}
-    }
-
-    sessionStore.session.allPhilosophyAnswers[questionId] = {
-      type: 'selected',
-      answer: selectedOptionText,
-      questionText
-    }
+    const factory = createFactory()
+    const savePhilosophyAnswerUseCase = factory.createSavePhilosophyAnswerUseCase()
+    await savePhilosophyAnswerUseCase.executeSelectedAnswer({ questionId, selectedOptionText, questionText })
   }
 
   return {

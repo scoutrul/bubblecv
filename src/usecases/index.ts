@@ -1,4 +1,5 @@
 export * from './achievement'
 export * from './bonus'
 export * from './canvas'
-export * from './contact' 
+export * from './contact'
+export * from './session' 

@@ -41,8 +41,10 @@ export function useApp() {
         bubbleStore.loadBubbles(),
         achievements.loadAchievements(),
         bonuses.loadBonuses(),
-        session.startSession({ lives: GAME_CONFIG.initialLives }),
       ])
+
+      // Создаем сессию отдельно и ждем завершения
+      await session.startSession({ lives: GAME_CONFIG.initialLives })
 
       // Проверяем нужно ли загрузить старые пузыри
       await loadOldBubblesIfNeeded()
@@ -54,8 +56,8 @@ export function useApp() {
     }
   }
 
-  const resetGame = () => {
-    session.startSession()
+  const resetGame = async () => {
+    await session.startSession()
     openWelcome()
   }
 
