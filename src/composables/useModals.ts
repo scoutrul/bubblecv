@@ -4,12 +4,18 @@ import { useAchievement } from '@/composables/useAchievement'
 import { useSession } from '@/composables/useSession'
 import { getEventBridge } from '@/composables/useUi'
 import { XP_CALCULATOR } from '@/config'
+import { ModalUseCaseFactory } from '@/usecases/modal'
 import type { NormalizedAchievement } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
 import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
+import type { 
+  ModalSessionStore, 
+  ModalLevelStore, 
+  ModalAchievementStore, 
+  ModalModalStore 
+} from '@/usecases/modal'
 import { MODAL_PRIORITIES } from '@/types/modals'
-
 
 let canvasBridge: CanvasBridge | null = null
 let eventChainCompletedHandler: (() => void) | null = null
@@ -44,8 +50,6 @@ const createPendingAchievement = (achievement: NormalizedAchievement): PendingAc
   xpReward: achievement.xpReward
 })
 
-
-
 export const useModals = () => {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
@@ -55,6 +59,51 @@ export const useModals = () => {
 
   const isProcessingBubbleModal = ref(false)
 
+  // Создаем адаптеры для stores
+  const createAdapters = () => {
+    return {
+      sessionAdapter: {
+        session: {
+          currentXP: sessionStore.currentXP,
+          currentLevel: sessionStore.currentLevel,
+          visitedBubbles: sessionStore.visitedBubbles
+        }
+      } as ModalSessionStore,
+      levelAdapter: {
+        getLevelByNumber: (level: number) => levelStore.getLevelByNumber(level)
+      } as ModalLevelStore,
+      achievementAdapter: {
+        unlockAchievement: (id: string, showModal?: boolean) => unlockAchievement(id, showModal)
+      } as ModalAchievementStore,
+      modalAdapter: {
+        modals: modalStore.modals,
+        data: modalStore.data,
+        currentEventChain: modalStore.currentEventChain,
+        currentModal: modalStore.currentModal,
+        pendingAchievements: modalStore.pendingAchievements,
+        enqueueModal: (modal: { type: keyof ModalStates; data: any; priority: number }) => modalStore.enqueueModal(modal),
+        closeModal: (key: keyof ModalStates) => modalStore.closeModal(key),
+        closeCurrentModal: () => modalStore.closeCurrentModal(),
+        startEventChain: (chain: EventChain) => modalStore.startEventChain(chain),
+        processEventChain: () => modalStore.processEventChain(),
+        clearQueue: () => modalStore.clearQueue(),
+        setAchievement: (achievement: PendingAchievement | null) => modalStore.setAchievement(achievement),
+        getNextPendingAchievement: () => modalStore.getNextPendingAchievement(),
+        setCurrentBonus: (bonus: any) => modalStore.setCurrentBonus(bonus)
+      } as ModalModalStore
+    }
+  }
+
+  // Создаем фабрику use cases
+  const createFactory = () => {
+    const adapters = createAdapters()
+    return new ModalUseCaseFactory(
+      adapters.sessionAdapter,
+      adapters.levelAdapter,
+      adapters.achievementAdapter,
+      adapters.modalAdapter
+    )
+  }
 
   const checkAndAddLevelAchievement = async (
     xpResult: any,
@@ -78,6 +127,7 @@ export const useModals = () => {
     xpResult: any,
     context: any = {}
   ) => ({
+    id: Date.now().toString(),
     type,
     pendingAchievements: achievements,
     pendingLevelAchievements: levelAchievements,
@@ -96,28 +146,13 @@ export const useModals = () => {
     achievementId: string,
     chainType: EventChain['type']
   ) => {
-    const achievement = await unlockAchievement(achievementId)
-
-    if (achievement) {
-      // Получаем XP от основной ачивки
-      const xpResult = await gainXP(achievement.xpReward)
-
-      // Создаем массив основных ачивок
-      const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
-
-      // Создаем массив level ачивок
-      const levelAchievements: PendingAchievement[] = []
-
-      // Проверяем level achievement
-      await checkAndAddLevelAchievement(xpResult, levelAchievements)
-
-      // Запускаем Event Chain
-      modalStore.startEventChain(createEventChainConfig(
-        chainType,
-        achievements,
-        levelAchievements,
-        xpResult
-      ))
+    const factory = createFactory()
+    const useCase = factory.createProcessAchievementEventChainUseCase()
+    
+    const result = await useCase.execute({ achievementId, chainType })
+    
+    if (!result.success) {
+      console.error('Ошибка обработки цепочки ачивок:', result.error)
     }
   }
 
