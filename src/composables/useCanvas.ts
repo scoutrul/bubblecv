@@ -248,8 +248,17 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
           canvasRef.value.width = width
           canvasRef.value.height = height
 
-          if (!canvasUseCase.value) {
-            // Создаем use case при первой инициализации
+          // Проверяем, нужно ли переинициализировать canvas (например, при hot reload)
+          const needsReinit = !canvasUseCase.value || 
+            (canvasUseCase.value && !canvasUseCase.value.updateBubbles)
+
+          if (!canvasUseCase.value || needsReinit) {
+            // Уничтожаем старый use case если он существует
+            if (canvasUseCase.value) {
+              canvasUseCase.value.destroyCanvas()
+            }
+            
+            // Создаем use case при первой инициализации или переинициализации
             canvasUseCase.value = canvasUseCaseFactory.createCanvasUseCase(canvasRef, sessionComposable, checkBubblesAndAdvance)
             
             // Настраиваем CanvasBridge для удаления пузырей
@@ -336,6 +345,20 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     
     // Добавляем обработчик изменения размера окна
     window.addEventListener('resize', handleWindowResize)
+    
+    // Обработчик для Vite HMR (Hot Module Replacement)
+    if (import.meta.hot) {
+      import.meta.hot.accept(() => {
+        console.log('🔄 Hot reload detected - reinitializing canvas...')
+        
+        // Принудительно вызываем resize для переинициализации
+        if (containerRef.value) {
+          const rect = containerRef.value.getBoundingClientRect()
+          const event = new Event('resize')
+          window.dispatchEvent(event)
+        }
+      })
+    }
     
     onUnmounted(() => {
       resizeObserver.disconnect()

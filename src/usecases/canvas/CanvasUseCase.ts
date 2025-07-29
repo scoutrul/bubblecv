@@ -265,6 +265,12 @@ export class CanvasUseCase implements ICanvasUseCase {
       this.canvasDomain.animationId = 0
     }
 
+    // Очищаем обработчики событий если они есть
+    const canvas = this.canvasRepository.getContext()?.canvas as any
+    if (canvas && canvas._cleanupEventListeners) {
+      canvas._cleanupEventListeners()
+    }
+
     this.physicsRepository.stopSimulation()
     this.effectsRepository.clearAllEffects()
     this.bubbleManagerRepository.clearSavedPositions()

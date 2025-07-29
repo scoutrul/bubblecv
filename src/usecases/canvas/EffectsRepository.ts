@@ -34,39 +34,45 @@ export class EffectsRepository implements IEffectsRepository {
     const effect = {
       x,
       y,
-      radius: 0,
-      maxRadius: radius * 2,
+      radius: 1,
+      maxRadius: radius * 20,
       opacity: 1,
       startTime: Date.now()
     }
-    this.explosionEffects.value!.push(effect)
+    this.explosionEffects.value.push(effect)
   }
 
   private createDebrisEffect(x: number, y: number, radius: number, color: string): void {
-    const particleCount = Math.floor(radius / 3) + 5
+    const particleCount = Math.floor(radius / 2) + 10
     const startTime = Date.now()
-    
+  
     for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5
-      const speed = Math.random() * 25 + 10
-      const size = Math.random() * 8 + 2
-      
-      // Частицы создаются в центре и летят от центра
+      const angle = Math.random() * Math.PI * 2 // случайное направление
+      const speed = Math.random() * 30
+      const size = Math.random() * 8 
+  
+      // Создаем частицы от краев пузыря, а не из центра
+      const edgeDistance = radius + Math.random() * 5 // Немного случайности для естественности
+      const startX = x + Math.cos(angle) * edgeDistance
+      const startY = y + Math.sin(angle) * edgeDistance
+  
+      // Скорость направлена наружу от центра пузыря
       const vx = Math.cos(angle) * speed
       const vy = Math.sin(angle) * speed
-      
+  
       const particle = {
         id: Date.now() + Math.random() + i,
-        x: x, // Частицы начинаются из центра взрыва
-        y: y, // Частицы начинаются из центра взрыва
-        vx: vx, // Скорость направлена от центра
-        vy: vy, // Скорость направлена от центра
+        x: startX, // Начинаем от края пузыря
+        y: startY,
+        vx,
+        vy,
         size,
         opacity: 1,
         color,
         startTime,
-        duration: Math.random() * 2000 + 1500,
+        duration: Math.random() * 2000,
       }
+  
       this.debrisParticles.value!.push(particle)
     }
   }
