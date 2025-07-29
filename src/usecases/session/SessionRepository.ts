@@ -16,6 +16,7 @@ export class SessionRepository {
       startTime: new Date(),
       lastActivity: new Date(),
       hasUnlockedFirstToughBubbleAchievement: false,
+      hasUnlockedSecretBubbleAchievement: false,
       currentYear: GAME_CONFIG.initialYear,
       ...sessionData
     }

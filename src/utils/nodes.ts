@@ -32,23 +32,6 @@ export const normalizedToBubbleNode = (normalized: NormalizedBubble): BubbleNode
   ...normalized
 })
 
-export function createHiddenBubble(year?: number): BubbleNode {
-  const bubbleYear = year || 2015
-
-  return {
-    ...defaultBubbleNode,
-    id: -(bubbleYear * 10000 + 9999), // Уникальный отрицательный ID для скрытых пузырей
-    name: 'Скрытый пузырь',
-    year: bubbleYear,
-    isHidden: true,
-    description: 'Этот пузырь почти невидим. Найдите его!',
-    isPopped: false,
-    size: 'small', // Всегда маленький размер
-    x: Math.random() * window.innerWidth * 0.6 + window.innerWidth * 0.2,
-    y: Math.random() * window.innerHeight * 0.6 + window.innerHeight * 0.2
-  }
-}
-
 export const getBubblesUpToYear = <T extends NormalizedBubble | BubbleNode>(
   bubbles: T[],
   year: number,
@@ -68,8 +51,15 @@ export const getBubblesToRender = (
   visited: number[],
   activeHiddenBubbles: BubbleNode[] = []
 ): BubbleNode[] => {
+  // Фильтруем обычные пузыри (не скрытые, не вопросы)
   const filtered = getBubblesUpToYear(bubbles, currentYear, visited)
-  return [...filtered.map(normalizedToBubbleNode), ...(activeHiddenBubbles || [])]
+  
+  // Добавляем скрытые пузыри из bubbleStore
+  const hiddenBubbles = bubbles
+    .filter(b => b.isHidden && b.year <= currentYear && !visited.includes(b.id))
+    .map(normalizedToBubbleNode)
+  
+  return [...filtered.map(normalizedToBubbleNode), ...hiddenBubbles, ...(activeHiddenBubbles || [])]
 }
 
 export const findNextYearWithNewBubbles = (

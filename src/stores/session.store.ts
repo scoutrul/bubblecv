@@ -17,7 +17,13 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const visitedBubbles = computed(() => session.value?.visitedBubbles || [])
   const agreementScore = computed(() => session.value?.agreementScore || 0)
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
-  const hasUnlockedFirstToughBubbleAchievement = computed(() => session.value?.hasUnlockedFirstToughBubbleAchievement || false)
+  const hasUnlockedFirstToughBubbleAchievement = computed(() => 
+    session.value?.hasUnlockedFirstToughBubbleAchievement || false
+  )
+
+  const hasUnlockedSecretBubbleAchievement = computed(() => 
+    session.value?.hasUnlockedSecretBubbleAchievement || false
+  )
 
   const xpProgress = computed(() => {
     if (!session.value) return 0
@@ -96,6 +102,12 @@ export const useSessionStore = defineStore('sessionStore', () => {
     }
   }
 
+  const setHasUnlockedSecretBubbleAchievement = (value: boolean) => {
+    if (session.value) {
+      session.value.hasUnlockedSecretBubbleAchievement = value
+    }
+  }
+
   return {
     // State
     session,
@@ -111,6 +123,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     xpProgress,
     nextLevelXP,
     hasUnlockedFirstToughBubbleAchievement,
+    hasUnlockedSecretBubbleAchievement,
     
     // Setters
     createSession,
@@ -121,6 +134,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     addVisitedBubble,
     setCurrentYear,
     setHasDestroyedToughBubble,
-    setHasUnlockedFirstToughBubbleAchievement
+    setHasUnlockedFirstToughBubbleAchievement,
+    setHasUnlockedSecretBubbleAchievement
   }
 }) 

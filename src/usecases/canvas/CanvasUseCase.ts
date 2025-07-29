@@ -426,15 +426,59 @@ export class CanvasUseCase implements ICanvasUseCase {
       }
     }
 
+    if (bubble.isHidden) {
+      if (bubble.id === undefined) return { bubblePopped: false }
+      
+      const result = this.bubbleStore.incrementHiddenBubbleClicks(bubble.id)
+      
+      if (result.isReady) {
+        bubble.isReady = true
+        bubble.isVisited = true
+        
+        if (bubble.id !== undefined) {
+          await this.useSession.visitBubble(bubble.id)
+        }
+        
+        // Обрабатываем ачивку
+        await this.modalStore.handleSecretBubbleDestroyed()
+        
+        // Разбиваем пузырь
+        await this.explodeBubble({ bubble, nodes, width, height })
+        return { bubblePopped: true }
+      } else {
+        // Обрабатываем клик по скрытому пузырю
+        const { GAME_CONFIG } = await import('@/config')
+        
+        this.effectsRepository.createFloatingText({
+          x: mouseX,
+          y: mouseY,
+          text: `+${GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK} XP`,
+          type: 'xp',
+          color: '#22c55e'
+        })
+        
+        // Добавляем эффект отскакивания для скрытого пузыря
+        this.effectsRepository.animateToughBubbleHit(bubble)
+        
+        // Добавляем физическое отскакивание от точки клика
+        const jump = this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble)
+        if (jump.vx !== 0 || jump.vy !== 0) {
+          bubble.vx = jump.vx
+          bubble.vy = jump.vy
+        }
+        
+        const result = await this.useSession.gainXP(GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK)
+        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
+          this.modalStore.openLevelUpModal(result.newLevel, result.levelData)
+        }
+        
+        return { bubblePopped: false }
+      }
+    }
+
     bubble.isVisited = true
     if (bubble.id !== undefined) {
       await this.useSession.visitBubble(bubble.id)
-    }
-
-    if (bubble.isHidden) {
-      await this.modalStore.handleSecretBubbleDestroyed()
-      await this.explodeBubble({ bubble, nodes, width, height })
-      return { bubblePopped: true }
     }
 
     if (bubble.isQuestion) {

@@ -104,3 +104,16 @@ export function normalizeOldBubble(bubble: Bubble, id: number): NormalizedBubble
   }
 }
 
+export function createHiddenBubble(year: number): NormalizedBubble {
+  return {
+    id: -(year * 10000 + 9999), // Уникальный отрицательный ID для скрытых пузырей
+    name: 'Скрытый пузырь',
+    year,
+    skillLevel: 'intermediate',
+    description: 'Этот пузырь почти невидим. Найдите его!',
+    ...DEFAULT_BUBBLE_PROPS,
+    isHidden: true,
+    size: 'small', // Всегда маленький размер
+  }
+}
+

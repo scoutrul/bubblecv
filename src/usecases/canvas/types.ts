@@ -114,7 +114,9 @@ export interface ExplodeBubbleResult {
 export interface BubbleStore {
   bubbles: NormalizedBubble[]
   isLoading: boolean
-  incrementToughBubbleClicks(bubbleId: number): { isReady: boolean }
+  incrementToughBubbleClicks(bubbleId: number): { isReady: boolean; clicks: number; required: number }
+  incrementHiddenBubbleClicks(bubbleId: number): { isReady: boolean; clicks: number; required: number }
+  addHiddenBubbles(years: number[]): void
 }
 
 export interface SessionStore {

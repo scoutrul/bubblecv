@@ -97,7 +97,7 @@ export class EffectsRepository implements IEffectsRepository {
       const dirY = clickOffsetY / distanceToCenter
       
       const strengthFactor = Math.min(distanceToCenter / bubble.radius, 1)
-      const maxStrength = bubble.radius * 2 // Увеличиваем силу отскакивания
+      const maxStrength = bubble.radius * 4 // Увеличиваем силу отскакивания для скрытых пузырей
       const jumpStrength = maxStrength * strengthFactor
 
       return {

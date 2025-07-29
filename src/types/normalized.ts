@@ -11,6 +11,8 @@ export interface NormalizedBubble extends Bubble {
   questionData?: Question
   toughClicks?: number
   requiredClicks?: number
+  hiddenClicks?: number
+  requiredHiddenClicks?: number
   isActive: boolean,
   size: BubbleSizes
 }

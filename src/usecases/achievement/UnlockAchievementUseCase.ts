@@ -39,6 +39,13 @@ export class UnlockAchievementUseCase {
         this.sessionStore.setHasUnlockedFirstToughBubbleAchievement(true)
       }
 
+      if (id === 'secret-bubble-discoverer') {
+        if (this.sessionStore.session?.hasUnlockedSecretBubbleAchievement) {
+          return { success: false, error: 'Achievement already unlocked' }
+        }
+        this.sessionStore.setHasUnlockedSecretBubbleAchievement(true)
+      }
+
       achievement.isUnlocked = true
       this.uiEventStore.queueShake('achievements')
 

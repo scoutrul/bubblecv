@@ -10,6 +10,7 @@ export interface UserSession {
   startTime: Date
   lastActivity: Date
   hasUnlockedFirstToughBubbleAchievement: boolean
+  hasUnlockedSecretBubbleAchievement: boolean
   currentYear: number
   customPhilosophyAnswers?: Record<string, string>
   allPhilosophyAnswers?: Record<string, { type: 'selected' | 'custom', answer: string, questionText: string }>
