@@ -129,7 +129,6 @@ export interface CanvasModalStore {
   openLevelUpModal(level: number, levelData: Level): void
   openBubbleModal(bubble: NormalizedBubble): void
   openPhilosophyModal(question: Question, bubbleId: number): void
-  handleToughBubbleDestroyed(): Promise<void>
   handleSecretBubbleDestroyed(): Promise<void>
 }
 

@@ -258,6 +258,14 @@ export const useModals = () => {
         }
       }
 
+      // Проверяем ачивку за первый крепкий пузырь
+      if (bubble.isTough && !sessionStore.hasUnlockedFirstToughBubbleAchievement) {
+        const toughAchievement = await unlockAchievement('tough-bubble-popper')
+        if (toughAchievement) {
+          achievements.push(createPendingAchievement(toughAchievement))
+        }
+      }
+
       // Собираем ОТДЕЛЬНО level ачивки
       const levelAchievements: PendingAchievement[] = []
 
@@ -547,9 +555,10 @@ export const useModals = () => {
     await processAchievementEventChain('secret-bubble-discoverer', 'manual')
   }
 
-  const handleToughBubbleDestroyed = async () => {
-    await processAchievementEventChain('tough-bubble-popper', 'manual')
-  }
+  // Убираем отдельную обработку, так как достижение теперь интегрировано в Event Chain
+  // const handleToughBubbleDestroyed = async () => {
+  //   await processAchievementEventChain('tough-bubble-popper', 'manual')
+  // }
 
   return {
     // State
@@ -593,7 +602,6 @@ export const useModals = () => {
     closeBonusModal,
 
     // Handlers
-    handleToughBubbleDestroyed,
     handleSecretBubbleDestroyed
   }
 }

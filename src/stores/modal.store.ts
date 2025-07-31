@@ -138,8 +138,8 @@ export const useModalStore = defineStore('modalStore', () => {
     // Определяем следующий шаг согласно правильному порядку
     switch (chain.currentStep) {
       case 'bubble':
-        // Для обычных пузырей: bubble → levelUp
-        chain.currentStep = 'levelUp'
+        // Для обычных пузырей: bubble → achievement (если есть)
+        chain.currentStep = 'achievement'
         break
       case 'achievement':
         // Проверяем есть ли еще обычные ачивки
