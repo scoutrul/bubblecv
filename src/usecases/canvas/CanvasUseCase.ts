@@ -187,25 +187,19 @@ export class CanvasUseCase implements ICanvasUseCase {
       // Создаем эффекты взрыва
       this.effectsRepository.explodeBubble(bubble)
 
-      // Создаем floating text с XP
-      const { XP_CALCULATOR } = await import('@/config')
-      let xpAmount: number
-      let textColor = '#22c55e'
-      
-      if (bubble.isQuestion) {
-        // Для философских пузырей используем специальный калькулятор XP
-        xpAmount = XP_CALCULATOR.getPhilosophyBubbleXP({ isCustom: false })
-      } else {
-        xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
+      // Создаем floating text с XP (только для обычных пузырей)
+      if (!bubble.isQuestion) {
+        const { XP_CALCULATOR } = await import('@/config')
+        const xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
+        
+        this.effectsRepository.createFloatingText({
+          x: bubble.x,
+          y: bubble.y,
+          text: `+${xpAmount} XP`,
+          type: 'xp',
+          color: '#22c55e'
+        })
       }
-      
-      this.effectsRepository.createFloatingText({
-        x: bubble.x,
-        y: bubble.y,
-        text: `+${xpAmount} XP`,
-        type: 'xp',
-        color: textColor
-      })
 
       // Физический взрыв для отталкивания соседних пузырей
       const explosionRadius = bubble.baseRadius * 5

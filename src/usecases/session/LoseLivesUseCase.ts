@@ -59,12 +59,28 @@ export class LoseLivesUseCase {
     // Проверяем достижение "на грани"
     if (newLives === 1) {
       console.log('⚠️ LoseLivesUseCase: Осталась 1 жизнь - проверяем достижение "на краю"')
-      const achievement = await this.achievementStore.unlockAchievement('on-the-edge', true)
+      const achievement = await this.achievementStore.unlockAchievement('on-the-edge', false)
       if (achievement) {
         console.log('🏆 LoseLivesUseCase: Разблокировано достижение "на краю":', achievement)
         console.log(`🏆 LoseLivesUseCase: Награда за достижение: ${achievement.xpReward} XP`)
-        // Здесь можно было бы вызвать GainXPUseCase, но пока просто добавляем XP
-        this.sessionStore.addXP(achievement.xpReward)
+        
+        // Показываем модалку через Event Chain систему с задержкой
+        const { createPendingAchievement } = await import('@/composables/useModals')
+        
+        // Создаем Event Chain для ачивки с задержкой
+        setTimeout(async () => {
+          const { useModalStore } = await import('@/stores/modal.store')
+          const store = useModalStore()
+          
+          store.startEventChain({
+            type: 'manual',
+            pendingAchievements: [createPendingAchievement(achievement)],
+            pendingLevelAchievements: [],
+            pendingLevelUp: null,
+            currentStep: 'achievement',
+            context: {}
+          })
+        }, 100) // Небольшая задержка для завершения других модалок
       } else {
         console.log('❌ LoseLivesUseCase: Достижение "на краю" не разблокировано')
       }

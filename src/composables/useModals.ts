@@ -43,7 +43,7 @@ export const getEventChainCompletedHandler = (): (() => void) | null => {
 /**
  * Создает PendingAchievement из Achievement объекта
  */
-const createPendingAchievement = (achievement: NormalizedAchievement): PendingAchievement => ({
+export const createPendingAchievement = (achievement: NormalizedAchievement): PendingAchievement => ({
   title: achievement.name,
   description: achievement.description,
   icon: achievement.icon,
@@ -135,7 +135,7 @@ export const useModals = () => {
       level: xpResult.newLevel!,
       data: xpResult.levelData
     } : null,
-    currentStep: (type === 'manual') ? 'achievement' as const : 'bubble' as const,
+    currentStep: (type === 'manual') ? 'achievement' as const : 'achievement' as const,
     context
   })
 
@@ -405,13 +405,24 @@ export const useModals = () => {
         openGameOverModal()
         return
       }
+      // Если игра не окончена, но жизнь потеряна - продолжаем обработку
+      console.log('💔 handlePhilosophyResponse: Жизнь потеряна, но игра продолжается')
     } else {
       console.log('✅ handlePhilosophyResponse: Правильный ответ - только XP')
       // Начисляем XP за положительные/кастомные ответы
       xpResult = await gainXP(xpAmount)
     }
 
-    // Закрываем модалку ПЕРЕД показом ачивки
+    // Лопаем пузырь и показываем XP флоат-текст (только один раз)
+    if (bubbleId) {
+      const canvas = getCanvasBridge()
+      if (canvas) {
+        // Показываем только XP от философского ответа, не от ачивки
+        canvas.removeBubble(bubbleId, xpAmount, isNegative)
+      }
+    }
+
+    // Закрываем модалку ПОСЛЕ лопания пузыря
     closeModalWithLogic('philosophy')
 
     // Выдаем ачивку за первый философский пузырь (любой ответ)
@@ -433,7 +444,7 @@ export const useModals = () => {
 
       // Запускаем Event Chain для философского пузыря
       modalStore.startEventChain(createEventChainConfig(
-        'philosophy',
+        'bubble',
         achievements,
         levelAchievements,
         finalXpResult,
@@ -442,15 +453,6 @@ export const useModals = () => {
     } else if (xpResult && xpResult.leveledUp) {
       // Если нет ачивки, но есть level up - показываем только level up
       openLevelUpModal(xpResult.newLevel!, xpResult.levelData)
-    }
-
-    // Сразу лопаем пузырь и показываем XP флоат-текст
-    if (bubbleId) {
-      const canvas = getCanvasBridge()
-      if (canvas) {
-        // Всегда показываем полученный XP
-        canvas.removeBubble(bubbleId, xpAmount, isNegative)
-      }
     }
   }
 
@@ -499,10 +501,10 @@ export const useModals = () => {
   }
 
   const closeAchievementModal = async () => {
-    // Если это level achievement из Event Chain, начисляем XP
-    if (modalStore.currentEventChain &&
-        modalStore.currentEventChain.currentStep === 'levelAchievement' &&
-        modalStore.data.achievement) {
+    // Начисляем XP за ачивку (кроме level achievements, которые начисляются отдельно)
+    if (modalStore.data.achievement && 
+        (!modalStore.currentEventChain || 
+         modalStore.currentEventChain.currentStep !== 'levelAchievement')) {
       await gainXP(modalStore.data.achievement.xpReward)
     }
 
