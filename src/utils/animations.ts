@@ -189,19 +189,22 @@ export function createYearChangeAnimation(element: HTMLElement): gsap.core.Timel
 /**
  * Создает быструю GSAP анимацию года по центру экрана
  * @param element - HTML элемент года
+ * @param direction - направление анимации ('up' для увеличения года, 'down' для уменьшения)
  * @param onComplete - callback функция по завершению
  * @returns Timeline анимации
  */
-export function createYearTransitionAnimation(element: HTMLElement, onComplete?: () => void): gsap.core.Timeline {
+export function createYearTransitionAnimation(element: HTMLElement, direction: 'up' | 'down' = 'up', onComplete?: () => void): gsap.core.Timeline {
   const tl = gsap.timeline({
     onComplete
   })
+  
+  const isUp = direction === 'up'
   
   // Начальное состояние
   gsap.set(element, {
     scale: 0.5,
     opacity: 0,
-    y: 50
+    y: isUp ? 50 : -50
   })
   
   // Быстрая анимация появления
@@ -227,7 +230,7 @@ export function createYearTransitionAnimation(element: HTMLElement, onComplete?:
   .to(element, {
     scale: 0.8,
     opacity: 0,
-    y: -30,
+    y: isUp ? -30 : 30,
     duration: 0.4,
     ease: "power2.in"
   })

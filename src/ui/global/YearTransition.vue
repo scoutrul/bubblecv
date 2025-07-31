@@ -22,14 +22,14 @@ const props = defineProps<Props>()
 const visible = ref(false)
 const yearTextRef = ref<HTMLElement | null>(null)
 
-const animateYear = async () => {
+const animateYear = async (direction: 'up' | 'down') => {
   visible.value = true
   await nextTick()
 
   if (!yearTextRef.value) return
 
-  // Используем GSAP анимацию
-  createYearTransitionAnimation(yearTextRef.value, () => {
+  // Используем GSAP анимацию с направлением
+  createYearTransitionAnimation(yearTextRef.value, direction, () => {
     visible.value = false
   })
 }
@@ -37,7 +37,8 @@ const animateYear = async () => {
 // Анимация при смене года
 watch(() => props.year, (newYear, oldYear) => {
   if (newYear && oldYear && newYear !== oldYear) {
-    animateYear()
+    const direction = newYear > oldYear ? 'down' : 'up'
+    animateYear(direction)
   }
 }, { immediate: false })
 </script>
