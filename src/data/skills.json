@@ -217,6 +217,86 @@
       "skillLevel": "confident",
       "description": "Чат-архитектура, генерация кода, сценарии взаимодействия",
       "insight": "Я не просто использую AI. Я строю с его помощью. И это — ключевой скилл нового времени."
+    },
+    {
+      "name": "React",
+      "year": 2015,
+      "skillLevel": "novice",
+      "description": "JSX, компоненты, props/state. Первый опыт реактивного UI.",
+      "insight": "React открыл глаза на то, что интерфейс можно писать как функции. Было странно и мощно одновременно.",
+      "category": "frontend"
+    },
+    {
+      "name": "Vue 2 + Vuex",
+      "year": 2017,
+      "skillLevel": "intermediate",
+      "description": "Options API, реактивность, глобальное состояние, слоты.",
+      "insight": "Vue показался более человечным после React. Наконец-то стало понятно, как структурировать SPA.",
+      "category": "frontend"
+    },
+    {
+      "name": "Nuxt.js",
+      "year": 2020,
+      "skillLevel": "intermediate",
+      "description": "SSR, маршруты из файлов, плагины, модули, Nuxt-лайфсайкл.",
+      "insight": "Nuxt дал опыт работы с фреймворком, в котором многое решено за тебя — и это ускоряло.",
+      "category": "framework"
+    },
+    {
+      "name": "Vue 3 + Composition API",
+      "year": 2022,
+      "skillLevel": "confident",
+      "description": "setup(), composables, provide/inject, реактивные структуры.",
+      "insight": "Композиция логики через функции сделала код чище и модульнее. Осознание настоящего переиспользования.",
+      "category": "frontend"
+    },
+    {
+      "name": "Pinia",
+      "year": 2023,
+      "skillLevel": "confident",
+      "description": "Новый стор, разделение логики, декларативность, SSR-созвучность.",
+      "insight": "Pinia показал, насколько store может быть простым и мощным без избыточности.",
+      "category": "architecture"
+    },
+    {
+      "name": "Use Case Pattern",
+      "year": 2025,
+      "skillLevel": "intermediate",
+      "description": "Одна задача — один класс. Инкапсуляция бизнес-логики вне UI.",
+      "insight": "Ощущение, что каждая функция теперь на своем месте. Код стал дышать.",
+      "category": "architecture"
+    },
+    {
+      "name": "Repository Pattern",
+      "year": 2025,
+      "skillLevel": "intermediate",
+      "description": "Абстракция доступа к данным. Репозитории для Canvas, Physics, Achievements.",
+      "insight": "Код перестал зависеть от реализаций. Модули стали взаимозаменяемыми и независимыми.",
+      "category": "architecture"
+    },
+    {
+      "name": "Factory Pattern",
+      "year": 2025,
+      "skillLevel": "intermediate",
+      "description": "Фабрики для создания use cases с нужными зависимостями.",
+      "insight": "Фабрика — это не просто конструкция, а способ контролировать рост и структуру системы.",
+      "category": "architecture"
+    },
+    {
+      "name": "Clean Architecture + DDD",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "Слои Domain, Application, Infrastructure. Чёткое разделение зон ответственности.",
+      "insight": "Всё встало на свои места. Проект стал больше походить на систему, чем на код.",
+      "category": "architecture"
+    },
+    {
+      "name": "SOLID Principles",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "SRP, DIP, OCP — впервые реально применены в проде.",
+      "insight": "До этого принципы казались теорией, но в проекте они сработали на практике.",
+      "category": "architecture"
     }
   ]
 }
