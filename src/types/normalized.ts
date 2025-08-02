@@ -1,5 +1,5 @@
 import type { LevelContent, Level } from './levels'
-import type { Achievement, Bubble, Bonus, Question } from './data'
+import type { Achievement, Bubble, Bonus, Question, Memoir } from './data'
 
 export interface NormalizedBubble extends Bubble {
   id: number
@@ -31,6 +31,11 @@ export interface NormalizedLevel extends Level {
 }
 
 export interface NormalizedBonus extends Bonus {
+  id: number
+  isUnlocked: boolean
+}
+
+export interface NormalizedMemoir extends Memoir {
   id: number
   isUnlocked: boolean
 }

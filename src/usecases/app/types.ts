@@ -113,6 +113,16 @@ export interface AppBonusStore {
   toggleBonusPanel(): void
 }
 
+export interface AppMemoirStore {
+  memoirs: any[]
+  unlockedCount: number
+  unlockedMemoirs: any[]
+  loadMemoirs(): Promise<void>
+  showMemoirs(): void
+  closeMemoirs(): void
+  toggleMemoirs(): void
+}
+
 export interface AppModalStore {
   openWelcome(): void
 }

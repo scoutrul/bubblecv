@@ -1,16 +1,16 @@
 <template>
-  <div class="bonus-widget">
+  <div class="memoir-widget">
     <ToggleButton
-      icon="🎁"
+      icon="📝"
       :badge-count="unlockedCount"
       :is-shaking="isShaking"
       position="center-right"
       panel-position="bottom"
-      @toggle="toggleBonuses"
-      @close="closeBonuses"
+      @toggle="toggleMemoirs"
+      @close="closeMemoirs"
     >
       <template #panel="{ close }">
-        <BonusPanel @close="close" />
+        <MemoirPanel @close="close" />
       </template>
     </ToggleButton>
   </div>
@@ -18,12 +18,12 @@
 
 <script setup lang="ts">
 import ToggleButton from '@/ui/global/ToggleButton.vue'
-import BonusPanel from '@/ui/bonuses/BonusPanel.vue'
+import MemoirPanel from '@/ui/memoirs/MemoirPanel.vue'
 
 interface Props {
   unlockedCount: number
   isShaking: boolean
-  showBonuses: boolean
+  showMemoirs: boolean
 }
 
 interface Emits {
@@ -34,17 +34,17 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const toggleBonuses = () => {
+const toggleMemoirs = () => {
   emit('toggle')
 }
 
-const closeBonuses = () => {
+const closeMemoirs = () => {
   emit('close')
 }
 </script>
 
 <style scoped>
-.bonus-widget {
+.memoir-widget {
   pointer-events: auto;
   cursor: pointer;
 }

@@ -28,19 +28,38 @@
       <p>{{ levelData.description }}</p>
     </div>
 
-    <!-- Разблокированный бонус -->
-    <div v-if="unlockedBonus" class="unlocked-bonus">
-      <h3>🎁 Новый бонус:</h3>
-      <div
-        class="bonus-preview"
-        @click="openUnlockedBonus"
-      >
-        <div class="bonus-preview-icon">{{ unlockedBonus.icon }}</div>
-        <div class="bonus-preview-content">
-          <div class="bonus-preview-title">{{ unlockedBonus.title }}</div>
-          <div class="bonus-preview-subtitle">Нажмите для просмотра</div>
+    <!-- Разблокированные элементы -->
+    <div class="unlocked-items">
+      <!-- Разблокированный бонус -->
+      <div v-if="unlockedBonus" class="unlocked-item">
+        <h3>🎁 Новый бонус:</h3>
+        <div
+          class="item-preview bonus-preview"
+          @click="openUnlockedBonus"
+        >
+          <div class="item-preview-icon">{{ unlockedBonus.icon }}</div>
+          <div class="item-preview-content">
+            <div class="item-preview-title">{{ unlockedBonus.title }}</div>
+            <div class="item-preview-subtitle">Нажмите для просмотра</div>
+          </div>
+          <div class="item-preview-arrow">→</div>
         </div>
-        <div class="bonus-preview-arrow">→</div>
+      </div>
+
+      <!-- Разблокированный мемуар -->
+      <div v-if="unlockedMemoir" class="unlocked-item">
+        <h3>📝 Новый мемуар:</h3>
+        <div
+          class="item-preview memoir-preview"
+          @click="openUnlockedMemoir"
+        >
+          <div class="item-preview-icon">{{ unlockedMemoir.icon }}</div>
+          <div class="item-preview-content">
+            <div class="item-preview-title">{{ unlockedMemoir.title }}</div>
+            <div class="item-preview-subtitle">Нажмите для чтения</div>
+          </div>
+          <div class="item-preview-arrow">→</div>
+        </div>
       </div>
     </div>
   </BaseModal>
@@ -48,7 +67,7 @@
 
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
-import { useBonuses } from '@/composables'
+import { useBonuses, useMemoirs } from '@/composables'
 import { computed, onMounted } from 'vue'
 
 interface Props {
@@ -70,6 +89,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 const { getUnlockedBonusForLevel, unlockBonusForLevel, openBonusModal } = useBonuses()
+const { getUnlockedMemoirForLevel, unlockMemoirForLevel } = useMemoirs()
 
 const levelData = computed(() => ({
   level: props.level,
@@ -82,10 +102,15 @@ const unlockedBonus = computed(() =>
   getUnlockedBonusForLevel(props.level)
 )
 
-// Разблокируем бонус при открытии модалки
+const unlockedMemoir = computed(() =>
+  getUnlockedMemoirForLevel(props.level)
+)
+
+// Разблокируем бонус и мемуар при открытии модалки
 onMounted(() => {
   if (props.isOpen && props.level) {
     unlockBonusForLevel(props.level)
+    unlockMemoirForLevel(props.level)
   }
 })
 
@@ -93,6 +118,17 @@ const openUnlockedBonus = () => {
   if (unlockedBonus.value) {
     openBonusModal(unlockedBonus.value)
     emit('close')
+  }
+}
+
+const openUnlockedMemoir = () => {
+  if (unlockedMemoir.value) {
+    // Импортируем useModals для открытия модального окна мемуара
+    import('@/composables/useModals').then(({ useModals }) => {
+      const { openMemoirModal } = useModals()
+      openMemoirModal(unlockedMemoir.value)
+      emit('close')
+    })
   }
 }
 
@@ -188,59 +224,81 @@ const close = () => {
   line-height: 1.6;
 }
 
-.unlocked-bonus {
+.unlocked-items {
   margin-bottom: 1.5rem;
 }
 
-.unlocked-bonus h3 {
+.unlocked-item {
+  margin-bottom: 1rem;
+}
+
+.unlocked-item h3 {
   font-size: 0.875rem;
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.75rem;
 }
 
-.bonus-preview {
+.item-preview {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.3);
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.bonus-preview:hover {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.5);
+.item-preview:hover {
   transform: translateY(-1px);
 }
 
-.bonus-preview-icon {
+.item-preview-icon {
   font-size: 1.5rem;
   flex-shrink: 0;
 }
 
-.bonus-preview-content {
+.item-preview-content {
   flex: 1;
 }
 
-.bonus-preview-title {
+.item-preview-title {
   font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
 }
 
-.bonus-preview-subtitle {
+.item-preview-subtitle {
   font-size: 0.75rem;
   color: var(--accent);
 }
 
-.bonus-preview-arrow {
+.item-preview-arrow {
   color: var(--accent);
   font-weight: bold;
   flex-shrink: 0;
+}
+
+/* Специфичные стили для бонусов */
+.bonus-preview {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.bonus-preview:hover {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Специфичные стили для мемуаров */
+.memoir-preview {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.memoir-preview:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.5);
 }
 
 /* Анимации для элементов внутри модалки */

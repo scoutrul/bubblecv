@@ -5,6 +5,7 @@ export const useUiEventStore = defineStore('ui-eventStore', () => {
   const shakeQueue = ref(new Set<string>())
   const showAchievements = ref(false)
   const bonusesActive = ref(false)
+  const memoirsActive = ref(false)
 
   /**
    * Добавляет компонент в очередь на "встряску".
@@ -40,15 +41,26 @@ export const useUiEventStore = defineStore('ui-eventStore', () => {
     bonusesActive.value = false
   }
 
+  const toggleMemoirsPanel = () => {
+    memoirsActive.value = !memoirsActive.value
+  }
+
+  const closeMemoirsPanel = () => {
+    memoirsActive.value = false
+  }
+
   return {
     shakeQueue,
     showAchievements,
     bonusesActive,
+    memoirsActive,
     queueShake,
     consumeShakeQueue,
     toggleAchievements,
     closeAchievements,
     toggleBonusPanel,
-    closeBonusPanel
+    closeBonusPanel,
+    toggleMemoirsPanel,
+    closeMemoirsPanel
   }
 }) 

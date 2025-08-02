@@ -42,8 +42,6 @@ defineEmits<Emits>()
 
 <style scoped>
 .achievements-widget {
-  @apply fixed bottom-4 right-2 sm:right-4;
-  @apply z-[10000];
   pointer-events: auto;
   cursor: pointer;
 }

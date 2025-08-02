@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
-import { useAchievement, useSession, useBonuses } from '@/composables/'
+import { useAchievement, useSession, useBonuses, useMemoirs } from '@/composables/'
 import { useModals } from '@/composables/useModals'
 import { AppUseCaseFactory, AppRepositoryImpl } from '@/usecases/app'
 import type { 
@@ -9,7 +9,8 @@ import type {
   AppLevelStore, 
   AppAchievementStore, 
   AppBonusStore, 
-  AppModalStore 
+  AppModalStore,
+  AppMemoirStore
 } from '@/usecases/app'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
@@ -20,6 +21,7 @@ export function useApp() {
   const levelStore = useLevelStore()
   const achievements = useAchievement()
   const bonuses = useBonuses()
+  const memoirs = useMemoirs()
   const session = useSession()
   const { openWelcome } = useModals()
 
@@ -70,6 +72,15 @@ export function useApp() {
         closeBonusPanel: () => bonuses.closeBonusPanel(),
         toggleBonusPanel: () => bonuses.toggleBonusPanel()
       } as AppBonusStore,
+      memoirAdapter: {
+        memoirs: memoirs.memoirs.value,
+        unlockedCount: memoirs.unlockedMemoirsCount.value,
+        unlockedMemoirs: memoirs.unlockedMemoirs.value,
+        loadMemoirs: () => memoirs.loadMemoirs(),
+        showMemoirs: () => memoirs.toggleMemoirsPanel(),
+        closeMemoirs: () => memoirs.closeMemoirsPanel(),
+        toggleMemoirs: () => memoirs.toggleMemoirsPanel()
+      } as AppMemoirStore,
       modalAdapter: {
         openWelcome: () => openWelcome()
       } as AppModalStore,
@@ -87,7 +98,8 @@ export function useApp() {
       adapters.achievementAdapter,
       adapters.bonusAdapter,
       adapters.modalAdapter,
-      adapters.repositoryAdapter
+      adapters.repositoryAdapter,
+      adapters.memoirAdapter
     )
   }
 
@@ -170,6 +182,13 @@ export function useApp() {
       showBonuses: bonuses.showBonusPanel,
       closeBonuses: bonuses.closeBonusPanel,
       toggleBonuses: bonuses.toggleBonusPanel,
+    },
+    memoirs: {
+      unlockedCount: memoirs.unlockedMemoirsCount,
+      unlockedMemoirs: memoirs.unlockedMemoirs,
+      showMemoirs: memoirs.showMemoirsPanel,
+      closeMemoirs: memoirs.closeMemoirsPanel,
+      toggleMemoirs: memoirs.toggleMemoirsPanel,
     }
   }
 }

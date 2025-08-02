@@ -50,6 +50,13 @@
       v-bind="bonusProps"
       @close="closeBonusModal"
     />
+
+    <!-- Memoir Modal -->
+    <MemoirModal
+      v-if="showMemoir"
+      v-bind="memoirProps"
+      @close="closeMemoirModal"
+    />
   </div>
 </template>
 
@@ -63,6 +70,7 @@ import GameOverModal from './GameOverModal.vue'
 import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 import BonusModal from './BonusModal.vue'
+import MemoirModal from './MemoirModal.vue'
 import { computed } from 'vue'
 
 const modalStore = useModalStore()
@@ -77,7 +85,8 @@ const {
   restartGame,
   closeLevelUpModal,
   closeAchievementModal,
-  closeBonusModal
+  closeBonusModal,
+  closeMemoirModal
 } = useModals()
 
 const currentModal = computed(() => modalStore.currentModal)
@@ -157,6 +166,16 @@ const showBonus = computed(() => {
 })
 const bonusProps = computed(() => ({
   isOpen: true,
+  allowEscapeClose: true
+}))
+
+// Memoir Modal
+const showMemoir = computed(() => {
+  return currentModal.value?.type === 'memoir' || safeModals.value.memoir || false
+})
+const memoirProps = computed(() => ({
+  isOpen: true,
+  memoir: safeData.value.currentMemoir || null,
   allowEscapeClose: true
 }))
 </script>

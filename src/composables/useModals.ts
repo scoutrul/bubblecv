@@ -551,6 +551,17 @@ export const useModals = () => {
     }
   }
 
+  // Memoir Modal
+  const openMemoirModal = (memoir: any) => {
+    modalStore.enqueueModal({
+      type: 'memoir',
+      data: memoir,
+      priority: MODAL_PRIORITIES.memoir
+    })
+  }
+
+  const closeMemoirModal = () => closeModalWithLogic('memoir')
+
   const handleSecretBubbleDestroyed = async () => {
     await processAchievementEventChain('secret-bubble-discoverer', 'manual')
   }
@@ -600,6 +611,10 @@ export const useModals = () => {
 
     // Bonus
     closeBonusModal,
+
+    // Memoir
+    openMemoirModal,
+    closeMemoirModal,
 
     // Handlers
     handleSecretBubbleDestroyed

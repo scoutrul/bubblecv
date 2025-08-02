@@ -43,3 +43,11 @@ export interface Bonus {
   type: 'text' | 'form' 
   content: string
 }
+
+export interface Memoir {
+  level: number
+  title: string
+  icon: string
+  type: 'text' | 'form' 
+  content: string
+}

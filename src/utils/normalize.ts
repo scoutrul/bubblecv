@@ -1,7 +1,6 @@
 import type { Level } from '@/types/levels'
-import type { Bubble, Achievement, Bonus } from '@/types/data'
-import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, BubbleSizes } from '@/types/normalized'
-import type { Question } from '@/types/data'
+import type { Bubble, Achievement, Bonus, Question, Memoir } from '@/types/data'
+import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, NormalizedMemoir, BubbleSizes } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 
 // Значения по умолчанию для пузыря
@@ -101,6 +100,14 @@ export function normalizeOldBubble(bubble: Bubble, id: number): NormalizedBubble
     id,
     size: getSizeBySkillLevel(bubble.skillLevel),
     category: bubble.category || 'life'
+  }
+}
+
+export function normalizeMemoir(memoir: Memoir, index: number): NormalizedMemoir {
+  return {
+    ...memoir,
+    id: index,
+    isUnlocked: false
   }
 }
 

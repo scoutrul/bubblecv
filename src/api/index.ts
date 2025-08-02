@@ -2,13 +2,14 @@ import skills from '@/data/skills.json'
 import levels from '@/data/levels.json'
 import achievements from '@/data/achievements.json'
 import bonuses from '@/data/bonuses.json'
+import memoirs from '@/data/memoirs.json'
 import oldBubbles from '@/data/old.json'
 
-import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus } from '@/types/normalized'
-import type { Bubble, Achievement, Bonus } from '@/types/data'
+import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, NormalizedMemoir } from '@/types/normalized'
+import type { Bubble, Achievement, Bonus, Memoir } from '@/types/data'
 import type { Level } from '@/types/levels'
 
-import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeOldBubble } from '@/utils/normalize'
+import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeMemoir, normalizeOldBubble } from '@/utils/normalize'
 
 export const api = {
   async getLevels(): Promise<{ data: NormalizedLevel[] }> {
@@ -35,6 +36,13 @@ export const api = {
   async getBonuses(): Promise<{ data: NormalizedBonus[] }> {
     const data = bonuses.bonuses.map((bonus, index) =>
       normalizeBonus(bonus as Bonus, index)
+    )
+    return { data }
+  },
+
+  async getMemoirs(): Promise<{ data: NormalizedMemoir[] }> {
+    const data = memoirs.memoirs.map((memoir, index) =>
+      normalizeMemoir(memoir as Memoir, index)
     )
     return { data }
   },

@@ -5,7 +5,8 @@ import type {
   AppAchievementStore,
   AppBonusStore,
   AppModalStore,
-  AppRepository
+  AppRepository,
+  AppMemoirStore
 } from './types'
 import { InitializeAppUseCase } from './InitializeAppUseCase'
 import { ResetGameUseCase } from './ResetGameUseCase'
@@ -20,7 +21,8 @@ export class AppUseCaseFactory {
     private achievementStore: AppAchievementStore,
     private bonusStore: AppBonusStore,
     private modalStore: AppModalStore,
-    private repository: AppRepository
+    private repository: AppRepository,
+    private memoirStore?: AppMemoirStore
   ) {}
 
   createInitializeAppUseCase(): InitializeAppUseCase {
@@ -31,7 +33,8 @@ export class AppUseCaseFactory {
       this.achievementStore,
       this.bonusStore,
       this.modalStore,
-      this.repository
+      this.repository,
+      this.memoirStore
     )
   }
 

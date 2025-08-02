@@ -7,7 +7,8 @@ import type {
   AppAchievementStore,
   AppBonusStore,
   AppModalStore,
-  AppRepository
+  AppRepository,
+  AppMemoirStore
 } from './types'
 
 export class InitializeAppUseCase {
@@ -18,7 +19,8 @@ export class InitializeAppUseCase {
     private achievementStore: AppAchievementStore,
     private bonusStore: AppBonusStore,
     private modalStore: AppModalStore,
-    private repository: AppRepository
+    private repository: AppRepository,
+    private memoirStore?: AppMemoirStore
   ) {}
 
   async execute(params: InitializeAppParams): Promise<InitializeAppResult> {
@@ -31,6 +33,7 @@ export class InitializeAppUseCase {
         this.bubbleStore.loadBubbles(),
         this.achievementStore.loadAchievements(),
         this.bonusStore.loadBonuses(),
+        this.memoirStore?.loadMemoirs(),
       ])
 
       // Создаем сессию

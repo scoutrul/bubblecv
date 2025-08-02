@@ -12,7 +12,8 @@ export const useModalStore = defineStore('modalStore', () => {
     philosophy: false,
     gameOver: false,
     achievement: false,
-    bonus: false
+    bonus: false,
+    memoir: false
   })
 
   const data = reactive<ModalData>({
@@ -30,7 +31,8 @@ export const useModalStore = defineStore('modalStore', () => {
       xpGained: 0,
       xpRequired: 0
     },
-    currentBonus: null
+    currentBonus: null,
+    currentMemoir: null
   })
 
   const pendingAchievements = ref<PendingAchievement[]>([])
@@ -241,6 +243,9 @@ export const useModalStore = defineStore('modalStore', () => {
       case 'bonus':
         data.currentBonus = modal.data
         break
+      case 'memoir':
+        data.currentMemoir = modal.data
+        break
     }
 
     // Открываем модалку
@@ -313,6 +318,10 @@ export const useModalStore = defineStore('modalStore', () => {
     data.currentBonus = bonus
   }
 
+  const setCurrentMemoir = (memoir: ModalData['currentMemoir']) => {
+    data.currentMemoir = memoir
+  }
+
   // Achievement queue (оставляем для совместимости)
   const addPendingAchievement = (achievement: PendingAchievement) => {
     pendingAchievements.value.push(achievement)
@@ -359,6 +368,7 @@ export const useModalStore = defineStore('modalStore', () => {
     setGameOverStats,
     setLevelUpData,
     setCurrentBonus,
+    setCurrentMemoir,
 
     // Achievement queue
     addPendingAchievement,

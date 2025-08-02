@@ -30,7 +30,7 @@ export interface LevelUpData {
 }
 
 // Новые интерфейсы для системы очередей
-export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus'
+export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir'
 
 export interface QueuedModal {
   id: string
@@ -46,7 +46,8 @@ export const MODAL_PRIORITIES = {
   achievement: 70,
   philosophy: 60,
   bubble: 50,
-  bonus: 40
+  bonus: 40,
+  memoir: 30
 } as const
 
 // Обновленные интерфейсы для Event Chains
@@ -75,6 +76,7 @@ export interface ModalData {
   gameOverStats: { currentXP: number; currentLevel: number } | null
   levelUpData: LevelUpData
   currentBonus: NormalizedBonus | null
+  currentMemoir: any | null
 }
 
 export interface ModalStates {
@@ -85,4 +87,5 @@ export interface ModalStates {
   gameOver: boolean
   achievement: boolean
   bonus: boolean
+  memoir: boolean
 }

@@ -42,25 +42,37 @@
       </div>
     </div>
 
-    <!-- Achievements Widget -->
-    <AchievementsWidget
-      :unlocked-count="unlockedAchievementsCount"
-      :is-shaking="isAchievementShaking"
-      :show-achievements="showAchievementPanel"
-      :unlocked-achievements="unlockedAchievements"
-      @toggle="toggleAchievementPanel"
-      @close="closeAchievementPanel"
-    />
+    <!-- Widgets Container -->
+    <div class="widgets-container">
+      <!-- Achievements Widget -->
+      <AchievementsWidget
+        :unlocked-count="unlockedAchievementsCount"
+        :is-shaking="isAchievementShaking"
+        :show-achievements="showAchievementPanel"
+        :unlocked-achievements="unlockedAchievements"
+        @toggle="toggleAchievementPanel"
+        @close="closeAchievementPanel"
+      />
 
-    <!-- Bonus Widget -->
-    <BonusWidget
-      :unlocked-count="unlockedBonusesCount"
-      :is-shaking="isBonusShaking"
-      :show-bonuses="showBonusPanel"
-      :unlocked-bonuses="unlockedBonuses"
-      @toggle="toggleBonusPanel"
-      @close="closeBonusPanel"
-    />
+      <!-- Bonus Widget -->
+      <BonusWidget
+        :unlocked-count="unlockedBonusesCount"
+        :is-shaking="isBonusShaking"
+        :show-bonuses="showBonusPanel"
+        :unlocked-bonuses="unlockedBonuses"
+        @toggle="toggleBonusPanel"
+        @close="closeBonusPanel"
+      />
+
+      <!-- Memoir Widget -->
+      <MemoirWidget
+        :unlocked-count="unlockedMemoirsCount"
+        :is-shaking="isMemoirShaking"
+        :show-memoirs="showMemoirsPanel"
+        @toggle="toggleMemoirsPanel"
+        @close="closeMemoirsPanel"
+      />
+    </div>
 
   </div>
 </template>
@@ -72,6 +84,7 @@ import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
+import MemoirWidget from '@/ui/memoirs/MemoirWidget.vue'
 import { computed } from 'vue'
 
 const {
@@ -98,6 +111,13 @@ const {
     showBonuses: showBonusPanel,
     toggleBonuses: toggleBonusPanel,
     closeBonuses: closeBonusPanel
+  },
+  memoirs: {
+    unlockedCount: unlockedMemoirsCount,
+    unlockedMemoirs,
+    showMemoirs: showMemoirsPanel,
+    toggleMemoirs: toggleMemoirsPanel,
+    closeMemoirs: closeMemoirsPanel
   }
 } = useApp()
 
@@ -108,6 +128,7 @@ const {
 
 const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
 const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
+const isMemoirShaking = computed(() => shakingComponents.value.has('memoirs'))
 
 </script>
 
@@ -122,6 +143,14 @@ const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
   @apply bg-gradient-to-b from-background-primary/90 to-transparent;
   @apply flex flex-col sm:flex-row sm:items-center;
   z-index: 1000;
+  pointer-events: auto;
+}
+
+/* Контейнер виджетов */
+.widgets-container {
+  @apply fixed bottom-4 right-2 sm:right-4;
+  @apply flex flex-col gap-4;
+  z-index: 9999;
   pointer-events: auto;
 }
 

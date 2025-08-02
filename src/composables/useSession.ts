@@ -2,6 +2,7 @@ import { computed, ref } from 'vue'
 import { useLevelStore, useSessionStore, useUiEventStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useBonuses } from '@/composables/useBonuses'
+import { useMemoirs } from '@/composables/useMemoirs'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { getEventBridge } from '@/composables/useUi'
 import { SessionUseCaseFactory } from '@/usecases/session'
@@ -13,6 +14,7 @@ export function useSession() {
   const levelStore = useLevelStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
   const { unlockBonusForLevel, resetBonuses } = useBonuses()
+  const { unlockMemoirForLevel, resetMemoirs } = useMemoirs()
 
   const yearTransitionTrigger = ref(false)
 
@@ -90,6 +92,11 @@ export function useSession() {
     const result = await gainXPUseCase.execute({ amount })
     
     if (result.success && result.leveledUp) {
+      // Разблокируем мемуар для нового уровня
+      if (result.newLevel) {
+        await unlockMemoirForLevel(result.newLevel)
+      }
+      
       return {
         leveledUp: true,
         newLevel: result.newLevel,
@@ -132,6 +139,9 @@ export function useSession() {
     const factory = createFactory()
     const startSessionUseCase = factory.createStartSessionUseCase()
     await startSessionUseCase.execute({ lives: options.lives })
+    
+    // Сбрасываем мемуары при старте новой сессии
+    resetMemoirs()
   }
 
   const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {

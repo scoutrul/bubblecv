@@ -1,9 +1,10 @@
 export { useApp } from './useApp'
-export { useAchievement } from './useAchievement'
-
-export { useCanvas } from './useCanvas'
-export { useModals } from './useModals'
 export { useSession } from './useSession'
-export { useUi } from './useUi'
+export { useCanvas } from './useCanvas'
+export { useModals, setCanvasBridge, getCanvasBridge, setEventChainCompletedHandler, getEventChainCompletedHandler } from './useModals'
+export { useAchievement } from './useAchievement'
 export { useBonuses } from './useBonuses'
+export { useMemoirs } from './useMemoirs'
+export { useContactForm } from './useContactForm'
+export { useUi } from './useUi'
 
