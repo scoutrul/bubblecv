@@ -113,6 +113,9 @@ export function useApp() {
       
       if (!result.success) {
         console.error('Ошибка инициализации приложения:', result.error)
+      } else {
+        // Сбрасываем статус прочитанных мемуаров при инициализации
+        localStorage.removeItem('readMemoirs')
       }
     } finally {
       isAppLoading.value = false
@@ -127,6 +130,9 @@ export function useApp() {
     
     if (!result.success) {
       console.error('Ошибка сброса игры:', result.error)
+    } else {
+      // Дополнительно сбрасываем статус прочитанных мемуаров
+      localStorage.removeItem('readMemoirs')
     }
   }
 

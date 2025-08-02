@@ -24,13 +24,39 @@
     <div class="memoir-content" v-if="memoir">
       <div v-html="memoir.content" class="memoir-text"></div>
     </div>
+
+    <!-- Блок с информацией о XP -->
+    <button 
+      class="memoir-xp-button" 
+      v-if="memoir && !hasBeenRead"
+      @click="claimXP"
+      :disabled="isClaimingXP"
+    >
+      <div class="xp-info-content">
+        <div class="xp-icon">✨</div>
+        <div class="xp-text">
+          <div class="xp-title">За прочтение</div>
+          <div class="xp-amount">+10 XP</div>
+        </div>
+        <div class="xp-claim-text" v-if="!isClaimingXP">Нажмите для получения</div>
+        <div class="xp-claim-text claiming" v-else>Получаем...</div>
+      </div>
+    </button>
+
+    <!-- Статус прочитанного мемуара -->
+    <div class="memoir-read-status" v-if="memoir && hasBeenRead">
+      <div class="read-status-content">
+        <div class="read-status-icon">✅</div>
+        <div class="read-status-text">Прочитано</div>
+      </div>
+    </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores'
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 
 interface Props {
   isOpen: boolean
@@ -49,6 +75,47 @@ const emit = defineEmits<Emits>()
 const modalStore = useModalStore()
 
 const memoir = computed(() => modalStore.data.currentMemoir)
+const hasBeenRead = ref(false)
+const isClaimingXP = ref(false)
+
+// Отслеживаем прочтение мемуара
+onMounted(() => {
+  if (memoir.value && !hasBeenRead.value) {
+    // Проверяем, был ли мемуар уже прочитан
+    const readMemoirs = JSON.parse(localStorage.getItem('readMemoirs') || '[]')
+    if (!readMemoirs.includes(memoir.value.id)) {
+      hasBeenRead.value = false
+    } else {
+      hasBeenRead.value = true
+    }
+  }
+})
+
+const claimXP = async () => {
+  if (memoir.value && !hasBeenRead.value && !isClaimingXP.value) {
+    isClaimingXP.value = true
+    
+    try {
+      // Начисляем XP
+      const { useSession } = await import('@/composables/useSession')
+      const { gainXP } = useSession()
+      await gainXP(10)
+      
+      // Отмечаем мемуар как прочитанный
+      const readMemoirs = JSON.parse(localStorage.getItem('readMemoirs') || '[]')
+      if (!readMemoirs.includes(memoir.value.id)) {
+        readMemoirs.push(memoir.value.id)
+        localStorage.setItem('readMemoirs', JSON.stringify(readMemoirs))
+      }
+      
+      hasBeenRead.value = true
+    } catch (error) {
+      console.error('Ошибка при получении XP:', error)
+    } finally {
+      isClaimingXP.value = false
+    }
+  }
+}
 
 const close = () => {
   emit('close')
@@ -278,5 +345,93 @@ const close = () => {
   height: 1px;
   background: var(--border);
   margin: 2rem 0;
+}
+
+/* Кнопка с информацией о XP */
+.memoir-xp-button {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+
+.memoir-xp-button:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.5);
+  transform: translateY(-1px);
+}
+
+.memoir-xp-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.xp-info-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.xp-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.xp-text {
+  flex: 1;
+}
+
+.xp-title {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.xp-amount {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #22c55e;
+}
+
+.xp-claim-text {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.xp-claim-text.claiming {
+  color: var(--text-secondary);
+}
+
+/* Статус прочитанного мемуара */
+.memoir-read-status {
+  margin-top: 2rem;
+  padding: 1rem;
+  background: rgba(107, 114, 128, 0.1);
+  border: 1px solid rgba(107, 114, 128, 0.3);
+  border-radius: 0.5rem;
+  opacity: 0.7;
+}
+
+.read-status-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.read-status-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.read-status-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 </style> 

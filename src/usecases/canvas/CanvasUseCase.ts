@@ -187,10 +187,11 @@ export class CanvasUseCase implements ICanvasUseCase {
       // Создаем эффекты взрыва
       this.effectsRepository.explodeBubble(bubble)
 
-      // Создаем floating text с XP (только для обычных пузырей)
-      if (!bubble.isQuestion) {
+      // Создаем floating text с XP только для специальных пузырей (tough, hidden)
+      // Для обычных пузырей floating text создается через removeBubble в useModals
+      if (bubble.isTough || bubble.isHidden) {
         const { XP_CALCULATOR } = await import('@/config')
-        const xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
+        const xpAmount = bubble.isTough ? 1 : XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
         
         this.effectsRepository.createFloatingText({
           x: bubble.x,

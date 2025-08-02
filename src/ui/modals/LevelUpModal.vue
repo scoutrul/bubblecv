@@ -116,19 +116,30 @@ onMounted(() => {
 
 const openUnlockedBonus = () => {
   if (unlockedBonus.value) {
-    openBonusModal(unlockedBonus.value)
+    // Сначала закрываем текущую модалку
     emit('close')
+    
+    // Затем открываем модалку бонуса с небольшой задержкой
+    setTimeout(() => {
+      if (unlockedBonus.value) {
+        openBonusModal(unlockedBonus.value)
+      }
+    }, 100)
   }
 }
 
 const openUnlockedMemoir = () => {
   if (unlockedMemoir.value) {
-    // Импортируем useModals для открытия модального окна мемуара
-    import('@/composables/useModals').then(({ useModals }) => {
-      const { openMemoirModal } = useModals()
-      openMemoirModal(unlockedMemoir.value)
-      emit('close')
-    })
+    // Сначала закрываем текущую модалку
+    emit('close')
+    
+    // Затем открываем модалку мемуара с небольшой задержкой
+    setTimeout(() => {
+      import('@/composables/useModals').then(({ useModals }) => {
+        const { openMemoirModal } = useModals()
+        openMemoirModal(unlockedMemoir.value)
+      })
+    }, 100)
   }
 }
 

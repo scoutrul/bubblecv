@@ -142,6 +142,9 @@ export function useSession() {
     
     // Сбрасываем мемуары при старте новой сессии
     resetMemoirs()
+    
+    // Сбрасываем статус прочитанных мемуаров
+    localStorage.removeItem('readMemoirs')
   }
 
   const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {
