@@ -21,6 +21,7 @@ export class CanvasRepository implements ICanvasRepository {
   private centerStars = ref<Star[]>([])
   private bgStars = ref<Star[]>([])
   private fgStars = ref<Star[]>([])
+  private deepBgStars = ref<Star[]>([])
   private previousWidth = 0
   private previousHeight = 0    
 
@@ -53,10 +54,24 @@ export class CanvasRepository implements ICanvasRepository {
     if (!context) return
 
     // Проверяем, инициализированы ли звезды
-    if (!this.centerStars.value || !this.bgStars.value || !this.fgStars.value) {
+    if (!this.centerStars.value || !this.bgStars.value || !this.fgStars.value || !this.deepBgStars.value) {
       console.log('CanvasRepository.drawStarfield: stars not initialized, skipping')
       return
     }
+
+    // Рисуем самый дальний фоновый слой (медленно вращающиеся звезды)
+    context.save()
+    this.deepBgStars.value.forEach(star => {
+      star.angle += star.speed
+      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+      
+      context.beginPath()
+      context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+      context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+      context.fill()
+    })
+    context.restore()
 
     // Рисуем центральный слой
     context.save()
@@ -247,6 +262,10 @@ export class CanvasRepository implements ICanvasRepository {
     
     const canvasCenter = { x: width / 2, y: height / 2 }
     
+    // Самый дальний фоновый слой (медленно вращающиеся звезды)
+    this.deepBgStars.value = this.createStars(4000, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003], true)
+    this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+    
     // Центральный слой
     this.centerStars.value = this.createStars(400, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005], true)
     this.animateStars(this.centerStars.value, [0.1, 0.4], [3, 7])
@@ -261,10 +280,12 @@ export class CanvasRepository implements ICanvasRepository {
   }
 
   updateStarfieldSize(width: number, height: number): void {
+    this.updateStarPositions(this.deepBgStars.value, width, height, this.previousWidth, this.previousHeight, true)
     this.updateStarPositions(this.centerStars.value, width, height, this.previousWidth, this.previousHeight, true)
     this.updateStarPositions(this.bgStars.value, width, height, this.previousWidth, this.previousHeight)
     this.updateStarPositions(this.fgStars.value, width, height, this.previousWidth, this.previousHeight)
     
+    this.filterAndAddStars(this.deepBgStars, 400, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003])
     this.filterAndAddStars(this.bgStars, 70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
     this.filterAndAddStars(this.fgStars, 30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
     
