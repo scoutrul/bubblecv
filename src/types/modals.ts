@@ -1,6 +1,6 @@
 import type { BubbleNode } from './canvas'
 import type { Question } from './data'
-import type { NormalizedBonus } from './normalized'
+import type { NormalizedBonus, NormalizedMemoir } from './normalized'
 
 export interface PendingAchievement {
   title: string
@@ -29,13 +29,59 @@ export interface LevelUpData {
   xpRequired: number
 }
 
+export interface XPResult {
+  xpGained: number
+  livesLost: number
+  agreementChange: number
+  isPhilosophyNegative: boolean
+}
+
+export interface BubbleModalData {
+  bubble: BubbleNode
+  xpResult?: XPResult
+}
+
+export interface PhilosophyModalData {
+  question: Question
+  bubbleId: number
+  xpResult?: XPResult
+}
+
+export interface AchievementModalData {
+  achievement: PendingAchievement
+}
+
+export interface BonusModalData {
+  bonus: NormalizedBonus
+}
+
+export interface MemoirModalData {
+  memoir: NormalizedMemoir
+}
+
+export interface GameOverModalData {
+  currentXP: number
+  currentLevel: number
+  finalScore: number
+}
+
 // Новые интерфейсы для системы очередей
 export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir'
+
+export type ModalDataUnion = 
+  | { type: 'welcome'; data: null }
+  | { type: 'bubble'; data: BubbleModalData }
+  | { type: 'philosophy'; data: PhilosophyModalData }
+  | { type: 'achievement'; data: AchievementModalData }
+  | { type: 'bonus'; data: BonusModalData }
+  | { type: 'memoir'; data: MemoirModalData }
+  | { type: 'levelUp'; data: LevelUpData }
+  | { type: 'gameOver'; data: GameOverModalData }
 
 export interface QueuedModal {
   id: string
   type: ModalType
-  data: any
+  data: ModalDataUnion['data']
   priority: number
 }
 
@@ -58,13 +104,13 @@ export interface EventChain {
   type: 'bubble' | 'philosophy' | 'manual'
   pendingAchievements: PendingAchievement[]      // Обычные ачивки (bubble, philosophy, tough)
   pendingLevelAchievements: PendingAchievement[] // Ачивки за уровень (first-level-master)
-  pendingLevelUp: { level: number; data: any } | null
+  pendingLevelUp: { level: number; data: LevelUpData } | null
   currentStep: EventChainStep
   context: {
     bubble?: BubbleNode
     question?: Question
     bubbleId?: number
-    xpResult?: any
+    xpResult?: XPResult
   }
 }
 
@@ -73,10 +119,10 @@ export interface ModalData {
   currentQuestion: Question | null
   philosophyBubbleId: BubbleNode['id'] | null
   achievement: PendingAchievement | null
-  gameOverStats: { currentXP: number; currentLevel: number } | null
+  gameOverStats: GameOverModalData | null
   levelUpData: LevelUpData
   currentBonus: NormalizedBonus | null
-  currentMemoir: any | null
+  currentMemoir: NormalizedMemoir | null
 }
 
 export interface ModalStates {

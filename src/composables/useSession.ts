@@ -6,7 +6,9 @@ import { useMemoirs } from '@/composables/useMemoirs'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 import { getEventBridge } from '@/composables/useUi'
 import { SessionUseCaseFactory } from '@/usecases/session'
-import type { NormalizedBubble } from '@/types/normalized'
+import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
+import type { LevelUpData } from '@/types/modals'
+import type { GainXPResult } from '@/usecases/session'
 
 export function useSession() {
   const sessionStore = useSessionStore()
@@ -47,16 +49,16 @@ export function useSession() {
         queueShake: uiEventStore.queueShake
       },
       modalAdapter: {
-        openAchievementModal: (achievement: any) => {
+        openAchievementModal: (achievement: {
+          title: string
+          description: string
+          icon: string
+          xpReward: number
+        }) => {
           // Используем useModals для открытия модалки достижения
           import('@/composables/useModals').then(({ useModals }) => {
             const { openAchievementModal } = useModals()
-            openAchievementModal({
-              title: achievement.name,
-              description: achievement.description,
-              icon: achievement.icon,
-              xpReward: achievement.xpReward
-            })
+            openAchievementModal(achievement)
           })
         }
       },
@@ -95,7 +97,7 @@ export function useSession() {
     )
   }
 
-  const gainXP = async (amount: number): Promise<{ leveledUp: boolean; newLevel?: number; levelData?: any }> => {
+  const gainXP = async (amount: number): Promise<{ leveledUp: boolean; newLevel?: number; levelData?: GainXPResult['levelData'] }> => {
     
     const factory = createFactory()
     const gainXPUseCase = factory.createGainXPUseCase()

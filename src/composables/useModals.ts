@@ -5,10 +5,10 @@ import { useSession } from '@/composables/useSession'
 import { getEventBridge } from '@/composables/useUi'
 import { XP_CALCULATOR } from '@/config'
 import { ModalUseCaseFactory } from '@/usecases/modal'
-import type { NormalizedAchievement } from '@/types/normalized'
+import type { NormalizedAchievement, NormalizedBonus, NormalizedMemoir } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
+import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain, XPResult, ModalDataUnion } from '@/types/modals'
 import type { 
   ModalSessionStore, 
   ModalLevelStore, 
@@ -81,7 +81,8 @@ export const useModals = () => {
         currentEventChain: modalStore.currentEventChain,
         currentModal: modalStore.currentModal,
         pendingAchievements: modalStore.pendingAchievements,
-        enqueueModal: (modal: { type: keyof ModalStates; data: any; priority: number }) => modalStore.enqueueModal(modal),
+        pendingLevelAchievements: modalStore.pendingAchievements,
+        enqueueModal: (modal: { type: keyof ModalStates; data: ModalDataUnion['data']; priority: number }) => modalStore.enqueueModal(modal),
         closeModal: (key: keyof ModalStates) => modalStore.closeModal(key),
         closeCurrentModal: () => modalStore.closeCurrentModal(),
         startEventChain: (chain: EventChain) => modalStore.startEventChain(chain),
@@ -89,7 +90,7 @@ export const useModals = () => {
         clearQueue: () => modalStore.clearQueue(),
         setAchievement: (achievement: PendingAchievement | null) => modalStore.setAchievement(achievement),
         getNextPendingAchievement: () => modalStore.getNextPendingAchievement(),
-        setCurrentBonus: (bonus: any) => modalStore.setCurrentBonus(bonus)
+        setCurrentBonus: (bonus: NormalizedBonus) => modalStore.setCurrentBonus(bonus)
       } as ModalModalStore
     }
   }
@@ -557,7 +558,7 @@ export const useModals = () => {
   }
 
   // Memoir Modal
-  const openMemoirModal = (memoir: any) => {
+  const openMemoirModal = (memoir: NormalizedMemoir) => {
     modalStore.enqueueModal({
       type: 'memoir',
       data: memoir,

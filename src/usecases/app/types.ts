@@ -1,7 +1,7 @@
 import type { Ref, ComputedRef } from 'vue'
 import type { BubbleNode } from '@/types/canvas'
 import type { Level } from '@/types/levels'
-import type { NormalizedAchievement as Achievement, NormalizedBubble } from '@/types/normalized'
+import type { NormalizedAchievement as Achievement, NormalizedBubble, NormalizedMemoir } from '@/types/normalized'
 import type { NormalizedBonus as Bonus } from '@/types/normalized'
 
 // === ПАРАМЕТРЫ И РЕЗУЛЬТАТЫ USE CASES ===
@@ -114,9 +114,9 @@ export interface AppBonusStore {
 }
 
 export interface AppMemoirStore {
-  memoirs: any[]
+  memoirs: NormalizedMemoir[]
   unlockedCount: number
-  unlockedMemoirs: any[]
+  unlockedMemoirs: NormalizedMemoir[]
   loadMemoirs(): Promise<void>
   showMemoirs(): void
   closeMemoirs(): void

@@ -1,4 +1,5 @@
 import type { NormalizedBonus } from '@/types/normalized'
+import type { EventChain } from '@/types/modals'
 
 export interface UnlockBonusParams {
   level: number
@@ -41,7 +42,7 @@ export interface BonusStore {
 }
 
 export interface ModalStore {
-  currentEventChain: any
+  currentEventChain: EventChain | null
   setCurrentBonus(bonus: NormalizedBonus | null): void
   openModal(modalType: string): void
   closeModal(modalType: string): void

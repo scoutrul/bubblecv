@@ -1,6 +1,7 @@
 import type { BubbleNode } from '@/types/canvas'
-import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain } from '@/types/modals'
-import type { NormalizedAchievement } from '@/types/normalized'
+import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain, LevelUpData, XPResult, ModalDataUnion } from '@/types/modals'
+import type { NormalizedAchievement, NormalizedBonus, NormalizedMemoir } from '@/types/normalized'
+import type { Question } from '@/types/data'
 
 // === ПАРАМЕТРЫ И РЕЗУЛЬТАТЫ USE CASES ===
 
@@ -30,7 +31,7 @@ export interface StartBubbleEventChainResult {
 // OpenModal
 export interface OpenModalParams {
   type: keyof ModalStates
-  data?: any
+  data?: ModalDataUnion['data']
   priority?: number
 }
 
@@ -133,14 +134,14 @@ export interface ModalAchievementStore {
 
 export interface ModalModalStore {
   modals: ModalStates
-  data: any
+  data: ModalDataUnion['data']
   currentEventChain: EventChain | null
   currentModal: string | null
   pendingAchievements: PendingAchievement[]
   pendingLevelAchievements: PendingAchievement[]
   
   // Actions
-  enqueueModal(modal: { type: keyof ModalStates; data: any; priority: number }): void
+  enqueueModal(modal: { type: keyof ModalStates; data: ModalDataUnion['data']; priority: number }): void
   closeModal(key: keyof ModalStates): void
   closeCurrentModal(): void
   startEventChain(chain: EventChain): void
@@ -148,7 +149,7 @@ export interface ModalModalStore {
   clearQueue(): void
   setAchievement(achievement: PendingAchievement | null): void
   getNextPendingAchievement(): PendingAchievement | null
-  setCurrentBonus(bonus: any): void
+  setCurrentBonus(bonus: NormalizedBonus): void
 }
 
 // === ИНТЕРФЕЙСЫ ДЛЯ РЕПОЗИТОРИЯ ===
@@ -164,7 +165,7 @@ export interface ModalRepository {
     success: boolean
     leveledUp: boolean
     newLevel?: number
-    levelData?: any
+    levelData?: LevelUpData
     error?: string
   }>
   losePhilosophyLife(): Promise<boolean>
@@ -221,7 +222,7 @@ export interface HandleSpecialBubbleDestroyedUseCase {
 export interface ModalUtils {
   createPendingAchievement(achievement: NormalizedAchievement): PendingAchievement
   checkAndAddLevelAchievement(
-    xpResult: any,
+    xpResult: XPResult,
     levelAchievements: PendingAchievement[],
     achievementStore: ModalAchievementStore
   ): Promise<void>
@@ -229,7 +230,11 @@ export interface ModalUtils {
     type: EventChain['type'],
     achievements: PendingAchievement[],
     levelAchievements: PendingAchievement[],
-    xpResult: any,
-    context?: any
+    xpResult: XPResult,
+    context?: {
+      bubble?: BubbleNode
+      question?: Question
+      bubbleId?: number
+    }
   ): EventChain
 } 

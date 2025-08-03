@@ -27,6 +27,11 @@ export function useMemoirs() {
     return memoirStore.getMemoirByLevel(level)
   }
 
+  // Разблокировать мемуар для определенного уровня
+  const unlockMemoirForLevel = (level: number) => {
+    memoirStore.unlockMemoirForLevel(level)
+  }
+
   // Проверяем, был ли мемуар прочитан
   const isMemoirRead = (memoirId: string): boolean => {
     return memoirStore.isMemoirRead(memoirId)
@@ -45,6 +50,7 @@ export function useMemoirs() {
     unlockedMemoirsCount,
     loadMemoirs,
     getUnlockedMemoirForLevel,
+    unlockMemoirForLevel,
     isMemoirRead,
     resetMemoirs
   }

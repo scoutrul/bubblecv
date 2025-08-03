@@ -37,7 +37,7 @@ defineEmits<{
   close: []
 }>()
 
-const { unlockedMemoirs, isLoading, loadMemoirs, isMemoirRead } = useMemoirs()
+const { unlockedMemoirs, isLoading, loadMemoirs } = useMemoirs()
 
 onMounted(async () => {
   await loadMemoirs()

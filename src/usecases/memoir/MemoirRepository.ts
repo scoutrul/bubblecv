@@ -47,13 +47,6 @@ export class MemoirRepository {
   }
 
   /**
-   * Проверяет, был ли мемуар прочитан
-   */
-  isMemoirRead(memoirId: string): boolean {
-    return this.memoirStore.isMemoirRead(memoirId)
-  }
-
-  /**
    * Отмечает мемуар как прочитанный
    */
   markMemoirAsRead(memoirId: string): void {

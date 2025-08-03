@@ -12,6 +12,7 @@ import type {
   AppModalStore,
   AppMemoirStore
 } from '@/usecases/app'
+import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils/ui'
 
@@ -47,7 +48,7 @@ export function useApp() {
       bubbleAdapter: {
         bubbles: bubbleStore.bubbles as any,
         loadBubbles: () => bubbleStore.loadBubbles(),
-        addBubbles: (bubbles: any[]) => bubbleStore.bubbles.push(...bubbles)
+        addBubbles: (bubbles: NormalizedBubble[]) => bubbleStore.bubbles.push(...bubbles)
       } as AppBubbleStore,
       levelAdapter: {
         levels: levelStore.levels,
@@ -77,9 +78,9 @@ export function useApp() {
         unlockedCount: memoirs.unlockedMemoirsCount.value,
         unlockedMemoirs: memoirs.unlockedMemoirs.value,
         loadMemoirs: () => memoirs.loadMemoirs(),
-        showMemoirs: () => memoirs.toggleMemoirsPanel(),
-        closeMemoirs: () => memoirs.closeMemoirsPanel(),
-        toggleMemoirs: () => memoirs.toggleMemoirsPanel(),
+        showMemoirs: () => memoirs.resetMemoirs(),
+        closeMemoirs: () => memoirs.resetMemoirs(),
+        toggleMemoirs: () => memoirs.resetMemoirs(),
         resetReadMemoirs: () => memoirs.resetMemoirs()
       } as AppMemoirStore,
       modalAdapter: {
@@ -187,9 +188,9 @@ export function useApp() {
     memoirs: {
       unlockedCount: memoirs.unlockedMemoirsCount,
       unlockedMemoirs: memoirs.unlockedMemoirs,
-      showMemoirs: memoirs.showMemoirsPanel,
-      closeMemoirs: memoirs.closeMemoirsPanel,
-      toggleMemoirs: memoirs.toggleMemoirsPanel,
+      showMemoirs: memoirs.resetMemoirs,
+      closeMemoirs: memoirs.resetMemoirs,
+      toggleMemoirs: memoirs.resetMemoirs,
     }
   }
 }
