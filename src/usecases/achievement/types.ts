@@ -22,6 +22,7 @@ export interface SessionStore {
   session: UserSession | null
   setHasDestroyedToughBubble(value: boolean): void
   setHasUnlockedFirstToughBubbleAchievement(value: boolean): void
+  setHasUnlockedSecretBubbleAchievement(value: boolean): void
 }
 
 export interface UiEventStore {

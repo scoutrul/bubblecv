@@ -10,7 +10,6 @@ export class SessionRepository {
       currentLevel: 1,
       lives: GAME_CONFIG.maxLives,
       visitedBubbles: [],
-      agreementScore: 0,
       gameCompleted: false,
       hasDestroyedToughBubble: false,
       startTime: new Date(),
