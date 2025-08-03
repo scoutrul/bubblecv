@@ -35,8 +35,6 @@ export class CanvasRepository implements ICanvasRepository {
   private fps = 60
   private performanceLevel = 0 // 0 - полная производительность, 1 - оптимизированная, 2 - минимальная
   private optimizationCheckInterval = 0
-  private readonly OPTIMIZATION_CHECK_FREQUENCY = 60 // Проверяем каждые 60 кадров
-  private readonly FPS_THRESHOLD = 60 // Порог FPS для начала оптимизации    
 
   constructor(canvasRef: Ref<HTMLCanvasElement | null>) {
     this.canvas = canvasRef.value
@@ -276,31 +274,34 @@ export class CanvasRepository implements ICanvasRepository {
     this.previousWidth = width
     this.previousHeight = height
     
-
-    
-    // Определяем количество звезд в зависимости от уровня производительности
-    const deepBgCount = this.performanceLevel === 0 ? 4000 : 0 // Убираем дальний фон при любом снижении
-    const centerCount = this.performanceLevel === 0 ? 400 : this.performanceLevel === 1 ? 200 : 0
+    const config = GAME_CONFIG.performance
+    const starCounts = this.getStarCountsForLevel()
     
     // Самый дальний фоновый слой (медленно вращающиеся звезды)
-    if (deepBgCount > 0) {
-      this.deepBgStars.value = this.createStars(deepBgCount, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003], true)
-      this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+    if (starCounts.deepBg > 0) {
+      const deepBgConfig = config.starLayers.deepBg
+      const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, width, height)
+      this.deepBgStars.value = this.createStars(starCounts.deepBg, width, height, deepBgConfig, orbitRadiusRange)
+      this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
     } else {
       this.deepBgStars.value = []
     }
     
     // Центральный слой
-    this.centerStars.value = this.createStars(centerCount, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005], true)
-    this.animateStars(this.centerStars.value, [0.1, 0.4], [3, 7])
+    const centerConfig = config.starLayers.center
+    const centerOrbitRadiusRange = this.calculateOrbitRadiusRange(centerConfig.orbitRadiusRange, width, height)
+    this.centerStars.value = this.createStars(starCounts.center, width, height, centerConfig, centerOrbitRadiusRange)
+    this.animateStars(this.centerStars.value, centerConfig.opacityRange, centerConfig.animationDuration)
     
     // Задний слой
-    this.bgStars.value = this.createStars(70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
-    this.animateStars(this.bgStars.value, [0.1, 0.5], [2, 5])
+    const bgConfig = config.starLayers.bg
+    this.bgStars.value = this.createStars(starCounts.bg, width, height, bgConfig, bgConfig.orbitRadiusRange)
+    this.animateStars(this.bgStars.value, bgConfig.opacityRange, bgConfig.animationDuration)
     
     // Передний слой
-    this.fgStars.value = this.createStars(30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
-    this.animateStars(this.fgStars.value, [0.1, 0.1], [0.8, 2.3])
+    const fgConfig = config.starLayers.fg
+    this.fgStars.value = this.createStars(starCounts.fg, width, height, fgConfig, fgConfig.orbitRadiusRange)
+    this.animateStars(this.fgStars.value, fgConfig.opacityRange, fgConfig.animationDuration)
   }
 
   updateStarfieldSize(width: number, height: number): void {
@@ -309,16 +310,24 @@ export class CanvasRepository implements ICanvasRepository {
     this.updateStarPositions(this.bgStars.value, width, height, this.previousWidth, this.previousHeight)
     this.updateStarPositions(this.fgStars.value, width, height, this.previousWidth, this.previousHeight)
     
-    // Определяем количество звезд в зависимости от уровня производительности
-    const deepBgCount = this.performanceLevel === 0 ? 4000 : 0 // Убираем дальний фон при любом снижении
-    const centerCount = this.performanceLevel === 0 ? 400 : this.performanceLevel === 1 ? 200 : 0
+    const config = GAME_CONFIG.performance
+    const starCounts = this.getStarCountsForLevel()
     
-    if (deepBgCount > 0) {
-      this.filterAndAddStars(this.deepBgStars, deepBgCount, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003])
+    if (starCounts.deepBg > 0) {
+      const deepBgConfig = config.starLayers.deepBg
+      const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, width, height)
+      this.filterAndAddStars(this.deepBgStars, starCounts.deepBg, width, height, deepBgConfig, orbitRadiusRange)
     }
-    this.filterAndAddStars(this.centerStars, centerCount, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005])
-    this.filterAndAddStars(this.bgStars, 70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
-    this.filterAndAddStars(this.fgStars, 30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
+    
+    const centerConfig = config.starLayers.center
+    const centerOrbitRadiusRange = this.calculateOrbitRadiusRange(centerConfig.orbitRadiusRange, width, height)
+    this.filterAndAddStars(this.centerStars, starCounts.center, width, height, centerConfig, centerOrbitRadiusRange)
+    
+    const bgConfig = config.starLayers.bg
+    this.filterAndAddStars(this.bgStars, starCounts.bg, width, height, bgConfig, bgConfig.orbitRadiusRange)
+    
+    const fgConfig = config.starLayers.fg
+    this.filterAndAddStars(this.fgStars, starCounts.fg, width, height, fgConfig, fgConfig.orbitRadiusRange)
     
     this.previousWidth = width
     this.previousHeight = height
@@ -363,26 +372,45 @@ export class CanvasRepository implements ICanvasRepository {
     }
   }
 
-  private createStars(count: number, width: number, height: number, radiusRange: [number, number], opacityRange: [number, number], orbitRadiusRange: [number, number], speedRange: [number, number], isCenter: boolean = false): Star[] {
+  private getStarCountsForLevel() {
+    const config = GAME_CONFIG.performance
+    switch (this.performanceLevel) {
+      case 0:
+        return config.starCounts.full
+      case 1:
+        return config.starCounts.optimized
+      case 2:
+        return config.starCounts.minimal
+      default:
+        return config.starCounts.full
+    }
+  }
+
+  private calculateOrbitRadiusRange(range: [number, number], width: number, height: number): [number, number] {
+    const maxSize = Math.max(width, height)
+    return [range[0] * maxSize, range[1] * maxSize]
+  }
+
+  private createStars(count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): Star[] {
     const stars: Star[] = []
     const canvasCenter = { x: width / 2, y: height / 2 }
     
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2
       const orbitRadius = Math.random() * (orbitRadiusRange[1] - orbitRadiusRange[0]) + orbitRadiusRange[0]
-      const centerX = isCenter ? canvasCenter.x : Math.random() * width
-      const centerY = isCenter ? canvasCenter.y : Math.random() * height
+      const centerX = layerConfig.isCenter ? canvasCenter.x : Math.random() * width
+      const centerY = layerConfig.isCenter ? canvasCenter.y : Math.random() * height
       
       stars.push({
         x: centerX + Math.cos(angle) * orbitRadius,
         y: centerY + Math.sin(angle) * orbitRadius,
-        radius: Math.random() * (radiusRange[1] - radiusRange[0]) + radiusRange[0],
-        opacity: Math.random() * (opacityRange[1] - opacityRange[0]) + opacityRange[0],
+        radius: Math.random() * (layerConfig.radiusRange[1] - layerConfig.radiusRange[0]) + layerConfig.radiusRange[0],
+        opacity: Math.random() * (layerConfig.opacityRange[1] - layerConfig.opacityRange[0]) + layerConfig.opacityRange[0],
         angle,
         orbitRadius,
         centerX,
         centerY,
-        speed: (Math.random() * (speedRange[1] - speedRange[0]) + speedRange[0]) * (Math.random() > 0.5 ? 1 : -1)
+        speed: (Math.random() * (layerConfig.speedRange[1] - layerConfig.speedRange[0]) + layerConfig.speedRange[0]) * (Math.random() > 0.5 ? 1 : -1)
       })
     }
     
@@ -423,7 +451,7 @@ export class CanvasRepository implements ICanvasRepository {
     })
   }
 
-  private filterAndAddStars(starsRef: any, count: number, width: number, height: number, radiusRange: [number, number], opacityRange: [number, number], orbitRadiusRange: [number, number], speedRange: [number, number]): void {
+  private filterAndAddStars(starsRef: any, count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): void {
     starsRef.value = starsRef.value.filter((star: Star) => {
       const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
       return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
@@ -432,7 +460,7 @@ export class CanvasRepository implements ICanvasRepository {
     
     const needed = count - starsRef.value.length
     if (needed > 0) {
-      const newStars = this.createStars(needed, width, height, radiusRange, opacityRange, orbitRadiusRange, speedRange)
+      const newStars = this.createStars(needed, width, height, layerConfig, orbitRadiusRange)
       starsRef.value.push(...newStars)
     }
   }
@@ -476,21 +504,22 @@ export class CanvasRepository implements ICanvasRepository {
     })
     
     // Проверяем производительность каждые N кадров
-    if (this.optimizationCheckInterval >= this.OPTIMIZATION_CHECK_FREQUENCY) {
+    const config = GAME_CONFIG.performance
+    if (this.optimizationCheckInterval >= config.optimizationCheckFrequency) {
       this.optimizationCheckInterval = 0
       this.checkAndOptimizePerformance()
     }
   }
 
   private checkAndOptimizePerformance(): void {
-    const currentLevel = this.performanceLevel
+    const config = GAME_CONFIG.performance
     
-    if (this.fps < this.FPS_THRESHOLD && this.performanceLevel < 2) {
+    if (this.fps < config.fpsThreshold && this.performanceLevel < 2) {
       // Снижаем производительность
       this.performanceLevel++
       this.applyPerformanceOptimization()
       console.log(`🔧 Производительность снижена до уровня ${this.performanceLevel}. FPS: ${this.fps.toFixed(1)}`)
-    } else if (this.fps > 58 && this.performanceLevel > 0) {
+    } else if (this.fps > config.fpsTarget && this.performanceLevel > 0) {
       // Повышаем производительность
       this.performanceLevel--
       this.applyPerformanceOptimization()
@@ -516,35 +545,47 @@ export class CanvasRepository implements ICanvasRepository {
     // Восстанавливаем полное количество звезд
     const currentWidth = this.canvas?.width || 1920
     const currentHeight = this.canvas?.height || 1080
+    const config = GAME_CONFIG.performance
+    const starCounts = config.starCounts.full
     
     // Восстанавливаем дальний фон
-    if (this.deepBgStars.value.length < 4000) {
-      const needed = 4000 - this.deepBgStars.value.length
-      const newStars = this.createStars(needed, currentWidth, currentHeight, [0.3, 0.8], [0.1, 0.25], [Math.max(currentWidth, currentHeight) * 0.3, Math.max(currentWidth, currentHeight) * 0.7], [0.0001, 0.0003], true)
+    if (this.deepBgStars.value.length < starCounts.deepBg) {
+      const needed = starCounts.deepBg - this.deepBgStars.value.length
+      const deepBgConfig = config.starLayers.deepBg
+      const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, currentWidth, currentHeight)
+      const newStars = this.createStars(needed, currentWidth, currentHeight, deepBgConfig, orbitRadiusRange)
       this.deepBgStars.value.push(...newStars)
-      this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+      this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
     }
     
     // Восстанавливаем центральный слой
-    if (this.centerStars.value.length < 400) {
-      const needed = 400 - this.centerStars.value.length
-      const newStars = this.createStars(needed, currentWidth, currentHeight, [0.3, 1.3], [0.1, 0.4], [50, Math.max(currentWidth, currentHeight) * 0.4 + 50], [0, 0.0005], true)
+    if (this.centerStars.value.length < starCounts.center) {
+      const needed = starCounts.center - this.centerStars.value.length
+      const centerConfig = config.starLayers.center
+      const orbitRadiusRange = this.calculateOrbitRadiusRange(centerConfig.orbitRadiusRange, currentWidth, currentHeight)
+      const newStars = this.createStars(needed, currentWidth, currentHeight, centerConfig, orbitRadiusRange)
       this.centerStars.value.push(...newStars)
-      this.animateStars(this.centerStars.value, [0.1, 0.4], [3, 7])
+      this.animateStars(this.centerStars.value, centerConfig.opacityRange, centerConfig.animationDuration)
     }
   }
 
   private applyMediumOptimization(): void {
+    const config = GAME_CONFIG.performance
+    const starCounts = config.starCounts.optimized
+    
     // Убираем дальний фон полностью
     this.deepBgStars.value = []
     
-    // Сокращаем центральный слой в 2 раза
-    if (this.centerStars.value.length > 200) {
-      this.centerStars.value = this.centerStars.value.slice(0, 200)
+    // Сокращаем центральный слой
+    if (this.centerStars.value.length > starCounts.center) {
+      this.centerStars.value = this.centerStars.value.slice(0, starCounts.center)
     }
   }
 
   private applyMinimalOptimization(): void {
+    const config = GAME_CONFIG.performance
+    const starCounts = config.starCounts.minimal
+    
     // Убираем дальний и центральный фон полностью
     this.deepBgStars.value = []
     this.centerStars.value = []

@@ -38,6 +38,76 @@ export const GAME_CONFIG = {
     shake: 700
   } as const,
 
+  // Настройки производительности
+  performance: {
+    // Пороги FPS для оптимизации
+    fpsThreshold: 24, // Порог FPS для начала оптимизации
+    fpsTarget: 58, // Целевой FPS для повышения производительности
+    
+    // Частота проверки производительности
+    optimizationCheckFrequency: 60, // Проверяем каждые 60 кадров
+    
+    // Количество звезд по уровням производительности
+    starCounts: {
+      // Уровень 0 - полная производительность
+      full: {
+        deepBg: 4000, // Самый дальний фоновый слой
+        center: 400,  // Центральный слой
+        bg: 70,       // Задний слой
+        fg: 30        // Передний слой
+      },
+      // Уровень 1 - оптимизированная производительность
+      optimized: {
+        deepBg: 1000,    // Убираем дальний фон
+        center: 400,  // Сокращаем центральный слой в 2 раза
+        bg: 70,       // Задний слой без изменений
+        fg: 30        // Передний слой без изменений
+      },
+      // Уровень 2 - минимальная производительность
+      minimal: {
+        deepBg: 0,    // Убираем дальний фон
+        center: 0,    // Убираем центральный фон
+        bg: 70,       // Задний слой без изменений
+        fg: 30        // Передний слой без изменений
+      }
+    } as const,
+
+    // Параметры звезд для каждого слоя
+    starLayers: {
+      deepBg: {
+        radiusRange: [0.3, 0.8] as [number, number],
+        opacityRange: [0.1, 0.25] as [number, number],
+        orbitRadiusRange: [0.3, 0.7] as [number, number], // Относительно размера экрана
+        speedRange: [0.0001, 0.0003] as [number, number],
+        animationDuration: [8, 15] as [number, number],
+        isCenter: true
+      },
+      center: {
+        radiusRange: [0.3, 1.3] as [number, number],
+        opacityRange: [0.1, 0.4] as [number, number],
+        orbitRadiusRange: [50, 0.4] as [number, number], // 50px + 40% от размера экрана
+        speedRange: [0, 0.0005] as [number, number],
+        animationDuration: [3, 7] as [number, number],
+        isCenter: true
+      },
+      bg: {
+        radiusRange: [0.5, 1.7] as [number, number],
+        opacityRange: [0.1, 0.5] as [number, number],
+        orbitRadiusRange: [20, 120] as [number, number],
+        speedRange: [0.001, 0.003] as [number, number],
+        animationDuration: [2, 5] as [number, number],
+        isCenter: false
+      },
+      fg: {
+        radiusRange: [0.8, 2.4] as [number, number],
+        opacityRange: [0.4, 1.0] as [number, number],
+        orbitRadiusRange: [30, 180] as [number, number],
+        speedRange: [0.001, 0.004] as [number, number],
+        animationDuration: [0.8, 2.3] as [number, number],
+        isCenter: false
+      }
+    } as const
+  } as const,
 
   expertiseBubbles: {
     [SKILL_LEVELS.NOVICE]: {
