@@ -107,7 +107,8 @@ export function normalizeMemoir(memoir: Memoir, index: number): NormalizedMemoir
   return {
     ...memoir,
     id: index,
-    isUnlocked: false
+    isUnlocked: false,
+    isRead: false
   }
 }
 

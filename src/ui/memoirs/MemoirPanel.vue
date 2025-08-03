@@ -6,16 +6,21 @@
     </div>
 
     <div class="memoirs-grid">
-      <div v-if="memoirs.length === 0" class="memoir-placeholder">
+      <div v-if="isLoading" class="memoir-placeholder">
+        <span class="text-text-muted">Загрузка мемуаров...</span>
+      </div>
+      
+      <div v-else-if="unlockedMemoirs.length === 0" class="memoir-placeholder">
         <span class="text-text-muted">Проходите уровни, чтобы разблокировать мемуары!</span>
       </div>
 
       <div v-else class="space-y-2">
         <MemoirItem
-          v-for="memoir in memoirs"
+          v-for="memoir in unlockedMemoirs"
           :key="memoir.id"
           :memoir="memoir"
-          @click="openMemoirModal(memoir)"
+          :is-read="memoir.isRead"
+          @click="handleMemoirClick(memoir)"
         />
       </div>
     </div>
@@ -23,19 +28,29 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, computed } from 'vue'
 import { useMemoirs } from '@/composables'
 import MemoirItem from './MemoirItem.vue'
-import { onMounted } from 'vue';
+import type { NormalizedMemoir } from '@/types/normalized'
 
 defineEmits<{
   close: []
 }>()
 
-const { memoirs, loadMemoirs, openMemoirModal } = useMemoirs()
+const { unlockedMemoirs, isLoading, loadMemoirs, isMemoirRead } = useMemoirs()
 
 onMounted(async () => {
   await loadMemoirs()
 })
+
+
+
+const handleMemoirClick = async (memoir: NormalizedMemoir) => {
+  // Импортируем useModals для открытия модального окна мемуаров
+  const { useModals } = await import('@/composables/useModals')
+  const { openMemoirModal } = useModals()
+  openMemoirModal(memoir)
+}
 </script>
 
 <style scoped>

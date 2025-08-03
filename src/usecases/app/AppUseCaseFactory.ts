@@ -22,7 +22,7 @@ export class AppUseCaseFactory {
     private bonusStore: AppBonusStore,
     private modalStore: AppModalStore,
     private repository: AppRepository,
-    private memoirStore?: AppMemoirStore
+    private memoirStore: AppMemoirStore
   ) {}
 
   createInitializeAppUseCase(): InitializeAppUseCase {

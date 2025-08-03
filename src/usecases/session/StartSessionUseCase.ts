@@ -4,7 +4,8 @@ import type {
   SessionSessionStore, 
   SessionAchievementStore, 
   SessionBonusStore, 
-  SessionCanvasRepository 
+  SessionCanvasRepository,
+  SessionMemoirStore
 } from './types'
 import { SessionRepository } from './SessionRepository'
 import { GAME_CONFIG } from '@/config'
@@ -14,7 +15,8 @@ export class StartSessionUseCase {
     private sessionStore: SessionSessionStore,
     private achievementStore: SessionAchievementStore,
     private bonusStore: SessionBonusStore,
-    private canvasRepository: SessionCanvasRepository
+    private canvasRepository: SessionCanvasRepository,
+    private memoirStore?: SessionMemoirStore
   ) {}
 
   async execute(params: StartSessionParams): Promise<StartSessionResult> {
@@ -32,6 +34,11 @@ export class StartSessionUseCase {
     this.achievementStore.resetAchievements()
     this.bonusStore.resetBonuses()
     this.canvasRepository.resetCanvas()
+    
+    // Сбрасываем статус прочитанных мемуаров при старте сессии
+    if (this.memoirStore) {
+      this.memoirStore.resetReadMemoirs()
+    }
 
     return {
       success: true,

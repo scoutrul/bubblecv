@@ -38,6 +38,7 @@ export interface NormalizedBonus extends Bonus {
 export interface NormalizedMemoir extends Memoir {
   id: number
   isUnlocked: boolean
+  isRead: boolean
 }
 
 export type BubbleSizes = "small" | "medium" | "large"

@@ -58,6 +58,29 @@ export const useMemoirStore = defineStore('memoirStore', () => {
     updateUnlockedMemoirs()
   }
 
+  // Методы для работы с прочитанными мемуарами
+  const isMemoirRead = (memoirId: string): boolean => {
+    const memoir = memoirs.value.find(m => String(m.id) === memoirId)
+    return memoir?.isRead || false
+  }
+
+  const markMemoirAsRead = (memoirId: string) => {
+    const memoir = memoirs.value.find(m => String(m.id) === memoirId)
+    if (memoir) {
+      memoir.isRead = true
+    }
+  }
+
+  const resetReadMemoirs = () => {
+    memoirs.value.forEach(memoir => {
+      memoir.isRead = false
+    })
+  }
+
+  const getReadMemoirsCount = (): number => {
+    return memoirs.value.filter(memoir => memoir.isRead).length
+  }
+
   return {
     memoirs,
     unlockedMemoirs,
@@ -66,6 +89,11 @@ export const useMemoirStore = defineStore('memoirStore', () => {
     getMemoirByLevel,
     unlockMemoirForLevel,
     updateUnlockedMemoirs,
-    resetMemoirs
+    resetMemoirs,
+    // Методы для прочитанных мемуаров
+    isMemoirRead,
+    markMemoirAsRead,
+    resetReadMemoirs,
+    getReadMemoirsCount
   }
 }) 

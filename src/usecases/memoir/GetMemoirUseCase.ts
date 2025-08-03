@@ -1,12 +1,13 @@
-import type { GetMemoirParams, GetMemoirResult, GetMemoirUseCase as IGetMemoirUseCase, MemoirStore } from './types'
+import type { GetMemoirParams, GetMemoirResult, GetMemoirUseCase as IGetMemoirUseCase } from './types'
+import { MemoirRepository } from './MemoirRepository'
 
 export class GetMemoirUseCase implements IGetMemoirUseCase {
-  constructor(private memoirStore: MemoirStore) {}
+  constructor(private memoirRepository: MemoirRepository) {}
 
   async execute(params: GetMemoirParams): Promise<GetMemoirResult> {
     try {
       const { level } = params
-      const memoir = this.memoirStore.getMemoirByLevel(level)
+      const memoir = this.memoirRepository.getMemoirByLevel(level)
 
       if (!memoir) {
         return {

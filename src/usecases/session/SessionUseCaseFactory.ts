@@ -11,7 +11,8 @@ import type {
   SessionBonusStore, 
   SessionUiEventStore, 
   SessionModalStore, 
-  SessionCanvasRepository 
+  SessionCanvasRepository,
+  SessionMemoirStore
 } from './types'
 
 export class SessionUseCaseFactory {
@@ -22,7 +23,8 @@ export class SessionUseCaseFactory {
     private bonusStore: SessionBonusStore,
     private uiEventStore: SessionUiEventStore,
     private modalStore: SessionModalStore,
-    private canvasRepository: SessionCanvasRepository
+    private canvasRepository: SessionCanvasRepository,
+    private memoirStore?: SessionMemoirStore
   ) {}
 
   createGainXPUseCase(): GainXPUseCase {
@@ -56,7 +58,8 @@ export class SessionUseCaseFactory {
       this.sessionStore,
       this.achievementStore,
       this.bonusStore,
-      this.canvasRepository
+      this.canvasRepository,
+      this.memoirStore
     )
   }
 

@@ -79,15 +79,12 @@ const hasBeenRead = ref(false)
 const isClaimingXP = ref(false)
 
 // Отслеживаем прочтение мемуара
-onMounted(() => {
+onMounted(async () => {
   if (memoir.value && !hasBeenRead.value) {
     // Проверяем, был ли мемуар уже прочитан
-    const readMemoirs = JSON.parse(localStorage.getItem('readMemoirs') || '[]')
-    if (!readMemoirs.includes(memoir.value.id)) {
-      hasBeenRead.value = false
-    } else {
-      hasBeenRead.value = true
-    }
+    const { useMemoirStore } = await import('@/stores')
+    const memoirStore = useMemoirStore()
+    hasBeenRead.value = memoirStore.isMemoirRead(String(memoir.value.id))
   }
 })
 
@@ -102,13 +99,20 @@ const claimXP = async () => {
       await gainXP(10)
       
       // Отмечаем мемуар как прочитанный
-      const readMemoirs = JSON.parse(localStorage.getItem('readMemoirs') || '[]')
-      if (!readMemoirs.includes(memoir.value.id)) {
-        readMemoirs.push(memoir.value.id)
-        localStorage.setItem('readMemoirs', JSON.stringify(readMemoirs))
-      }
+      const { useMemoirStore } = await import('@/stores')
+      const memoirStore = useMemoirStore()
+      memoirStore.markMemoirAsRead(String(memoir.value.id))
       
       hasBeenRead.value = true
+      
+      // Закрываем панель мемуаров
+      const { useUiEventStore } = await import('@/stores/ui-event.store')
+      const uiEventStore = useUiEventStore()
+      uiEventStore.closeMemoirsPanel()
+      
+      // Закрываем модалку
+      emit('close')
+      
     } catch (error) {
       console.error('Ошибка при получении XP:', error)
     } finally {

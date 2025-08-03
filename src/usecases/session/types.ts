@@ -134,6 +134,10 @@ export interface SessionCanvasRepository {
   resetCanvas(): void
 }
 
+export interface SessionMemoirStore {
+  resetReadMemoirs(): void
+}
+
 // Интерфейс для SessionUseCase
 export interface SessionUseCase {
   gainXP(params: GainXPParams): Promise<GainXPResult>

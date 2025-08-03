@@ -11,6 +11,10 @@ export interface MemoirStore {
   unlockMemoirForLevel(level: number): void
   updateUnlockedMemoirs(): void
   resetMemoirs(): void
+  // Методы для прочитанных мемуаров
+  isMemoirRead(memoirId: string): boolean
+  markMemoirAsRead(memoirId: string): void
+  resetReadMemoirs(): void
 }
 
 export interface SessionStore {

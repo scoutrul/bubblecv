@@ -67,6 +67,15 @@ export function useSession() {
             bridge.resetCanvas()
           }
         }
+      },
+      memoirAdapter: {
+        resetReadMemoirs: () => {
+          // Импортируем useMemoirs для сброса мемуаров
+          import('@/composables/useMemoirs').then(({ useMemoirs }) => {
+            const memoirs = useMemoirs()
+            memoirs.resetMemoirs()
+          })
+        }
       }
     }
   }
@@ -81,7 +90,8 @@ export function useSession() {
       adapters.bonusAdapter,
       adapters.uiEventAdapter,
       adapters.modalAdapter,
-      adapters.canvasAdapter
+      adapters.canvasAdapter,
+      adapters.memoirAdapter
     )
   }
 
@@ -142,9 +152,6 @@ export function useSession() {
     
     // Сбрасываем мемуары при старте новой сессии
     resetMemoirs()
-    
-    // Сбрасываем статус прочитанных мемуаров
-    localStorage.removeItem('readMemoirs')
   }
 
   const saveCustomPhilosophyAnswer = async (questionId: string, answer: string, questionText: string) => {

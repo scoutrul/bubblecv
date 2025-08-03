@@ -17,29 +17,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+import { useMemoirs } from '@/composables'
+import { useUiEventStore } from '@/stores'
 import ToggleButton from '@/ui/global/ToggleButton.vue'
 import MemoirPanel from '@/ui/memoirs/MemoirPanel.vue'
 
-interface Props {
-  unlockedCount: number
-  isShaking: boolean
-  showMemoirs: boolean
-}
+const { unlockedMemoirsCount } = useMemoirs()
+const uiEventStore = useUiEventStore()
 
-interface Emits {
-  (e: 'toggle'): void
-  (e: 'close'): void
-}
-
-defineProps<Props>()
-const emit = defineEmits<Emits>()
+// Контейнер управляет данными
+const unlockedCount = computed(() => unlockedMemoirsCount.value)
+const isShaking = computed(() => false) // TODO: добавить логику тряски
 
 const toggleMemoirs = () => {
-  emit('toggle')
+  uiEventStore.toggleMemoirsPanel()
 }
 
 const closeMemoirs = () => {
-  emit('close')
+  uiEventStore.closeMemoirsPanel()
 }
 </script>
 

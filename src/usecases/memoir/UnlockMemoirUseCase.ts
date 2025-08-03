@@ -1,15 +1,16 @@
-import type { UnlockMemoirParams, UnlockMemoirResult, UnlockMemoirUseCase as IUnlockMemoirUseCase, MemoirStore, ModalStore } from './types'
+import type { UnlockMemoirParams, UnlockMemoirResult, UnlockMemoirUseCase as IUnlockMemoirUseCase, ModalStore } from './types'
+import { MemoirRepository } from './MemoirRepository'
 
 export class UnlockMemoirUseCase implements IUnlockMemoirUseCase {
   constructor(
-    private memoirStore: MemoirStore,
+    private memoirRepository: MemoirRepository,
     private modalStore: ModalStore
   ) {}
 
   async execute(params: UnlockMemoirParams): Promise<UnlockMemoirResult> {
     try {
       const { level, showModal = true } = params
-      const memoir = this.memoirStore.getMemoirByLevel(level)
+      const memoir = this.memoirRepository.getMemoirByLevel(level)
 
       if (!memoir) {
         return {
@@ -26,7 +27,7 @@ export class UnlockMemoirUseCase implements IUnlockMemoirUseCase {
       }
 
       // Разблокируем мемуар
-      this.memoirStore.unlockMemoirForLevel(level)
+      this.memoirRepository.unlockMemoirForLevel(level)
 
       // Показываем модалку если нужно
       if (showModal) {

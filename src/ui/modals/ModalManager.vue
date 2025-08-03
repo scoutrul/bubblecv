@@ -48,14 +48,14 @@
     <BonusModal
       v-if="showBonus"
       v-bind="bonusProps"
-      @close="closeBonusModal"
+      @close="handleBonusModalClose"
     />
 
     <!-- Memoir Modal -->
     <MemoirModal
       v-if="showMemoir"
       v-bind="memoirProps"
-      @close="closeMemoirModal"
+      @close="handleMemoirModalClose"
     />
   </div>
 </template>
@@ -88,6 +88,15 @@ const {
   closeBonusModal,
   closeMemoirModal
 } = useModals()
+
+// Обработчики для асинхронного закрытия модалок
+const handleBonusModalClose = async () => {
+  await closeBonusModal()
+}
+
+const handleMemoirModalClose = async () => {
+  await closeMemoirModal()
+}
 
 const currentModal = computed(() => modalStore.currentModal)
 

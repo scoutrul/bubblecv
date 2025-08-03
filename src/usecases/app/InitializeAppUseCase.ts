@@ -20,7 +20,7 @@ export class InitializeAppUseCase {
     private bonusStore: AppBonusStore,
     private modalStore: AppModalStore,
     private repository: AppRepository,
-    private memoirStore?: AppMemoirStore
+    private memoirStore: AppMemoirStore
   ) {}
 
   async execute(params: InitializeAppParams): Promise<InitializeAppResult> {
@@ -28,13 +28,15 @@ export class InitializeAppUseCase {
       const { lives = 3 } = params
 
       // Загружаем все данные параллельно
-      await Promise.all([
+      const loadPromises = [
         this.levelStore.loadLevels(),
         this.bubbleStore.loadBubbles(),
         this.achievementStore.loadAchievements(),
         this.bonusStore.loadBonuses(),
-        this.memoirStore?.loadMemoirs(),
-      ])
+        this.memoirStore.loadMemoirs()
+      ]
+      
+      await Promise.all(loadPromises)
 
       // Создаем сессию
       await this.sessionStore.startSession({ lives })

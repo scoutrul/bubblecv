@@ -19,7 +19,8 @@
     
     <div class="memoir-status">
       <div v-if="memoir.isUnlocked" class="status-unlocked">
-        ✅
+        <span v-if="isRead" class="status-read">✅</span>
+        <span v-else class="status-unread">☐</span>
       </div>
       <div v-else class="status-locked">
         🔒
@@ -33,6 +34,7 @@ import type { NormalizedMemoir } from '@/types/normalized'
 
 interface Props {
   memoir: NormalizedMemoir
+  isRead: boolean
 }
 
 interface Emits {
@@ -95,6 +97,15 @@ const handleClick = () => {
 
 .status-unlocked {
   @apply text-green-400;
+}
+
+.status-read {
+  @apply text-green-400;
+}
+
+.status-unread {
+  @apply text-gray-400;
+  font-size: 1.2em;
 }
 
 .status-locked {

@@ -131,7 +131,7 @@ export const useModals = () => {
     type,
     pendingAchievements: achievements,
     pendingLevelAchievements: levelAchievements,
-    pendingLevelUp: (xpResult?.leveledUp && levelAchievements.length === 0) ? {
+    pendingLevelUp: xpResult?.leveledUp ? {
       level: xpResult.newLevel!,
       data: xpResult.levelData
     } : null,
@@ -529,10 +529,15 @@ export const useModals = () => {
     modalStore.setAchievement(null)
   }
 
-  const closeBonusModal = () => {
+  const closeBonusModal = async () => {
     // Закрываем BonusModal
     modalStore.closeModal('bonus')
     modalStore.setCurrentBonus(null)
+
+    // Закрываем панель бонусов
+    const { useUiEventStore } = await import('@/stores/ui-event.store')
+    const uiEventStore = useUiEventStore()
+    uiEventStore.closeBonusPanel()
 
     // Восстанавливаем приостановленный Event Chain если он был
     const pausedChain = sessionStorage.getItem('pausedEventChain')
@@ -560,7 +565,14 @@ export const useModals = () => {
     })
   }
 
-  const closeMemoirModal = () => closeModalWithLogic('memoir')
+  const closeMemoirModal = async () => {
+    closeModalWithLogic('memoir')
+    
+    // Закрываем панель мемуаров
+    const { useUiEventStore } = await import('@/stores/ui-event.store')
+    const uiEventStore = useUiEventStore()
+    uiEventStore.closeMemoirsPanel()
+  }
 
   const handleSecretBubbleDestroyed = async () => {
     await processAchievementEventChain('secret-bubble-discoverer', 'manual')

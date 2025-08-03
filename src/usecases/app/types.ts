@@ -121,6 +121,7 @@ export interface AppMemoirStore {
   showMemoirs(): void
   closeMemoirs(): void
   toggleMemoirs(): void
+  resetReadMemoirs(): void
 }
 
 export interface AppModalStore {
