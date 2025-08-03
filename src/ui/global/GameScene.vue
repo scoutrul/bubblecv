@@ -4,12 +4,14 @@
       @update:currentYear="updateCurrentYear" class="timeline" />
     <GameHUD class="game-hud" />
     <BubbleCanvas class="bubble-scene" />
-    <ResetButton @handle-reset="resetGame" class="reset-button" />
 
     <!-- Анимация смены года -->
     <YearTransition
       :year="currentYear"
     />
+
+    <!-- Монитор производительности -->
+    <PerformanceMonitor />
   </div>
 </template>
 
@@ -19,6 +21,7 @@ import ResetButton from '@/ui/global/ResetButton.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import YearTransition from '@/ui/global/YearTransition.vue'
+import PerformanceMonitor from '@/ui/global/PerformanceMonitor.vue'
 
 import { useApp } from '@/composables'
 

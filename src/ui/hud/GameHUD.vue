@@ -74,6 +74,17 @@
       />
     </div>
 
+    <!-- Left Widgets Container -->
+    <div class="left-widgets-container">
+      <!-- Settings Widget -->
+      <SettingsWidget
+        :is-shaking="isSettingsShaking"
+      />
+      
+      <!-- Reset Button -->
+      <ResetButton @handle-reset="resetGame" />
+    </div>
+
   </div>
 </template>
 
@@ -85,9 +96,12 @@ import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
 import MemoirWidget from '@/ui/memoirs/MemoirWidget.vue'
+import SettingsWidget from '@/ui/widgets/SettingsWidget.vue'
+import ResetButton from '@/ui/global/ResetButton.vue'
 import { computed } from 'vue'
 
 const {
+  resetGame,
   game: {
     currentLevel,
     currentXP,
@@ -129,6 +143,7 @@ const {
 const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
 const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
 const isMemoirShaking = computed(() => shakingComponents.value.has('memoirs'))
+const isSettingsShaking = computed(() => shakingComponents.value.has('settings'))
 
 </script>
 
@@ -149,6 +164,14 @@ const isMemoirShaking = computed(() => shakingComponents.value.has('memoirs'))
 /* Контейнер виджетов */
 .widgets-container {
   @apply fixed bottom-4 right-2 sm:right-4;
+  @apply flex flex-col gap-4;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* Левый контейнер виджетов */
+.left-widgets-container {
+  @apply fixed bottom-4 left-2 sm:left-4;
   @apply flex flex-col gap-4;
   z-index: 9999;
   pointer-events: auto;

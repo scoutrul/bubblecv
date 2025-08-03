@@ -33,7 +33,7 @@
 
 <style scoped>
 .reset-widget {
-  @apply fixed bottom-4 left-2 sm:left-4 z-50;
+  @apply relative;
 }
 
 .reset-button {

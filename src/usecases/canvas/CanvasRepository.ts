@@ -3,6 +3,10 @@ import type { CanvasRepository as ICanvasRepository } from './types'
 import type { BubbleNode } from '@/types/canvas'
 import { GAME_CONFIG } from '@/config'
 import { gsap } from 'gsap'
+import { usePerformanceStore } from '@/stores/performance.store'
+import { useBubbleStore } from '@/stores'
+import { useSessionStore } from '@/stores'
+import { getBubblesToRender } from '@/utils/nodes'
 
 interface Star {
   x: number
@@ -23,7 +27,16 @@ export class CanvasRepository implements ICanvasRepository {
   private fgStars = ref<Star[]>([])
   private deepBgStars = ref<Star[]>([])
   private previousWidth = 0
-  private previousHeight = 0    
+  private previousHeight = 0
+  
+  // Система мониторинга производительности
+  private frameCount = 0
+  private lastTime = 0
+  private fps = 60
+  private performanceLevel = 0 // 0 - полная производительность, 1 - оптимизированная, 2 - минимальная
+  private optimizationCheckInterval = 0
+  private readonly OPTIMIZATION_CHECK_FREQUENCY = 60 // Проверяем каждые 60 кадров
+  private readonly FPS_THRESHOLD = 60 // Порог FPS для начала оптимизации    
 
   constructor(canvasRef: Ref<HTMLCanvasElement | null>) {
     this.canvas = canvasRef.value
@@ -58,6 +71,9 @@ export class CanvasRepository implements ICanvasRepository {
       console.log('CanvasRepository.drawStarfield: stars not initialized, skipping')
       return
     }
+
+    // Мониторинг производительности
+    this.updatePerformanceMetrics()
 
     // Рисуем самый дальний фоновый слой (медленно вращающиеся звезды)
     context.save()
@@ -260,14 +276,22 @@ export class CanvasRepository implements ICanvasRepository {
     this.previousWidth = width
     this.previousHeight = height
     
-    const canvasCenter = { x: width / 2, y: height / 2 }
+
+    
+    // Определяем количество звезд в зависимости от уровня производительности
+    const deepBgCount = this.performanceLevel === 0 ? 4000 : 0 // Убираем дальний фон при любом снижении
+    const centerCount = this.performanceLevel === 0 ? 400 : this.performanceLevel === 1 ? 200 : 0
     
     // Самый дальний фоновый слой (медленно вращающиеся звезды)
-    this.deepBgStars.value = this.createStars(4000, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003], true)
-    this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+    if (deepBgCount > 0) {
+      this.deepBgStars.value = this.createStars(deepBgCount, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003], true)
+      this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+    } else {
+      this.deepBgStars.value = []
+    }
     
     // Центральный слой
-    this.centerStars.value = this.createStars(400, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005], true)
+    this.centerStars.value = this.createStars(centerCount, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005], true)
     this.animateStars(this.centerStars.value, [0.1, 0.4], [3, 7])
     
     // Задний слой
@@ -285,7 +309,14 @@ export class CanvasRepository implements ICanvasRepository {
     this.updateStarPositions(this.bgStars.value, width, height, this.previousWidth, this.previousHeight)
     this.updateStarPositions(this.fgStars.value, width, height, this.previousWidth, this.previousHeight)
     
-    this.filterAndAddStars(this.deepBgStars, 400, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003])
+    // Определяем количество звезд в зависимости от уровня производительности
+    const deepBgCount = this.performanceLevel === 0 ? 4000 : 0 // Убираем дальний фон при любом снижении
+    const centerCount = this.performanceLevel === 0 ? 400 : this.performanceLevel === 1 ? 200 : 0
+    
+    if (deepBgCount > 0) {
+      this.filterAndAddStars(this.deepBgStars, deepBgCount, width, height, [0.3, 0.8], [0.1, 0.25], [Math.max(width, height) * 0.3, Math.max(width, height) * 0.7], [0.0001, 0.0003])
+    }
+    this.filterAndAddStars(this.centerStars, centerCount, width, height, [0.3, 1.3], [0.1, 0.4], [50, Math.max(width, height) * 0.4 + 50], [0, 0.0005])
     this.filterAndAddStars(this.bgStars, 70, width, height, [0.5, 1.7], [0.1, 0.5], [20, 120], [0.001, 0.003])
     this.filterAndAddStars(this.fgStars, 30, width, height, [0.8, 2.4], [0.4, 1.0], [30, 180], [0.001, 0.004])
     
@@ -300,6 +331,36 @@ export class CanvasRepository implements ICanvasRepository {
       this.canvas.height = height
     }
     this.updateStarfieldSize(width, height)
+  }
+
+  // Публичные методы для получения информации о производительности
+  getPerformanceInfo(): { fps: number; performanceLevel: number; starCount: number; activeNodes: number } {
+    const totalStars = this.deepBgStars.value.length + this.centerStars.value.length + this.bgStars.value.length + this.fgStars.value.length
+    const bubbleStore = useBubbleStore()
+    const sessionStore = useSessionStore()
+    
+    // Подсчитываем активные узлы для текущего года
+    const activeNodesForCurrentYear = getBubblesToRender(
+      bubbleStore.bubbles,
+      sessionStore.currentYear,
+      sessionStore.visitedBubbles
+    ).length
+    
+    return {
+      fps: Math.round(this.fps),
+      performanceLevel: this.performanceLevel,
+      starCount: totalStars,
+      activeNodes: activeNodesForCurrentYear
+    }
+  }
+
+  getStarCounts(): { deepBg: number; center: number; bg: number; fg: number } {
+    return {
+      deepBg: this.deepBgStars.value.length,
+      center: this.centerStars.value.length,
+      bg: this.bgStars.value.length,
+      fg: this.fgStars.value.length
+    }
   }
 
   private createStars(count: number, width: number, height: number, radiusRange: [number, number], opacityRange: [number, number], orbitRadiusRange: [number, number], speedRange: [number, number], isCenter: boolean = false): Star[] {
@@ -374,5 +435,118 @@ export class CanvasRepository implements ICanvasRepository {
       const newStars = this.createStars(needed, width, height, radiusRange, opacityRange, orbitRadiusRange, speedRange)
       starsRef.value.push(...newStars)
     }
+  }
+
+  // Методы для мониторинга производительности
+  private updatePerformanceMetrics(): void {
+    this.frameCount++
+    this.optimizationCheckInterval++
+    
+    const currentTime = performance.now()
+    if (this.lastTime > 0) {
+      const deltaTime = currentTime - this.lastTime
+      this.fps = 1000 / deltaTime
+    }
+    this.lastTime = currentTime
+    
+    // Обновляем данные в store
+    const performanceStore = usePerformanceStore()
+    const bubbleStore = useBubbleStore()
+    const sessionStore = useSessionStore()
+    
+    // Подсчитываем активные узлы для текущего года
+    const activeNodesForCurrentYear = getBubblesToRender(
+      bubbleStore.bubbles,
+      sessionStore.currentYear,
+      sessionStore.visitedBubbles
+    ).length
+    
+    performanceStore.updatePerformanceInfo({
+      fps: Math.round(this.fps),
+      performanceLevel: this.performanceLevel,
+      starCount: this.deepBgStars.value.length + this.centerStars.value.length + this.bgStars.value.length + this.fgStars.value.length,
+      activeNodes: activeNodesForCurrentYear
+    })
+    
+    performanceStore.updateStarCounts({
+      deepBg: this.deepBgStars.value.length,
+      center: this.centerStars.value.length,
+      bg: this.bgStars.value.length,
+      fg: this.fgStars.value.length
+    })
+    
+    // Проверяем производительность каждые N кадров
+    if (this.optimizationCheckInterval >= this.OPTIMIZATION_CHECK_FREQUENCY) {
+      this.optimizationCheckInterval = 0
+      this.checkAndOptimizePerformance()
+    }
+  }
+
+  private checkAndOptimizePerformance(): void {
+    const currentLevel = this.performanceLevel
+    
+    if (this.fps < this.FPS_THRESHOLD && this.performanceLevel < 2) {
+      // Снижаем производительность
+      this.performanceLevel++
+      this.applyPerformanceOptimization()
+      console.log(`🔧 Производительность снижена до уровня ${this.performanceLevel}. FPS: ${this.fps.toFixed(1)}`)
+    } else if (this.fps > 58 && this.performanceLevel > 0) {
+      // Повышаем производительность
+      this.performanceLevel--
+      this.applyPerformanceOptimization()
+      console.log(`🚀 Производительность повышена до уровня ${this.performanceLevel}. FPS: ${this.fps.toFixed(1)}`)
+    }
+  }
+
+  private applyPerformanceOptimization(): void {
+    switch (this.performanceLevel) {
+      case 0: // Полная производительность
+        this.restoreFullStarfield()
+        break
+      case 1: // Оптимизированная производительность
+        this.applyMediumOptimization()
+        break
+      case 2: // Минимальная производительность
+        this.applyMinimalOptimization()
+        break
+    }
+  }
+
+  private restoreFullStarfield(): void {
+    // Восстанавливаем полное количество звезд
+    const currentWidth = this.canvas?.width || 1920
+    const currentHeight = this.canvas?.height || 1080
+    
+    // Восстанавливаем дальний фон
+    if (this.deepBgStars.value.length < 4000) {
+      const needed = 4000 - this.deepBgStars.value.length
+      const newStars = this.createStars(needed, currentWidth, currentHeight, [0.3, 0.8], [0.1, 0.25], [Math.max(currentWidth, currentHeight) * 0.3, Math.max(currentWidth, currentHeight) * 0.7], [0.0001, 0.0003], true)
+      this.deepBgStars.value.push(...newStars)
+      this.animateStars(this.deepBgStars.value, [0.1, 0.25], [8, 15])
+    }
+    
+    // Восстанавливаем центральный слой
+    if (this.centerStars.value.length < 400) {
+      const needed = 400 - this.centerStars.value.length
+      const newStars = this.createStars(needed, currentWidth, currentHeight, [0.3, 1.3], [0.1, 0.4], [50, Math.max(currentWidth, currentHeight) * 0.4 + 50], [0, 0.0005], true)
+      this.centerStars.value.push(...newStars)
+      this.animateStars(this.centerStars.value, [0.1, 0.4], [3, 7])
+    }
+  }
+
+  private applyMediumOptimization(): void {
+    // Убираем дальний фон полностью
+    this.deepBgStars.value = []
+    
+    // Сокращаем центральный слой в 2 раза
+    if (this.centerStars.value.length > 200) {
+      this.centerStars.value = this.centerStars.value.slice(0, 200)
+    }
+  }
+
+  private applyMinimalOptimization(): void {
+    // Убираем дальний и центральный фон полностью
+    this.deepBgStars.value = []
+    this.centerStars.value = []
   }
 } 

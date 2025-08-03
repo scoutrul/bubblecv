@@ -146,6 +146,8 @@ export interface CanvasRepository {
   initStarfield(width: number, height: number): void
   updateStarfieldSize(width: number, height: number): void
   updateCanvasSize(width: number, height: number): void
+  getPerformanceInfo(): { fps: number; performanceLevel: number; starCount: number; activeNodes: number }
+  getStarCounts(): { deepBg: number; center: number; bg: number; fg: number }
 }
 
 export interface PhysicsRepository {
