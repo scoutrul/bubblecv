@@ -59,16 +59,16 @@
             {{ bubble?.insight }}
           </p>
         </div>
-
-
-        <!-- Timeline -->
-        <div class="timeline-section">
-            <h3 class="section-title">Год появления</h3>
-          <div class="timeline-info">
-              <span class="timeline-start">{{ bubble?.year }}</span>
+        
+        <!-- Importance -->
+        <div v-if="bubble?.important !== undefined" class="importance-section">
+          <h3 class="section-title">Важность для проекта</h3>
+          <div class="importance-info">
+            <span class="importance-badge" :class="importanceClass">
+              {{ importanceText }}
+            </span>
           </div>
         </div>
-
       </div>
 
       <!-- Footer -->
@@ -121,6 +121,18 @@ const xpReward = computed(() => {
 
   // Используем централизованную логику для расчета XP
   return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
+})
+
+const importanceClass = computed(() => {
+  if (props.bubble?.important === true) return 'importance-important'
+  if (props.bubble?.important === false) return 'importance-not-important'
+  return 'importance-neutral'
+})
+
+const importanceText = computed(() => {
+  if (props.bubble?.important === true) return 'Да'
+  if (props.bubble?.important === false) return 'Нет'
+  return 'Не важно для этого проекта'
 })
 
 
@@ -245,6 +257,30 @@ const xpReward = computed(() => {
 
 .timeline-start {
   @apply text-sm font-medium text-text-primary;
+}
+
+.importance-section {
+  @apply space-y-3;
+}
+
+.importance-info {
+  @apply flex items-center gap-3;
+}
+
+.importance-badge {
+  @apply px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.importance-important {
+  @apply bg-green-100 text-green-800;
+}
+
+.importance-not-important {
+  @apply bg-red-100 text-red-800;
+}
+
+.importance-neutral {
+  @apply bg-gray-100 text-gray-800;
 }
 
 .modal-footer {

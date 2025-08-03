@@ -15,7 +15,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const currentLevel = computed(() => session.value?.currentLevel || 1)
   const lives = computed(() => session.value?.lives || GAME_CONFIG.maxLives)
   const visitedBubbles = computed(() => session.value?.visitedBubbles || [])
-  const agreementScore = computed(() => session.value?.agreementScore || 0)
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
   const hasUnlockedFirstToughBubbleAchievement = computed(() => 
     session.value?.hasUnlockedFirstToughBubbleAchievement || false
@@ -118,7 +117,6 @@ export const useSessionStore = defineStore('sessionStore', () => {
     currentLevel,
     lives,
     visitedBubbles,
-    agreementScore,
     gameCompleted,
     xpProgress,
     nextLevelXP,
