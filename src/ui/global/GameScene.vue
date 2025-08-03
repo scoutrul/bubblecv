@@ -1,5 +1,11 @@
 <template>
   <div class="game-scene">
+    <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
+    <div class="left-widgets-container">
+      <SettingsWidget :is-shaking="isSettingsShaking" />
+      <ResetButton @handle-reset="resetGame" />
+    </div>
+
     <TimelineSlider :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
       @update:currentYear="updateCurrentYear" class="timeline" />
     <GameHUD class="game-hud" />
@@ -22,13 +28,19 @@ import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import YearTransition from '@/ui/global/YearTransition.vue'
 import PerformanceMonitor from '@/ui/global/PerformanceMonitor.vue'
+import SettingsWidget from '@/ui/global/SettingsWidget.vue'
 
-import { useApp } from '@/composables'
+import { computed } from 'vue'
+import { useApp, useUi } from '@/composables'
 
 const {
   resetGame,
   game: { startYear, endYear, currentYear, updateCurrentYear }
 } = useApp()
+
+const { shakingComponents } = useUi()
+
+const isSettingsShaking = computed(() => shakingComponents.value.has('settings'))
 </script>
 
 <style scoped>
@@ -44,19 +56,18 @@ const {
   @apply absolute top-0 right-0 z-10;
 }
 
-.reset-button {
-  z-index: 1000;
+/* Левый контейнер виджетов - высокий приоритет */
+.left-widgets-container {
+  @apply fixed bottom-4 left-2 sm:left-4;
+  @apply flex flex-col gap-4;
+  z-index: 10000;
+  pointer-events: auto;
 }
 
 /* Адаптивные стили для мобильных устройств */
 @media (max-width: 559px) {
   .timeline {
     /* Делаем TimelineSlider более компактным на мобильных */
-    z-index: 900;
-  }
-
-  .reset-button {
-    /* Перемещаем кнопку сброса в левый нижний угол на мобильных */
     z-index: 900;
   }
 }

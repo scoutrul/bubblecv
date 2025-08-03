@@ -63,5 +63,6 @@
   @apply bg-background-secondary border border-border rounded-lg shadow-lg;
   @apply text-sm text-text-primary whitespace-nowrap;
   @apply opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none;
+  z-index: 99999;
 }
 </style> 
