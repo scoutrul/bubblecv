@@ -430,6 +430,16 @@ export class CanvasUseCase implements ICanvasUseCase {
           color: '#22c55e'
         })
         
+        // Добавляем XP за каждый клик по крепкому пузырю
+        const result = await this.useSession.gainXP(1)
+        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
+          this.modalStore.openLevelUpModal(result.newLevel, {
+            ...result.levelData,
+            title: result.levelData.title || `Уровень ${result.newLevel}`,
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+          })
+        }
+        
         // Добавляем эффект отскакивания для крепкого бабла
         this.effectsRepository.animateToughBubbleHit(bubble)
         
@@ -440,7 +450,6 @@ export class CanvasUseCase implements ICanvasUseCase {
           bubble.vy = jump.vy
         }
         
-        // Для обычных пузырей XP добавляется только при лопании через модалку, не при клике
         return { bubblePopped: false }
       }
     }
