@@ -7,8 +7,8 @@
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
       <div class="left-widgets-container">
-        <LanguageWidget />
         <SettingsWidget />
+        <LanguageWidget />
         <ResetButton @handle-reset="resetGame" />
       </div>
 

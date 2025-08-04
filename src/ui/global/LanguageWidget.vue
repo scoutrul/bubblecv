@@ -17,7 +17,7 @@ import { computed } from 'vue'
 import ToolTip from '@/ui/global/ToolTip.vue'
 import { useI18n } from '@/i18n'
 
-const { locale, setLocale, getLocaleName, getLocaleFlag, t } = useI18n()
+const { locale, setLocale, getLocaleName, t } = useI18n()
 
 // Текущий язык
 const currentLanguage = computed(() => locale.value)

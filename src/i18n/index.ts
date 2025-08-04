@@ -61,19 +61,10 @@ export function useI18n() {
   // Получение названия языка для отображения
   const getLocaleName = (locale: Locale): string => {
     const names = {
-      ru: 'Русский',
-      en: 'English'
+      ru: 'English',
+      en: 'Русский'
     }
     return names[locale]
-  }
-
-  // Получение флага языка
-  const getLocaleFlag = (locale: Locale): string => {
-    const flags = {
-      ru: '🇷🇺',
-      en: '🇺🇸'
-    }
-    return flags[locale]
   }
 
   return {
@@ -83,7 +74,6 @@ export function useI18n() {
     setLocale,
     initLocale,
     getLocaleName,
-    getLocaleFlag
   }
 }
 
