@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
-import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils/animations'
+import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils'
 
 interface Props {
   currentLives: number

@@ -9,7 +9,7 @@ import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, Normaliz
 import type { Bubble, Achievement, Bonus, Memoir } from '@/types/data'
 import type { Level } from '@/types/levels'
 
-import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeMemoir, normalizeOldBubble } from '@/utils/normalize'
+import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeMemoir, normalizeOldBubble } from '@/utils'
 
 export const api = {
   async getLevels(): Promise<{ data: NormalizedLevel[] }> {

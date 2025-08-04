@@ -96,7 +96,7 @@ import BaseModal from '@/ui/global/BaseModal.vue'
 import { XP_CALCULATOR } from '@/config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
 import type { NormalizedBubble } from '@/types/normalized'
-import { getBubbleColor } from '@/utils/bubble'
+import { getBubbleColor } from '@/utils'
 import { computed } from 'vue'
 
 interface Props {

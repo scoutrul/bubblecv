@@ -6,7 +6,7 @@ import { gsap } from 'gsap'
 import { usePerformanceStore } from '@/stores/performance.store'
 import { useBubbleStore } from '@/stores'
 import { useSessionStore } from '@/stores'
-import { getBubblesToRender } from '@/utils/nodes'
+import { getBubblesToRender } from '@/utils'
 
 interface Star {
   x: number

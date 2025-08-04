@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api'
 import { useSessionStore } from '@/stores/session.store'
-import { normalizeMemoir } from '@/utils/normalize'
+import { normalizeMemoir } from '@/utils'
 import type { NormalizedMemoir } from '@/types/normalized'
 
 export const useMemoirStore = defineStore('memoirStore', () => {

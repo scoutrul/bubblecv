@@ -1,5 +1,5 @@
 import type { UserSession } from '@/types/session'
-import { generateSessionId } from '@/utils/ui'
+import { generateSessionId } from '@/utils'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 
 export class SessionRepository {

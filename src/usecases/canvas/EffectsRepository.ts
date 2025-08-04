@@ -2,8 +2,7 @@ import { ref } from 'vue'
 import { gsap } from 'gsap'
 import type { EffectsRepository as IEffectsRepository, CreateFloatingTextParams } from './types'
 import type { ExplosionEffect, FloatingText, DebrisParticle, BubbleNode } from '@/types/canvas'
-import { getBubbleColor } from '@/utils/bubble'
-import { hexToRgb } from '@/utils/ui'
+import { getBubbleColor, hexToRgb } from '@/utils'
 
 export class EffectsRepository implements IEffectsRepository {
   private explosionEffects = ref<ExplosionEffect[]>([])

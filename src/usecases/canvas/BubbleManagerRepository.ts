@@ -1,7 +1,6 @@
 import type { BubbleManagerRepository as IBubbleManagerRepository } from './types'
 import type { BubbleNode, PositionData } from '@/types/canvas'
-import { isWindows } from '@/utils/ui'
-import { calculateAdaptiveSizes, calcBubbleRadius } from '@/utils/bubble'
+import { isWindows, calculateAdaptiveSizes, calcBubbleRadius } from '@/utils'
 import { GAME_CONFIG } from '@/config'
 
 export class BubbleManagerRepository implements IBubbleManagerRepository {

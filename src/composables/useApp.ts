@@ -14,7 +14,7 @@ import type {
 } from '@/usecases/app'
 import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
-import { getYearRange } from '@/utils/ui'
+import { getYearRange } from '@/utils'
 
 export function useApp() {
   const bubbleStore = useBubbleStore()

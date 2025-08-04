@@ -62,9 +62,9 @@
 import { computed, nextTick, ref, watch } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
-import { createShakeAnimation, createYearChangeAnimation } from '@/utils/animations'
+import { createShakeAnimation, createYearChangeAnimation } from '@/utils'
 
-import { getBubblesUpToYear } from '@/utils/nodes'
+import { getBubblesUpToYear } from '@/utils'
 
 
 interface Props {

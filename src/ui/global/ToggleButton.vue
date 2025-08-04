@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { createShineAnimation, stopShineAnimation } from '@/utils/animations'
+import { createShineAnimation, stopShineAnimation } from '@/utils'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
 interface Props {

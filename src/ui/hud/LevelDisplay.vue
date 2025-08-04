@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils/animations'
+import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils'
 import { useModals } from '@/composables/useModals'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 

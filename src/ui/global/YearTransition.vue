@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { nextTick, ref, watch } from 'vue'
-import { createYearTransitionAnimation } from '@/utils/animations'
+import { createYearTransitionAnimation } from '@/utils'
 
 interface Props {
   year: number

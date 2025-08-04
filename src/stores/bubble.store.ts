@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import type { NormalizedBubble } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
 import { api } from '@/api'
-import { createHiddenBubble } from '@/utils/normalize'
+import { createHiddenBubble } from '@/utils'
 
 
 export const useBubbleStore = defineStore('bubbleStore', () => {

@@ -1,7 +1,7 @@
 import type { AppRepository as IAppRepository } from './types'
 import type { NormalizedBubble } from '@/types/normalized'
 import { api } from '@/api'
-import { getYearRange } from '@/utils/ui'
+import { getYearRange } from '@/utils'
 import { useLevelStore } from '@/stores/levels.store'
 
 export class AppRepositoryImpl implements IAppRepository {

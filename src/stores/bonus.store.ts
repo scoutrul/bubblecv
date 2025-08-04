@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api'
 import { useSessionStore } from '@/stores/session.store'
-import { normalizeBonus } from '@/utils/normalize'
+import { normalizeBonus } from '@/utils'
 import type { NormalizedBonus } from '@/types/normalized'
 
 export const useBonusStore = defineStore('bonusStore', () => {
