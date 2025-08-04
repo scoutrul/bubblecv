@@ -177,6 +177,15 @@ export const useModals = () => {
 
   // Функция для обработки завершения Event Chain (вызывается из modal store)
   const handleEventChainCompleted = async () => {
+    // Принудительно очищаем все модалки перед обработкой пузырей
+    Object.keys(modalStore.modals).forEach(key => {
+      modalStore.modals[key as keyof typeof modalStore.modals] = false
+    })
+    
+    // Сбрасываем текущий event chain
+    modalStore.currentEventChain = null
+    modalStore.currentModal = null
+    
     await processPendingBubbleRemovals()
   }
 
@@ -201,6 +210,15 @@ export const useModals = () => {
   )
 
   const processPendingBubbleRemovals = async () => {
+    // Fallback: если есть пузыри в очереди, но модалки "застряли", принудительно очищаем их
+    if (pendingBubbleRemovals.value.length > 0 && hasActiveModals.value) {
+      Object.keys(modalStore.modals).forEach(key => {
+        modalStore.modals[key as keyof typeof modalStore.modals] = false
+      })
+      modalStore.currentEventChain = null
+      modalStore.currentModal = null
+    }
+    
     if (!hasActiveModals.value && pendingBubbleRemovals.value.length > 0) {
       const canvas = getCanvasBridge()
       if (canvas) {
@@ -506,6 +524,9 @@ export const useModals = () => {
         achievementResult,
         { xpResult: achievementResult, bubbleId: bubbleId || undefined }
       ))
+    } else {
+      // Если нет ачивки, все равно обрабатываем пузыри сразу
+      await processPendingBubbleRemovals()
     }
   }
 

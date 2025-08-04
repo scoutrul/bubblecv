@@ -133,7 +133,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   watch(() => sessionStore.currentYear, async (newYear) => {
-    console.log(`🔄 Watch сработал: год изменился на ${newYear}`)
     
     if (bubbleStore.isLoading || !canvasUseCase.value) {
       console.log('⚠️ Пропускаем обновление: bubbleStore загружается или canvasUseCase не готов')
@@ -142,7 +141,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
     // Если год сброшен на начальный, очищаем философские пузыри
     if (newYear === GAME_CONFIG.initialYear) {
-      console.log('🧹 Очищаем философские пузыри (год сброшен на начальный)')
       philosophyBubblesByYear.value.clear()
       usedQuestionIds.value.clear()
     }

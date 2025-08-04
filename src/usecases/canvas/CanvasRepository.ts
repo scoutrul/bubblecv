@@ -578,12 +578,10 @@ export class CanvasRepository implements ICanvasRepository {
       // Снижаем производительность
       this.performanceLevel++
       this.applyPerformanceOptimization()
-      console.log(`🔧 Производительность снижена до уровня ${this.performanceLevel}. FPS: ${this.fps.toFixed(1)}`)
     } else if (this.fps > config.fpsTarget && this.performanceLevel > 0) {
       // Повышаем производительность
       this.performanceLevel--
       this.applyPerformanceOptimization()
-      console.log(`🚀 Производительность повышена до уровня ${this.performanceLevel}. FPS: ${this.fps.toFixed(1)}`)
     }
   }
 

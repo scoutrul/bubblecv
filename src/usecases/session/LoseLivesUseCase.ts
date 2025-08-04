@@ -17,7 +17,6 @@ export class LoseLivesUseCase {
     const { amount = 1 } = params
 
     if (!this.sessionStore.session) {
-      console.log('❌ LoseLivesUseCase: Сессия не найдена')
       return { 
         success: false, 
         livesRemaining: 0, 
@@ -27,11 +26,9 @@ export class LoseLivesUseCase {
     }
 
     const currentLives = this.sessionStore.session.lives
-    console.log(`🔍 LoseLivesUseCase: Текущие жизни: ${currentLives}, отнимаем: ${amount}`)
 
     // Если теряем больше жизней, чем есть
     if (amount >= currentLives) {
-      console.log('💀 LoseLivesUseCase: Игра окончена - все жизни потеряны')
       this.sessionStore.setLives(0)
       this.sessionStore.setGameCompleted(true)
       this.uiEventStore.queueShake('lives')
@@ -45,12 +42,10 @@ export class LoseLivesUseCase {
 
     // Уменьшаем жизни
     const newLives = Math.max(0, currentLives - amount)
-    console.log(`💔 LoseLivesUseCase: Устанавливаем жизни: ${newLives}`)
     this.sessionStore.setLives(newLives)
 
     // Проверяем, закончилась ли игра
     if (newLives === 0) {
-      console.log('💀 LoseLivesUseCase: Игра окончена - жизни = 0')
       this.sessionStore.setGameCompleted(true)
     }
 
@@ -58,12 +53,8 @@ export class LoseLivesUseCase {
 
     // Проверяем достижение "на грани"
     if (newLives === 1) {
-      console.log('⚠️ LoseLivesUseCase: Осталась 1 жизнь - проверяем достижение "на краю"')
       const achievement = await this.achievementStore.unlockAchievement('on-the-edge', false)
       if (achievement) {
-        console.log('🏆 LoseLivesUseCase: Разблокировано достижение "на краю":', achievement)
-        console.log(`🏆 LoseLivesUseCase: Награда за достижение: ${achievement.xpReward} XP`)
-        
         // Показываем модалку через Event Chain систему с задержкой
         const { createPendingAchievement } = await import('@/composables/useModals')
         
@@ -86,8 +77,7 @@ export class LoseLivesUseCase {
       }
     }
 
-    console.log(`✅ LoseLivesUseCase: Успешно обновлены жизни. Осталось: ${newLives}`)
-    return {
+   return {
       success: true,
       livesRemaining: newLives,
       gameCompleted: newLives === 0
