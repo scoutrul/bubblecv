@@ -289,14 +289,28 @@ export const useModals = () => {
         type: 'bubble',
         pendingAchievements: achievements,           // Только bubble ачивки
         pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp: xpResult.leveledUp ? {
+        pendingLevelUp: xpResult.leveledUp && xpResult.levelData ? {
           level: xpResult.newLevel!,
-          data: xpResult.levelData
+          data: {
+            level: xpResult.levelData.level,
+            title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
+            description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+            icon: xpResult.levelData.icon || '✨',
+            currentXP: xpResult.levelData.currentXP,
+            xpGained: xpResult.levelData.xpGained,
+            xpRequired: 0
+          }
         } : null,
         currentStep: 'bubble',
         context: {
           bubble,
-          xpResult
+          xpResult: {
+            xpGained,
+            livesLost: 0,
+            agreementChange: 0,
+            isPhilosophyNegative: false,
+            ...xpResult
+          }
         }
       })
 
@@ -358,7 +372,7 @@ export const useModals = () => {
   const openPhilosophyModal = (question: Question, bubbleId?: BubbleNode['id']) => {
     modalStore.enqueueModal({
       type: 'philosophy',
-      data: { question, bubbleId },
+      data: { question, bubbleId: bubbleId || 0 },
       priority: MODAL_PRIORITIES.philosophy
     })
   }
@@ -482,7 +496,8 @@ export const useModals = () => {
       type: 'gameOver',
       data: {
         currentXP: sessionStore.session?.currentXP || 0,
-        currentLevel: sessionStore.session?.currentLevel || 1
+        currentLevel: sessionStore.session?.currentLevel || 1,
+        finalScore: 0
       },
       priority: MODAL_PRIORITIES.gameOver
     })
@@ -504,7 +519,7 @@ export const useModals = () => {
   const openAchievementModal = (achievement: PendingAchievement) => {
     modalStore.enqueueModal({
       type: 'achievement',
-      data: achievement,
+      data: { achievement },
       priority: MODAL_PRIORITIES.achievement
     })
   }
@@ -561,7 +576,7 @@ export const useModals = () => {
   const openMemoirModal = (memoir: NormalizedMemoir) => {
     modalStore.enqueueModal({
       type: 'memoir',
-      data: memoir,
+      data: { memoir },
       priority: MODAL_PRIORITIES.memoir
     })
   }

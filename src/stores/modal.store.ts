@@ -1,6 +1,19 @@
 import {defineStore} from 'pinia'
 import {computed, nextTick, reactive, ref} from 'vue'
-import type {EventChain, LevelUpData, ModalData, ModalStates, PendingAchievement, QueuedModal} from '@/types/modals'
+import type {
+  EventChain, 
+  LevelUpData, 
+  ModalData, 
+  ModalStates, 
+  PendingAchievement, 
+  QueuedModal,
+  BubbleModalData,
+  AchievementModalData,
+  PhilosophyModalData,
+  GameOverModalData,
+  BonusModalData,
+  MemoirModalData
+} from '@/types/modals'
 import {getEventChainCompletedHandler} from '@/composables/useModals'
 
 export const useModalStore = defineStore('modalStore', () => {
@@ -73,7 +86,7 @@ export const useModalStore = defineStore('modalStore', () => {
           showModal({
             id: `bubble_${chain.id}`,
             type: 'bubble',
-            data: chain.context.bubble,
+            data: { bubble: chain.context.bubble },
             priority: 50
           })
         } else {
@@ -102,7 +115,7 @@ export const useModalStore = defineStore('modalStore', () => {
           showModal({
             id: `achievement_${chain.id}`,
             type: 'achievement',
-            data: achievement,
+            data: { achievement },
             priority: 70
           })
         } else {
@@ -117,7 +130,7 @@ export const useModalStore = defineStore('modalStore', () => {
           showModal({
             id: `levelAchievement_${chain.id}`,
             type: 'achievement',
-            data: achievement,
+            data: { achievement },
             priority: 70
           })
         } else {
@@ -225,26 +238,27 @@ export const useModalStore = defineStore('modalStore', () => {
     // Устанавливаем данные для модалки
     switch (modal.type) {
       case 'bubble':
-        data.currentBubble = modal.data
+        data.currentBubble = (modal.data as BubbleModalData)?.bubble || null
         break
       case 'achievement':
-        data.achievement = modal.data
+        data.achievement = (modal.data as AchievementModalData)?.achievement || null
         break
       case 'levelUp':
-        data.levelUpData = modal.data
+        data.levelUpData = modal.data as LevelUpData
         break
       case 'philosophy':
-        data.currentQuestion = modal.data.question
-        data.philosophyBubbleId = modal.data.bubbleId
+        const philosophyData = modal.data as PhilosophyModalData
+        data.currentQuestion = philosophyData?.question || null
+        data.philosophyBubbleId = philosophyData?.bubbleId || null
         break
       case 'gameOver':
-        data.gameOverStats = modal.data
+        data.gameOverStats = modal.data as GameOverModalData
         break
       case 'bonus':
-        data.currentBonus = modal.data
+        data.currentBonus = (modal.data as BonusModalData)?.bonus || null
         break
       case 'memoir':
-        data.currentMemoir = modal.data
+        data.currentMemoir = (modal.data as MemoirModalData)?.memoir || null
         break
     }
 
