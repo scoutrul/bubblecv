@@ -440,15 +440,7 @@ export class CanvasUseCase implements ICanvasUseCase {
           bubble.vy = jump.vy
         }
         
-        const result = await this.useSession.gainXP(1)
-        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
-          this.modalStore.openLevelUpModal(result.newLevel, {
-            ...result.levelData,
-            title: result.levelData.title || `Уровень ${result.newLevel}`,
-            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
-          })
-        }
-        
+        // Для обычных пузырей XP добавляется только при лопании через модалку, не при клике
         return { bubblePopped: false }
       }
     }
@@ -478,6 +470,25 @@ export class CanvasUseCase implements ICanvasUseCase {
         const { XP_CALCULATOR } = await import('@/config')
         const xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
         
+        // Добавляем XP за финальный взрыв скрытого пузыря
+        const result = await this.useSession.gainXP(xpAmount)
+        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
+          this.modalStore.openLevelUpModal(result.newLevel, {
+            ...result.levelData,
+            title: result.levelData.title || `Уровень ${result.newLevel}`,
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+          })
+        }
+        
+        // Создаем floating text для финального взрыва
+        this.effectsRepository.createFloatingText({
+          x: bubble.x,
+          y: bubble.y,
+          text: `+${xpAmount} XP`,
+          type: 'xp',
+          color: '#22c55e'
+        })
+        
         // Добавляем в очередь на удаление через modalStore
         const { addPendingBubbleRemoval } = await import('@/composables/useModals')
         
@@ -499,7 +510,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         
         addPendingBubbleRemoval({
           bubbleId: bubble.id,
-          xpAmount,
+          xpAmount: 0, // XP уже добавлен выше
           isPhilosophyNegative: false
         }, requiresModal)
         

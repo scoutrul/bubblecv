@@ -205,43 +205,58 @@ export const useModals = () => {
       const canvas = getCanvasBridge()
       if (canvas) {
         for (const removal of pendingBubbleRemovals.value) {
-          // Прибавляем XP за пузырь
-          const xpResult = await gainXP(removal.xpAmount)
+          // Добавляем XP только для обычных пузырей (не скрытых, не философских)
+          let xpResult = null
+          if (removal.xpAmount > 0) {
+            xpResult = await gainXP(removal.xpAmount)
+            
+            // Создаем Floating Text для XP для всех пузырей с XP > 0
+            const bubble = canvas.findBubbleById(removal.bubbleId)
+            if (bubble && removal.xpAmount > 0) {
+              canvas.createFloatingText({
+                x: bubble.x,
+                y: bubble.y,
+                text: `+${removal.xpAmount} XP`,
+                type: 'xp',
+                color: '#22c55e'
+              })
+            }
+            
+            // Проверяем level up для обычных пузырей
+            if (xpResult.leveledUp && xpResult.levelData) {
+              // Проверяем level achievement для 2 уровня
+              const levelAchievements: PendingAchievement[] = []
+              if (xpResult.newLevel === 2) {
+                const levelAchievement = await unlockAchievement('first-level-master')
+                if (levelAchievement) {
+                  levelAchievements.push(createPendingAchievement(levelAchievement))
+                }
+              }
+              
+              modalStore.startEventChain({
+                type: 'manual',
+                pendingAchievements: [],
+                pendingLevelAchievements: levelAchievements,
+                pendingLevelUp: {
+                  level: xpResult.newLevel!,
+                  data: {
+                    level: xpResult.levelData.level,
+                    title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
+                    description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+                    icon: xpResult.levelData.icon || '✨',
+                    currentXP: xpResult.levelData.currentXP,
+                    xpGained: xpResult.levelData.xpGained,
+                    xpRequired: 0
+                  }
+                },
+                currentStep: 'levelUp',
+                context: {}
+              })
+            }
+          }
           
           // Удаляем пузырь с эффектами
           await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
-          
-          // Проверяем level up и показываем модалку если нужно
-          if (xpResult.leveledUp && xpResult.levelData) {
-            // Проверяем level achievement для 2 уровня
-            const levelAchievements: PendingAchievement[] = []
-            if (xpResult.newLevel === 2) {
-              const levelAchievement = await unlockAchievement('first-level-master')
-              if (levelAchievement) {
-                levelAchievements.push(createPendingAchievement(levelAchievement))
-              }
-            }
-            
-            modalStore.startEventChain({
-              type: 'manual',
-              pendingAchievements: [],
-              pendingLevelAchievements: levelAchievements,
-              pendingLevelUp: {
-                level: xpResult.newLevel!,
-                data: {
-                  level: xpResult.levelData.level,
-                  title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
-                  description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
-                  icon: xpResult.levelData.icon || '✨',
-                  currentXP: xpResult.levelData.currentXP,
-                  xpGained: xpResult.levelData.xpGained,
-                  xpRequired: 0
-                }
-              },
-              currentStep: 'levelUp',
-              context: {}
-            })
-          }
         }
         pendingBubbleRemovals.value = []
       }
@@ -262,11 +277,6 @@ export const useModals = () => {
     if (bridge) {
       bridge.processShakeQueue()
     }
-
-    // Обрабатываем отложенные удаления пузырей после закрытия всех модалок
-    setTimeout(async () => {
-      await processPendingBubbleRemovals()
-    }, 50)
   }
 
   // Новый метод для запуска цепочки событий пузыря
@@ -282,20 +292,7 @@ export const useModals = () => {
       await visitBubble(bubble.id)
       
       // Определяем количество XP в зависимости от типа пузыря
-      let xpGained: number
-      if (bubble.isTough) {
-        // Крепкие пузыри дают XP в зависимости от skill level (как обычные пузыри)
-        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
-      } else if (bubble.isHidden) {
-        // Скрытые пузыри дают XP в зависимости от skill level
-        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
-      } else {
-        // Обычные пузыри дают XP в зависимости от skill level
-        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
-      }
-      
-      // НЕ прибавляем XP сразу - только сохраняем информацию
-      // XP будет прибавлен в processPendingBubbleRemovals после закрытия модалки
+      let xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
 
       // Добавляем пузырь в очередь на удаление
       addPendingBubbleRemoval({
@@ -453,10 +450,8 @@ export const useModals = () => {
     }
 
     // Обрабатываем ответ
-    let xpResult = null
     if (isNegative) {
-      // Для негативных ответов: даем XP но отнимаем жизнь
-      xpResult = await gainXP(xpAmount)
+      // Для негативных ответов: отнимаем жизнь
       const isGameOver = await losePhilosophyLife()
       if (isGameOver) {
         closeModalWithLogic('philosophy')
@@ -464,15 +459,13 @@ export const useModals = () => {
         return
       }
       // Если игра не окончена, но жизнь потеряна - продолжаем обработку
-    } else {
-      // Начисляем XP за положительные/кастомные ответы
-      xpResult = await gainXP(xpAmount)
     }
+    // XP будет начислен в processPendingBubbleRemovals
 
     if (bubbleId) {
       addPendingBubbleRemoval({
         bubbleId,
-        xpAmount,
+        xpAmount, // Передаем xpAmount для начисления в processPendingBubbleRemovals
         isPhilosophyNegative: isNegative
       })
     }
@@ -485,9 +478,6 @@ export const useModals = () => {
     if (achievement) {
       const achievementResult = await gainXP(achievement.xpReward)
 
-      // Определяем финальный xpResult (от философии + от ачивки)
-      const finalXpResult = achievementResult.leveledUp ? achievementResult : xpResult
-
       // Создаем массив основных ачивок
       const achievements: PendingAchievement[] = [createPendingAchievement(achievement)]
 
@@ -495,19 +485,16 @@ export const useModals = () => {
       const levelAchievements: PendingAchievement[] = []
 
       // Проверяем level achievement
-      await checkAndAddLevelAchievement(finalXpResult, levelAchievements)
+      await checkAndAddLevelAchievement(achievementResult, levelAchievements)
 
       // Запускаем Event Chain для философского пузыря
       modalStore.startEventChain(createEventChainConfig(
         'bubble',
         achievements,
         levelAchievements,
-        finalXpResult,
-        { xpResult: finalXpResult, bubbleId: bubbleId || undefined }
+        achievementResult,
+        { xpResult: achievementResult, bubbleId: bubbleId || undefined }
       ))
-    } else if (xpResult && xpResult.leveledUp) {
-      // Если нет ачивки, но есть level up - показываем только level up
-      openLevelUpModal(xpResult.newLevel!, xpResult.levelData)
     }
   }
 

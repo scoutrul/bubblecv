@@ -18,6 +18,8 @@ export interface PendingBubbleRemoval {
 export interface CanvasBridge {
   removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => Promise<void>
   removeBubbleWithEffects: (params: { bubble: BubbleNode; xpAmount?: number; isPhilosophyNegative?: boolean; skipFloatingText?: boolean }) => Promise<void>
+  findBubbleById: (bubbleId: number) => BubbleNode | undefined
+  createFloatingText: (params: { x: number; y: number; text: string; type: 'xp' | 'life'; color?: string }) => void
 }
 
 export interface LevelUpData {

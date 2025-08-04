@@ -23,7 +23,9 @@ const {
   canvasHeight,
   resetCanvas,
   removeBubble,
-  removeBubbleWithEffects
+  removeBubbleWithEffects,
+  findBubbleById,
+  createFloatingText
 } = useCanvas(canvasRef, containerRef)
 
 const { processShakeQueue } = useUi()
@@ -36,7 +38,9 @@ onMounted(() => {
   
   setCanvasBridge({
     removeBubble,
-    removeBubbleWithEffects
+    removeBubbleWithEffects,
+    findBubbleById,
+    createFloatingText
   })
 })
 </script>

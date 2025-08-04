@@ -120,18 +120,32 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     if (canvasUseCase.value) {
       const bubble = canvasUseCase.value.findBubbleById(bubbleId)
       if (bubble) {
-        // Удаляем пузырь с эффектами через универсальный метод
-        await canvasUseCase.value.removeBubbleWithEffects({
-          bubble,
-          xpAmount,
-          isPhilosophyNegative
-        })
+
+        const isPhilosophyBubble = bubble.isQuestion
+              await canvasUseCase.value.removeBubbleWithEffects({
+        bubble,
+        xpAmount,
+        isPhilosophyNegative,
+        skipFloatingText: true // Всегда пропускаем floating text, так как он создается в processPendingBubbleRemovals
+      })
       }
     }
   }
 
   watch(() => sessionStore.currentYear, async (newYear) => {
-    if (bubbleStore.isLoading || !canvasUseCase.value) return
+    console.log(`🔄 Watch сработал: год изменился на ${newYear}`)
+    
+    if (bubbleStore.isLoading || !canvasUseCase.value) {
+      console.log('⚠️ Пропускаем обновление: bubbleStore загружается или canvasUseCase не готов')
+      return
+    }
+
+    // Если год сброшен на начальный, очищаем философские пузыри
+    if (newYear === GAME_CONFIG.initialYear) {
+      console.log('🧹 Очищаем философские пузыри (год сброшен на начальный)')
+      philosophyBubblesByYear.value.clear()
+      usedQuestionIds.value.clear()
+    }
 
     // Добавляем скрытые пузыри в bubbleStore только если получена ачивка "крепыш"
     if (sessionStore.hasUnlockedFirstToughBubbleAchievement) {
@@ -179,14 +193,12 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     extraBubbles.push(...philosophyBubbles)
 
     const allBubbles = [...filteredBubbles, ...extraBubbles]
-    // Проверяем есть ли основные пузыри только среди filteredBubbles (обычные пузыри навыков)
-    const hasCoreBubbles = filteredBubbles.some(b => !b.isPopped)
 
-    // Используем use case для обновления пузырей
     canvasUseCase.value.updateBubbles({ bubbles: allBubbles })
 
     // Проверяем нужно ли перейти к следующему году
     checkBubblesAndAdvance(allBubbles)
+
   })
 
   onMounted(() => {
@@ -319,6 +331,17 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     removePhilosophyBubble: (bubbleId: number) => {
       if (canvasUseCase.value) {
         return canvasUseCase.value.removePhilosophyBubble(bubbleId)
+      }
+    },
+    findBubbleById: (bubbleId: number) => {
+      if (canvasUseCase.value) {
+        return canvasUseCase.value.findBubbleById(bubbleId)
+      }
+      return undefined
+    },
+    createFloatingText: (params: { x: number; y: number; text: string; type: 'xp' | 'life'; color?: string }) => {
+      if (canvasUseCase.value) {
+        canvasUseCase.value.createFloatingText(params)
       }
     }
   }
