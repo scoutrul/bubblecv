@@ -1,0 +1,151 @@
+{
+  "common": {
+    "close": "Close",
+    "reset": "Reset",
+    "settings": "Settings",
+    "language": "Language",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "next": "Next",
+    "previous": "Previous"
+  },
+  "navigation": {
+    "previousYear": "Previous year",
+    "nextYear": "Next year",
+    "timeTravel": "Time travel"
+  },
+  "game": {
+    "resetTitle": "Reset progress and start over",
+    "resetTooltip": "Reset game",
+    "performanceTitle": "Performance monitoring",
+    "performanceTooltip": "Monitoring",
+    "level": "Level {level}",
+    "lives": "Lives",
+    "xp": "Experience"
+  },
+  "hud": {
+    "level": "Level {level}",
+    "lives": "Lives",
+    "xp": "Experience"
+  },
+  "levels": {
+    "visitor": "Visitor",
+    "interested": "Interested",
+    "studying": "Studying",
+    "partner": "Partner",
+    "bro": "BRO"
+  },
+  "welcome": {
+    "title": "Hello. I am Mr. X.",
+    "subtitle": "Creator of this resume game.",
+    "intro": "You are inside an interactive developer profile: frontend specialist, a bit of a fullstacker, product architect and IT handyman.",
+    "twist": "But everything is arranged differently here.",
+    "quest": "To find out who is behind this project, what they can do, how they think and how to contact — you need to complete the game.",
+    "instructions": {
+      "explore": "Explore bubbles",
+      "achieve": "Earn achievements",
+      "unlock": "Unlock access levels"
+    },
+    "finale": "In the finale, skills, projects, code and contacts will open — and it will become clear whether our goals match.",
+    "ready": "Ready to explore?",
+    "startHint": "Start with any bubble.",
+    "startButton": "Start exploration"
+  },
+  "contact": {
+    "title": "Contact",
+    "messagePlaceholder": "Share your thoughts about the project...",
+    "namePlaceholder": "How should I address you?",
+    "contactPlaceholder": "Email, Telegram, phone or other contact method",
+    "send": "Send",
+    "sending": "Sending...",
+    "sent": "Message sent!",
+    "error": "Send error"
+  },
+  "philosophy": {
+    "placeholder": "Share your opinion on this issue..."
+  },
+  "achievements": {
+    "title": "Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "placeholder": "No achievements yet. Explore bubbles to unlock them!",
+    "unlockedTitle": "Achievement unlocked!"
+  },
+  "bonuses": {
+    "title": "Bonuses",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "placeholder": "Complete levels to unlock bonuses!"
+  },
+  "memoirs": {
+    "title": "Memoirs",
+    "level": "Level {level}",
+    "unlocked": "Unlocked",
+    "locked": "Locked",
+    "placeholder": "Complete levels to unlock memoirs!",
+    "loading": "Loading memoirs...",
+    "forReading": "For reading",
+    "clickToClaim": "Click to claim",
+    "claiming": "Claiming...",
+    "read": "Read"
+  },
+  "modals": {
+    "gameOver": {
+      "title": "Game Over",
+      "message": "You lost all lives. Try again!",
+      "restart": "Start over",
+      "philosophy": {
+        "title": "Our goals and values don't match.",
+        "subtext": "Apparently, we have different views on development and teamwork. Effective collaboration under such conditions will be difficult.",
+        "suggestion": "Try playing the game again, perhaps you should be more loyal to the team's philosophy..."
+      },
+      "stats": {
+        "level": "Level reached:",
+        "xp": "Experience gained:",
+        "bubbles": "Bubbles explored:"
+      }
+    },
+    "levelUp": {
+      "title": "New level!",
+      "message": "Congratulations! You reached level {level}",
+      "continue": "Continue",
+      "newBonus": "🎁 New bonus:",
+      "newMemoir": "📝 New memoir:",
+      "clickToView": "Click to view",
+      "clickToRead": "Click to read"
+    }
+  },
+  "bubble": {
+    "expertiseLevel": "Expertise level",
+    "description": "Description",
+    "insight": "Insight",
+    "importance": "Importance for project",
+    "important": "Yes",
+    "notImportant": "No",
+    "neutral": "Not important for this project",
+    "close": "close"
+  },
+  "performance": {
+    "fps": "FPS:",
+    "level": "Level:",
+    "stars": "Stars:",
+    "nodes": "Nodes:",
+    "levels": {
+      "full": "Full",
+      "medium": "Medium",
+      "minimal": "Minimal",
+      "unknown": "Unknown"
+    },
+    "layers": {
+      "deepBg": "Deep BG:",
+      "center": "Center:",
+      "bg": "Background:",
+      "fg": "Foreground:"
+    }
+  },
+  "loading": {
+    "text": "Loading universe..."
+  }
+} 

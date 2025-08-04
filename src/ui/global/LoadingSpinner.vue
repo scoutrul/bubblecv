@@ -1,11 +1,14 @@
 <template>
   <div class="loading-spinner">
     <div class="spinner"></div>
-    <p class="loading-text">Загружаем вселенную...</p>
+    <p class="loading-text">{{ t('loading.text') }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '@/composables'
+
+const { t } = useI18n()
 // Простой спиннер загрузки
 </script>
 

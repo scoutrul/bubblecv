@@ -7,4 +7,5 @@ export { useBonuses } from './useBonuses'
 export { useMemoirs } from './useMemoirs'
 export { useContactForm } from './useContactForm'
 export { useUi } from './useUi'
+export { useI18n } from './useI18n'
 

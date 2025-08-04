@@ -7,6 +7,7 @@
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
       <div class="left-widgets-container">
+        <LanguageWidget />
         <SettingsWidget />
         <ResetButton @handle-reset="resetGame" />
       </div>
@@ -29,6 +30,7 @@
 <script setup lang="ts">
 import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
 import ResetButton from '@/ui/global/ResetButton.vue'
+import LanguageWidget from '@/ui/global/LanguageWidget.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import YearTransition from '@/ui/global/YearTransition.vue'

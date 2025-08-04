@@ -1,7 +1,7 @@
 <template>
   <BaseModal :is-open="isOpen" :allow-escape-close="allowEscapeClose" :is-closing="isClosing" @close="close" class-name="welcome-modal-container">
     <!-- Закрытие -->
-    <button @click="close" class="close-button" aria-label="Закрыть">
+    <button @click="close" class="close-button" :aria-label="t('common.close')">
       ×
     </button>
 
@@ -15,24 +15,22 @@
 
     <!-- Заголовок -->
     <div class="welcome-header">
-      <h2 class="mystery-title">Привет. Я — Мистер Икс.</h2>
-      <p class="mystery-subtitle">Создатель этой резюме-игры.</p>
+      <h2 class="mystery-title">{{ t('welcome.title') }}</h2>
+      <p class="mystery-subtitle">{{ t('welcome.subtitle') }}</p>
     </div>
 
     <!-- Основное сообщение -->
     <div class="welcome-content">
       <p class="intro-text">
-        Ты внутри интерактивного профиля разработчика: <span class="whitespace-nowrap">фронтенд-специалиста</span>, немного фуллстакера,
-        продуктового архитектора и IT-мастера по вызову.
+        {{ t('welcome.intro') }}
       </p>
 
       <p class="twist-text">
-        Но здесь всё устроено иначе.
+        {{ t('welcome.twist') }}
       </p>
 
       <p class="quest-text">
-        Чтобы узнать, кто стоит за этим проектом, что умеет, как мыслит и как связаться —
-        <strong>нужно пройти игру</strong>.
+        {{ t('welcome.quest') }}
       </p>
     </div>
 
@@ -40,34 +38,33 @@
     <div class="instructions">
       <div class="instruction-item">
         <span class="instruction-icon">🔍</span>
-        <span class="instruction-text">Изучай пузырьки</span>
+        <span class="instruction-text">{{ t('welcome.instructions.explore') }}</span>
       </div>
       <div class="instruction-item">
         <span class="instruction-icon">🏆</span>
-        <span class="instruction-text">Получай достижения</span>
+        <span class="instruction-text">{{ t('welcome.instructions.achieve') }}</span>
       </div>
       <div class="instruction-item">
         <span class="instruction-icon">💬</span>
-        <span class="instruction-text">Разблокируй уровни доступа</span>
+        <span class="instruction-text">{{ t('welcome.instructions.unlock') }}</span>
       </div>
     </div>
 
     <!-- Финальное сообщение -->
     <div class="finale-message">
       <p>
-        В финале откроются скиллы, проекты, код и контакты — и станет ясно,
-        <em>совпадают ли наши цели</em>.
+        {{ t('welcome.finale') }}
       </p>
     </div>
 
     <!-- Призыв к действию -->
     <div class="call-to-action">
-      <h3 class="ready-title">Готовы к исследованию?</h3>
-      <p class="start-hint">Начинай с любого баббла.</p>
+      <h3 class="ready-title">{{ t('welcome.ready') }}</h3>
+      <p class="start-hint">{{ t('welcome.startHint') }}</p>
 
       <button @click="close" class="start-button">
         <span class="button-icon">🚀</span>
-        Начать исследование
+        {{ t('welcome.startButton') }}
       </button>
     </div>
   </BaseModal>
@@ -75,6 +72,7 @@
 
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
+import { useI18n } from '@/composables'
 
 interface Props {
   isOpen: boolean
@@ -88,6 +86,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 const close = () => {
   emit('close')

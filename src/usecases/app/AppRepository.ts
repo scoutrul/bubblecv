@@ -2,6 +2,7 @@ import type { AppRepository as IAppRepository } from './types'
 import type { NormalizedBubble } from '@/types/normalized'
 import { api } from '@/api'
 import { getYearRange } from '@/utils'
+import { getTranslatedLevelTitle } from '@/utils/level-translations'
 import { useLevelStore } from '@/stores/levels.store'
 
 export class AppRepositoryImpl implements IAppRepository {
@@ -24,7 +25,7 @@ export class AppRepositoryImpl implements IAppRepository {
     const firstLevel = levelStore.getLevelByNumber(1)
     
     return {
-      title: firstLevel?.title || 'Посетитель',
+      title: firstLevel?.title || getTranslatedLevelTitle(1),
       icon: firstLevel?.icon || '👋'
     }
   }

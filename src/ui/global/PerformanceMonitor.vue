@@ -2,37 +2,37 @@
   <div v-if="showPerformancePanel" class="performance-monitor">
     <div class="performance-info">
       <div class="fps-display">
-        <span class="fps-label">FPS:</span>
+        <span class="fps-label">{{ t('performance.fps') }}</span>
         <span class="fps-value" :class="fpsClass">{{ performanceInfo.fps }}</span>
       </div>
       <div class="performance-level">
-        <span class="level-label">Уровень:</span>
+        <span class="level-label">{{ t('performance.level') }}</span>
         <span class="level-value" :class="levelClass">{{ performanceLevelText }}</span>
       </div>
       <div class="star-count">
-        <span class="stars-label">Звезды:</span>
+        <span class="stars-label">{{ t('performance.stars') }}</span>
         <span class="stars-value">{{ performanceInfo.starCount }}</span>
       </div>
       <div class="active-nodes" v-if="activeNodes !== undefined">
-        <span class="nodes-label">Узлы:</span>
+        <span class="nodes-label">{{ t('performance.nodes') }}</span>
         <span class="nodes-value">{{ activeNodes }}</span>
       </div>
     </div>
     <div class="star-breakdown">
       <div class="star-layer" v-if="starCounts.deepBg > 0">
-        <span class="layer-name">Дальний фон:</span>
+        <span class="layer-name">{{ t('performance.layers.deepBg') }}</span>
         <span class="layer-count">{{ starCounts.deepBg }}</span>
       </div>
       <div class="star-layer">
-        <span class="layer-name">Центр:</span>
+        <span class="layer-name">{{ t('performance.layers.center') }}</span>
         <span class="layer-count">{{ starCounts.center }}</span>
       </div>
       <div class="star-layer">
-        <span class="layer-name">Задний план:</span>
+        <span class="layer-name">{{ t('performance.layers.bg') }}</span>
         <span class="layer-count">{{ starCounts.bg }}</span>
       </div>
       <div class="star-layer">
-        <span class="layer-name">Передний план:</span>
+        <span class="layer-name">{{ t('performance.layers.fg') }}</span>
         <span class="layer-count">{{ starCounts.fg }}</span>
       </div>
     </div>
@@ -42,8 +42,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePerformanceStore } from '@/stores/performance.store'
+import { useI18n } from '@/composables'
 
 const performanceStore = usePerformanceStore()
+const { t } = useI18n()
 
 // Получаем данные из store
 const showPerformancePanel = computed(() => performanceStore.showPerformancePanel)
@@ -72,10 +74,10 @@ const levelClass = computed(() => {
 
 const performanceLevelText = computed(() => {
   switch (performanceInfo.value.performanceLevel) {
-    case 0: return 'Полный'
-    case 1: return 'Средний'
-    case 2: return 'Минимальный'
-    default: return 'Неизвестно'
+    case 0: return t.value('performance.levels.full')
+    case 1: return t.value('performance.levels.medium')
+    case 2: return t.value('performance.levels.minimal')
+    default: return t.value('performance.levels.unknown')
   }
 })
 </script>

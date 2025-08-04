@@ -1,13 +1,13 @@
 <template>
   <div class="bonus-panel content-card">
     <div class="panel-header">
-      <h3 class="text-lg font-semibold">🎁 Бонусы</h3>
+      <h3 class="text-lg font-semibold">🎁 {{ t('bonuses.title') }}</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
     </div>
 
     <div class="bonuses-grid">
       <div v-if="bonuses.length === 0" class="bonus-placeholder">
-        <span class="text-text-muted">Проходите уровни, чтобы разблокировать бонусы!</span>
+        <span class="text-text-muted">{{ t('bonuses.placeholder') }}</span>
       </div>
 
       <div v-else class="space-y-2">
@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import { useBonuses } from '@/composables'
+import { useI18n } from '@/composables'
 import BonusItem from './BonusItem.vue'
 import { onMounted } from 'vue';
 
@@ -32,6 +33,7 @@ defineEmits<{
 }>()
 
 const { bonuses, loadBonuses, openBonusModal } = useBonuses()
+const { t } = useI18n()
 
 onMounted(async () => {
   await loadBonuses()

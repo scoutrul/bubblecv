@@ -8,7 +8,7 @@
         id="message"
         v-model="formData.message"
         class="form-textarea"
-        placeholder="Поделитесь своими мыслями о проекте..."
+        :placeholder="t('contact.messagePlaceholder')"
         rows="4"
         required
       ></textarea>
@@ -23,7 +23,7 @@
         v-model="formData.name"
         type="text"
         class="form-input"
-        placeholder="Как к вам обращаться?"
+        :placeholder="t('contact.namePlaceholder')"
         required
       />
     </div>
@@ -37,13 +37,13 @@
         v-model="formData.contact"
         type="text"
         class="form-input"
-        placeholder="Email, Telegram, телефон или другой способ связи"
+        :placeholder="t('contact.contactPlaceholder')"
         required
       />
     </div>
 
     <button type="submit" class="submit-button" :disabled="!isFormValid || isSubmitting">
-      {{ isSubmitting ? 'Отправляется...' : 'Отправить сообщение' }}
+      {{ isSubmitting ? t('contact.sending') : t('contact.send') }}
     </button>
   </form>
 
@@ -76,6 +76,7 @@
 import { useContactForm } from '@/composables/useContactForm'
 import { computed, reactive, watch } from 'vue'
 import type { ContactMessage } from '@/usecases/contact'
+import { useI18n } from '@/composables'
 
 interface FormData {
   message: string
@@ -90,6 +91,8 @@ const formData = reactive<FormData>({
 })
 
 const { isSubmitting, error, success, sendMessage, resetState } = useContactForm()
+
+const { t } = useI18n()
 
 const isFormValid = computed(() => {
   return formData.message.trim() && formData.name.trim() && formData.contact.trim()

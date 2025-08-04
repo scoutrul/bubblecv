@@ -3,6 +3,7 @@ import { createPinia } from 'pinia'
 import App from '@/App.vue'
 import '@/styles/index.css'
 import { preventHistoryNavigation } from '@/utils'
+import '@/i18n'
 
 const initApp = () => {
   preventHistoryNavigation()

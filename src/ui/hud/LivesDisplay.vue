@@ -1,7 +1,7 @@
 <template>
   <div class="lives-display">
     <div class="stat-header">
-      <span class="stat-title mobile-text-xs">Жизни</span>
+      <span class="stat-title mobile-text-xs">{{ t('hud.lives') }}</span>
       <div class="hearts-container">
         <div 
           v-for="(life, index) in maxLives"
@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils'
+import { useI18n } from '@/composables'
 
 interface Props {
   currentLives: number
@@ -29,6 +30,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const heartRefs = ref<HTMLElement[]>([])
 let heartbeatAnimation: gsap.core.Timeline | null = null

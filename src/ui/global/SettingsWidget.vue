@@ -4,7 +4,7 @@
       @click="toggleSettingsPanel"
       class="settings-button"
       :class="{ 'is-active': isActive }"
-      title="Мониторинг производительности"
+      :title="t('game.performanceTitle')"
     >
       <svg
         width="20"
@@ -21,7 +21,7 @@
       </svg>
     </button>
     <div class="settings-tooltip">
-      Мониторинг
+      {{ t('game.performanceTooltip') }}
     </div>
   </div>
 </template>
@@ -29,6 +29,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { usePerformanceStore } from '@/stores/performance.store'
+import { useI18n } from '@/composables'
 
 interface Props {
   isActive?: boolean
@@ -37,6 +38,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const performanceStore = usePerformanceStore()
+const { t } = useI18n()
 
 const isActive = computed(() => performanceStore.showPerformancePanel)
 

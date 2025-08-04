@@ -27,7 +27,7 @@
           <button
             @click="$emit('close')"
             class="close-button"
-            aria-label="Закрыть"
+            :aria-label="t('common.close')"
           >
             ×
           </button>
@@ -37,7 +37,7 @@
       <div class="modal-content">
         <!-- Skill Level -->
         <div class="skill-section">
-          <h3 class="section-title">Уровень экспертизы</h3>
+          <h3 class="section-title">{{ t('bubble.expertiseLevel') }}</h3>
           <div class="skill-level">
             <div class="skill-badge" :class="skillLevelClass">
                 {{ bubble?.skillLevel ? SKILL_LEVEL_LABELS[bubble.skillLevel] : '' }}
@@ -47,7 +47,7 @@
 
         <!-- Description -->
         <div class="description-section">
-          <h3 class="section-title">Описание</h3>
+          <h3 class="section-title">{{ t('bubble.description') }}</h3>
           <p class="description-text">
             {{ bubble?.description }}
           </p>
@@ -55,7 +55,7 @@
 
         <!-- Insight -->
         <div v-if="bubble?.insight" class="insight-section">
-          <h3 class="section-title">Инсайт</h3>
+          <h3 class="section-title">{{ t('bubble.insight') }}</h3>
           <p class="insight-text">
             {{ bubble?.insight }}
           </p>
@@ -63,7 +63,7 @@
         
         <!-- Importance -->
         <div v-if="bubble?.important !== undefined" class="importance-section">
-          <h3 class="section-title">Важность для проекта</h3>
+          <h3 class="section-title">{{ t('bubble.importance') }}</h3>
           <div class="importance-info">
             <span class="importance-badge" :class="importanceClass">
               {{ importanceText }}
@@ -81,10 +81,10 @@
         </div>
         <button
           @click="$emit('close')"
-          aria-label="Закрыть"
+          :aria-label="t('common.close')"
           class="close-text"
         >
-          закрыть
+          {{ t('bubble.close') }}
         </button>
       </div>
     </div>
@@ -97,6 +97,7 @@ import { XP_CALCULATOR } from '@/config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
 import type { NormalizedBubble } from '@/types/normalized'
 import { getBubbleColor } from '@/utils'
+import { useI18n } from '@/composables'
 import { computed } from 'vue'
 
 interface Props {
@@ -112,6 +113,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 const skillLevelClass = computed(() => {
   if (!props.bubble?.skillLevel) return ''
@@ -132,9 +134,9 @@ const importanceClass = computed(() => {
 })
 
 const importanceText = computed(() => {
-  if (props.bubble?.important === true) return 'Да'
-  if (props.bubble?.important === false) return 'Нет'
-  return 'Не важно для этого проекта'
+  if (props.bubble?.important === true) return t.value('bubble.important')
+  if (props.bubble?.important === false) return t.value('bubble.notImportant')
+  return t.value('bubble.neutral')
 })
 
 

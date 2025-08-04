@@ -10,7 +10,7 @@
     <button
       @click="close"
       class="close-button"
-      aria-label="Закрыть"
+      :aria-label="t('common.close')"
     >
       ×
     </button>
@@ -18,9 +18,9 @@
     <!-- Заголовок с анимацией -->
     <div class="level-up-header">
       <div class="level-icon-large">{{ levelData.icon }}</div>
-      <h2 class="level-up-title" v-if="levelData.level > 1">LEVEL UP!</h2>
+      <h2 class="level-up-title" v-if="levelData.level > 1">{{ t('modals.levelUp.title') }}</h2>
       <div class="new-level">
-        <span class="level-number">Уровень {{ levelData.level }}</span>
+        <span class="level-number">{{ t('modals.levelUp.message', { level: levelData.level }) }}</span>
       </div>
     </div>
 
@@ -33,7 +33,7 @@
     <div class="unlocked-items">
       <!-- Разблокированный бонус -->
       <div v-if="unlockedBonus" class="unlocked-item">
-        <h3>🎁 Новый бонус:</h3>
+        <h3>{{ t('modals.levelUp.newBonus') }}</h3>
         <div
           class="item-preview bonus-preview"
           @click="openUnlockedBonus"
@@ -41,7 +41,7 @@
           <div class="item-preview-icon">{{ unlockedBonus.icon }}</div>
           <div class="item-preview-content">
             <div class="item-preview-title">{{ unlockedBonus.title }}</div>
-            <div class="item-preview-subtitle">Нажмите для просмотра</div>
+            <div class="item-preview-subtitle">{{ t('modals.levelUp.clickToView') }}</div>
           </div>
           <div class="item-preview-arrow">→</div>
         </div>
@@ -49,7 +49,7 @@
 
       <!-- Разблокированный мемуар -->
       <div v-if="unlockedMemoir" class="unlocked-item">
-        <h3>📝 Новый мемуар:</h3>
+        <h3>{{ t('modals.levelUp.newMemoir') }}</h3>
         <div
           class="item-preview memoir-preview"
           @click="openUnlockedMemoir"
@@ -57,7 +57,7 @@
           <div class="item-preview-icon">{{ unlockedMemoir.icon }}</div>
           <div class="item-preview-content">
             <div class="item-preview-title">{{ unlockedMemoir.title }}</div>
-            <div class="item-preview-subtitle">Нажмите для чтения</div>
+            <div class="item-preview-subtitle">{{ t('modals.levelUp.clickToRead') }}</div>
           </div>
           <div class="item-preview-arrow">→</div>
         </div>
@@ -69,6 +69,7 @@
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useBonuses, useMemoirs } from '@/composables'
+import { useI18n } from '@/composables'
 import { computed, onMounted } from 'vue'
 
 interface Props {
@@ -92,6 +93,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { getUnlockedBonusForLevel, unlockBonusForLevel, openBonusModal } = useBonuses()
 const { getUnlockedMemoirForLevel, unlockMemoirForLevel } = useMemoirs()
+const { t } = useI18n()
 
 const levelData = computed(() => ({
   level: props.level,
@@ -139,7 +141,9 @@ const openUnlockedMemoir = () => {
     setTimeout(() => {
       import('@/composables/useModals').then(({ useModals }) => {
         const { openMemoirModal } = useModals()
-        openMemoirModal(unlockedMemoir.value)
+        if (unlockedMemoir.value) {
+          openMemoirModal(unlockedMemoir.value)
+        }
       })
     }, 100)
   }
@@ -225,6 +229,7 @@ const close = () => {
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .level-description {

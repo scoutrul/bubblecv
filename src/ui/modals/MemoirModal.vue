@@ -10,7 +10,7 @@
     <button
       @click="close"
       class="close-button"
-      aria-label="Закрыть"
+      :aria-label="t('common.close')"
     >
       ×
     </button>
@@ -36,11 +36,11 @@
       <div class="xp-info-content">
         <div class="xp-icon">✨</div>
         <div class="xp-text">
-          <div class="xp-title">За прочтение</div>
+          <div class="xp-title">{{ t('memoirs.forReading') }}</div>
           <div class="xp-amount">+10 XP</div>
         </div>
-        <div class="xp-claim-text" v-if="!isClaimingXP">Нажмите для получения</div>
-        <div class="xp-claim-text claiming" v-else>Получаем...</div>
+        <div class="xp-claim-text" v-if="!isClaimingXP">{{ t('memoirs.clickToClaim') }}</div>
+        <div class="xp-claim-text claiming" v-else>{{ t('memoirs.claiming') }}</div>
       </div>
     </button>
 
@@ -48,7 +48,7 @@
     <div class="memoir-read-status" v-if="memoir && hasBeenRead">
       <div class="read-status-content">
         <div class="read-status-icon">✅</div>
-        <div class="read-status-text">Прочитано</div>
+        <div class="read-status-text">{{ t('memoirs.read') }}</div>
       </div>
     </div>
   </BaseModal>
@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { useModalStore } from '@/stores'
+import { useI18n } from '@/composables'
 import { computed, ref, onMounted } from 'vue'
 
 interface Props {
@@ -75,6 +76,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 const modalStore = useModalStore()
+const { t } = useI18n()
 
 const memoir = computed(() => modalStore.data.currentMemoir)
 const hasBeenRead = ref(false)

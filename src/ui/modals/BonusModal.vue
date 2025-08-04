@@ -8,7 +8,7 @@
     <button
       @click="close"
       class="close-button"
-      aria-label="Закрыть"
+      :aria-label="t('common.close')"
     >
       ×
     </button>
@@ -18,7 +18,7 @@
       <div class="bonus-icon-large">{{ bonus?.icon }}</div>
       <h2 class="bonus-title">{{ bonus?.title }}</h2>
       <div class="bonus-level-badge">
-        Уровень {{ bonus?.level }}
+        {{ t('hud.level', { level: bonus?.level }) }}
       </div>
     </div>
 
@@ -40,6 +40,7 @@
 import BaseModal from '@/ui/global/BaseModal.vue'
 import ContactForm from './ContactForm.vue'
 import { useModalStore } from '@/stores'
+import { useI18n } from '@/composables'
 import { computed } from 'vue'
 
 interface Props {
@@ -58,6 +59,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>()
 const modalStore = useModalStore()
+const { t } = useI18n()
 
 const bonus = computed(() => modalStore.data.currentBonus)
 

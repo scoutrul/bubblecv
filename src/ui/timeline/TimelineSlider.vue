@@ -2,15 +2,15 @@
   <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
     <div class="timeline-content">
       <div class="timeline-header">
-        <h3 class="text-text-primary whitespace-nowrap">Путешествие во времени</h3>
+        <h3 class="text-text-primary whitespace-nowrap">{{ t('navigation.timeTravel') }}</h3>
 
         <!-- Компактные кнопки навигации -->
         <div class="navigation-compact">
           <button
-            @click="goToPreviousYear"
+            @click="previousYear"
+            class="nav-button prev-button"
             :disabled="currentYear <= startYear"
-            class="nav-button-compact"
-            title="Предыдущий год"
+            :title="t('navigation.previousYear')"
           >
             <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -24,10 +24,10 @@
           </div>
 
           <button
-            @click="goToNextYear"
+            @click="nextYear"
+            class="nav-button next-button"
             :disabled="currentYear >= endYear"
-            class="nav-button-compact"
-            title="Следующий год"
+            :title="t('navigation.nextYear')"
           >
             <svg class="nav-icon-compact" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -65,6 +65,7 @@ import { useSessionStore } from '@/stores/session.store'
 import { createShakeAnimation, createYearChangeAnimation } from '@/utils'
 
 import { getBubblesUpToYear } from '@/utils'
+import { useI18n } from '@/composables'
 
 
 interface Props {
@@ -106,7 +107,7 @@ const handleYearChange = (event: Event) => {
   })
 }
 
-const goToPreviousYear = () => {
+const previousYear = () => {
   if (props.currentYear > props.startYear) {
     // Устанавливаем флаг ручного изменения года
     isAutoSwitching.value = true
@@ -122,7 +123,7 @@ const goToPreviousYear = () => {
   }
 }
 
-const goToNextYear = () => {
+const nextYear = () => {
   if (props.currentYear < props.endYear) {
     // Устанавливаем флаг ручного изменения года
     isAutoSwitching.value = true
@@ -251,6 +252,8 @@ watch(() => props.currentYear, () => {
     isAutoSwitching.value = false
   }, 200)
 })
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@
     <button 
       @click="$emit('handleReset')"
       class="reset-button"
-      title="Сбросить прогресс и начать заново"
+      :title="t('game.resetTitle')"
     >
       <svg
         width="20"
@@ -22,13 +22,16 @@
       </svg>
     </button>
     <div class="reset-tooltip">
-      Сбросить игру
+      {{ t('game.resetTooltip') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  const emit = defineEmits(['handleReset'])
+import { useI18n } from '@/composables'
+
+const emit = defineEmits(['handleReset'])
+const { t } = useI18n()
 </script>
 
 <style scoped>

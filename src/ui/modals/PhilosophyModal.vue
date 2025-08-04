@@ -55,8 +55,8 @@
 
         <textarea
           v-model="customAnswer"
+          :placeholder="t('philosophy.placeholder')"
           class="custom-answer-textarea"
-          placeholder="Поделитесь своим мнением по этому вопросу..."
           rows="3"
         ></textarea>
 
@@ -88,6 +88,7 @@ import type { Question } from '@/types/data'
 import BaseModal from '@/ui/global/BaseModal.vue'
 import { XP_CALCULATOR } from '@/config'
 import { computed, ref } from 'vue'
+import { useI18n } from '@/composables'
 
 interface Props {
   isOpen: boolean
@@ -132,6 +133,8 @@ const handleCustomAnswer = () => {
     customAnswer.value = ''
   }
 }
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

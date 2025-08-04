@@ -9,41 +9,40 @@
 
     <div class="game-over-header">
       <div class="skull-icon">💀</div>
-      <h2 class="game-over-title">GAME OVER</h2>
-      <p class="game-over-subtitle">Все жизни потеряны!</p>
+      <h2 class="game-over-title">{{ t('modals.gameOver.title') }}</h2>
+      <p class="game-over-subtitle">{{ t('modals.gameOver.message') }}</p>
 
       <div class="philosophy-message">
         <p class="philosophy-text">
-          🤔 <strong>Наши цели и ценности не совпадают.</strong>
+          🤔 <strong>{{ t('modals.gameOver.philosophy.title') }}</strong>
         </p>
         <p class="philosophy-subtext">
-          Видимо, мы по-разному смотрим на разработку и командную работу.
-          Эффективное сотрудничество в таких условиях будет затруднительно.
+          {{ t('modals.gameOver.philosophy.subtext') }}
         </p>
         <p class="retry-suggestion">
-          💡 <em>Попробуйте пройти игру заново, возможно, стоит быть более лояльным к философии команды...</em>
+          💡 <em>{{ t('modals.gameOver.philosophy.suggestion') }}</em>
         </p>
       </div>
     </div>
 
     <div class="game-over-stats">
       <div class="stat-row">
-        <span class="stat-label">Достигнутый уровень:</span>
+        <span class="stat-label">{{ t('modals.gameOver.stats.level') }}</span>
         <span class="stat-value">{{ currentLevel }}</span>
       </div>
       <div class="stat-row">
-        <span class="stat-label">Набрано опыта:</span>
+        <span class="stat-label">{{ t('modals.gameOver.stats.xp') }}</span>
         <span class="stat-value">{{ currentXP }} XP</span>
       </div>
       <div class="stat-row">
-        <span class="stat-label">Исследовано пузырей:</span>
+        <span class="stat-label">{{ t('modals.gameOver.stats.bubbles') }}</span>
         <span class="stat-value">{{ visitedBubblesCount }}</span>
       </div>
     </div>
 
     <div class="game-over-actions">
       <button @click="$emit('restart')" class="restart-button">
-        🔄 Начать заново
+        🔄 {{ t('modals.gameOver.restart') }}
       </button>
     </div>
   </BaseModal>
@@ -51,8 +50,8 @@
 
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
-
 import { useApp } from '@/composables'
+import { useI18n } from '@/composables'
 import { computed } from 'vue'
 
 interface Props {
@@ -70,10 +69,9 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const { game: { currentLevel, currentXP, visitedBubbles } } = useApp()
+const { t } = useI18n()
 
 const visitedBubblesCount = computed(() => visitedBubbles.value.length)
-
-
 </script>
 
 <style scoped>

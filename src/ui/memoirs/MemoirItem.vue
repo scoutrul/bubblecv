@@ -13,7 +13,7 @@
         {{ memoir.title }}
       </div>
       <div class="memoir-level">
-        Уровень {{ memoir.level }}
+        {{ t('memoirs.level', { level: memoir.level }) }}
       </div>
     </div>
     
@@ -31,6 +31,7 @@
 
 <script setup lang="ts">
 import type { NormalizedMemoir } from '@/types/normalized'
+import { useI18n } from '@/composables'
 
 interface Props {
   memoir: NormalizedMemoir
@@ -43,6 +44,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 const handleClick = () => {
   if (props.memoir.isUnlocked) {

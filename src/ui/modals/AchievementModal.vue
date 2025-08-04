@@ -11,7 +11,7 @@
       <button
         @click="$emit('close')"
         class="close-button"
-        aria-label="Закрыть"
+        :aria-label="t('common.close')"
       >
         ×
       </button>
@@ -19,7 +19,7 @@
       <!-- Заголовок в хедере -->
       <div class="header-title">
         <h2 class="header-text">
-          Достижение разблокировано!
+          {{ t('achievements.unlockedTitle') }}
         </h2>
       </div>
     </div>
@@ -79,6 +79,7 @@
 <script setup lang="ts">
 import BaseModal from '@/ui/global/BaseModal.vue'
 import type { PendingAchievement } from '@/types/modals'
+import { useI18n } from '@/composables'
 
 interface Props {
   isClosing?: boolean
@@ -92,8 +93,8 @@ interface Emits {
 }
 
 const props = defineProps<Props>()
-
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 </script>
 

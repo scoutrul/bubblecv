@@ -3,13 +3,13 @@
     class="achievements-panel content-card"
   >
     <div class="panel-header">
-      <h3 class="text-lg font-semibold">🏆 Достижения</h3>
+      <h3 class="text-lg font-semibold">🏆 {{ t('achievements.title') }}</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
     </div>
 
     <div class="achievements-grid">
       <div v-if="unlockedAchievements.length === 0" class="achievement-placeholder">
-        <span class="text-text-muted">Пока нет достижений. Исследуйте пузыри, чтобы их разблокировать!</span>
+        <span class="text-text-muted">{{ t('achievements.placeholder') }}</span>
       </div>
 
       <div v-else class="space-y-2">
@@ -26,12 +26,14 @@
 <script setup lang="ts">
 import AchievementItem from './AchievementItem.vue'
 import type { Achievement } from '@/types/data'
+import { useI18n } from '@/composables'
 
 interface Props {
   unlockedAchievements: Achievement[]
 }
 
 defineProps<Props>()
+const { t } = useI18n()
 
 defineEmits<{
   close: []

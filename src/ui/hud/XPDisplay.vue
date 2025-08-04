@@ -1,7 +1,7 @@
 <template>
   <div class="xp-display">
     <div class="xp-row">
-      <span class="stat-title">Опыт</span>
+      <span class="stat-title">{{ t('hud.xp') }}</span>
       <div class="progress-bar">
         <div 
           class="progress-fill"
@@ -16,6 +16,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from '@/composables'
+
 interface Props {
   currentXP: number
   nextLevelXP: number
@@ -24,6 +26,7 @@ interface Props {
 }
 
 defineProps<Props>()
+const { t } = useI18n()
 </script>
 
 <style scoped>

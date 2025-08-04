@@ -1,17 +1,17 @@
 <template>
   <div class="memoir-panel content-card">
     <div class="panel-header">
-      <h3 class="text-lg font-semibold">📝 Мемуары</h3>
+      <h3 class="text-lg font-semibold">📝 {{ t('memoirs.title') }}</h3>
       <button @click="$emit('close')" class="close-btn">✕</button>
     </div>
 
     <div class="memoirs-grid">
       <div v-if="isLoading" class="memoir-placeholder">
-        <span class="text-text-muted">Загрузка мемуаров...</span>
+        <span class="text-text-muted">{{ t('memoirs.loading') }}</span>
       </div>
       
       <div v-else-if="unlockedMemoirs.length === 0" class="memoir-placeholder">
-        <span class="text-text-muted">Проходите уровни, чтобы разблокировать мемуары!</span>
+        <span class="text-text-muted">{{ t('memoirs.placeholder') }}</span>
       </div>
 
       <div v-else class="space-y-2">
@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { onMounted, computed } from 'vue'
 import { useMemoirs } from '@/composables'
+import { useI18n } from '@/composables'
 import MemoirItem from './MemoirItem.vue'
 import type { NormalizedMemoir } from '@/types/normalized'
 
@@ -38,6 +39,7 @@ defineEmits<{
 }>()
 
 const { unlockedMemoirs, isLoading, loadMemoirs } = useMemoirs()
+const { t } = useI18n()
 
 onMounted(async () => {
   await loadMemoirs()

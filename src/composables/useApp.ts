@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
 import { useAchievement, useSession, useBonuses, useMemoirs } from '@/composables/'
 import { useModals } from '@/composables/useModals'
+import { getTranslatedLevelTitleByOriginal } from '@/utils/level-translations'
 import { AppUseCaseFactory, AppRepositoryImpl } from '@/usecases/app'
 import type { 
   AppSessionStore, 
@@ -136,7 +137,8 @@ export function useApp() {
   const currentLevel = computed(() => sessionStore.currentLevel)
   const currentLevelTitle = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)
-    return level?.title || 'Посетитель'
+
+    return getTranslatedLevelTitleByOriginal(level?.title || 'Посетитель')
   })
   const currentLevelIcon = computed(() => {
     const level = levelStore.getLevelByNumber(currentLevel.value)

@@ -9,9 +9,9 @@
     >
       <span class="level-title-group">
         <span class="level-icon">{{ levelIcon }}</span>
-        <span class="mobile-text-xs whitespace-nowrap">Уровень {{ currentLevel }}</span>
+        <span class="mobile-text-xs whitespace-nowrap">{{ t('hud.level', { level: currentLevel }) }}</span>
       </span>
-      <span class="mobile-text-xs whitespace-nowrap text-primary">{{ levelTitle }}</span>
+      <span class="mobile-text-xs whitespace-nowrap text-primary">{{ translatedLevelTitle }}</span>
       <div v-if="currentLevel >= 1" class="level-shine"></div>
     </div>
   </div>
@@ -20,6 +20,8 @@
 <script setup lang="ts">
 import { createLevelShineAnimation, stopLevelShineAnimation } from '@/utils'
 import { useModals } from '@/composables/useModals'
+import { useI18n } from '@/composables'
+import { getTranslatedLevelTitleByOriginal } from '@/utils/level-translations'
 import { computed, onMounted, onUnmounted, watch } from 'vue'
 
 interface Props {
@@ -29,8 +31,14 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const { t } = useI18n()
 
 const { openLevelUpModal } = useModals()
+
+// Реактивный перевод названия уровня
+const translatedLevelTitle = computed(() => {
+  return getTranslatedLevelTitleByOriginal(props.levelTitle)
+})
 
 const handleLevelClick = () => {
   openLevelUpModal(props.currentLevel)
