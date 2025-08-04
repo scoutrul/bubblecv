@@ -7,14 +7,12 @@
         <LivesDisplay
           :current-lives="currentLives"
           :max-lives="maxLives"
-          :is-shaking="shakingComponents.has('lives')"
         />
         <!-- Уровень на мобильных справа -->
         <div class="sm:hidden">
           <LevelDisplay
             :current-level="currentLevel"
             :level-title="currentLevelTitle"
-            :is-shaking="shakingComponents.has('level')"
             :level-icon="currentLevelIcon"
           />
         </div>
@@ -27,7 +25,6 @@
           :next-level-x-p="nextLevelXP"
           :xp-percentage="xpProgress"
           :is-animating="isXPAnimating"
-          :is-shaking="shakingComponents.has('xp')"
         />
       </div>
 
@@ -36,7 +33,6 @@
         <LevelDisplay
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
-          :is-shaking="shakingComponents.has('level')"
           :level-icon="currentLevelIcon"
         />
       </div>
@@ -47,7 +43,6 @@
       <!-- Achievements Widget -->
       <AchievementsWidget
         :unlocked-count="unlockedAchievementsCount"
-        :is-shaking="isAchievementShaking"
         :show-achievements="showAchievementPanel"
         :unlocked-achievements="unlockedAchievements"
         @toggle="toggleAchievementPanel"
@@ -57,7 +52,6 @@
       <!-- Bonus Widget -->
       <BonusWidget
         :unlocked-count="unlockedBonusesCount"
-        :is-shaking="isBonusShaking"
         :show-bonuses="showBonusPanel"
         :unlocked-bonuses="unlockedBonuses"
         @toggle="toggleBonusPanel"
@@ -67,7 +61,6 @@
       <!-- Memoir Widget -->
       <MemoirWidget
         :unlocked-count="unlockedMemoirsCount"
-        :is-shaking="isMemoirShaking"
         :show-memoirs="showMemoirsPanel"
         @toggle="toggleMemoirsPanel"
         @close="closeMemoirsPanel"
@@ -122,13 +115,8 @@ const {
 } = useApp()
 
 const {
-  isXPAnimating,
-  shakingComponents
+  isXPAnimating
 } = useUi()
-
-const isAchievementShaking = computed(() => shakingComponents.value.has('achievements'))
-const isBonusShaking = computed(() => shakingComponents.value.has('bonuses'))
-const isMemoirShaking = computed(() => shakingComponents.value.has('memoirs'))
 
 </script>
 

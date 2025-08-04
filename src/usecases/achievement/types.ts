@@ -26,7 +26,6 @@ export interface SessionStore {
 }
 
 export interface UiEventStore {
-  queueShake(componentName: string): void
   showAchievements: boolean
   toggleAchievements(): void
   closeAchievements(): void

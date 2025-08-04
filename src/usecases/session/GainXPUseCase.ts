@@ -4,8 +4,7 @@ import type {
   SessionSessionStore, 
   SessionLevelStore, 
   SessionAchievementStore, 
-  SessionBonusStore, 
-  SessionUiEventStore 
+  SessionBonusStore,
 } from './types'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
 
@@ -14,8 +13,7 @@ export class GainXPUseCase {
     private sessionStore: SessionSessionStore,
     private levelStore: SessionLevelStore,
     private achievementStore: SessionAchievementStore,
-    private bonusStore: SessionBonusStore,
-    private uiEventStore: SessionUiEventStore
+    private bonusStore: SessionBonusStore
   ) {}
 
   async execute(params: GainXPParams): Promise<GainXPResult> {
@@ -27,7 +25,6 @@ export class GainXPUseCase {
 
     // Добавляем XP
     this.sessionStore.addXP(amount)
-    this.uiEventStore.queueShake('xp')
 
     let leveledUp = false
     let newLevel = this.sessionStore.session.currentLevel
@@ -36,7 +33,6 @@ export class GainXPUseCase {
     while (this.canLevelUp()) {
       newLevel = this.sessionStore.session.currentLevel + 1
       this.sessionStore.setLevel(newLevel)
-      this.uiEventStore.queueShake('level')
 
       // Разблокируем бонус для нового уровня
       this.bonusStore.unlockBonusForLevel(newLevel)
@@ -49,7 +45,7 @@ export class GainXPUseCase {
       if (newLevel >= maxGameLevel) {
         const achievement = await this.achievementStore.unlockAchievement('final_level', true)
         if (achievement) {
-          this.uiEventStore.queueShake('achievement')
+          // Ачивка разблокирована
         }
       }
 

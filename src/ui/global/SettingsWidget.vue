@@ -3,7 +3,7 @@
     <button
       @click="toggleSettingsPanel"
       class="settings-button"
-      :class="{ 'is-active': isActive, 'is-shaking': isShaking }"
+      :class="{ 'is-active': isActive }"
       title="Мониторинг производительности"
     >
       <svg
@@ -31,7 +31,7 @@ import { computed } from 'vue'
 import { usePerformanceStore } from '@/stores/performance.store'
 
 interface Props {
-  isShaking?: boolean
+  isActive?: boolean
 }
 
 const props = defineProps<Props>()

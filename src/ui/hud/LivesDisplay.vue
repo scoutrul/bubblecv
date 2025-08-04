@@ -1,5 +1,5 @@
 <template>
-  <div class="lives-display" :class="{ 'util-shake-hud': isShaking }">
+  <div class="lives-display">
     <div class="stat-header">
       <span class="stat-title mobile-text-xs">Жизни</span>
       <div class="hearts-container">
@@ -26,7 +26,6 @@ import { createHeartbeatAnimation, resetHeartAnimation } from '@/utils/animation
 interface Props {
   currentLives: number
   maxLives: number
-  isShaking: boolean
 }
 
 const props = defineProps<Props>()

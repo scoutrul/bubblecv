@@ -126,7 +126,15 @@ export interface SessionStore {
 }
 
 export interface CanvasModalStore {
-  openLevelUpModal(level: number, levelData: Level): void
+  openLevelUpModal(level: number, payload?: {
+    level: number
+    title?: string
+    description?: string
+    icon?: string
+    currentXP: number
+    xpGained: number
+    xpRequired: number
+  }): void
   openBubbleModal(bubble: NormalizedBubble): void
   openPhilosophyModal(question: Question, bubbleId: number): void
   handleSecretBubbleDestroyed(): Promise<void>

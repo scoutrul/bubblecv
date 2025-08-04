@@ -52,19 +52,11 @@ export const createQuestionData = (clickedBubble: BubbleNode): Question => {
   if (clickedBubble.questionId) {
     const question = questionsData.questions.find(q => q.id === clickedBubble.questionId)
     if (question) {
-      return {
-        ...question,
-        title: 'Философский вопрос',
-        description: 'Ваш взгляд на разработку важен для понимания совместимости'
-      }
+      return question
     }
   }
   
   // Иначе берем случайный вопрос
   const randomQuestion = questionsData.questions[Math.floor(Math.random() * questionsData.questions.length)]
-  return {
-    ...randomQuestion,
-    title: 'Философский вопрос',
-    description: 'Ваш взгляд на разработку важен для понимания совместимости'
-  }
+  return randomQuestion
 }

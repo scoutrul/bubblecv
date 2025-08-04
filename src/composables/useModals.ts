@@ -2,13 +2,12 @@ import { ref, computed } from 'vue'
 import { useSessionStore, useModalStore, useLevelStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useSession } from '@/composables/useSession'
-import { getEventBridge } from '@/composables/useUi'
 import { XP_CALCULATOR } from '@/config'
 import { ModalUseCaseFactory } from '@/usecases/modal'
 import type { NormalizedAchievement, NormalizedBonus, NormalizedMemoir } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain, XPResult, ModalDataUnion } from '@/types/modals'
+import type { ModalStates, PendingBubbleRemoval, CanvasBridge, PendingAchievement, EventChain, XPResult, ModalDataUnion, LevelUpData } from '@/types/modals'
 import type { 
   ModalSessionStore, 
   ModalLevelStore, 
@@ -121,7 +120,7 @@ export const useModals = () => {
   }
 
   const checkAndAddLevelAchievement = async (
-    xpResult: any,
+    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
     levelAchievements: PendingAchievement[]
   ): Promise<void> => {
     if (xpResult?.leveledUp && xpResult.newLevel === 2) {
@@ -139,20 +138,33 @@ export const useModals = () => {
     type: EventChain['type'],
     achievements: PendingAchievement[],
     levelAchievements: PendingAchievement[],
-    xpResult: any,
-    context: any = {}
-  ) => ({
-    id: Date.now().toString(),
-    type,
-    pendingAchievements: achievements,
-    pendingLevelAchievements: levelAchievements,
-    pendingLevelUp: xpResult?.leveledUp ? {
+    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
+    context: Record<string, unknown> = {}
+  ) => {
+    // Создаем LevelUpData если есть данные для level up
+    const pendingLevelUp = xpResult?.leveledUp && xpResult.levelData ? {
       level: xpResult.newLevel!,
-      data: xpResult.levelData
-    } : null,
-    currentStep: (type === 'manual') ? 'achievement' as const : 'achievement' as const,
-    context
-  })
+      data: {
+        level: xpResult.levelData.level,
+        title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
+        description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+        icon: xpResult.levelData.icon,
+        currentXP: xpResult.levelData.currentXP,
+        xpGained: xpResult.levelData.xpGained,
+        xpRequired: 0
+      } as LevelUpData
+    } : null
+
+    return {
+      id: Date.now().toString(),
+      type,
+      pendingAchievements: achievements,
+      pendingLevelAchievements: levelAchievements,
+      pendingLevelUp,
+      currentStep: (type === 'manual') ? 'achievement' as const : 'achievement' as const,
+      context
+    }
+  }
 
   /**
    * Обрабатывает достижение и создает Event Chain
@@ -302,10 +314,7 @@ export const useModals = () => {
       modalStore.closeModal(key)
     }
 
-    const bridge = getEventBridge()
-    if (bridge) {
-      bridge.processShakeQueue()
-    }
+
   }
 
   // Новый метод для запуска цепочки событий пузыря
@@ -407,9 +416,28 @@ export const useModals = () => {
   }
 
   // Level Up Modal
-  const openLevelUpModal = (level: number, payload?: any) => {
+  const openLevelUpModal = (level: number, payload?: {
+    level: number
+    title?: string
+    description?: string
+    icon?: string
+    currentXP: number
+    xpGained: number
+    xpRequired: number
+  }) => {
     // Level Up Modal теперь работает только через Event Chain
     const levelData = levelStore.getLevelByNumber(level)
+
+    // Создаем объект с обязательными полями
+    const levelUpData: LevelUpData = {
+      level: level,
+      title: payload?.title || levelData?.title || `Уровень ${level}`,
+      description: payload?.description || levelData?.description || `Поздравляем! Вы достигли ${level} уровня!`,
+      icon: payload?.icon || levelData?.icon || '✨',
+      currentXP: payload?.currentXP || sessionStore.session?.currentXP || 0,
+      xpGained: payload?.xpGained || 0,
+      xpRequired: payload?.xpRequired || 0
+    }
 
     modalStore.startEventChain({
       type: 'manual',
@@ -417,14 +445,7 @@ export const useModals = () => {
       pendingLevelAchievements: [],
       pendingLevelUp: {
         level: level,
-        data: payload || {
-          level: level,
-          title: levelData?.title || `Уровень ${level}`,
-          description: levelData?.description || `Поздравляем! Вы достигли ${level} уровня!`,
-          icon: levelData?.icon || '✨',
-          currentXP: sessionStore.session?.currentXP || 0,
-          xpGained: 0,
-        }
+        data: levelUpData
       },
       currentStep: 'levelUp',
       context: {}
@@ -482,6 +503,9 @@ export const useModals = () => {
     if (isNegative) {
       // Для негативных ответов: отнимаем жизнь
       const isGameOver = await losePhilosophyLife()
+      
+
+      
       if (isGameOver) {
         closeModalWithLogic('philosophy')
         openGameOverModal()

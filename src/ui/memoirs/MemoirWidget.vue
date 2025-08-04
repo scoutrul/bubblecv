@@ -3,7 +3,6 @@
     <ToggleButton
       icon="📝"
       :badge-count="unlockedCount"
-      :is-shaking="isShaking"
       position="center-right"
       panel-position="bottom"
       @toggle="toggleMemoirs"
@@ -28,7 +27,6 @@ const uiEventStore = useUiEventStore()
 
 // Контейнер управляет данными
 const unlockedCount = computed(() => unlockedMemoirsCount.value)
-const isShaking = computed(() => false) // TODO: добавить логику тряски
 
 const toggleMemoirs = () => {
   uiEventStore.toggleMemoirsPanel()

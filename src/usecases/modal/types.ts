@@ -157,7 +157,7 @@ export interface ModalModalStore {
 export interface ModalRepository {
   // Bridge operations
   getCanvasBridge(): CanvasBridge | null
-  getEventBridge(): { processShakeQueue: () => void } | null
+  getEventBridge(): { resetCanvas: () => Promise<void> } | null
   
   // Session operations
   visitBubble(bubbleId: number): Promise<void>

@@ -182,12 +182,12 @@ export const XP_CALCULATOR = {
       case 'philosophy-master':
       case 'on-the-edge':
       case 'first-level-master':
-      case 'bubble-explorer-10':
         return GAME_CONFIG.achievementXP.basic
       case 'tough-bubble-popper':
       case 'bubble-explorer-30':
         return GAME_CONFIG.achievementXP.intermediate
-      case 'secret-bubble-discoverer':
+        case 'secret-bubble-discoverer':
+      case 'bubble-explorer-10':
       case 'year-jumper':
       case 'bubble-explorer-50':
         return GAME_CONFIG.achievementXP.advanced

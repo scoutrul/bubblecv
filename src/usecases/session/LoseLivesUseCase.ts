@@ -3,14 +3,12 @@ import type {
   LoseLivesResult, 
   SessionSessionStore, 
   SessionAchievementStore, 
-  SessionUiEventStore 
 } from './types'
 
 export class LoseLivesUseCase {
   constructor(
     private sessionStore: SessionSessionStore,
     private achievementStore: SessionAchievementStore,
-    private uiEventStore: SessionUiEventStore
   ) {}
 
   async execute(params: LoseLivesParams): Promise<LoseLivesResult> {
@@ -31,7 +29,6 @@ export class LoseLivesUseCase {
     if (amount >= currentLives) {
       this.sessionStore.setLives(0)
       this.sessionStore.setGameCompleted(true)
-      this.uiEventStore.queueShake('lives')
       
       return {
         success: true,
@@ -48,8 +45,6 @@ export class LoseLivesUseCase {
     if (newLives === 0) {
       this.sessionStore.setGameCompleted(true)
     }
-
-    this.uiEventStore.queueShake('lives')
 
     // Проверяем достижение "на грани"
     if (newLives === 1) {

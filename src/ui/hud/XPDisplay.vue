@@ -1,6 +1,6 @@
 <template>
   <div class="xp-display">
-    <div class="xp-row" :class="{ 'util-shake-hud': isShaking }">
+    <div class="xp-row">
       <span class="stat-title">Опыт</span>
       <div class="progress-bar">
         <div 
@@ -21,7 +21,6 @@ interface Props {
   nextLevelXP: number
   xpPercentage: number
   isAnimating?: boolean
-  isShaking: boolean
 }
 
 defineProps<Props>()

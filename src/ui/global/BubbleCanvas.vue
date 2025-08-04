@@ -28,11 +28,8 @@ const {
   createFloatingText
 } = useCanvas(canvasRef, containerRef)
 
-const { processShakeQueue } = useUi()
-
 onMounted(() => {
   setEventBridge({
-    processShakeQueue,
     resetCanvas
   })
   

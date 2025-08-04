@@ -8,7 +8,6 @@
         <button
           ref="toggleButton"
           class="toggle-button"
-          :class="{ 'util-shake-hud': isShaking }"
         >
           {{ icon }}
         </button>
@@ -41,7 +40,6 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 interface Props {
   icon: string
   badgeCount: number
-  isShaking?: boolean
   position: 'bottom-right' | 'center-right'
   panelPosition?: 'bottom' | 'left'
 }
@@ -52,7 +50,6 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  isShaking: false,
   panelPosition: 'bottom'
 })
 

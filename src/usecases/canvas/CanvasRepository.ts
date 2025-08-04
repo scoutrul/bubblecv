@@ -20,6 +20,15 @@ interface Star {
   speed: number
 }
 
+interface StarLayerConfig {
+  radiusRange: [number, number]
+  opacityRange: [number, number]
+  orbitRadiusRange: [number, number]
+  speedRange: [number, number]
+  animationDuration: [number, number]
+  isCenter: boolean
+}
+
 export class CanvasRepository implements ICanvasRepository {
   private canvas: HTMLCanvasElement | null = null
   private centerStars = ref<Star[]>([])
@@ -403,7 +412,7 @@ export class CanvasRepository implements ICanvasRepository {
     }
   }
 
-  private createStars(count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): Star[] {
+  private createStars(count: number, width: number, height: number, layerConfig: StarLayerConfig, orbitRadiusRange: [number, number]): Star[] {
     const stars: Star[] = []
     const canvasCenter = { x: width / 2, y: height / 2 }
     
@@ -499,7 +508,7 @@ export class CanvasRepository implements ICanvasRepository {
     })
   }
 
-  private filterAndAddStars(starsRef: any, count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): void {
+  private filterAndAddStars(starsRef: Ref<Star[]>, count: number, width: number, height: number, layerConfig: StarLayerConfig, orbitRadiusRange: [number, number]): void {
     starsRef.value = starsRef.value.filter((star: Star) => {
       const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
       

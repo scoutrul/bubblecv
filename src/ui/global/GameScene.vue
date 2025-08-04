@@ -7,7 +7,7 @@
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
       <div class="left-widgets-container">
-        <SettingsWidget :is-shaking="isSettingsShaking" />
+        <SettingsWidget />
         <ResetButton @handle-reset="resetGame" />
       </div>
 
@@ -36,7 +36,7 @@ import PerformanceMonitor from '@/ui/global/PerformanceMonitor.vue'
 import SettingsWidget from '@/ui/global/SettingsWidget.vue'
 
 import { computed } from 'vue'
-import { useApp, useUi } from '@/composables'
+import { useApp } from '@/composables'
 import { useUiEventStore } from '@/stores'
 
 const {
@@ -44,10 +44,8 @@ const {
   game: { startYear, endYear, currentYear, updateCurrentYear }
 } = useApp()
 
-const { shakingComponents } = useUi()
 const uiEventStore = useUiEventStore()
 
-const isSettingsShaking = computed(() => shakingComponents.value.has('settings'))
 const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
 </script>
 

@@ -1,17 +1,15 @@
-import type { UiUiEventStore } from './types'
+import { UiRepositoryImpl } from './UiRepository'
 import { AnimateXPGainUseCase } from './AnimateXPGainUseCase'
-import { ProcessShakeQueueUseCase } from './ProcessShakeQueueUseCase'
+import type { UiUiEventStore } from './types'
 
 export class UiUseCaseFactory {
-  constructor(
-    private uiEventStore: UiUiEventStore,
-  ) {}
+  constructor(private uiEventStore: UiUiEventStore) {}
+
+  createUiRepository(): UiRepositoryImpl {
+    return new UiRepositoryImpl()
+  }
 
   createAnimateXPGainUseCase(): AnimateXPGainUseCase {
     return new AnimateXPGainUseCase()
-  }
-
-  createProcessShakeQueueUseCase(): ProcessShakeQueueUseCase {
-    return new ProcessShakeQueueUseCase(this.uiEventStore)
   }
 } 

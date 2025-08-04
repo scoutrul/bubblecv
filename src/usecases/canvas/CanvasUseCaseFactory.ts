@@ -20,7 +20,7 @@ export class CanvasUseCaseFactory {
 
   createCanvasUseCase(
     canvasRef: Ref<HTMLCanvasElement | null>,
-    useSession: any,
+    useSession: ReturnType<typeof import('@/composables/useSession').useSession>,
     onBubblePopped?: (nodes: BubbleNode[]) => void
   ): CanvasUseCase {
     const canvasRepository = new CanvasRepository(canvasRef)

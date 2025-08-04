@@ -47,7 +47,6 @@ export class UnlockAchievementUseCase {
       }
 
       achievement.isUnlocked = true
-      this.uiEventStore.queueShake('achievements')
 
       if (showModal) {
         achievement.isShown = true

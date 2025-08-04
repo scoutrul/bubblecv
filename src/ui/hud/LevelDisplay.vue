@@ -3,7 +3,6 @@
     <div
       class="level-info"
       :class="[
-        { 'util-shake-hud': isShaking, 'clickable': currentLevel >= 2 },
         levelClass
       ]"
       @click="handleLevelClick"
@@ -26,7 +25,6 @@ import { computed, onMounted, onUnmounted, watch } from 'vue'
 interface Props {
   currentLevel: number
   levelTitle: string
-  isShaking: boolean
   levelIcon: string
 }
 

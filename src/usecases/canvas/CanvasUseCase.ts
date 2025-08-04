@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, type Ref } from 'vue'
 import type { 
   CanvasUseCase as ICanvasUseCase,
   InitCanvasParams,
@@ -361,7 +361,7 @@ export class CanvasUseCase implements ICanvasUseCase {
   }
 
   // Private methods
-  private setupEventListeners(canvasRef: any): void {
+  private setupEventListeners(canvasRef: Ref<HTMLCanvasElement | null>): void {
     if (!canvasRef.value) return
 
     const mouseMoveHandler = (event: MouseEvent) => {
@@ -386,10 +386,12 @@ export class CanvasUseCase implements ICanvasUseCase {
     canvasRef.value.addEventListener('mouseleave', mouseLeaveHandler)
 
     // Сохраняем ссылки для очистки
-    canvasRef.value._cleanupEventListeners = () => {
-      canvasRef.value.removeEventListener('mousemove', mouseMoveHandler)
-      canvasRef.value.removeEventListener('click', clickHandler)
-      canvasRef.value.removeEventListener('mouseleave', mouseLeaveHandler)
+    ;(canvasRef.value as any)._cleanupEventListeners = () => {
+      if (canvasRef.value) {
+        canvasRef.value.removeEventListener('mousemove', mouseMoveHandler)
+        canvasRef.value.removeEventListener('click', clickHandler)
+        canvasRef.value.removeEventListener('mouseleave', mouseLeaveHandler)
+      }
     }
   }
 
@@ -436,7 +438,8 @@ export class CanvasUseCase implements ICanvasUseCase {
           this.modalStore.openLevelUpModal(result.newLevel, {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
-            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
+            xpRequired: 0
           })
         }
         
@@ -485,7 +488,8 @@ export class CanvasUseCase implements ICanvasUseCase {
           this.modalStore.openLevelUpModal(result.newLevel, {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
-            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
+            xpRequired: 0
           })
         }
         
@@ -550,7 +554,8 @@ export class CanvasUseCase implements ICanvasUseCase {
           this.modalStore.openLevelUpModal(result.newLevel, {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
-            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
+            xpRequired: 0
           })
         }
         

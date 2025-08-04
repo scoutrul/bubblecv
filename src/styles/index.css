@@ -114,16 +114,6 @@
     @apply font-mono text-sm bg-background-card px-2 py-1 rounded;
   }
 
-  .util-shake-hud {
-    animation: hud-shake 0.6s ease-in-out;
-  }
-
-  @keyframes hud-shake {
-    0%, 100% { transform: translate(0, 0); }
-    10%, 30%, 50%, 70%, 90% { transform: translate(-1px, -1px); }
-    20%, 40%, 60%, 80% { transform: translate(1px, 1px); }
-  }
-
   .util-shake-game-scene {
     animation: game-scene-shake 0.6s ease-in-out;
   }

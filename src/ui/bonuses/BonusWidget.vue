@@ -3,7 +3,6 @@
     <ToggleButton
       icon="🎁"
       :badge-count="unlockedCount"
-      :is-shaking="isShaking"
       position="center-right"
       panel-position="bottom"
       @toggle="toggleBonuses"
@@ -19,11 +18,12 @@
 <script setup lang="ts">
 import ToggleButton from '@/ui/global/ToggleButton.vue'
 import BonusPanel from '@/ui/bonuses/BonusPanel.vue'
+import type { NormalizedBonus } from '@/types/normalized'
 
 interface Props {
   unlockedCount: number
-  isShaking: boolean
   showBonuses: boolean
+  unlockedBonuses: NormalizedBonus[]
 }
 
 interface Emits {

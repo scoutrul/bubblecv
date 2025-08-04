@@ -3,7 +3,6 @@
     <ToggleButton
       icon="🏆"
       :badge-count="unlockedCount"
-      :is-shaking="isShaking"
       position="bottom-right"
       panel-position="bottom"
       @toggle="$emit('toggle')"
@@ -26,7 +25,6 @@ import type { Achievement } from '@/types/data'
 
 interface Props {
   unlockedCount: number
-  isShaking: boolean
   showAchievements: boolean
   unlockedAchievements: Achievement[]
 }

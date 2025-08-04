@@ -9,26 +9,12 @@ export interface AnimateXPGainParams {
 export interface AnimateXPGainResult {
   success: boolean
   animationDuration: number
+  error?: string
 }
 
-// Параметры и результаты для ProcessShakeQueue
-export interface ProcessShakeQueueParams {
-  // Пустые параметры, так как обработка происходит автоматически
-}
-
-export interface ProcessShakeQueueResult {
-  success: boolean
-  componentsShaken: Set<string>
-  shakeDuration: number
-}
-
-// Интерфейсы для stores
-export interface UiSessionStore {
-  currentXP: Ref<number>
-}
-
+// Интерфейс для UI Event Store
 export interface UiUiEventStore {
-  consumeShakeQueue(): Set<string>
+  // Методы для работы с UI событиями
 }
 
 // Интерфейс для репозитория UI
@@ -39,5 +25,4 @@ export interface UiRepository {
 // Интерфейс для UI use case
 export interface UiUseCase {
   animateXPGain(params: AnimateXPGainParams): Promise<AnimateXPGainResult>
-  processShakeQueue(params: ProcessShakeQueueParams): Promise<ProcessShakeQueueResult>
 } 

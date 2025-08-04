@@ -45,9 +45,6 @@ export function useSession() {
         unlockBonusForLevel,
         resetBonuses
       },
-      uiEventAdapter: {
-        queueShake: uiEventStore.queueShake
-      },
       modalAdapter: {
         openAchievementModal: (achievement: {
           title: string
@@ -67,6 +64,10 @@ export function useSession() {
           const bridge = getEventBridge()
           if (bridge) {
             bridge.resetCanvas()
+          } else {
+            // Если bridge еще не установлен, игнорируем сброс canvas
+            // Это может произойти при инициализации приложения
+            console.warn('Canvas bridge not available for reset')
           }
         }
       },
@@ -90,8 +91,6 @@ export function useSession() {
       adapters.levelAdapter,
       adapters.achievementAdapter,
       adapters.bonusAdapter,
-      adapters.uiEventAdapter,
-      adapters.modalAdapter,
       adapters.canvasAdapter,
       adapters.memoirAdapter
     )

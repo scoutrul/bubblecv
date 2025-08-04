@@ -9,8 +9,6 @@ import type {
   SessionLevelStore, 
   SessionAchievementStore, 
   SessionBonusStore, 
-  SessionUiEventStore, 
-  SessionModalStore, 
   SessionCanvasRepository,
   SessionMemoirStore
 } from './types'
@@ -21,8 +19,6 @@ export class SessionUseCaseFactory {
     private levelStore: SessionLevelStore,
     private achievementStore: SessionAchievementStore,
     private bonusStore: SessionBonusStore,
-    private uiEventStore: SessionUiEventStore,
-    private modalStore: SessionModalStore,
     private canvasRepository: SessionCanvasRepository,
     private memoirStore?: SessionMemoirStore
   ) {}
@@ -32,8 +28,7 @@ export class SessionUseCaseFactory {
       this.sessionStore,
       this.levelStore,
       this.achievementStore,
-      this.bonusStore,
-      this.uiEventStore
+      this.bonusStore
     )
   }
 
@@ -41,7 +36,6 @@ export class SessionUseCaseFactory {
     return new LoseLivesUseCase(
       this.sessionStore,
       this.achievementStore,
-      this.uiEventStore
     )
   }
 

@@ -117,10 +117,6 @@ export interface SessionBonusStore {
   resetBonuses(): void
 }
 
-export interface SessionUiEventStore {
-  queueShake(type: string): void
-}
-
 export interface SessionModalStore {
   openAchievementModal(achievement: {
     title: string
