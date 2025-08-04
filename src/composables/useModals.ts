@@ -123,12 +123,7 @@ export const useModals = () => {
     xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
     levelAchievements: PendingAchievement[]
   ): Promise<void> => {
-    if (xpResult?.leveledUp && xpResult.newLevel === 2) {
-      const levelAchievement = await unlockAchievement('first-level-master')
-      if (levelAchievement) {
-        levelAchievements.push(createPendingAchievement(levelAchievement))
-      }
-    }
+    // Ачивка first-level-master удалена из модели данных
   }
 
   /**
@@ -265,14 +260,9 @@ export const useModals = () => {
             
             // Проверяем level up для обычных пузырей
             if (xpResult.leveledUp && xpResult.levelData) {
-              // Проверяем level achievement для 2 уровня
-              const levelAchievements: PendingAchievement[] = []
-              if (xpResult.newLevel === 2) {
-                const levelAchievement = await unlockAchievement('first-level-master')
-                if (levelAchievement) {
-                  levelAchievements.push(createPendingAchievement(levelAchievement))
-                }
-              }
+                          // Проверяем level achievement для 2 уровня
+            const levelAchievements: PendingAchievement[] = []
+            // Ачивка first-level-master удалена из модели данных
               
               modalStore.startEventChain({
                 type: 'manual',

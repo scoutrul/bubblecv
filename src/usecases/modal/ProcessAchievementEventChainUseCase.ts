@@ -30,12 +30,6 @@ export class ProcessAchievementEventChainUseCase {
     xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
     levelAchievements: PendingAchievement[]
   ): Promise<void> {
-    if (xpResult?.leveledUp && xpResult.newLevel === 2) {
-      const levelAchievement = await this.achievementStore.unlockAchievement('first-level-master')
-      if (levelAchievement) {
-        levelAchievements.push(this.createPendingAchievement(levelAchievement))
-      }
-    }
   }
 
   private createEventChainConfig(

@@ -106,7 +106,7 @@ export interface EventChain {
   id: string
   type: 'bubble' | 'philosophy' | 'manual'
   pendingAchievements: PendingAchievement[]      // Обычные ачивки (bubble, philosophy, tough)
-  pendingLevelAchievements: PendingAchievement[] // Ачивки за уровень (first-level-master)
+  pendingLevelAchievements: PendingAchievement[] // Ачивки за уровень
   pendingLevelUp: { level: number; data: LevelUpData } | null
   currentStep: EventChainStep
   context: {

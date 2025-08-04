@@ -181,7 +181,6 @@ export const XP_CALCULATOR = {
     switch (achievementId) {
       case 'philosophy-master':
       case 'on-the-edge':
-      case 'first-level-master':
         return GAME_CONFIG.achievementXP.basic
       case 'tough-bubble-popper':
       case 'bubble-explorer-30':
