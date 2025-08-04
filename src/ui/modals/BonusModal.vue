@@ -43,6 +43,7 @@ import { useModalStore } from '@/stores'
 import { computed } from 'vue'
 
 interface Props {
+  isClosing?: boolean
   isOpen: boolean
   allowEscapeClose?: boolean
 }

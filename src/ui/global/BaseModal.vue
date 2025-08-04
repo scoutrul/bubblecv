@@ -33,6 +33,7 @@ const props = defineProps<{
   isOpen: boolean
   className?: string
   allowEscapeClose?: boolean
+  isClosing?: boolean
 }>()
 
 const emit = defineEmits<{

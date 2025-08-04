@@ -29,6 +29,18 @@ export const useModalStore = defineStore('modalStore', () => {
     memoir: false
   })
 
+  // Состояние анимации закрытия для каждой модалки
+  const closingModals = reactive<ModalStates>({
+    welcome: false,
+    bubble: false,
+    levelUp: false,
+    philosophy: false,
+    gameOver: false,
+    achievement: false,
+    bonus: false,
+    memoir: false
+  })
+
   const data = reactive<ModalData>({
     currentBubble: null,
     currentQuestion: null,
@@ -304,6 +316,20 @@ export const useModalStore = defineStore('modalStore', () => {
     modals[key] = false
   }
 
+  // Методы для анимации закрытия модалок
+  const startClosingModal = (key: keyof ModalStates) => {
+    closingModals[key] = true
+  }
+
+  const finishClosingModal = (key: keyof ModalStates) => {
+    closingModals[key] = false
+    modals[key] = false
+  }
+
+  const isModalClosing = (key: keyof ModalStates): boolean => {
+    return closingModals[key]
+  }
+
   const setCurrentBubble = (bubble: ModalData['currentBubble']) => {
     data.currentBubble = bubble
   }
@@ -373,6 +399,9 @@ export const useModalStore = defineStore('modalStore', () => {
     // Modal control
     openModal,
     closeModal,
+    startClosingModal,
+    finishClosingModal,
+    isModalClosing,
 
     // Data setters
     setCurrentBubble,

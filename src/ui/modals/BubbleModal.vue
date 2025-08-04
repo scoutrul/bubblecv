@@ -2,6 +2,7 @@
   <BaseModal
     :is-open="isOpen"
     :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     @close="$emit('close')"
     class="bubble-modal-container"
   >
@@ -102,6 +103,7 @@ interface Props {
   isOpen: boolean
   bubble: NormalizedBubble
   allowEscapeClose?: boolean
+  isClosing?: boolean
 }
 
 interface Emits {

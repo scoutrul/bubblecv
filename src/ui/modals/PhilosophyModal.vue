@@ -1,6 +1,8 @@
 <template>
   <BaseModal
     :is-open="isOpen && !!question"
+    :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     class-name="philosophy-modal-container"
   >
     <!-- Header -->
@@ -90,6 +92,8 @@ import { computed, ref } from 'vue'
 interface Props {
   isOpen: boolean
   question: Question | null
+  allowEscapeClose?: boolean
+  isClosing?: boolean
 }
 
 interface Emits {

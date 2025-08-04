@@ -2,6 +2,7 @@
   <BaseModal
     :is-open="isOpen"
     :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     @close="close"
     class-name="level-up-modal-container"
   >
@@ -71,6 +72,7 @@ import { useBonuses, useMemoirs } from '@/composables'
 import { computed, onMounted } from 'vue'
 
 interface Props {
+  isClosing?: boolean
   isOpen: boolean
   level: number
   title: string

@@ -2,6 +2,7 @@
   <BaseModal
     :is-open="isVisible"
     :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     @close="$emit('close')"
     class-name="game-over-modal-container"
   >
@@ -57,6 +58,7 @@ import { computed } from 'vue'
 interface Props {
   isVisible: boolean
   allowEscapeClose?: boolean
+  isClosing?: boolean
 }
 
 interface Emits {

@@ -2,6 +2,7 @@
   <BaseModal
     :is-open="isOpen"
     :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     @close="$emit('close')"
     class-name="achievement-modal-container"
   >
@@ -80,6 +81,7 @@ import BaseModal from '@/ui/global/BaseModal.vue'
 import type { PendingAchievement } from '@/types/modals'
 
 interface Props {
+  isClosing?: boolean
   isOpen: boolean
   achievement: PendingAchievement | null
   allowEscapeClose?: boolean

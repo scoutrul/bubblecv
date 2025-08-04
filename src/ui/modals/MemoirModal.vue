@@ -2,6 +2,7 @@
   <BaseModal
     :is-open="isOpen"
     :allow-escape-close="allowEscapeClose"
+    :is-closing="isClosing"
     @close="close"
     class-name="memoir-modal-container"
   >
@@ -59,6 +60,7 @@ import { useModalStore } from '@/stores'
 import { computed, ref, onMounted } from 'vue'
 
 interface Props {
+  isClosing?: boolean
   isOpen: boolean
   allowEscapeClose?: boolean
 }
