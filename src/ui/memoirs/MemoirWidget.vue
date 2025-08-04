@@ -1,29 +1,34 @@
 <template>
-  <div class="memoir-widget">
-    <ToggleButton
-      icon="📝"
-      :badge-count="unlockedCount"
-      position="center-right"
-      panel-position="bottom"
-      @toggle="toggleMemoirs"
-      @close="closeMemoirs"
-    >
-      <template #panel="{ close }">
-        <MemoirPanel @close="close" />
-      </template>
-    </ToggleButton>
-  </div>
+  <ToolTip :text="t('widgets.memoirs')" position="left">
+    <div class="memoir-widget">
+      <ToggleButton
+        icon="📝"
+        :badge-count="unlockedCount"
+        position="center-right"
+        panel-position="bottom"
+        @toggle="toggleMemoirs"
+        @close="closeMemoirs"
+      >
+        <template #panel="{ close }">
+          <MemoirPanel @close="close" />
+        </template>
+      </ToggleButton>
+    </div>
+  </ToolTip>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import ToolTip from '@/ui/global/ToolTip.vue'
 import { useMemoirs } from '@/composables'
 import { useUiEventStore } from '@/stores'
+import { useI18n } from '@/composables'
 import ToggleButton from '@/ui/global/ToggleButton.vue'
 import MemoirPanel from '@/ui/memoirs/MemoirPanel.vue'
 
 const { unlockedMemoirsCount } = useMemoirs()
 const uiEventStore = useUiEventStore()
+const { t } = useI18n()
 
 // Контейнер управляет данными
 const unlockedCount = computed(() => unlockedMemoirsCount.value)

@@ -147,5 +147,10 @@
   },
   "loading": {
     "text": "Loading universe..."
+  },
+  "widgets": {
+    "achievements": "Achievements",
+    "bonuses": "Bonuses",
+    "memoirs": "Memoirs"
   }
 } 

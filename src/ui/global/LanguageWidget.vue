@@ -1,20 +1,20 @@
 <template>
-  <div class="language-widget group">
-    <button 
-      @click="toggleLanguage"
-      class="language-button"
-      :title="currentLanguageTitle"
-    >
-      <span class="language-text">{{ currentLanguageText }}</span>
-    </button>
-    <div class="language-tooltip">
-      {{ currentLanguageName }}
+  <ToolTip :text="currentLanguageName" position="right">
+    <div class="language-widget">
+      <button 
+        @click="toggleLanguage"
+        class="language-button"
+        :title="currentLanguageTitle"
+      >
+        <span class="language-text">{{ currentLanguageText }}</span>
+      </button>
     </div>
-  </div>
+  </ToolTip>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import ToolTip from '@/ui/global/ToolTip.vue'
 import { useI18n } from '@/i18n'
 
 const { locale, setLocale, getLocaleName, getLocaleFlag, t } = useI18n()
@@ -69,13 +69,5 @@ const toggleLanguage = () => {
 
 .language-button:hover .language-text {
   @apply scale-110;
-}
-
-.language-tooltip {
-  @apply absolute bottom-0 left-full ml-4 px-3 py-1.5;
-  @apply bg-background-secondary border border-border rounded-lg shadow-lg;
-  @apply text-sm text-text-primary whitespace-nowrap;
-  @apply opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none;
-  z-index: 99999;
 }
 </style> 
