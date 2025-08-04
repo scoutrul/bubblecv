@@ -3,6 +3,7 @@ import { ref } from 'vue'
 
 export const useUiEventStore = defineStore('ui-eventStore', () => {
   const shakeQueue = ref(new Set<string>())
+  const gameSceneShake = ref(false)
   const showAchievements = ref(false)
   const bonusesActive = ref(false)
   const memoirsActive = ref(false)
@@ -23,6 +24,13 @@ export const useUiEventStore = defineStore('ui-eventStore', () => {
     const queueToProcess = new Set(shakeQueue.value)
     shakeQueue.value.clear()
     return queueToProcess
+  }
+
+  const triggerGameSceneShake = () => {
+    gameSceneShake.value = true
+    setTimeout(() => {
+      gameSceneShake.value = false
+    }, 600) // Длительность тряски
   }
 
   const toggleAchievements = () => {
@@ -51,11 +59,13 @@ export const useUiEventStore = defineStore('ui-eventStore', () => {
 
   return {
     shakeQueue,
+    gameSceneShake,
     showAchievements,
     bonusesActive,
     memoirsActive,
     queueShake,
     consumeShakeQueue,
+    triggerGameSceneShake,
     toggleAchievements,
     closeAchievements,
     toggleBonusPanel,

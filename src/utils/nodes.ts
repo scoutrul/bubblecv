@@ -49,15 +49,18 @@ export const getBubblesToRender = (
   bubbles: NormalizedBubble[],
   currentYear: number,
   visited: number[],
-  activeHiddenBubbles: BubbleNode[] = []
+  activeHiddenBubbles: BubbleNode[] = [],
+  hasUnlockedFirstToughBubbleAchievement: boolean = false
 ): BubbleNode[] => {
   // Фильтруем обычные пузыри (не скрытые, не вопросы)
   const filtered = getBubblesUpToYear(bubbles, currentYear, visited)
   
-  // Добавляем скрытые пузыри из bubbleStore
-  const hiddenBubbles = bubbles
-    .filter(b => b.isHidden && b.year <= currentYear && !visited.includes(b.id))
-    .map(normalizedToBubbleNode)
+  // Добавляем скрытые пузыри из bubbleStore только если получена ачивка "крепыш"
+  const hiddenBubbles = hasUnlockedFirstToughBubbleAchievement 
+    ? bubbles
+        .filter(b => b.isHidden && b.year <= currentYear && !visited.includes(b.id))
+        .map(normalizedToBubbleNode)
+    : []
   
   return [...filtered.map(normalizedToBubbleNode), ...hiddenBubbles, ...(activeHiddenBubbles || [])]
 }

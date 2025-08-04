@@ -22,7 +22,8 @@ const {
   canvasWidth,
   canvasHeight,
   resetCanvas,
-  removeBubble
+  removeBubble,
+  removeBubbleWithEffects
 } = useCanvas(canvasRef, containerRef)
 
 const { processShakeQueue } = useUi()
@@ -32,8 +33,10 @@ onMounted(() => {
     processShakeQueue,
     resetCanvas
   })
+  
   setCanvasBridge({
-    removeBubble
+    removeBubble,
+    removeBubbleWithEffects
   })
 })
 </script>

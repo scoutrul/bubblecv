@@ -184,23 +184,13 @@ export class CanvasUseCase implements ICanvasUseCase {
     const { bubble, nodes, width, height } = params
 
     try {
+      // Запускаем CSS тряску игровой сцены
+      const { useUiEventStore } = await import('@/stores')
+      const uiEventStore = useUiEventStore()
+      uiEventStore.triggerGameSceneShake()
+      
       // Создаем эффекты взрыва
       this.effectsRepository.explodeBubble(bubble)
-
-      // Создаем floating text с XP только для специальных пузырей (tough, hidden)
-      // Для обычных пузырей floating text создается через removeBubble в useModals
-      if (bubble.isTough || bubble.isHidden) {
-        const { XP_CALCULATOR } = await import('@/config')
-        const xpAmount = bubble.isTough ? 1 : XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
-        
-        this.effectsRepository.createFloatingText({
-          x: bubble.x,
-          y: bubble.y,
-          text: `+${xpAmount} XP`,
-          type: 'xp',
-          color: '#22c55e'
-        })
-      }
 
       // Физический взрыв для отталкивания соседних пузырей
       const explosionRadius = bubble.baseRadius * 5
@@ -230,6 +220,47 @@ export class CanvasUseCase implements ICanvasUseCase {
     } catch (error) {
       return { success: false, remainingNodes: this.canvasDomain.nodes, error: `Failed to explode bubble: ${error}` }
     }
+  }
+
+  // Универсальный метод для удаления пузыря с эффектами
+  async removeBubbleWithEffects(params: {
+    bubble: BubbleNode
+    xpAmount?: number
+    isPhilosophyNegative?: boolean
+    skipFloatingText?: boolean // Флаг для пропуска floating text (если уже создан)
+  }): Promise<void> {
+    const { bubble, xpAmount, isPhilosophyNegative, skipFloatingText } = params
+
+    // Создаем floating text эффекты только если не пропускаем и передан xpAmount или isPhilosophyNegative
+    if (!skipFloatingText) {
+      if (xpAmount !== undefined) {
+        this.effectsRepository.createFloatingText({
+          x: bubble.x,
+          y: bubble.y,
+          text: `+${xpAmount} XP`,
+          type: 'xp',
+          color: '#22c55e'
+        })
+      }
+
+      if (isPhilosophyNegative) {
+        this.effectsRepository.createFloatingText({
+          x: bubble.x,
+          y: bubble.y,
+          text: '💔',
+          type: 'life',
+          color: '#ef4444'
+        })
+      }
+    }
+
+    // Удаляем пузырь через explodeBubble (только эффекты взрыва)
+    await this.explodeBubble({
+      bubble,
+      nodes: this.canvasDomain.nodes,
+      width: this.canvasDomain.width,
+      height: this.canvasDomain.height
+    })
   }
 
   // Метод для удаления философского пузыря после ответа
@@ -386,11 +417,11 @@ export class CanvasUseCase implements ICanvasUseCase {
         // Показываем модалку с информацией о пузыре (Event Chain сам обработает достижение)
         this.modalStore.openBubbleModal(bubble)
         
-        // Разбиваем пузырь
-        await this.explodeBubble({ bubble, nodes, width, height })
-        return { bubblePopped: true }
+        // НЕ удаляем пузырь сразу - добавляем в очередь как обычные пузыри
+        // Пузырь будет удален после закрытия всех модалок
+        return { bubblePopped: false }
       } else {
-        // Обрабатываем клик по tough bubble
+        // Создаем floating text при каждом клике по крепкому пузырю
         this.effectsRepository.createFloatingText({
           x: mouseX,
           y: mouseY,
@@ -411,7 +442,11 @@ export class CanvasUseCase implements ICanvasUseCase {
         
         const result = await this.useSession.gainXP(1)
         if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
-          this.modalStore.openLevelUpModal(result.newLevel, result.levelData)
+          this.modalStore.openLevelUpModal(result.newLevel, {
+            ...result.levelData,
+            title: result.levelData.title || `Уровень ${result.newLevel}`,
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+          })
         }
         
         return { bubblePopped: false }
@@ -431,16 +466,47 @@ export class CanvasUseCase implements ICanvasUseCase {
           await this.useSession.visitBubble(bubble.id)
         }
         
-        // Обрабатываем ачивку
-        await this.modalStore.handleSecretBubbleDestroyed()
+        // Проверяем ачивку за первый скрытый пузырь
+        const { useAchievement } = await import('@/composables/useAchievement')
+        const { useModals } = await import('@/composables/useModals')
+        const { createPendingAchievement } = await import('@/composables/useModals')
         
-        // Разбиваем пузырь
-        await this.explodeBubble({ bubble, nodes, width, height })
-        return { bubblePopped: true }
+        const achievementComposable = useAchievement()
+        const { openAchievementModal } = useModals()
+        
+        // Скрытые пузыри НЕ показывают модалку - добавляем в очередь на удаление
+        const { XP_CALCULATOR } = await import('@/config')
+        const xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
+        
+        // Добавляем в очередь на удаление через modalStore
+        const { addPendingBubbleRemoval } = await import('@/composables/useModals')
+        
+        // Проверяем, нужна ли ачивка (если ачивка уже получена или недоступна, удаляем сразу)
+        let requiresModal = true
+        try {
+          const achievement = await achievementComposable.unlockAchievement('secret-bubble-discoverer')
+          if (achievement) {
+            // Если ачивка выдана - показываем модалку
+            openAchievementModal(createPendingAchievement(achievement))
+            requiresModal = true // Нужно дождаться закрытия модалки
+          } else {
+            requiresModal = false // Ачивка не выдана, можно удалять сразу
+          }
+        } catch (error) {
+          // Ачивка уже получена или недоступна - удаляем сразу
+          requiresModal = false
+        }
+        
+        addPendingBubbleRemoval({
+          bubbleId: bubble.id,
+          xpAmount,
+          isPhilosophyNegative: false
+        }, requiresModal)
+        
+        return { bubblePopped: false }
       } else {
-        // Обрабатываем клик по скрытому пузырю
+        // Создаем floating text при каждом клике по скрытому пузырю
         const { GAME_CONFIG } = await import('@/config')
-        
         this.effectsRepository.createFloatingText({
           x: mouseX,
           y: mouseY,
@@ -461,7 +527,11 @@ export class CanvasUseCase implements ICanvasUseCase {
         
         const result = await this.useSession.gainXP(GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK)
         if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
-          this.modalStore.openLevelUpModal(result.newLevel, result.levelData)
+          this.modalStore.openLevelUpModal(result.newLevel, {
+            ...result.levelData,
+            title: result.levelData.title || `Уровень ${result.newLevel}`,
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`
+          })
         }
         
         return { bubblePopped: false }

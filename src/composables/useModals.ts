@@ -18,7 +18,7 @@ import type {
 import { MODAL_PRIORITIES } from '@/types/modals'
 
 let canvasBridge: CanvasBridge | null = null
-let eventChainCompletedHandler: (() => void) | null = null
+let eventChainCompletedHandler: (() => Promise<void>) | null = null
 
 const pendingBubbleRemovals = ref<Array<PendingBubbleRemoval>>([])
 
@@ -30,11 +30,11 @@ export const getCanvasBridge = (): CanvasBridge | null => {
   return canvasBridge
 }
 
-export const setEventChainCompletedHandler = (handler: () => void) => {
+export const setEventChainCompletedHandler = (handler: () => Promise<void>) => {
   eventChainCompletedHandler = handler
 }
 
-export const getEventChainCompletedHandler = (): (() => void) | null => {
+export const getEventChainCompletedHandler = (): (() => Promise<void>) | null => {
   return eventChainCompletedHandler
 }
 
@@ -49,6 +49,20 @@ export const createPendingAchievement = (achievement: NormalizedAchievement): Pe
   icon: achievement.icon,
   xpReward: achievement.xpReward
 })
+
+export const addPendingBubbleRemoval = (removal: PendingBubbleRemoval, requiresModal: boolean = true) => {
+  if (!requiresModal) {
+    // Если модалка не требуется - удаляем сразу
+    const canvasBridge = getCanvasBridge()
+    if (canvasBridge) {
+      // Находим пузырь по ID и удаляем его
+      canvasBridge.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+    }
+    return
+  }
+  
+  pendingBubbleRemovals.value.push(removal)
+}
 
 export const useModals = () => {
   const sessionStore = useSessionStore()
@@ -147,19 +161,23 @@ export const useModals = () => {
     achievementId: string,
     chainType: EventChain['type']
   ) => {
-    const factory = createFactory()
-    const useCase = factory.createProcessAchievementEventChainUseCase()
-    
-    const result = await useCase.execute({ achievementId, chainType })
-    
-    if (!result.success) {
-      console.error('Ошибка обработки цепочки ачивок:', result.error)
+    try {
+      const factory = createFactory()
+      const useCase = factory.createProcessAchievementEventChainUseCase()
+      
+      const result = await useCase.execute({ achievementId, chainType })
+      
+      if (!result.success) {
+        // Ачивка уже получена или недоступна
+      }
+    } catch (error) {
+      // Игнорируем ошибки
     }
   }
 
   // Функция для обработки завершения Event Chain (вызывается из modal store)
-  const handleEventChainCompleted = () => {
-    processPendingBubbleRemovals()
+  const handleEventChainCompleted = async () => {
+    await processPendingBubbleRemovals()
   }
 
   // Устанавливаем обработчик для modal store
@@ -182,17 +200,13 @@ export const useModals = () => {
     modalStore.modals.bonus
   )
 
-  const addPendingBubbleRemoval = (removal: PendingBubbleRemoval) => {
-    pendingBubbleRemovals.value.push(removal)
-  }
-
-  const processPendingBubbleRemovals = () => {
+  const processPendingBubbleRemovals = async () => {
     if (!hasActiveModals.value && pendingBubbleRemovals.value.length > 0) {
       const canvas = getCanvasBridge()
       if (canvas) {
-        pendingBubbleRemovals.value.forEach(removal => {
-          canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
-        })
+        for (const removal of pendingBubbleRemovals.value) {
+          await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+        }
         pendingBubbleRemovals.value = []
       }
     }
@@ -214,8 +228,8 @@ export const useModals = () => {
     }
 
     // Обрабатываем отложенные удаления пузырей после закрытия всех модалок
-    setTimeout(() => {
-      processPendingBubbleRemovals()
+    setTimeout(async () => {
+      await processPendingBubbleRemovals()
     }, 50)
   }
 
@@ -230,7 +244,20 @@ export const useModals = () => {
     try {
       // Посещаем пузырь и получаем XP
       await visitBubble(bubble.id)
-      const xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      
+      // Определяем количество XP в зависимости от типа пузыря
+      let xpGained: number
+      if (bubble.isTough) {
+        // Крепкие пузыри дают XP в зависимости от skill level (как обычные пузыри)
+        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      } else if (bubble.isHidden) {
+        // Скрытые пузыри дают XP в зависимости от skill level
+        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      } else {
+        // Обычные пузыри дают XP в зависимости от skill level
+        xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
+      }
+      
       let xpResult = await gainXP(xpGained)
 
       // Добавляем пузырь в очередь на удаление
@@ -416,33 +443,26 @@ export const useModals = () => {
     // Обрабатываем ответ
     let xpResult = null
     if (isNegative) {
-      console.log('💔 handlePhilosophyResponse: Неправильный ответ - отнимаем жизнь')
       // Для негативных ответов: даем XP но отнимаем жизнь
       xpResult = await gainXP(xpAmount)
-      console.log('💔 handlePhilosophyResponse: Вызываем losePhilosophyLife()')
       const isGameOver = await losePhilosophyLife()
-      console.log(`💔 handlePhilosophyResponse: Результат losePhilosophyLife: isGameOver = ${isGameOver}`)
       if (isGameOver) {
-        console.log('💀 handlePhilosophyResponse: Игра окончена - показываем Game Over')
         closeModalWithLogic('philosophy')
         openGameOverModal()
         return
       }
       // Если игра не окончена, но жизнь потеряна - продолжаем обработку
-      console.log('💔 handlePhilosophyResponse: Жизнь потеряна, но игра продолжается')
     } else {
-      console.log('✅ handlePhilosophyResponse: Правильный ответ - только XP')
       // Начисляем XP за положительные/кастомные ответы
       xpResult = await gainXP(xpAmount)
     }
 
-    // Лопаем пузырь и показываем XP флоат-текст (только один раз)
     if (bubbleId) {
-      const canvas = getCanvasBridge()
-      if (canvas) {
-        // Показываем только XP от философского ответа, не от ачивки
-        canvas.removeBubble(bubbleId, xpAmount, isNegative)
-      }
+      addPendingBubbleRemoval({
+        bubbleId,
+        xpAmount,
+        isPhilosophyNegative: isNegative
+      })
     }
 
     // Закрываем модалку ПОСЛЕ лопания пузыря
@@ -591,7 +611,11 @@ export const useModals = () => {
   }
 
   const handleSecretBubbleDestroyed = async () => {
-    await processAchievementEventChain('secret-bubble-discoverer', 'manual')
+    try {
+      await processAchievementEventChain('secret-bubble-discoverer', 'manual')
+    } catch (error) {
+      // Игнорируем ошибки ачивки - пузырь должен удалиться в любом случае
+    }
   }
 
   // Убираем отдельную обработку, так как достижение теперь интегрировано в Event Chain

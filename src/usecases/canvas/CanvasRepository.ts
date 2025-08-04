@@ -352,7 +352,9 @@ export class CanvasRepository implements ICanvasRepository {
     const activeNodesForCurrentYear = getBubblesToRender(
       bubbleStore.bubbles,
       sessionStore.currentYear,
-      sessionStore.visitedBubbles
+      sessionStore.visitedBubbles,
+      [],
+      sessionStore.hasUnlockedFirstToughBubbleAchievement
     ).length
     
     return {
@@ -486,7 +488,9 @@ export class CanvasRepository implements ICanvasRepository {
     const activeNodesForCurrentYear = getBubblesToRender(
       bubbleStore.bubbles,
       sessionStore.currentYear,
-      sessionStore.visitedBubbles
+      sessionStore.visitedBubbles,
+      [],
+      sessionStore.hasUnlockedFirstToughBubbleAchievement
     ).length
     
     performanceStore.updatePerformanceInfo({

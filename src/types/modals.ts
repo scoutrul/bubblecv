@@ -16,7 +16,8 @@ export interface PendingBubbleRemoval {
 }
 
 export interface CanvasBridge {
-  removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => void
+  removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => Promise<void>
+  removeBubbleWithEffects: (params: { bubble: BubbleNode; xpAmount?: number; isPhilosophyNegative?: boolean; skipFloatingText?: boolean }) => Promise<void>
 }
 
 export interface LevelUpData {

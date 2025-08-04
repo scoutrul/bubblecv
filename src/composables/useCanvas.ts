@@ -16,7 +16,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const sessionStore = useSessionStore()
   const sessionComposable = useSession()
   const { updateCurrentYear } = sessionComposable
-  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, handleToughBubbleDestroyed, handleSecretBubbleDestroyed } = useModals()
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, handleSecretBubbleDestroyed } = useModals()
 
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
   const startYear = computed(() => yearRange.value.startYear)
@@ -38,7 +38,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       openLevelUpModal,
       openBubbleModal,
       openPhilosophyModal,
-      handleToughBubbleDestroyed,
       handleSecretBubbleDestroyed
     }
   )
@@ -108,7 +107,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     return null
   }
 
-  const removeBubble = (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
+  const removeBubble = async (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
     // Удаляем философский пузырь из Map если он был лопнут
     for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
       if (bubble.id === bubbleId) {
@@ -121,35 +120,11 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     if (canvasUseCase.value) {
       const bubble = canvasUseCase.value.findBubbleById(bubbleId)
       if (bubble) {
-        // Создаем floating text эффекты перед удалением пузыря
-        if (xpAmount !== undefined) {
-          // Показываем XP (зеленый текст вверх)
-          canvasUseCase.value.createFloatingText({
-            x: bubble.x,
-            y: bubble.y,
-            text: `+${xpAmount} XP`,
-            type: 'xp',
-            color: '#22c55e'
-          })
-        }
-
-        if (isPhilosophyNegative) {
-          // Показываем потерю жизни (красный текст вниз)
-          canvasUseCase.value.createFloatingText({
-            x: bubble.x,
-            y: bubble.y,
-            text: '💔',
-            type: 'life',
-            color: '#ef4444'
-          })
-        }
-
-        // Удаляем пузырь
-        canvasUseCase.value.explodeBubble({
+        // Удаляем пузырь с эффектами через универсальный метод
+        await canvasUseCase.value.removeBubbleWithEffects({
           bubble,
-          nodes: canvasUseCase.value.findBubbleById(bubbleId) ? [bubble] : [],
-          width: canvasWidth.value,
-          height: canvasHeight.value
+          xpAmount,
+          isPhilosophyNegative
         })
       }
     }
@@ -158,27 +133,35 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   watch(() => sessionStore.currentYear, async (newYear) => {
     if (bubbleStore.isLoading || !canvasUseCase.value) return
 
-    // Добавляем скрытые пузыри в bubbleStore для всех лет до текущего года
-    const yearsToAdd: number[] = []
-    for (let year = startYear.value; year <= newYear; year++) {
-      // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
-      const existingHiddenBubble = bubbleStore.bubbles.find(b => 
-        b.isHidden && b.year === year
-      )
+    // Добавляем скрытые пузыри в bubbleStore только если получена ачивка "крепыш"
+    if (sessionStore.hasUnlockedFirstToughBubbleAchievement) {
+      const yearsToAdd: number[] = []
+      for (let year = startYear.value; year <= newYear; year++) {
+        // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
+        const existingHiddenBubble = bubbleStore.bubbles.find(b => 
+          b.isHidden && b.year === year
+        )
+        
+        // Проверяем, не был ли этот пузырь уже лопнут
+        const isPopped = sessionStore.visitedBubbles.includes(-(year * 10000 + 9999))
+        
+        if (!existingHiddenBubble && !isPopped) {
+          yearsToAdd.push(year)
+        }
+      }
       
-      // Проверяем, не был ли этот пузырь уже лопнут
-      const isPopped = sessionStore.visitedBubbles.includes(-(year * 10000 + 9999))
-      
-      if (!existingHiddenBubble && !isPopped) {
-        yearsToAdd.push(year)
+      if (yearsToAdd.length > 0) {
+        bubbleStore.addHiddenBubbles(yearsToAdd)
       }
     }
-    
-    if (yearsToAdd.length > 0) {
-      bubbleStore.addHiddenBubbles(yearsToAdd)
-    }
 
-    const filteredBubbles = getBubblesToRender(bubbleStore.bubbles, newYear, sessionStore.visitedBubbles, [])
+    const filteredBubbles = getBubblesToRender(
+      bubbleStore.bubbles, 
+      newYear, 
+      sessionStore.visitedBubbles, 
+      [], 
+      sessionStore.hasUnlockedFirstToughBubbleAchievement
+    )
     const extraBubbles: BubbleNode[] = []
 
     // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
@@ -230,19 +213,18 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
             // Создаем use case при первой инициализации или переинициализации
             canvasUseCase.value = canvasUseCaseFactory.createCanvasUseCase(canvasRef, sessionComposable, checkBubblesAndAdvance)
             
-            // Настраиваем CanvasBridge для удаления пузырей
-            setCanvasBridge({
-              removeBubble: (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
-                removeBubble(bubbleId, xpAmount, isPhilosophyNegative)
-              }
-            })
-            
             // Инициализируем канвас
             canvasUseCase.value.initCanvas({ width, height, canvasRef })
             
             // Обновляем пузыри с небольшой задержкой
             setTimeout(() => {
-              const initialBubbles = getBubblesToRender(bubbleStore.bubbles, sessionStore.currentYear, sessionStore.visitedBubbles)
+              const initialBubbles = getBubblesToRender(
+                bubbleStore.bubbles, 
+                sessionStore.currentYear, 
+                sessionStore.visitedBubbles, 
+                [], 
+                sessionStore.hasUnlockedFirstToughBubbleAchievement
+              )
               const extraBubbles: BubbleNode[] = []
 
               // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
@@ -329,6 +311,11 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     canvasHeight,
     resetCanvas,
     removeBubble,
+    removeBubbleWithEffects: async (params: { bubble: BubbleNode; xpAmount?: number; isPhilosophyNegative?: boolean; skipFloatingText?: boolean }) => {
+      if (canvasUseCase.value) {
+        await canvasUseCase.value.removeBubbleWithEffects(params)
+      }
+    },
     removePhilosophyBubble: (bubbleId: number) => {
       if (canvasUseCase.value) {
         return canvasUseCase.value.removePhilosophyBubble(bubbleId)

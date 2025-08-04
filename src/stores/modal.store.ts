@@ -191,10 +191,10 @@ export const useModalStore = defineStore('modalStore', () => {
     currentEventChain.value = null
 
     // Обрабатываем отложенные удаления пузырей после завершения Event Chain
-    nextTick(() => {
+    nextTick(async () => {
       const handler = getEventChainCompletedHandler()
       if (handler) {
-        handler()
+        await handler()
       }
     })
   }

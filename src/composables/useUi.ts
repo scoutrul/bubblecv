@@ -1,7 +1,8 @@
 import { ref, watch, computed } from 'vue'
 import { useUiEventStore, useSessionStore } from '@/stores'
-import { UiUseCaseFactory, UiRepositoryImpl } from '@/usecases/ui'
-import type { UiSessionStore, UiUiEventStore, UiRepository } from '@/usecases/ui'
+import { UiUseCaseFactory } from '@/usecases/ui'
+import type { UiUiEventStore } from '@/usecases/ui'
+import { GAME_CONFIG } from '@/config'
 
 export interface EventBridge {
   processShakeQueue: () => void
@@ -24,27 +25,11 @@ export function useUi() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
 
-  // Создаем адаптеры для stores
-  const createAdapters = () => {
-    return {
-      sessionAdapter: {
-        currentXP: computed(() => sessionStore.currentXP)
-      } as UiSessionStore,
-      uiEventAdapter: {
-        consumeShakeQueue: () => uiEventStore.consumeShakeQueue()
-      } as UiUiEventStore,
-      uiRepositoryAdapter: new UiRepositoryImpl() as UiRepository
-    }
-  }
-
   // Создаем фабрику с адаптерами
   const createFactory = () => {
-    const adapters = createAdapters()
-    return new UiUseCaseFactory(
-      adapters.sessionAdapter,
-      adapters.uiEventAdapter,
-      adapters.uiRepositoryAdapter
-    )
+    return new UiUseCaseFactory({
+      consumeShakeQueue: () => uiEventStore.consumeShakeQueue()
+    })
   }
 
   const animateXPGain = async () => {
@@ -68,16 +53,28 @@ export function useUi() {
   }
 
   const processShakeQueue = async () => {
-    const factory = createFactory()
-    const processShakeQueueUseCase = factory.createProcessShakeQueueUseCase()
-    
-    const result = await processShakeQueueUseCase.execute({})
+    try {
+      const factory = createFactory()
+      const processShakeQueueUseCase = factory.createProcessShakeQueueUseCase()
+      
+      const result = await processShakeQueueUseCase.execute({})
 
-    if (result.success && result.componentsShaken.size > 0) {
-      shakingComponents.value = result.componentsShaken
-      setTimeout(() => {
-        shakingComponents.value.clear()
-      }, result.shakeDuration)
+      if (result.success && result.componentsShaken.size > 0) {
+        shakingComponents.value = result.componentsShaken
+        setTimeout(() => {
+          shakingComponents.value.clear()
+        }, result.shakeDuration)
+      }
+    } catch (error) {
+      console.error('Error in processShakeQueue:', error)
+      // Fallback: обрабатываем очередь напрямую
+      const componentsToShake = uiEventStore.consumeShakeQueue()
+      if (componentsToShake.size > 0) {
+        shakingComponents.value = componentsToShake
+        setTimeout(() => {
+          shakingComponents.value.clear()
+        }, GAME_CONFIG.animations.shake)
+      }
     }
   }
 

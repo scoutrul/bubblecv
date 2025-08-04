@@ -1,23 +1,28 @@
 <template>
   <div class="game-scene">
-    <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
-    <div class="left-widgets-container">
-      <SettingsWidget :is-shaking="isSettingsShaking" />
-      <ResetButton @handle-reset="resetGame" />
-    </div>
-
-    <TimelineSlider :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
-      @update:currentYear="updateCurrentYear" class="timeline" />
-    <GameHUD class="game-hud" />
+    <!-- Канвас вне влияния шейк-эффекта -->
     <BubbleCanvas class="bubble-scene" />
+    
+    <!-- UI элементы с шейк-эффектом -->
+    <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
+      <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
+      <div class="left-widgets-container">
+        <SettingsWidget :is-shaking="isSettingsShaking" />
+        <ResetButton @handle-reset="resetGame" />
+      </div>
 
-    <!-- Анимация смены года -->
-    <YearTransition
-      :year="currentYear"
-    />
+      <TimelineSlider :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
+        @update:currentYear="updateCurrentYear" class="timeline" />
+      <GameHUD class="game-hud" />
 
-    <!-- Монитор производительности -->
-    <PerformanceMonitor />
+      <!-- Анимация смены года -->
+      <YearTransition
+        :year="currentYear"
+      />
+
+      <!-- Монитор производительности -->
+      <PerformanceMonitor />
+    </div>
   </div>
 </template>
 
@@ -32,6 +37,7 @@ import SettingsWidget from '@/ui/global/SettingsWidget.vue'
 
 import { computed } from 'vue'
 import { useApp, useUi } from '@/composables'
+import { useUiEventStore } from '@/stores'
 
 const {
   resetGame,
@@ -39,29 +45,44 @@ const {
 } = useApp()
 
 const { shakingComponents } = useUi()
+const uiEventStore = useUiEventStore()
 
 const isSettingsShaking = computed(() => shakingComponents.value.has('settings'))
+const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
 </script>
 
 <style scoped>
-.timeline {
-  z-index: 1;
+.game-scene {
+  @apply relative w-full h-full;
+  pointer-events: auto;
 }
 
 .bubble-scene {
   @apply absolute inset-0;
+  z-index: 1;
+}
+
+.ui-layer {
+  @apply absolute inset-0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.timeline {
+  @apply pointer-events-auto;
+  z-index: 1;
 }
 
 .game-hud {
-  @apply absolute top-0 right-0 z-10;
+  @apply absolute top-0 right-0 z-10 pointer-events-none;
 }
 
 /* Левый контейнер виджетов - высокий приоритет */
 .left-widgets-container {
   @apply fixed bottom-4 left-2 sm:left-4;
   @apply flex flex-col gap-4;
+  @apply pointer-events-auto;
   z-index: 10000;
-  pointer-events: auto;
 }
 
 /* Адаптивные стили для мобильных устройств */
