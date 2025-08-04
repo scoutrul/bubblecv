@@ -6,28 +6,39 @@ export class PhysicsRepository implements IPhysicsRepository {
   private simulation: d3.Simulation<BubbleNode, undefined> | null = null
   private restartInterval: number = 0
 
-  initSimulation(width: number, height: number): d3.Simulation<BubbleNode, undefined> {
+  async initSimulation(width: number, height: number, level: number = 1): Promise<d3.Simulation<BubbleNode, undefined>> {
     // Высота HUD панели (примерно 80px с отступами)
     const hudHeight = 80
     const effectiveHeight = height - hudHeight
     const centerY = (effectiveHeight / 2) + hudHeight
 
+    // Получаем параметры симуляции для текущего уровня
+    const { PHYSICS_CALCULATOR } = await import('@/config')
+    const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
+
     // Инициализируем симуляцию с улучшенной физикой для импульсов
     this.simulation = d3.forceSimulation<BubbleNode>()
-      .force('center', d3.forceCenter(width / 2, centerY).strength(0.003))
-      .force('collision', d3.forceCollide<BubbleNode>().radius(d => d.currentRadius + 3).strength(0.7))
-      .force('charge', d3.forceManyBody().strength(-8))
-      .force('attract', d3.forceRadial(0, width / 2, centerY).strength(0.002))
-      .alpha(0.3)
-      .alphaDecay(0)
-      .velocityDecay(0.85)
+      .force('center', d3.forceCenter(width / 2, centerY).strength(simulationPhysics.centerForceStrength))
+      .force('collision', d3.forceCollide<BubbleNode>().radius(d => (d.currentRadius || d.baseRadius || 20) + 5).strength(simulationPhysics.collisionForceStrength))
+      .force('charge', d3.forceManyBody().strength(simulationPhysics.chargeForceStrength))
+      .force('attract', d3.forceRadial(0, width / 2, centerY).strength(simulationPhysics.attractForceStrength))
+      .alpha(simulationPhysics.alphaBase)
+      .alphaDecay(0.02) // Добавляем небольшое затухание для стабилизации
+      .velocityDecay(simulationPhysics.velocityDecay)
 
     // Принудительно поддерживаем симуляцию
     this.restartInterval = window.setInterval(() => {
       if (this.simulation && this.simulation.alpha() < 0.1) {
-        this.simulation.alpha(0.3).restart()
+        this.simulation.alpha(simulationPhysics.alphaBase).restart()
       }
-    }, 3000)
+    }, simulationPhysics.restartInterval)
+
+    // Запускаем начальную симуляцию с высокой энергией для правильного размещения
+    setTimeout(() => {
+      if (this.simulation) {
+        this.simulation.alpha(0.8).restart()
+      }
+    }, 100)
 
     return this.simulation
   }
@@ -37,22 +48,32 @@ export class PhysicsRepository implements IPhysicsRepository {
 
     this.simulation
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .alpha(0.3)
+      .alpha(0.5)
       .restart()
   }
 
   updateNodes(nodes: BubbleNode[]): void {
     if (!this.simulation) return
     this.simulation.nodes(nodes)
-    this.simulation.alpha(0.5).restart()
+    
+    // Если это первое обновление узлов, запускаем с высокой энергией
+    const isFirstUpdate = this.simulation.alpha() === 0
+    const alpha = isFirstUpdate ? 0.9 : 0.7
+    
+    this.simulation.alpha(alpha).restart()
   }
 
-  pushNeighbors(params: PushNeighborsParams): void {
+  async pushNeighbors(params: PushNeighborsParams, level: number = 1): Promise<void> {
     const { centerBubble, pushRadius, pushStrength, nodes } = params
     let affectedCount = 0
 
+    // Получаем параметры физики для текущего уровня
+    const { PHYSICS_CALCULATOR } = await import('@/config')
+    const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+
     nodes.forEach(bubble => {
-      if (bubble.id === centerBubble.id) return
+      if (!bubble || bubble.id === centerBubble.id) return
+      if (typeof bubble.x !== 'number' || typeof bubble.y !== 'number') return
 
       const dx = bubble.x - centerBubble.x
       const dy = bubble.y - centerBubble.y
@@ -61,7 +82,7 @@ export class PhysicsRepository implements IPhysicsRepository {
       if (distance < pushRadius && distance > 0) {
         const normalizedDx = dx / distance
         const normalizedDy = dy / distance
-        const force = pushStrength * (1 - distance / pushRadius) * 3
+        const force = pushStrength * (1 - distance / pushRadius) * explosionPhysics.pushForceMultiplier
 
         const currentVx = bubble.vx || 0
         const currentVy = bubble.vy || 0
@@ -72,7 +93,7 @@ export class PhysicsRepository implements IPhysicsRepository {
         bubble.x += normalizedDx * force * 0.5
         bubble.y += normalizedDy * force * 0.5
 
-        const maxVelocity = 15
+        const maxVelocity = explosionPhysics.pushMaxVelocity
         const currentVelocity = Math.sqrt(bubble.vx ** 2 + bubble.vy ** 2)
         if (currentVelocity > maxVelocity) {
           const scale = maxVelocity / currentVelocity
@@ -85,15 +106,22 @@ export class PhysicsRepository implements IPhysicsRepository {
     })
 
     if (this.simulation && affectedCount > 0) {
-      this.simulation.alpha(0.5).restart()
+      const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
+      this.simulation.alpha(simulationPhysics.alphaBase).restart()
     }
   }
 
-  explodeFromPoint(params: ExplodeFromPointParams): void {
+  async explodeFromPoint(params: ExplodeFromPointParams, level: number = 1): Promise<void> {
     const { clickX, clickY, explosionRadius, explosionStrength, nodes, width, height } = params
     let affectedCount = 0
 
+    // Получаем параметры физики для текущего уровня
+    const { PHYSICS_CALCULATOR } = await import('@/config')
+    const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+
     nodes.forEach(bubble => {
+      if (!bubble || typeof bubble.x !== 'number' || typeof bubble.y !== 'number') return
+      
       const dx = bubble.x - clickX
       const dy = bubble.y - clickY
       const distance = Math.sqrt(dx * dx + dy * dy)
@@ -109,7 +137,7 @@ export class PhysicsRepository implements IPhysicsRepository {
           normalizedDy = dy / distance
         }
 
-        const force = explosionStrength * (1 - distance / explosionRadius) * 4
+        const force = explosionStrength * (1 - distance / explosionRadius) * explosionPhysics.explosionForceMultiplier
 
         bubble.vx = (bubble.vx || 0) + normalizedDx * force
         bubble.vy = (bubble.vy || 0) + normalizedDy * force
@@ -117,7 +145,7 @@ export class PhysicsRepository implements IPhysicsRepository {
         bubble.x += normalizedDx * force * 0.8
         bubble.y += normalizedDy * force * 0.8
 
-        const maxVelocity = 20
+        const maxVelocity = explosionPhysics.explosionMaxVelocity
         const currentVelocity = Math.sqrt((bubble.vx || 0) ** 2 + (bubble.vy || 0) ** 2)
         if (currentVelocity > maxVelocity) {
           const scale = maxVelocity / currentVelocity
@@ -125,7 +153,7 @@ export class PhysicsRepository implements IPhysicsRepository {
           bubble.vy = (bubble.vy || 0) * scale
         }
 
-        const padding = bubble.currentRadius + 5
+        const padding = (bubble.currentRadius || 20) + 5
         bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
         bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
 
@@ -134,7 +162,8 @@ export class PhysicsRepository implements IPhysicsRepository {
     })
 
     if (this.simulation && affectedCount > 0) {
-      this.simulation.alpha(0.8).restart()
+      const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
+      this.simulation.alpha(simulationPhysics.alphaBase).restart()
     }
   }
 

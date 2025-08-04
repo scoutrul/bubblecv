@@ -159,11 +159,11 @@ export interface CanvasRepository {
 }
 
 export interface PhysicsRepository {
-  initSimulation(width: number, height: number): Simulation<BubbleNode, undefined>
+  initSimulation(width: number, height: number, level?: number): Promise<Simulation<BubbleNode, undefined>>
   updateSimulationSize(width: number, height: number): void
   updateNodes(nodes: BubbleNode[]): void
-  pushNeighbors(params: PushNeighborsParams): void
-  explodeFromPoint(params: ExplodeFromPointParams): void
+  pushNeighbors(params: PushNeighborsParams, level?: number): Promise<void>
+  explodeFromPoint(params: ExplodeFromPointParams, level?: number): Promise<void>
   stopSimulation(): void
   getSimulation(): Simulation<BubbleNode, undefined> | null
 }
@@ -180,12 +180,12 @@ export interface EffectsRepository {
   drawDebrisEffects(context: CanvasRenderingContext2D, bubbles?: BubbleNode[]): void
   drawHoverEffect(context: CanvasRenderingContext2D, bubble: BubbleNode): void
   animateToughBubbleHit(bubble: BubbleNode): void
-  calculateBubbleJump(mouseX: number, mouseY: number, bubble: BubbleNode): { vx: number, vy: number, x: number, y: number }
+  calculateBubbleJump(mouseX: number, mouseY: number, bubble: BubbleNode, clicks?: number, level?: number): Promise<{ vx: number, vy: number, x: number, y: number }>
 }
 
 export interface BubbleManagerRepository {
   createNodes(bubbles: BubbleNode[], width: number, height: number): BubbleNode[]
-  updateBubbleStates(nodes: BubbleNode[], width: number, height: number): void
+  updateBubbleStates(nodes: BubbleNode[], width: number, height: number, level?: number): Promise<void>
   savePositions(nodes: BubbleNode[]): void
   removeBubble(bubbleId: number, nodes: BubbleNode[]): BubbleNode[]
   findBubbleUnderCursor(mouseX: number, mouseY: number, nodes: BubbleNode[]): BubbleNode | null
@@ -197,7 +197,7 @@ export interface CanvasUseCase {
   initCanvas(params: InitCanvasParams): Promise<InitCanvasResult>
   updateCanvasSize(params: UpdateCanvasSizeParams): void
   updateBubbles(params: UpdateBubblesParams): void
-  handleMouseMove(params: HandleMouseMoveParams): void
+  handleMouseMove(params: HandleMouseMoveParams): Promise<void>
   handleClick(params: HandleClickParams): Promise<HandleClickResult>
   explodeBubble(params: ExplodeBubbleParams): Promise<ExplodeBubbleResult>
   removePhilosophyBubble(bubbleId: number): Promise<void>

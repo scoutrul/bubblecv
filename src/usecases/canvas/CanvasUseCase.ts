@@ -44,6 +44,11 @@ export class CanvasUseCase implements ICanvasUseCase {
   private isDragging = false
   private hoveredBubble: BubbleNode | null = null
 
+  // Получаем текущий уровень игрока
+  private getCurrentLevel(): number {
+    return this.sessionStore.session?.currentLevel || 1
+  }
+
 
   async initCanvas(params: InitCanvasParams): Promise<InitCanvasResult> {
     try {
@@ -60,7 +65,8 @@ export class CanvasUseCase implements ICanvasUseCase {
       this.canvasRepository.initStarfield(width, height)
 
       // Инициализируем физику
-      this.physicsRepository.initSimulation(width, height)
+      const currentLevel = this.getCurrentLevel()
+      await this.physicsRepository.initSimulation(width, height, currentLevel)
 
       // Начинаем анимацию
       this.animate()
@@ -95,7 +101,7 @@ export class CanvasUseCase implements ICanvasUseCase {
     this.physicsRepository.updateNodes(this.canvasDomain.nodes)
   }
 
-  handleMouseMove(params: HandleMouseMoveParams): void {
+  async handleMouseMove(params: HandleMouseMoveParams): Promise<void> {
     const { event, nodes } = params
     
     if (!nodes.length) return
@@ -124,18 +130,22 @@ export class CanvasUseCase implements ICanvasUseCase {
 
       this.hoveredBubble = newHoveredBubble
 
-      if (this.hoveredBubble) {
+      if (this.hoveredBubble && this.hoveredBubble.baseRadius) {
         this.hoveredBubble.targetRadius = this.hoveredBubble.baseRadius * 1.2
         this.hoveredBubble.isHovered = true
 
-        const pushRadius = this.hoveredBubble.baseRadius * 3
-        const pushStrength = 4
-        this.physicsRepository.pushNeighbors({
+        const currentLevel = this.getCurrentLevel()
+        const { PHYSICS_CALCULATOR } = await import('@/config')
+        const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
+        
+        const pushRadius = this.hoveredBubble.baseRadius * explosionPhysics.hoverPushRadiusMultiplier
+        const pushStrength = explosionPhysics.hoverPushStrengthBase
+        await this.physicsRepository.pushNeighbors({
           centerBubble: this.hoveredBubble,
           pushRadius,
           pushStrength,
           nodes: this.canvasDomain.nodes // Используем актуальные узлы
-        })
+        }, currentLevel)
       }
     }
   }
@@ -161,9 +171,13 @@ export class CanvasUseCase implements ICanvasUseCase {
         return { success: true, bubblePopped: result.bubblePopped }
       } else if (!clickedBubble) {
         // Клик в пустое место - создаем взрыв
-        const explosionRadius = Math.min(width, height) * 0.3
-        const explosionStrength = 15
-        this.physicsRepository.explodeFromPoint({
+        const currentLevel = this.getCurrentLevel()
+        const { PHYSICS_CALCULATOR } = await import('@/config')
+        const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
+        
+        const explosionRadius = Math.min(width, height) * explosionPhysics.explosionRadiusMultiplier
+        const explosionStrength = explosionPhysics.explosionStrengthBase
+        await this.physicsRepository.explodeFromPoint({
           clickX: mouseX,
           clickY: mouseY,
           explosionRadius,
@@ -171,7 +185,7 @@ export class CanvasUseCase implements ICanvasUseCase {
           nodes: this.canvasDomain.nodes, // Используем актуальные узлы
           width,
           height
-        })
+        }, currentLevel)
       }
 
       return { success: true }
@@ -193,9 +207,13 @@ export class CanvasUseCase implements ICanvasUseCase {
       this.effectsRepository.explodeBubble(bubble)
 
       // Физический взрыв для отталкивания соседних пузырей
-      const explosionRadius = bubble.baseRadius * 5
-      const explosionStrength = 18
-      this.physicsRepository.explodeFromPoint({
+      const currentLevel = this.getCurrentLevel()
+      const { PHYSICS_CALCULATOR } = await import('@/config')
+      const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
+      
+      const explosionRadius = (bubble.baseRadius || 20) * explosionPhysics.bubbleExplosionRadiusMultiplier
+      const explosionStrength = explosionPhysics.bubbleExplosionStrengthBase
+      await this.physicsRepository.explodeFromPoint({
         clickX: bubble.x,
         clickY: bubble.y,
         explosionRadius,
@@ -203,7 +221,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         nodes: this.canvasDomain.nodes, // Используем актуальные узлы
         width,
         height
-      })
+      }, currentLevel)
 
       // Удаляем пузырь из списка
       const remainingNodes = this.bubbleManagerRepository.removeBubble(bubble.id, this.canvasDomain.nodes)
@@ -403,12 +421,13 @@ export class CanvasUseCase implements ICanvasUseCase {
     width: number, 
     height: number
   ): Promise<{ bubblePopped: boolean }> {
+    const currentLevel = this.getCurrentLevel()
     
     if (bubble.isTough) {
       if (bubble.id === undefined) return { bubblePopped: false }
-      const result = this.bubbleStore.incrementToughBubbleClicks(bubble.id)
+      const toughResult = this.bubbleStore.incrementToughBubbleClicks(bubble.id)
       
-      if (result.isReady) {
+      if (toughResult.isReady) {
         bubble.isReady = true
         bubble.isVisited = true
         
@@ -447,7 +466,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.effectsRepository.animateToughBubbleHit(bubble)
         
         // Добавляем физическое отскакивание от точки клика
-        const jump = this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble)
+        const jump = await this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble, toughResult.clicks, currentLevel)
         if (jump.vx !== 0 || jump.vy !== 0) {
           bubble.vx = jump.vx
           bubble.vy = jump.vy
@@ -460,9 +479,9 @@ export class CanvasUseCase implements ICanvasUseCase {
     if (bubble.isHidden) {
       if (bubble.id === undefined) return { bubblePopped: false }
       
-      const result = this.bubbleStore.incrementHiddenBubbleClicks(bubble.id)
+      const hiddenResult = this.bubbleStore.incrementHiddenBubbleClicks(bubble.id)
       
-      if (result.isReady) {
+      if (hiddenResult.isReady) {
         bubble.isReady = true
         bubble.isVisited = true
         
@@ -543,7 +562,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.effectsRepository.animateToughBubbleHit(bubble)
         
         // Добавляем физическое отскакивание от точки клика
-        const jump = this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble)
+        const jump = await this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble, hiddenResult.clicks, currentLevel)
         if (jump.vx !== 0 || jump.vy !== 0) {
           bubble.vx = jump.vx
           bubble.vy = jump.vy
@@ -614,7 +633,8 @@ export class CanvasUseCase implements ICanvasUseCase {
     }
   }
 
-  private updateBubbleStates(): void {
-    this.bubbleManagerRepository.updateBubbleStates(this.canvasDomain.nodes, this.canvasDomain.width, this.canvasDomain.height)
+  private async updateBubbleStates(): Promise<void> {
+    const currentLevel = this.getCurrentLevel()
+    await this.bubbleManagerRepository.updateBubbleStates(this.canvasDomain.nodes, this.canvasDomain.width, this.canvasDomain.height, currentLevel)
   }
 } 

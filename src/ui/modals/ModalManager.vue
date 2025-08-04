@@ -96,7 +96,7 @@ const startClosingModal = (modalType: keyof typeof modalStore.modals) => {
   // Удаляем модалку из DOM через 300мс (время анимации)
   setTimeout(() => {
     modalStore.finishClosingModal(modalType)
-  }, 300)
+  }, 200)
 }
 
 // Обработчики для асинхронного закрытия модалок

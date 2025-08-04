@@ -87,7 +87,7 @@ export class EffectsRepository implements IEffectsRepository {
     })
   }
 
-  calculateBubbleJump(mouseX: number, mouseY: number, bubble: BubbleNode): { vx: number, vy: number, x: number, y: number } {
+  async calculateBubbleJump(mouseX: number, mouseY: number, bubble: BubbleNode, clicks?: number, level: number = 1): Promise<{ vx: number, vy: number, x: number, y: number }> {
     const clickOffsetX = mouseX - bubble.x
     const clickOffsetY = mouseY - bubble.y
     const distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
@@ -96,9 +96,22 @@ export class EffectsRepository implements IEffectsRepository {
       const dirX = clickOffsetX / distanceToCenter
       const dirY = clickOffsetY / distanceToCenter
       
-      const strengthFactor = Math.min(distanceToCenter / bubble.radius, 1)
-      const maxStrength = bubble.radius * 4 // Увеличиваем силу отскакивания для скрытых пузырей
-      const jumpStrength = maxStrength * strengthFactor
+      const strengthFactor = Math.min(distanceToCenter / (bubble.radius || 20), 1)
+      
+      // Базовая сила отскакивания
+      // Получаем параметры физики для текущего уровня
+      const { PHYSICS_CALCULATOR } = await import('@/config')
+      const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+      
+      let baseStrength = (bubble.radius || 20) * explosionPhysics.bubbleJumpBaseStrength
+      
+      // Для крепких бабблов увеличиваем силу с каждым кликом
+      if (bubble.isTough && clicks && clicks > 0) {
+        const clickMultiplier = 1 + (clicks * explosionPhysics.bubbleJumpClickMultiplier)
+        baseStrength *= clickMultiplier
+      }
+      
+      const jumpStrength = baseStrength * strengthFactor
 
       return {
         vx: -dirX * jumpStrength,

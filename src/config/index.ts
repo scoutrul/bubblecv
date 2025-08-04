@@ -1,4 +1,4 @@
-import { SKILL_LEVELS, type SkillLevel } from '@/types/skill-levels'
+import { SKILL_LEVELS } from '@/types/skill-levels'
 
 export const GAME_CONFIG = {
   initialYear: 2015,
@@ -149,9 +149,9 @@ export const GAME_CONFIG = {
     name: 'Скрытый пузырь'
   } as const,
 
-  // Настройки движения пузырей
-  bubblePhysics: {
-    gravityStrength: 0.0003, // Сила притяжения к центру
+  // Базовые настройки движения пузырей для 1 уровня
+  bubblePhysicsBase: {
+    gravityStrength: 0.0005, // Сила притяжения к центру (уменьшена)
     vortexStrength: 0.0002,  // Сила кругового движения (воронка)
     oscillationStrength: 0.3, // Сила колебательного движения
     randomStrength: 0.05,    // Сила случайного движения
@@ -159,45 +159,37 @@ export const GAME_CONFIG = {
     velocityMultiplier: 0.1  // Множитель скорости от отталкивания
   } as const,
 
-} as const
+  // Базовые настройки физики взрыва для 1 уровня
+  explosionPhysicsBase: {
+    pushForceMultiplier: 1.5,    // Множитель силы отталкивания соседей (уменьшен)
+    pushMaxVelocity: 8,          // Максимальная скорость отталкивания (уменьшена)
+    explosionForceMultiplier: 2, // Множитель силы взрыва (уменьшен)
+    explosionMaxVelocity: 10,    // Максимальная скорость взрыва (уменьшена)
+    explosionRadiusMultiplier: 0.25, // Множитель радиуса взрыва при клике в пустое место (уменьшен)
+    explosionStrengthBase: 8,    // Базовая сила взрыва при клике в пустое место (уменьшена)
+    bubbleExplosionRadiusMultiplier: 5, // Множитель радиуса взрыва баббла (возвращен к изначальному)
+    bubbleExplosionStrengthBase: 18,    // Базовая сила взрыва баббла (возвращена к изначальному)
+    hoverPushRadiusMultiplier: 1.5,      // Множитель радиуса отталкивания при наведении (уменьшен)
+    hoverPushStrengthBase: 1.5,          // Базовая сила отталкивания при наведении (уменьшена)
+    bubbleJumpBaseStrength: 3,           // Базовая сила отскока бабблов (увеличена)
+    bubbleJumpClickMultiplier: 0.15,     // Множитель увеличения отскока с каждым кликом (увеличен)
+  } as const,
 
-// Централизованные функции для расчета XP
-export const XP_CALCULATOR = {
-  getBubbleXP: (skillLevel: SkillLevel): number => {
-    return skillLevel ? GAME_CONFIG.xpPerExpertiseLevel[skillLevel] : GAME_CONFIG.xpPerExpertiseLevel[SKILL_LEVELS.NOVICE]
-  },
-  getPhilosophyBubbleXP: ({isCustom}: {isCustom?: boolean} = {isCustom: false}): number => {
-    return isCustom ? GAME_CONFIG.achievementXP.master : GAME_CONFIG.achievementXP.intermediate
-  },
-  getPhilosophyXP: (agreementLevel: number): number => {
-    const baseXP = GAME_CONFIG.achievementXP.basic
-    return baseXP + (baseXP * agreementLevel)
-  },
-  getSecretBubbleXP: (): number => {
-    return GAME_CONFIG.achievementXP.basic
-  },
-  // Расчет XP за достижение
-  getAchievementXP: (achievementId: string): number => {
-    switch (achievementId) {
-      case 'philosophy-master':
-      case 'on-the-edge':
-        return GAME_CONFIG.achievementXP.basic
-      case 'tough-bubble-popper':
-      case 'bubble-explorer-30':
-        return GAME_CONFIG.achievementXP.intermediate
-        case 'secret-bubble-discoverer':
-      case 'bubble-explorer-10':
-      case 'year-jumper':
-      case 'bubble-explorer-50':
-        return GAME_CONFIG.achievementXP.advanced
-      case 'completionist':
-      case 'final-level-master':
-        return GAME_CONFIG.achievementXP.master
-      default:
-        return GAME_CONFIG.achievementXP.basic
-    }
-  },
+  // Базовые настройки симуляции D3 для 1 уровня
+  simulationPhysicsBase: {
+    centerForceStrength: 0.005,
+    collisionForceStrength: 0.7,
+    chargeForceStrength: -8,
+    attractForceStrength: 0.003,
+    alphaBase: 0.3,
+    velocityDecay: 0.85,
+    restartInterval: 3000,
+  } as const,
 
 } as const
 
 export const maxGameLevel = Object.keys(GAME_CONFIG.levelRequirements).length
+
+// Реэкспортируем утилиты для удобства
+export { XP_CALCULATOR } from '@/utils/xp-calculator'
+export { PHYSICS_CALCULATOR } from '@/utils/physics-calculator'
