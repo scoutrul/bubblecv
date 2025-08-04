@@ -77,7 +77,7 @@ export const GAME_CONFIG = {
       deepBg: {
         radiusRange: [0.3, 0.8] as [number, number],
         opacityRange: [0.1, 0.25] as [number, number],
-        orbitRadiusRange: [0.3, 0.7] as [number, number], // Относительно размера экрана
+        orbitRadiusRange: [10, 30] as [number, number], // Небольшая орбита для движения
         speedRange: [0.0001, 0.0003] as [number, number],
         animationDuration: [8, 15] as [number, number],
         isCenter: true
@@ -85,7 +85,7 @@ export const GAME_CONFIG = {
       center: {
         radiusRange: [0.3, 1.3] as [number, number],
         opacityRange: [0.1, 0.4] as [number, number],
-        orbitRadiusRange: [50, 0.4] as [number, number], // 50px + 40% от размера экрана
+        orbitRadiusRange: [15, 40] as [number, number], // Небольшая орбита для движения
         speedRange: [0, 0.0005] as [number, number],
         animationDuration: [3, 7] as [number, number],
         isCenter: true
@@ -147,6 +147,16 @@ export const GAME_CONFIG = {
     opacity: 0,
     gradientColors: [],
     name: 'Скрытый пузырь'
+  } as const,
+
+  // Настройки движения пузырей
+  bubblePhysics: {
+    gravityStrength: 0.0003, // Сила притяжения к центру
+    vortexStrength: 0.0002,  // Сила кругового движения (воронка)
+    oscillationStrength: 0.3, // Сила колебательного движения
+    randomStrength: 0.05,    // Сила случайного движения
+    dampingFactor: 0.92,     // Коэффициент затухания скорости
+    velocityMultiplier: 0.1  // Множитель скорости от отталкивания
   } as const,
 
 } as const

@@ -295,12 +295,14 @@ export class CanvasRepository implements ICanvasRepository {
     
     // Задний слой
     const bgConfig = config.starLayers.bg
-    this.bgStars.value = this.createStars(starCounts.bg, width, height, bgConfig, bgConfig.orbitRadiusRange)
+    const bgOrbitRadiusRange = this.calculateOrbitRadiusRange(bgConfig.orbitRadiusRange, width, height)
+    this.bgStars.value = this.createStars(starCounts.bg, width, height, bgConfig, bgOrbitRadiusRange)
     this.animateStars(this.bgStars.value, bgConfig.opacityRange, bgConfig.animationDuration)
     
     // Передний слой
     const fgConfig = config.starLayers.fg
-    this.fgStars.value = this.createStars(starCounts.fg, width, height, fgConfig, fgConfig.orbitRadiusRange)
+    const fgOrbitRadiusRange = this.calculateOrbitRadiusRange(fgConfig.orbitRadiusRange, width, height)
+    this.fgStars.value = this.createStars(starCounts.fg, width, height, fgConfig, fgOrbitRadiusRange)
     this.animateStars(this.fgStars.value, fgConfig.opacityRange, fgConfig.animationDuration)
   }
 
@@ -324,10 +326,12 @@ export class CanvasRepository implements ICanvasRepository {
     this.filterAndAddStars(this.centerStars, starCounts.center, width, height, centerConfig, centerOrbitRadiusRange)
     
     const bgConfig = config.starLayers.bg
-    this.filterAndAddStars(this.bgStars, starCounts.bg, width, height, bgConfig, bgConfig.orbitRadiusRange)
+    const bgOrbitRadiusRange = this.calculateOrbitRadiusRange(bgConfig.orbitRadiusRange, width, height)
+    this.filterAndAddStars(this.bgStars, starCounts.bg, width, height, bgConfig, bgOrbitRadiusRange)
     
     const fgConfig = config.starLayers.fg
-    this.filterAndAddStars(this.fgStars, starCounts.fg, width, height, fgConfig, fgConfig.orbitRadiusRange)
+    const fgOrbitRadiusRange = this.calculateOrbitRadiusRange(fgConfig.orbitRadiusRange, width, height)
+    this.filterAndAddStars(this.fgStars, starCounts.fg, width, height, fgConfig, fgOrbitRadiusRange)
     
     this.previousWidth = width
     this.previousHeight = height
@@ -389,8 +393,14 @@ export class CanvasRepository implements ICanvasRepository {
   }
 
   private calculateOrbitRadiusRange(range: [number, number], width: number, height: number): [number, number] {
-    const maxSize = Math.max(width, height)
-    return [range[0] * maxSize, range[1] * maxSize]
+    // Для центральных слоев используем абсолютные значения в пикселях
+    // Для нецентральных слоев - относительные к размеру экрана
+    if (range[0] < 100) { // Если значения меньше 100, считаем их абсолютными в пикселях
+      return range
+    } else {
+      const maxSize = Math.max(width, height)
+      return [range[0] * maxSize, range[1] * maxSize]
+    }
   }
 
   private createStars(count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): Star[] {
@@ -398,10 +408,32 @@ export class CanvasRepository implements ICanvasRepository {
     const canvasCenter = { x: width / 2, y: height / 2 }
     
     for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2
-      const orbitRadius = Math.random() * (orbitRadiusRange[1] - orbitRadiusRange[0]) + orbitRadiusRange[0]
-      const centerX = layerConfig.isCenter ? canvasCenter.x : Math.random() * width
-      const centerY = layerConfig.isCenter ? canvasCenter.y : Math.random() * height
+      let centerX: number
+      let centerY: number
+      let orbitRadius: number
+      let angle: number
+      
+      if (layerConfig.isCenter) {
+        // Для центральных слоев (deepBg, center) - равномерное распределение по всему Canvas
+        // Используем расширенную область с выходом за границы для полного покрытия
+        const padding = Math.max(width, height) * 0.2 // 20% от большей стороны для выхода за границы
+        const expandedWidth = width + padding * 2
+        const expandedHeight = height + padding * 2
+        
+        // Случайное распределение в расширенной области
+        centerX = Math.random() * expandedWidth - padding
+        centerY = Math.random() * expandedHeight - padding
+        
+        // Используем орбиту из конфигурации
+        orbitRadius = Math.random() * (orbitRadiusRange[1] - orbitRadiusRange[0]) + orbitRadiusRange[0]
+        angle = Math.random() * Math.PI * 2
+      } else {
+        // Для нецентральных слоев - случайное распределение
+        centerX = Math.random() * width
+        centerY = Math.random() * height
+        orbitRadius = Math.random() * (orbitRadiusRange[1] - orbitRadiusRange[0]) + orbitRadiusRange[0]
+        angle = Math.random() * Math.PI * 2
+      }
       
       stars.push({
         x: centerX + Math.cos(angle) * orbitRadius,
@@ -439,8 +471,22 @@ export class CanvasRepository implements ICanvasRepository {
     
     stars.forEach(star => {
       if (isCenter) {
-        star.centerX = canvasCenter.x
-        star.centerY = canvasCenter.y
+        // Для центральных слоев пересчитываем позиции с учетом расширенной области
+        const prevPadding = Math.max(prevWidth, prevHeight) * 0.2
+        const currentPadding = Math.max(width, height) * 0.2
+        
+        const prevExpandedWidth = prevWidth + prevPadding * 2
+        const prevExpandedHeight = prevHeight + prevPadding * 2
+        const currentExpandedWidth = width + currentPadding * 2
+        const currentExpandedHeight = height + currentPadding * 2
+        
+        // Нормализуем позицию относительно расширенной области
+        const relativeX = (star.centerX + prevPadding) / prevExpandedWidth
+        const relativeY = (star.centerY + prevPadding) / prevExpandedHeight
+        
+        // Применяем к новой расширенной области
+        star.centerX = relativeX * currentExpandedWidth - currentPadding
+        star.centerY = relativeY * currentExpandedHeight - currentPadding
         star.orbitRadius = star.orbitRadius * scaleRatio
       } else {
         const relativeX = star.centerX / prevWidth || 0.5
@@ -456,14 +502,24 @@ export class CanvasRepository implements ICanvasRepository {
   private filterAndAddStars(starsRef: any, count: number, width: number, height: number, layerConfig: any, orbitRadiusRange: [number, number]): void {
     starsRef.value = starsRef.value.filter((star: Star) => {
       const maxDistance = Math.sqrt(star.orbitRadius * star.orbitRadius + star.orbitRadius * star.orbitRadius)
-      return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
-              star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
+      
+      if (layerConfig.isCenter) {
+        // Для центральных слоев используем расширенную область
+        const padding = Math.max(width, height) * 0.2
+        return (star.centerX + maxDistance >= -padding && star.centerX - maxDistance <= width + padding &&
+                star.centerY + maxDistance >= -padding && star.centerY - maxDistance <= height + padding)
+      } else {
+        return (star.centerX + maxDistance >= 0 && star.centerX - maxDistance <= width &&
+                star.centerY + maxDistance >= 0 && star.centerY - maxDistance <= height)
+      }
     })
     
     const needed = count - starsRef.value.length
     if (needed > 0) {
       const newStars = this.createStars(needed, width, height, layerConfig, orbitRadiusRange)
       starsRef.value.push(...newStars)
+      // Анимируем новые звезды
+      this.animateStars(newStars, layerConfig.opacityRange, layerConfig.animationDuration)
     }
   }
 

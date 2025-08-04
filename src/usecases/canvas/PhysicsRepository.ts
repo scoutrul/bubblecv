@@ -35,11 +35,8 @@ export class PhysicsRepository implements IPhysicsRepository {
   updateSimulationSize(width: number, height: number): void {
     if (!this.simulation) return
 
-    const hudHeight = 80
-    const effectiveHeight = height - hudHeight
-
     this.simulation
-      .force('center', d3.forceCenter(width / 2, (effectiveHeight / 2) + hudHeight))
+      .force('center', d3.forceCenter(width / 2, height / 2))
       .alpha(0.3)
       .restart()
   }

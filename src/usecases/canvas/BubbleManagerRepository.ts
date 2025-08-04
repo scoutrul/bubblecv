@@ -2,6 +2,7 @@ import type { BubbleManagerRepository as IBubbleManagerRepository } from './type
 import type { BubbleNode, PositionData } from '@/types/canvas'
 import { isWindows } from '@/utils/ui'
 import { calculateAdaptiveSizes, calcBubbleRadius } from '@/utils/bubble'
+import { GAME_CONFIG } from '@/config'
 
 export class BubbleManagerRepository implements IBubbleManagerRepository {
   private savedPositions = new Map<number, PositionData>()
@@ -31,6 +32,7 @@ export class BubbleManagerRepository implements IBubbleManagerRepository {
 
   updateBubbleStates(nodes: BubbleNode[], width: number, height: number): void {
     const time = Date.now() * 0.0008
+    const canvasCenter = { x: width / 2, y: height / 2 }
 
     nodes.forEach((bubble, index) => {
       if (!isWindows()) {
@@ -40,34 +42,47 @@ export class BubbleManagerRepository implements IBubbleManagerRepository {
         bubble.currentRadius = bubble.targetRadius
       }
 
+      // Существующее колебательное движение
       const phase = index * 1.3
-      const oscillationX = Math.sin(time * 0.4 + phase) * 0.3
-      const oscillationY = Math.cos(time * 0.6 + phase) * 0.2
-      const randomX = (Math.random() - 0.5) * 0.05
-      const randomY = (Math.random() - 0.5) * 0.05
+      const physics = GAME_CONFIG.bubblePhysics
+      const oscillationX = Math.sin(time * 0.4 + phase) * physics.oscillationStrength
+      const oscillationY = Math.cos(time * 0.6 + phase) * physics.oscillationStrength * 0.67
+      const randomX = (Math.random() - 0.5) * physics.randomStrength
+      const randomY = (Math.random() - 0.5) * physics.randomStrength
 
-      const oldX = bubble.x
-      const oldY = bubble.y
+      // Гравитационная сила к центру
+      const dx = canvasCenter.x - bubble.x
+      const dy = canvasCenter.y - bubble.y
+      const distance = Math.sqrt(dx * dx + dy * dy)
+      const gravityX = (dx / distance) * physics.gravityStrength * distance
+      const gravityY = (dy / distance) * physics.gravityStrength * distance
 
-      bubble.x += oscillationX + randomX
-      bubble.y += oscillationY + randomY
+      // Круговое движение (воронка)
+      const vortexRadius = Math.sqrt(dx * dx + dy * dy)
+      const vortexAngle = Math.atan2(dy, dx) + Math.PI / 2 // Перпендикулярно радиусу
+      const vortexX = Math.cos(vortexAngle) * physics.vortexStrength * vortexRadius
+      const vortexY = Math.sin(vortexAngle) * physics.vortexStrength * vortexRadius
 
+      // Применяем все силы к позиции
+      bubble.x += oscillationX + randomX + gravityX + vortexX
+      bubble.y += oscillationY + randomY + gravityY + vortexY
+
+      // Применяем существующую скорость от отталкивания
       if (bubble.vx !== undefined && bubble.vy !== undefined) {
-        bubble.x += bubble.vx * 0.1
-        bubble.y += bubble.vy * 0.1
-        const dampingFactor = 0.92
-        bubble.vx *= dampingFactor
-        bubble.vy *= dampingFactor
+        bubble.x += bubble.vx * physics.velocityMultiplier
+        bubble.y += bubble.vy * physics.velocityMultiplier
+        bubble.vx *= physics.dampingFactor
+        bubble.vy *= physics.dampingFactor
         if (Math.abs(bubble.vx) < 0.01) bubble.vx = 0
         if (Math.abs(bubble.vy) < 0.01) bubble.vy = 0
       }
 
+      // Ограничиваем позицию в пределах Canvas
       const overlap = 30
-      const minPadding = 20
+      const minPadding = 80
       const padding = Math.max(minPadding, bubble.currentRadius - overlap)
       bubble.x = Math.max(padding, Math.min(width - padding, bubble.x))
       bubble.y = Math.max(padding, Math.min(height - padding, bubble.y))
-
     })
   }
 
