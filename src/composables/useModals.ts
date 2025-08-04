@@ -222,6 +222,17 @@ export const useModals = () => {
               })
             }
             
+            // Создаем Floating Text для негативных философских пузырей
+            if (bubble && removal.isPhilosophyNegative) {
+              canvas.createFloatingText({
+                x: bubble.x,
+                y: bubble.y,
+                text: '-💔',
+                type: 'life',
+                color: '#ef4444'
+              })
+            }
+            
             // Проверяем level up для обычных пузырей
             if (xpResult.leveledUp && xpResult.levelData) {
               // Проверяем level achievement для 2 уровня
