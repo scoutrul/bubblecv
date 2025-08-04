@@ -205,7 +205,43 @@ export const useModals = () => {
       const canvas = getCanvasBridge()
       if (canvas) {
         for (const removal of pendingBubbleRemovals.value) {
+          // Прибавляем XP за пузырь
+          const xpResult = await gainXP(removal.xpAmount)
+          
+          // Удаляем пузырь с эффектами
           await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+          
+          // Проверяем level up и показываем модалку если нужно
+          if (xpResult.leveledUp && xpResult.levelData) {
+            // Проверяем level achievement для 2 уровня
+            const levelAchievements: PendingAchievement[] = []
+            if (xpResult.newLevel === 2) {
+              const levelAchievement = await unlockAchievement('first-level-master')
+              if (levelAchievement) {
+                levelAchievements.push(createPendingAchievement(levelAchievement))
+              }
+            }
+            
+            modalStore.startEventChain({
+              type: 'manual',
+              pendingAchievements: [],
+              pendingLevelAchievements: levelAchievements,
+              pendingLevelUp: {
+                level: xpResult.newLevel!,
+                data: {
+                  level: xpResult.levelData.level,
+                  title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
+                  description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+                  icon: xpResult.levelData.icon || '✨',
+                  currentXP: xpResult.levelData.currentXP,
+                  xpGained: xpResult.levelData.xpGained,
+                  xpRequired: 0
+                }
+              },
+              currentStep: 'levelUp',
+              context: {}
+            })
+          }
         }
         pendingBubbleRemovals.value = []
       }
@@ -242,7 +278,7 @@ export const useModals = () => {
     isProcessingBubbleModal.value = true
 
     try {
-      // Посещаем пузырь и получаем XP
+      // Посещаем пузырь (НЕ получаем XP сразу)
       await visitBubble(bubble.id)
       
       // Определяем количество XP в зависимости от типа пузыря
@@ -258,7 +294,8 @@ export const useModals = () => {
         xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
       }
       
-      let xpResult = await gainXP(xpGained)
+      // НЕ прибавляем XP сразу - только сохраняем информацию
+      // XP будет прибавлен в processPendingBubbleRemovals после закрытия модалки
 
       // Добавляем пузырь в очередь на удаление
       addPendingBubbleRemoval({
@@ -297,37 +334,13 @@ export const useModals = () => {
       // Собираем ОТДЕЛЬНО level ачивки
       const levelAchievements: PendingAchievement[] = []
 
-      // Проверяем level achievement (включая дополнительное начисление XP для bubble chains)
-      if (xpResult.leveledUp && xpResult.newLevel === 2) {
-        const levelAchievement = await unlockAchievement('first-level-master')
-        if (levelAchievement) {
-          // Получаем XP от level achievement тоже (особенность bubble chains)
-          const levelXpResult = await gainXP(levelAchievement.xpReward)
-          levelAchievements.push(createPendingAchievement(levelAchievement))
-          // Обновляем xpResult если level achievement дал еще level up
-          if (levelXpResult.leveledUp) {
-            xpResult = levelXpResult
-          }
-        }
-      }
-
       // Запускаем Event Chain с разделенными ачивками
+      // XP будет прибавлен позже в processPendingBubbleRemovals
       modalStore.startEventChain({
         type: 'bubble',
         pendingAchievements: achievements,           // Только bubble ачивки
         pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp: xpResult.leveledUp && xpResult.levelData ? {
-          level: xpResult.newLevel!,
-          data: {
-            level: xpResult.levelData.level,
-            title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
-            description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
-            icon: xpResult.levelData.icon || '✨',
-            currentXP: xpResult.levelData.currentXP,
-            xpGained: xpResult.levelData.xpGained,
-            xpRequired: 0
-          }
-        } : null,
+        pendingLevelUp: null, // Level up будет обработан после прибавления XP
         currentStep: 'bubble',
         context: {
           bubble,
@@ -335,8 +348,7 @@ export const useModals = () => {
             xpGained,
             livesLost: 0,
             agreementChange: 0,
-            isPhilosophyNegative: false,
-            ...xpResult
+            isPhilosophyNegative: false
           }
         }
       })
