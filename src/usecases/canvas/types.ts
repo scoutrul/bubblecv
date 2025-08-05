@@ -162,8 +162,8 @@ export interface PhysicsRepository {
   initSimulation(width: number, height: number, level?: number): Promise<Simulation<BubbleNode, undefined>>
   updateSimulationSize(width: number, height: number): void
   updateNodes(nodes: BubbleNode[]): void
-  pushNeighbors(params: PushNeighborsParams, level?: number): Promise<void>
-  explodeFromPoint(params: ExplodeFromPointParams, level?: number): Promise<void>
+  pushNeighbors(params: PushNeighborsParams, level?: number): void
+  explodeFromPoint(params: ExplodeFromPointParams, level?: number): void
   stopSimulation(): void
   getSimulation(): Simulation<BubbleNode, undefined> | null
 }

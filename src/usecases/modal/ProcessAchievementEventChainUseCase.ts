@@ -1,20 +1,24 @@
 import type {
   ProcessAchievementEventChainParams,
   ProcessAchievementEventChainResult,
-  ModalSessionStore,
   ModalAchievementStore,
   ModalModalStore,
-  ModalLevelStore
 } from './types'
 import type { NormalizedAchievement } from '@/types/normalized'
 import type { PendingAchievement, EventChain, LevelUpData } from '@/types/modals'
+import type { GainXPResult } from '@/usecases/session'
+
+// Тип для возвращаемого значения gainXP из composable
+type GainXPComposableResult = {
+  leveledUp: boolean
+  newLevel?: number
+  levelData?: GainXPResult['levelData']
+}
 
 export class ProcessAchievementEventChainUseCase {
   constructor(
-    private sessionStore: ModalSessionStore,
     private achievementStore: ModalAchievementStore,
     private modalStore: ModalModalStore,
-    private levelStore: ModalLevelStore
   ) {}
 
   private createPendingAchievement(achievement: NormalizedAchievement): PendingAchievement {
@@ -27,16 +31,17 @@ export class ProcessAchievementEventChainUseCase {
   }
 
   private async checkAndAddLevelAchievement(
-    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
+    xpResult: GainXPComposableResult,
     levelAchievements: PendingAchievement[]
   ): Promise<void> {
+    // TODO: Implement level achievement checking logic
   }
 
   private createEventChainConfig(
     type: EventChain['type'],
     achievements: PendingAchievement[],
     levelAchievements: PendingAchievement[],
-    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
+    xpResult: GainXPComposableResult,
     context: Record<string, unknown> = {}
   ): EventChain {
     // Создаем LevelUpData если есть данные для level up
@@ -112,7 +117,6 @@ export class ProcessAchievementEventChainUseCase {
   }
 
   private async gainXP(amount: number) {
-    // Динамический импорт для избежания циклических зависимостей
     const { useSession } = await import('@/composables/useSession')
     const { gainXP } = useSession()
     return await gainXP(amount)

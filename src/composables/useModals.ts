@@ -168,18 +168,9 @@ export const useModals = () => {
     achievementId: string,
     chainType: EventChain['type']
   ) => {
-    try {
-      const factory = createFactory()
-      const useCase = factory.createProcessAchievementEventChainUseCase()
-      
-      const result = await useCase.execute({ achievementId, chainType })
-      
-      if (!result.success) {
-        // Ачивка уже получена или недоступна
-      }
-    } catch (error) {
-      // Игнорируем ошибки
-    }
+    const factory = createFactory()
+    const useCaseModal = factory.createProcessAchievementEventChainUseCase()
+    await useCaseModal.execute({ achievementId, chainType })
   }
 
   // Функция для обработки завершения Event Chain (вызывается из modal store)
@@ -303,8 +294,6 @@ export const useModals = () => {
       // Иначе используем старый способ
       modalStore.closeModal(key)
     }
-
-
   }
 
   // Новый метод для запуска цепочки событий пузыря
@@ -662,11 +651,6 @@ export const useModals = () => {
       // Игнорируем ошибки ачивки - пузырь должен удалиться в любом случае
     }
   }
-
-  // Убираем отдельную обработку, так как достижение теперь интегрировано в Event Chain
-  // const handleToughBubbleDestroyed = async () => {
-  //   await processAchievementEventChain('tough-bubble-popper', 'manual')
-  // }
 
   return {
     // State

@@ -5,6 +5,7 @@ import type { BubbleNode } from '@/types/canvas'
 export class PhysicsRepository implements IPhysicsRepository {
   private simulation: d3.Simulation<BubbleNode, undefined> | null = null
   private restartInterval: number = 0
+  private physicsCalculator: any = null
 
   async initSimulation(width: number, height: number, level: number = 1): Promise<d3.Simulation<BubbleNode, undefined>> {
     // Высота HUD панели (примерно 80px с отступами)
@@ -12,9 +13,12 @@ export class PhysicsRepository implements IPhysicsRepository {
     const effectiveHeight = height - hudHeight
     const centerY = (effectiveHeight / 2) + hudHeight
 
-    // Получаем параметры симуляции для текущего уровня
-    const { PHYSICS_CALCULATOR } = await import('@/config')
-    const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
+    // Инициализируем PHYSICS_CALCULATOR один раз
+    if (!this.physicsCalculator) {
+      const { PHYSICS_CALCULATOR } = await import('@/config')
+      this.physicsCalculator = PHYSICS_CALCULATOR
+    }
+    const simulationPhysics = this.physicsCalculator.getSimulationPhysics(level)
 
     // Инициализируем симуляцию с улучшенной физикой для импульсов
     this.simulation = d3.forceSimulation<BubbleNode>()
@@ -63,13 +67,16 @@ export class PhysicsRepository implements IPhysicsRepository {
     this.simulation.alpha(alpha).restart()
   }
 
-  async pushNeighbors(params: PushNeighborsParams, level: number = 1): Promise<void> {
+  pushNeighbors(params: PushNeighborsParams, level: number = 1): void {
     const { centerBubble, pushRadius, pushStrength, nodes } = params
     let affectedCount = 0
 
-    // Получаем параметры физики для текущего уровня
-    const { PHYSICS_CALCULATOR } = await import('@/config')
-    const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+    // Используем кэшированный PHYSICS_CALCULATOR
+    if (!this.physicsCalculator) {
+      // Если PHYSICS_CALCULATOR еще не загружен, пропускаем операцию
+      return
+    }
+    const explosionPhysics = this.physicsCalculator.getExplosionPhysics(level)
 
     nodes.forEach(bubble => {
       if (!bubble || bubble.id === centerBubble.id) return
@@ -106,18 +113,24 @@ export class PhysicsRepository implements IPhysicsRepository {
     })
 
     if (this.simulation && affectedCount > 0) {
-      const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
-      this.simulation.alpha(simulationPhysics.alphaBase).restart()
+      // Откладываем перезапуск симуляции на следующий кадр
+      requestAnimationFrame(() => {
+        const simulationPhysics = this.physicsCalculator.getSimulationPhysics(level)
+        this.simulation?.alpha(simulationPhysics.alphaBase).restart()
+      })
     }
   }
 
-  async explodeFromPoint(params: ExplodeFromPointParams, level: number = 1): Promise<void> {
+  explodeFromPoint(params: ExplodeFromPointParams, level: number = 1): void {
     const { clickX, clickY, explosionRadius, explosionStrength, nodes, width, height } = params
     let affectedCount = 0
 
-    // Получаем параметры физики для текущего уровня
-    const { PHYSICS_CALCULATOR } = await import('@/config')
-    const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+    // Используем кэшированный PHYSICS_CALCULATOR
+    if (!this.physicsCalculator) {
+      // Если PHYSICS_CALCULATOR еще не загружен, пропускаем операцию
+      return
+    }
+    const explosionPhysics = this.physicsCalculator.getExplosionPhysics(level)
 
     nodes.forEach(bubble => {
       if (!bubble || typeof bubble.x !== 'number' || typeof bubble.y !== 'number') return
@@ -162,8 +175,11 @@ export class PhysicsRepository implements IPhysicsRepository {
     })
 
     if (this.simulation && affectedCount > 0) {
-      const simulationPhysics = PHYSICS_CALCULATOR.getSimulationPhysics(level)
-      this.simulation.alpha(simulationPhysics.alphaBase).restart()
+      // Откладываем перезапуск симуляции на следующий кадр
+      requestAnimationFrame(() => {
+        const simulationPhysics = this.physicsCalculator.getSimulationPhysics(level)
+        this.simulation?.alpha(simulationPhysics.alphaBase).restart()
+      })
     }
   }
 

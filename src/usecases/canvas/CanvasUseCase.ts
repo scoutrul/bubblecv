@@ -140,7 +140,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         
         const pushRadius = this.hoveredBubble.baseRadius * explosionPhysics.hoverPushRadiusMultiplier
         const pushStrength = explosionPhysics.hoverPushStrengthBase
-        await this.physicsRepository.pushNeighbors({
+        this.physicsRepository.pushNeighbors({
           centerBubble: this.hoveredBubble,
           pushRadius,
           pushStrength,
@@ -177,7 +177,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         
         const explosionRadius = Math.min(width, height) * explosionPhysics.explosionRadiusMultiplier
         const explosionStrength = explosionPhysics.explosionStrengthBase
-        await this.physicsRepository.explodeFromPoint({
+        this.physicsRepository.explodeFromPoint({
           clickX: mouseX,
           clickY: mouseY,
           explosionRadius,
@@ -206,28 +206,29 @@ export class CanvasUseCase implements ICanvasUseCase {
       // Создаем эффекты взрыва
       this.effectsRepository.explodeBubble(bubble)
 
-      // Физический взрыв для отталкивания соседних пузырей
+      // СРАЗУ удаляем пузырь из списка
+      const remainingNodes = this.bubbleManagerRepository.removeBubble(bubble.id, this.canvasDomain.nodes)
+      this.canvasDomain.nodes = remainingNodes
+
+      // СРАЗУ выполняем физический взрыв (синхронно)
       const currentLevel = this.getCurrentLevel()
       const { PHYSICS_CALCULATOR } = await import('@/config')
       const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
       
       const explosionRadius = (bubble.baseRadius || 20) * explosionPhysics.bubbleExplosionRadiusMultiplier
       const explosionStrength = explosionPhysics.bubbleExplosionStrengthBase
-      await this.physicsRepository.explodeFromPoint({
+      
+      this.physicsRepository.explodeFromPoint({
         clickX: bubble.x,
         clickY: bubble.y,
         explosionRadius,
         explosionStrength,
-        nodes: this.canvasDomain.nodes, // Используем актуальные узлы
+        nodes: remainingNodes, // Используем обновленные узлы
         width,
         height
       }, currentLevel)
 
-      // Удаляем пузырь из списка
-      const remainingNodes = this.bubbleManagerRepository.removeBubble(bubble.id, this.canvasDomain.nodes)
-      this.canvasDomain.nodes = remainingNodes
-
-      // Обновляем физику
+      // Обновляем физику сразу после взрыва
       this.physicsRepository.updateNodes(remainingNodes)
 
       if (this.onBubblePopped) {

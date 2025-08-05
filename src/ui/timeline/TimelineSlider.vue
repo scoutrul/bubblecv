@@ -250,7 +250,7 @@ watch(() => props.currentYear, () => {
   // Небольшая задержка перед сбросом флага
   setTimeout(() => {
     isAutoSwitching.value = false
-  }, 200)
+  }, 100)
 })
 
 const { t } = useI18n()
