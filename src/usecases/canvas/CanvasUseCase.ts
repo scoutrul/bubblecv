@@ -123,7 +123,7 @@ export class CanvasUseCase implements ICanvasUseCase {
     }
 
     if (newHoveredBubble !== this.hoveredBubble) {
-      if (this.hoveredBubble) {
+      if (this.hoveredBubble && this.hoveredBubble.baseRadius) {
         this.hoveredBubble.targetRadius = this.hoveredBubble.baseRadius
         this.hoveredBubble.isHovered = false
       }
@@ -131,21 +131,27 @@ export class CanvasUseCase implements ICanvasUseCase {
       this.hoveredBubble = newHoveredBubble
 
       if (this.hoveredBubble && this.hoveredBubble.baseRadius) {
-        this.hoveredBubble.targetRadius = this.hoveredBubble.baseRadius * 1.2
-        this.hoveredBubble.isHovered = true
+        // Сохраняем ссылку локально для защиты от race conditions
+        const currentHoveredBubble = this.hoveredBubble
+        
+        currentHoveredBubble.targetRadius = currentHoveredBubble.baseRadius * 1.2
+        currentHoveredBubble.isHovered = true
 
         const currentLevel = this.getCurrentLevel()
         const { PHYSICS_CALCULATOR } = await import('@/config')
         const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
         
-        const pushRadius = this.hoveredBubble.baseRadius * explosionPhysics.hoverPushRadiusMultiplier
-        const pushStrength = explosionPhysics.hoverPushStrengthBase
-        this.physicsRepository.pushNeighbors({
-          centerBubble: this.hoveredBubble,
-          pushRadius,
-          pushStrength,
-          nodes: this.canvasDomain.nodes // Используем актуальные узлы
-        }, currentLevel)
+        // Дополнительная проверка после асинхронной операции
+        if (currentHoveredBubble && currentHoveredBubble.baseRadius) {
+          const pushRadius = currentHoveredBubble.baseRadius * explosionPhysics.hoverPushRadiusMultiplier
+          const pushStrength = explosionPhysics.hoverPushStrengthBase
+          this.physicsRepository.pushNeighbors({
+            centerBubble: currentHoveredBubble,
+            pushRadius,
+            pushStrength,
+            nodes: this.canvasDomain.nodes // Используем актуальные узлы
+          }, currentLevel)
+        }
       }
     }
   }
@@ -619,11 +625,11 @@ export class CanvasUseCase implements ICanvasUseCase {
 
 
   private handleMouseLeave(): void {
-    if (this.hoveredBubble) {
+    if (this.hoveredBubble && this.hoveredBubble.baseRadius) {
       this.hoveredBubble.targetRadius = this.hoveredBubble.baseRadius
       this.hoveredBubble.isHovered = false
-      this.hoveredBubble = null
     }
+    this.hoveredBubble = null
     
     // Сбрасываем курсор при выходе мыши с канваса
     if (this.canvasRepository.getContext()) {
