@@ -461,11 +461,13 @@ export class CanvasUseCase implements ICanvasUseCase {
         // Добавляем XP за каждый клик по крепкому пузырю
         const result = await this.useSession.gainXP(1)
         if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
+          
           this.modalStore.openLevelUpModal(result.newLevel, {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
             description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
-            xpRequired: 0
+            xpRequired: 0,
+            isProjectTransition: result.levelData.isProjectTransition
           })
         }
         
@@ -515,7 +517,8 @@ export class CanvasUseCase implements ICanvasUseCase {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
             description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
-            xpRequired: 0
+            xpRequired: 0,
+            isProjectTransition: result.levelData.isProjectTransition
           })
         }
         
@@ -581,7 +584,8 @@ export class CanvasUseCase implements ICanvasUseCase {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
             description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
-            xpRequired: 0
+            xpRequired: 0,
+            isProjectTransition: result.levelData.isProjectTransition
           })
         }
         

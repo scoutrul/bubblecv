@@ -5,6 +5,7 @@ import { GAME_CONFIG } from '@/config'
 import { api } from '@/api'
 import { createHiddenBubble } from '@/utils'
 import { useSessionStore } from './session.store'
+import { GameModeUseCaseFactory } from '@/usecases/game-mode'
 
 
 export const useBubbleStore = defineStore('bubbleStore', () => {
@@ -26,12 +27,16 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     try {
       const currentLevel = sessionStore.currentLevel
       
-      const { data } = currentLevel <= 1 
+      // Используем use case для определения режима
+      const gameModeUseCaseFactory = new GameModeUseCaseFactory(sessionStore)
+      const getGameModeUseCase = gameModeUseCaseFactory.createGetGameModeUseCase()
+      const result = getGameModeUseCase.execute({ currentLevel })
+      
+      // Загружаем данные в зависимости от режима
+      const { data } = result.isCareerMode 
         ? await api.getBubbles()
         : await api.getProjectBubbles()
-      
-      console.log(`📊 Загружено ${data.length} баблов для уровня ${currentLevel}`)
-      bubbles.value = data
+       bubbles.value = data
     } catch (err) {
       console.error('❌ Ошибка загрузки пузырей:', err)
     } finally {

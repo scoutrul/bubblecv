@@ -115,7 +115,20 @@
       "newBonus": "🎁 New bonus:",
       "newMemoir": "📝 New memoir:",
       "clickToView": "Click to view",
-      "clickToRead": "Click to read"
+      "clickToRead": "Click to read",
+      "projectTransition": {
+        "title": "New Game Stage",
+        "subtitle": "Transition to Project Technologies",
+        "congratulations": "Congratulations! You've reached the level where studying <strong>project technologies</strong> begins.",
+        "whatChanges": "What will change:",
+        "changes": {
+          "skills": "Now only skills and technologies that are <strong>necessary for creating a similar project</strong> will be shown",
+          "timeline": "Timeline is hidden - focus on technologies",
+          "checkLevel": "Check if you match this development level"
+        },
+        "challenge": "Are you ready to study the technologies used in this project?",
+        "continueButton": "Continue studying technologies"
+      }
     }
   },
   "bubble": {

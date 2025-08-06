@@ -19,6 +19,7 @@ export interface GainXPResult {
     currentXP: number
     xpGained: number
     icon: string
+    isProjectTransition?: boolean
   }
   error?: string
 }

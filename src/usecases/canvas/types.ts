@@ -134,6 +134,7 @@ export interface CanvasModalStore {
     currentXP: number
     xpGained: number
     xpRequired: number
+    isProjectTransition?: boolean
   }): void
   openBubbleModal(bubble: NormalizedBubble): void
   openPhilosophyModal(question: Question, bubbleId: number): void

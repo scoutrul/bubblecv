@@ -16,10 +16,8 @@ export class ModalUseCaseFactory {
 
   createProcessAchievementEventChainUseCase(): ProcessAchievementEventChainUseCase {
     return new ProcessAchievementEventChainUseCase(
-      this.sessionStore,
       this.achievementStore,
-      this.modalStore,
-      this.levelStore
+      this.modalStore
     )
   }
 } 

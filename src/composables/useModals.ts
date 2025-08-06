@@ -120,7 +120,7 @@ export const useModals = () => {
   }
 
   const checkAndAddLevelAchievement = async (
-    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
+    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string; isProjectTransition?: boolean } },
     levelAchievements: PendingAchievement[]
   ): Promise<void> => {
     // Ачивка first-level-master удалена из модели данных
@@ -133,9 +133,10 @@ export const useModals = () => {
     type: EventChain['type'],
     achievements: PendingAchievement[],
     levelAchievements: PendingAchievement[],
-    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string } },
+    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string; isProjectTransition?: boolean } },
     context: Record<string, unknown> = {}
   ) => {
+
     // Создаем LevelUpData если есть данные для level up
     const pendingLevelUp = xpResult?.leveledUp && xpResult.levelData ? {
       level: xpResult.newLevel!,
@@ -146,10 +147,11 @@ export const useModals = () => {
         icon: xpResult.levelData.icon,
         currentXP: xpResult.levelData.currentXP,
         xpGained: xpResult.levelData.xpGained,
-        xpRequired: 0
+        xpRequired: 0,
+        isProjectTransition: (xpResult.levelData as any).isProjectTransition || false
       } as LevelUpData
     } : null
-
+    
     return {
       id: Date.now().toString(),
       type,
@@ -268,7 +270,8 @@ export const useModals = () => {
                     icon: xpResult.levelData.icon || '✨',
                     currentXP: xpResult.levelData.currentXP,
                     xpGained: xpResult.levelData.xpGained,
-                    xpRequired: 0
+                    xpRequired: 0,
+                    isProjectTransition: xpResult.levelData.isProjectTransition || false
                   }
                 },
                 currentStep: 'levelUp',
@@ -403,7 +406,11 @@ export const useModals = () => {
     currentXP: number
     xpGained: number
     xpRequired: number
+    isProjectTransition?: boolean
   }) => {
+    // Временный отладочный лог
+    console.log('🚀 useModals openLevelUpModal called with:', { level, payload })
+    
     // Level Up Modal теперь работает только через Event Chain
     const levelData = levelStore.getLevelByNumber(level)
 
@@ -415,7 +422,8 @@ export const useModals = () => {
       icon: payload?.icon || levelData?.icon || '✨',
       currentXP: payload?.currentXP || sessionStore.session?.currentXP || 0,
       xpGained: payload?.xpGained || 0,
-      xpRequired: payload?.xpRequired || 0
+      xpRequired: payload?.xpRequired || 0,
+      isProjectTransition: payload?.isProjectTransition || false
     }
 
     modalStore.startEventChain({
@@ -643,6 +651,8 @@ export const useModals = () => {
     const uiEventStore = useUiEventStore()
     uiEventStore.closeMemoirsPanel()
   }
+
+
 
   const handleSecretBubbleDestroyed = async () => {
     try {

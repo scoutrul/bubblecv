@@ -10,7 +10,8 @@ import type {
   SessionAchievementStore, 
   SessionBonusStore, 
   SessionCanvasRepository,
-  SessionMemoirStore
+  SessionMemoirStore,
+  SessionModalStore
 } from './types'
 
 export class SessionUseCaseFactory {
@@ -20,6 +21,7 @@ export class SessionUseCaseFactory {
     private achievementStore: SessionAchievementStore,
     private bonusStore: SessionBonusStore,
     private canvasRepository: SessionCanvasRepository,
+    private modalStore: SessionModalStore,
     private memoirStore?: SessionMemoirStore
   ) {}
 
@@ -28,7 +30,8 @@ export class SessionUseCaseFactory {
       this.sessionStore,
       this.levelStore,
       this.achievementStore,
-      this.bonusStore
+      this.bonusStore,
+      this.modalStore
     )
   }
 

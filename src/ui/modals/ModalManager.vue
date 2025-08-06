@@ -58,6 +58,8 @@
       v-bind="memoirProps"
       @close="handleMemoirModalClose"
     />
+
+
   </div>
 </template>
 
@@ -164,17 +166,22 @@ const showLevelUp = computed(() => {
   return (currentModal.value?.type === 'levelUp' && safeData.value.levelUpData) ||
     safeModals.value.levelUp || false
 })
-const levelUpProps = computed(() => ({
-  isOpen: showLevelUp.value && !modalStore.isModalClosing('levelUp'),
-  level: safeData.value.levelUpData?.level || 1,
-  title: safeData.value.levelUpData?.title || 'Новый уровень',
-  description: safeData.value.levelUpData?.description || '',
-  icon: safeData.value.levelUpData?.icon || '⭐',
-  currentXP: safeData.value.levelUpData?.currentXP || 0,
-  xpGained: safeData.value.levelUpData?.xpGained || 0,
-  allowEscapeClose: false,
-  isClosing: modalStore.isModalClosing('levelUp')
-}))
+const levelUpProps = computed(() => {
+  const props = {
+    isOpen: showLevelUp.value && !modalStore.isModalClosing('levelUp'),
+    level: safeData.value.levelUpData?.level || 1,
+    title: safeData.value.levelUpData?.title || 'Новый уровень',
+    description: safeData.value.levelUpData?.description || '',
+    icon: safeData.value.levelUpData?.icon || '⭐',
+    currentXP: safeData.value.levelUpData?.currentXP || 0,
+    xpGained: safeData.value.levelUpData?.xpGained || 0,
+    allowEscapeClose: false,
+    isClosing: modalStore.isModalClosing('levelUp'),
+    isProjectTransition: safeData.value.levelUpData?.isProjectTransition || false
+  }
+  
+  return props
+})
 
 // Achievement Modal
 const showAchievement = computed(() => {
@@ -207,6 +214,8 @@ const memoirProps = computed(() => ({
   allowEscapeClose: true,
   isClosing: modalStore.isModalClosing('memoir')
 }))
+
+
 </script>
 
 <style scoped>

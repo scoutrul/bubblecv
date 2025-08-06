@@ -4,6 +4,9 @@ export const GAME_CONFIG = {
   initialYear: 2015,
   initialLives: 3,
   maxLives: 5,
+  
+  // Уровень на котором происходит переключение с карьеры на технологии проекта
+  LEVEL_SWITCH_THRESHOLD: 2,
 
   TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
   HIDDEN_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 6) + 3, // 3-8 кликов
@@ -25,7 +28,7 @@ export const GAME_CONFIG = {
   } as const,
 
   xpPerExpertiseLevel: {
-    [SKILL_LEVELS.NOVICE]: 3,
+    [SKILL_LEVELS.NOVICE]: 55, // 3
     [SKILL_LEVELS.INTERMEDIATE]: 5,
     [SKILL_LEVELS.CONFIDENT]: 7,
     [SKILL_LEVELS.EXPERT]: 9,

@@ -5,15 +5,18 @@ import type {
   SessionLevelStore, 
   SessionAchievementStore, 
   SessionBonusStore,
+  SessionModalStore,
 } from './types'
 import { GAME_CONFIG, maxGameLevel } from '@/config'
+import { ShouldShowProjectTransitionModalUseCase } from '@/usecases/game-mode'
 
 export class GainXPUseCase {
   constructor(
     private sessionStore: SessionSessionStore,
     private levelStore: SessionLevelStore,
     private achievementStore: SessionAchievementStore,
-    private bonusStore: SessionBonusStore
+    private bonusStore: SessionBonusStore,
+    private modalStore: SessionModalStore
   ) {}
 
   async execute(params: GainXPParams): Promise<GainXPResult> {
@@ -56,18 +59,34 @@ export class GainXPUseCase {
       const levelData = this.levelStore.getLevelByNumber(newLevel)
       const icon = levelData?.icon || '👋'
       
+      // Проверяем, нужно ли показать специальный режим для перехода на режим проекта
+      const shouldShowProjectTransitionModalUseCase = new ShouldShowProjectTransitionModalUseCase(this.sessionStore)
+      const shouldShowResult = shouldShowProjectTransitionModalUseCase.execute({
+        currentLevel: newLevel,
+        previousLevel: newLevel - 1
+      })
+      
+
+      
+      const levelDataResult = {
+        level: newLevel,
+        title: levelData?.title,
+        description: levelData?.description,
+        currentXP: this.sessionStore.session.currentXP,
+        xpGained: amount,
+        icon,
+        isProjectTransition: shouldShowResult.shouldShow
+      }
+      
+      // Временный отладочный лог
+      console.log('🚀 GainXPUseCase levelData:', levelDataResult)
+      console.log('🚀 GainXPUseCase shouldShowResult:', shouldShowResult)
+      
       return {
         success: true,
         leveledUp: true,
         newLevel,
-        levelData: {
-          level: newLevel,
-          title: levelData?.title,
-          description: levelData?.description,
-          currentXP: this.sessionStore.session.currentXP,
-          xpGained: amount,
-          icon
-        }
+        levelData: levelDataResult
       }
     }
 

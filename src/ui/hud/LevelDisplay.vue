@@ -41,7 +41,9 @@ const translatedLevelTitle = computed(() => {
 })
 
 const handleLevelClick = () => {
-  openLevelUpModal(props.currentLevel)
+  if(props.currentLevel > 1) {  
+    openLevelUpModal(props.currentLevel)
+  }
 }
 
 // CSS класс для уровня

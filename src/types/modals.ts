@@ -30,6 +30,7 @@ export interface LevelUpData {
   currentXP: number
   xpGained: number
   xpRequired: number
+  isProjectTransition?: boolean
 }
 
 export interface XPResult {

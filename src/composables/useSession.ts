@@ -57,7 +57,8 @@ export function useSession() {
             const { openAchievementModal } = useModals()
             openAchievementModal(achievement)
           })
-        }
+        },
+
       },
       canvasAdapter: {
         resetCanvas: () => {
@@ -92,6 +93,7 @@ export function useSession() {
       adapters.achievementAdapter,
       adapters.bonusAdapter,
       adapters.canvasAdapter,
+      adapters.modalAdapter,
       adapters.memoirAdapter
     )
   }

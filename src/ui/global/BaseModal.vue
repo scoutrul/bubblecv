@@ -15,6 +15,7 @@
         <div
           class="modal-window"
           :class="className"
+
           @click.stop
         >
           <div class="modal-content">
@@ -59,7 +60,7 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style>
 .modal-backdrop {
   @apply fixed inset-0 z-[2500] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm;
 }

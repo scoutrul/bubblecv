@@ -1,5 +1,5 @@
 <template>
-  <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
+  <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading && !isProjectMode">
     <div class="timeline-content">
       <div class="timeline-header">
         <div class="timeline-title-wrapper">
@@ -72,7 +72,7 @@ import { useSessionStore } from '@/stores/session.store'
 import { createShakeAnimation, createYearChangeAnimation } from '@/utils'
 import ToolTip from '@/ui/global/ToolTip.vue'
 
-import { useI18n } from '@/composables'
+import { useI18n, useGameMode } from '@/composables'
 
 
 interface Props {
@@ -88,7 +88,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const bubbleStore = useBubbleStore()
-const sessionStore = useSessionStore()
+const { isProjectMode } = useGameMode()
 
 // Ref для анимации shake эффекта
 const timelineRef = ref<HTMLElement | null>(null)
