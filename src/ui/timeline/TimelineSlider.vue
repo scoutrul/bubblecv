@@ -2,7 +2,14 @@
   <div class="timeline-slider" ref="timelineRef" v-if="currentYear && !bubbleStore.isLoading">
     <div class="timeline-content">
       <div class="timeline-header">
-        <h3 class="text-text-primary whitespace-nowrap">{{ t('navigation.timeTravel') }}</h3>
+        <div class="timeline-title-wrapper">
+          <h3 class="text-text-primary whitespace-nowrap">{{ t('navigation.timeTravel') }}</h3>
+          <ToolTip :text="t('navigation.timeTravelTooltip')" position="top">
+            <div class="help-icon">
+              <span class="help-icon-emoji">?</span>
+            </div>
+          </ToolTip>
+        </div>
 
         <!-- Компактные кнопки навигации -->
         <div class="navigation-compact">
@@ -59,12 +66,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import { createShakeAnimation, createYearChangeAnimation } from '@/utils'
+import ToolTip from '@/ui/global/ToolTip.vue'
 
-import { getBubblesUpToYear } from '@/utils'
 import { useI18n } from '@/composables'
 
 
@@ -86,8 +93,6 @@ const sessionStore = useSessionStore()
 // Ref для анимации shake эффекта
 const timelineRef = ref<HTMLElement | null>(null)
 const isAutoSwitching = ref(false) // Флаг для предотвращения повторных переключений
-
-
 
 const handleYearChange = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -154,63 +159,9 @@ const animateYearChangeWithGsap = (yearElement: HTMLElement) => {
   return createYearChangeAnimation(yearElement)
 }
 
-
-
-// Computed для отслеживания завершения всех пузырей текущего года
-const isCurrentYearCompleted = computed(() => {
-  // Берем только пузыри текущего года
-  const currentYearBubbles = bubbleStore.bubbles.filter(bubble =>
-    bubble.year === props.currentYear &&
-    !bubble.isHidden &&
-    !bubble.isQuestion
-  )
-
-  if (currentYearBubbles.length === 0) {
-    return true // Если нет пузырей в текущем году, считаем год завершённым
-  }
-
-  // Проверяем, все ли пузыри текущего года посещены
-  const hasUnvisitedBubbles = currentYearBubbles.some(bubble =>
-    !sessionStore.visitedBubbles.includes(bubble.id)
-  )
-
-  return !hasUnvisitedBubbles
-})
-
 // Debounce функция для предотвращения множественных срабатываний
 let autoSwitchTimeout: number | null = null
 
-const performAutoSwitch = async () => {
-  if (isAutoSwitching.value || props.currentYear >= props.endYear || !isFinite(props.currentYear)) {
-    return
-  }
-
-  isAutoSwitching.value = true
-
-  await nextTick()
-
-  setTimeout(() => {
-    // Используем GSAP версию shake эффекта
-    triggerGsapShakeEffect()
-
-    setTimeout(() => {
-      if (props.currentYear < props.endYear && isFinite(props.currentYear)) {
-        const nextYear = props.currentYear + 1
-        if (isFinite(nextYear) && nextYear <= props.endYear) {
-          emit('update:currentYear', nextYear)
-
-
-        }
-
-        setTimeout(() => {
-          isAutoSwitching.value = false
-        }, 500)
-      } else {
-        isAutoSwitching.value = false
-      }
-    }, 300)
-  }, 800)
-}
 
 // Добавляем watch для анимации смены года
 watch(() => props.currentYear, async () => {
@@ -219,29 +170,8 @@ watch(() => props.currentYear, async () => {
   if (yearElement) {
     animateYearChangeWithGsap(yearElement)
   }
-
-
 })
 
-// Отключено: автопереключение годов теперь управляется из useCanvas.ts
-// watch([() => sessionStore.visitedBubbles.length, () => props.currentYear], () => {
-//   // Очищаем предыдущий timeout
-//   if (autoSwitchTimeout) {
-//     clearTimeout(autoSwitchTimeout)
-//   }
-//
-//   // Проверяем завершение года с debounce только при изменении visitedBubbles
-//   if (isCurrentYearCompleted.value && props.currentYear < props.endYear && !isAutoSwitching.value) {
-//     autoSwitchTimeout = window.setTimeout(() => {
-//       // Повторная проверка после задержки для уверенности
-//       if (isCurrentYearCompleted.value && !isAutoSwitching.value && props.currentYear < props.endYear) {
-//         performAutoSwitch()
-//       }
-//     }, 500) // Увеличена задержка для более стабильной работы
-//   }
-// }, { flush: 'post' })
-
-// Сброс флага автопереключения при смене года вручную
 watch(() => props.currentYear, () => {
   if (autoSwitchTimeout) {
     clearTimeout(autoSwitchTimeout)
@@ -274,9 +204,23 @@ const { t } = useI18n()
   @apply flex justify-between items-center mb-2;
 }
 
-  .timeline-header h3 {
-    @apply text-xs sm:text-sm font-medium text-text-primary whitespace-nowrap;
-  }
+.timeline-title-wrapper {
+  @apply flex items-center gap-2;
+}
+
+.timeline-header h3 {
+  @apply text-xs sm:text-sm font-medium text-text-primary whitespace-nowrap;
+}
+
+.help-icon {
+  @apply w-4 h-4 rounded-full border border-border;
+  @apply flex items-center justify-center cursor-help;
+  @apply transition-all duration-200 hover:bg-background-card hover:scale-110;
+}
+
+.help-icon-emoji {
+  @apply text-xs text-text-muted;
+}
 
 .navigation-compact {
   @apply flex items-center gap-0.5;

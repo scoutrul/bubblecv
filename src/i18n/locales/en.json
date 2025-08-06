@@ -14,7 +14,8 @@
   "navigation": {
     "previousYear": "Previous year",
     "nextYear": "Next year",
-    "timeTravel": "Time travel"
+    "timeTravel": "Time travel",
+    "timeTravelTooltip": "This shows a selection of my technical skills from the beginning of my career as a developer in IT or on the internet."
   },
   "game": {
     "resetTitle": "Reset progress and start over",

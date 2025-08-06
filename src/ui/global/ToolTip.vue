@@ -1,6 +1,5 @@
 <template>
   <div 
-    ref="tooltipWrapper"
     class="tooltip-wrapper group"
     @mouseenter="showTooltip"
     @mouseleave="hideTooltip"
@@ -24,7 +23,7 @@ import { ref, onUnmounted } from 'vue'
 
 interface Props {
   text: string
-  position?: 'left' | 'right'
+  position?: 'left' | 'right' | 'top' | 'bottom'
   delay?: number
 }
 
@@ -34,7 +33,6 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const isVisible = ref(false)
-const tooltipWrapper = ref<HTMLElement | null>(null)
 let timeoutId: number | null = null
 
 const showTooltip = () => {
@@ -66,9 +64,12 @@ onUnmounted(() => {
 .tooltip {
   @apply absolute px-3 py-1.5;
   @apply bg-background-secondary border border-border rounded-lg shadow-lg;
-  @apply text-sm text-text-primary whitespace-nowrap;
+  @apply text-sm text-text-primary;
   @apply opacity-0 transition-opacity duration-300 pointer-events-none;
   @apply z-[99999];
+  max-width: 240px;
+  width: max-content;
+  height: fit-content;
   /* Центрирование по вертикали */
   top: 50%;
   transform: translateY(-50%);
@@ -88,6 +89,22 @@ onUnmounted(() => {
   @apply right-full mr-4;
 }
 
+/* Позиционирование сверху */
+.tooltip--top {
+  @apply bottom-full;
+  /* Центрирование по горизонтали */
+  left: 50%;
+  transform: translateX(-50%) translateY(calc(-100% - 1rem));
+}
+
+/* Позиционирование снизу */
+.tooltip--bottom {
+  @apply top-full mt-4;
+  /* Центрирование по горизонтали */
+  left: 50%;
+  transform: translateX(-50%) translateY(calc(100% + 1rem));
+}
+
 /* Адаптивность для мобильных устройств */
 @media (max-width: 640px) {
   .tooltip {
@@ -100,6 +117,14 @@ onUnmounted(() => {
   
   .tooltip--left {
     @apply mr-2;
+  }
+  
+  .tooltip--top {
+    @apply mb-2;
+  }
+  
+  .tooltip--bottom {
+    @apply mt-2;
   }
 }
 </style> 
