@@ -41,8 +41,50 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   )
 
-  // Создаем основной use case
   const canvasUseCase = ref<ReturnType<typeof canvasUseCaseFactory.createCanvasUseCase> | null>(null)
+
+  // Функция для обновления баблов на канвасе
+  const updateCanvasBubbles = () => {
+    if (!canvasUseCase.value || !canvasRef.value) return
+
+    const initialBubbles = getBubblesToRender(
+      bubbleStore.bubbles, 
+      sessionStore.currentYear, 
+      sessionStore.visitedBubbles, 
+      [], 
+      sessionStore.hasUnlockedFirstToughBubbleAchievement
+    )
+    const extraBubbles: BubbleNode[] = []
+
+    // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
+    const philosophyBubbles: BubbleNode[] = []
+    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < 5; year++) {
+      const philosophyBubble = createPhilosophyBubbleForYear(year)
+      if (philosophyBubble) {
+        // Проверяем, не был ли этот пузырь уже лопнут
+        const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
+        if (!isPopped) {
+          philosophyBubbles.push(philosophyBubble)
+        }
+      }
+    }
+    extraBubbles.push(...philosophyBubbles)
+
+    try {
+      console.log(`🔄 Обновляем канвас: ${initialBubbles.length} основных + ${extraBubbles.length} дополнительных баблов`)
+      canvasUseCase.value.updateBubbles({ bubbles: [...initialBubbles, ...extraBubbles] })
+    } catch (error) {
+      console.error('Error updating bubbles:', error)
+    }
+  }
+
+  // Отслеживаем изменения в bubble store и session store
+  watch([() => bubbleStore.bubbles, () => sessionStore.currentLevel], () => {
+    console.log('🔄 Данные изменились, обновляем канвас...')
+    nextTick(() => {
+      updateCanvasBubbles()
+    })
+  }, { deep: true })
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     // Проверяем есть ли основные пузыри навыков (исключая философские и скрытые)
@@ -60,10 +102,15 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   const resetCanvas = async () => {
+    console.log('🔄 Сброс канваса...')
     philosophyBubblesByYear.value.clear()
     usedQuestionIds.value.clear()
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
+    // Принудительно обновляем баблы после сброса
+    setTimeout(() => {
+      updateCanvasBubbles()
+    }, 100)
   }
 
   const createPhilosophyBubbleForYear = (year: number): BubbleNode | null => {
@@ -227,37 +274,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
             
             // Обновляем пузыри с небольшой задержкой
             setTimeout(() => {
-              const initialBubbles = getBubblesToRender(
-                bubbleStore.bubbles, 
-                sessionStore.currentYear, 
-                sessionStore.visitedBubbles, 
-                [], 
-                sessionStore.hasUnlockedFirstToughBubbleAchievement
-              )
-              const extraBubbles: BubbleNode[] = []
-
-              // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
-              const philosophyBubbles: BubbleNode[] = []
-              for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < 5; year++) {
-                const philosophyBubble = createPhilosophyBubbleForYear(year)
-                if (philosophyBubble) {
-                  // Проверяем, не был ли этот пузырь уже лопнут
-                  const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
-                  if (!isPopped) {
-                    philosophyBubbles.push(philosophyBubble)
-                  }
-                }
-              }
-              extraBubbles.push(...philosophyBubbles)
-
-              // Проверяем, что use case инициализирован
-              if (canvasUseCase.value && canvasUseCase.value.updateBubbles) {
-                try {
-                  canvasUseCase.value.updateBubbles({ bubbles: [...initialBubbles, ...extraBubbles] })
-                } catch (error) {
-                  console.error('Error updating bubbles:', error)
-                }
-              }
+              updateCanvasBubbles()
             }, 50)
           } else {
             // Обновляем размеры существующего use case

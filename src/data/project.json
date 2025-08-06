@@ -9,30 +9,6 @@
       "category": "infrastructure"
     },
     {
-      "name": "PHP",
-      "year": 2002,
-      "skillLevel": "novice",
-      "description": "Простые скрипты, переменные, циклы, формы",
-      "insight": "PHP был первым серверным языком. Простота и доступность сделали его идеальным для изучения веб-разработки.",
-      "category": "backend"
-    },
-    {
-      "name": "MySQL",
-      "year": 2003,
-      "skillLevel": "novice",
-      "description": "Базовые запросы SELECT, INSERT, UPDATE, DELETE",
-      "insight": "База данных казалась чем-то сложным, но простые запросы открыли мир структурированных данных.",
-      "category": "database"
-    },
-    {
-      "name": "FTP",
-      "year": 2002,
-      "skillLevel": "novice",
-      "description": "Загрузка файлов на сервер, FileZilla, базовые команды",
-      "insight": "FTP был основным способом загрузки сайтов. Простота и надежность протокола.",
-      "category": "server"
-    },
-    {
       "name": "Верстка",
       "year": 2002,
       "skillLevel": "novice",
@@ -81,22 +57,6 @@
       "category": "frontend"
     },
     {
-      "name": "Photoshop",
-      "year": 2004,
-      "skillLevel": "novice",
-      "description": "Базовые инструменты, слои, нарезка графики для веба",
-      "insight": "Photoshop был необходим для веб-разработки. Нарезка макетов стала частью повседневной работы.",
-      "category": "design"
-    },
-    {
-      "name": "Netcat",
-      "year": 2003,
-      "skillLevel": "novice",
-      "description": "Базовые сетевые операции, отладка соединений",
-      "insight": "Netcat показал, как работают сетевые протоколы на низком уровне.",
-      "category": "cms"
-    },
-    {
       "name": "CSS",
       "year": 2006,
       "skillLevel": "intermediate",
@@ -111,14 +71,6 @@
       "description": "Float-верстка, кроссбраузерность, семантическая разметка",
       "insight": "Верстка стала более осознанной. Понимание float и clearfix открыло новые возможности макетов.",
       "category": "frontend"
-    },
-    {
-      "name": "Netcat",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "Продвинутые сетевые операции, скрипты, автоматизация",
-      "insight": "Netcat стал инструментом для автоматизации и отладки сетевых задач.",
-      "category": "cms"
     },
     {
       "name": "CSS",
@@ -145,28 +97,12 @@
       "category": "frontend"
     },
     {
-      "name": "MODX",
-      "year": 2015,
-      "skillLevel": "intermediate",
-      "description": "Revolution, шаблоны, сниппеты, плагины",
-      "insight": "MODX — гибкая CMS для разработчиков. Полный контроль над кодом и структурой.",
-      "category": "cms"
-    },
-    {
       "name": "jQuery",
       "year": 2015,
       "skillLevel": "confident",
       "description": "Продвинутые техники, плагины, оптимизация, архитектура",
       "insight": "jQuery достиг зрелости. Понимание внутренних механизмов и лучших практик.",
       "category": "frontend"
-    },
-    {
-      "name": "WordPress",
-      "year": 2015,
-      "skillLevel": "confident",
-      "description": "Темизация, плагины, хуки, кастомизация",
-      "insight": "WordPress стал профессиональным инструментом. Понимание экосистемы и архитектуры.",
-      "category": "cms"
     },
     {
       "name": "CSS",
@@ -217,57 +153,12 @@
       "category": "frontend"
     },
     {
-      "name": "Photoshop",
-      "year": 2005,
-      "skillLevel": "intermediate",
-      "description": "Подготовка графики, нарезка макетов, адаптация дизайна",
-      "insight": "Работа в веб-студии требовала уметь всё понемногу. Графику тоже."
-    },
-    {
-      "name": "SEO",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "Оптимизация контента, работа с мета-тегами, семантика, продвижение сайтов",
-      "insight": "Тогда это был дикий запад: ссылочные фермы, биржи, каталоги. Всё меняется — принципы остаются."
-    },
-    {
-      "name": "PHP",
-      "year": 2007,
-      "skillLevel": "intermediate",
-      "description": "ООП, функции, работа с БД, безопасность, фреймворки",
-      "insight": "PHP стал более структурированным. ООП и фреймворки показали, как писать масштабируемый код.",
-      "category": "backend"
-    },
-    {
-      "name": "WordPress",
-      "year": 2008,
-      "skillLevel": "intermediate",
-      "description": "Темизация, настройка шаблонов, работа с плагинами",
-      "insight": "Как и многие фрилансеры, прошёл путь WP-сайтов. Это была отличная школа для понимания PHP и CMS."
-    },
-    {
       "name": "Верстка",
       "year": 2008,
       "skillLevel": "confident",
       "description": "Сложные макеты, адаптивность, оптимизация, препроцессоры",
       "insight": "Верстка стала профессиональной. Понимание принципов и инструментов позволило создавать качественные интерфейсы.",
       "category": "frontend"
-    },
-    {
-      "name": "3D Max",
-      "year": 2008,
-      "skillLevel": "novice",
-      "description": "Базовое моделирование, текстурирование, рендеринг",
-      "insight": "3D моделирование открыло новые горизонты. Это был первый опыт работы с трехмерной графикой.",
-      "category": "3d"
-    },
-    {
-      "name": "SEO",
-      "year": 2008,
-      "skillLevel": "confident",
-      "description": "Продвинутые техники, аналитика, контент-маркетинг",
-      "insight": "SEO стало системным подходом. Понимание алгоритмов и пользовательского поведения.",
-      "category": "marketing"
     },
     {
       "name": "JavaScript (ES5/ES6)",
@@ -285,44 +176,12 @@
       "category": "frontend"
     },
     {
-      "name": "SEO",
-      "year": 2010,
-      "skillLevel": "expert",
-      "description": "Техническое SEO, архитектура сайтов, конверсионная оптимизация",
-      "insight": "SEO стало технической дисциплиной. Понимание взаимосвязи между структурой сайта и поисковыми алгоритмами.",
-      "category": "marketing"
-    },
-    {
       "name": "jQuery",
       "year": 2010,
       "skillLevel": "intermediate",
       "description": "DOM манипуляции, AJAX, плагины, анимации",
       "insight": "jQuery упростил работу с DOM и AJAX. Код стал более читаемым и кроссбраузерным.",
       "category": "frontend"
-    },
-    {
-      "name": "WordPress",
-      "year": 2010,
-      "skillLevel": "novice",
-      "description": "Базовые настройки, установка, простые темы",
-      "insight": "WordPress открыл мир CMS. Простота использования и огромная экосистема.",
-      "category": "cms"
-    },
-    {
-      "name": "Joomla",
-      "year": 2012,
-      "skillLevel": "novice",
-      "description": "Базовые настройки, компоненты, модули",
-      "insight": "Joomla показал альтернативный подход к CMS. Более сложная, но гибкая система.",
-      "category": "cms"
-    },
-    {
-      "name": "Drupal",
-      "year": 2012,
-      "skillLevel": "novice",
-      "description": "Базовые настройки, модули, таксономия",
-      "insight": "Drupal — самая сложная из популярных CMS. Отличная школа для понимания архитектуры.",
-      "category": "cms"
     },
     {
       "name": "Vue.js",
@@ -339,50 +198,11 @@
       "insight": "Хорошо структурированные стили — это читаемый и поддерживаемый фронтенд."
     },
     {
-      "name": "Gulp",
-      "year": 2014,
-      "skillLevel": "intermediate",
-      "description": "Автоматизация сборки, задачи, плагины, оптимизация",
-      "insight": "Gulp показал, как автоматизировать рутинные задачи. Это был первый шаг к современной разработке.",
-      "category": "build"
-    },
-    {
-      "name": "Webpack",
-      "year": 2014,
-      "skillLevel": "intermediate",
-      "description": "Модульная сборка, loaders, plugins, оптимизация",
-      "insight": "Webpack изменил подход к организации кода. Модульность стала стандартом.",
-      "category": "build"
-    },
-    {
-      "name": "Bitrix",
-      "year": 2014,
-      "skillLevel": "novice",
-      "description": "Базовые настройки, компоненты, инфоблоки",
-      "insight": "Bitrix — мощная, но сложная CMS. Отличная школа для понимания корпоративных решений.",
-      "category": "cms"
-    },
-    {
-      "name": "Webpack",
-      "year": 2017,
-      "skillLevel": "intermediate",
-      "description": "Конфигурация, сборка, оптимизация, loaders/plugins",
-      "insight": "Сборка — это отдельное ремесло. Кто настраивал Webpack — поймёт."
-    },
-    {
       "name": "Node.js",
       "year": 2018,
       "skillLevel": "confident",
       "description": "Express, API, скрипты CLI, SSR",
       "insight": "Сервер на JS — мощно. Даже если потом от него отказываешься."
-    },
-    {
-      "name": "Blender",
-      "year": 2018,
-      "skillLevel": "intermediate",
-      "description": "3D моделирование, текстурирование, анимация, рендеринг",
-      "insight": "Blender открыл мир бесплатного 3D. Мощный инструмент для создания визуального контента.",
-      "category": "3d"
     },
     {
       "name": "MongoDB",
@@ -392,26 +212,11 @@
       "insight": "Документные БД — идеальны для прототипирования и динамических данных."
     },
     {
-      "name": "React",
-      "year": 2020,
-      "skillLevel": "intermediate",
-      "description": "Hooks, JSX, компонентный подход, Zustand",
-      "insight": "Освоил React как вторую фронтенд-платформу. Хорошо знать обе стороны фронтенд-силы."
-    },
-    {
       "name": "TypeScript",
       "year": 2021,
       "skillLevel": "confident",
       "description": "Типизация, интерфейсы, дженерики, расширенные типы",
       "insight": "Типы добавляют боли, но и защиты. Чем больше проект, тем выше ценность TypeScript."
-    },
-    {
-      "name": "WordPress",
-      "year": 2020,
-      "skillLevel": "expert",
-      "description": "Gutenberg, REST API, плагины, производительность",
-      "insight": "WordPress эволюционировал в современную платформу. Gutenberg и REST API открыли новые возможности.",
-      "category": "cms"
     },
     {
       "name": "Canvas / D3.js / визуализации",
@@ -435,28 +240,12 @@
       "insight": "Я не просто использую AI. Я строю с его помощью. И это — ключевой скилл нового времени."
     },
     {
-      "name": "React",
-      "year": 2015,
-      "skillLevel": "novice",
-      "description": "JSX, компоненты, props/state. Первый опыт реактивного UI.",
-      "insight": "React открыл глаза на то, что интерфейс можно писать как функции. Было странно и мощно одновременно.",
-      "category": "frontend"
-    },
-    {
       "name": "Vue 2 + Vuex",
       "year": 2017,
       "skillLevel": "intermediate",
       "description": "Options API, реактивность, глобальное состояние, слоты.",
       "insight": "Vue показался более человечным после React. Наконец-то стало понятно, как структурировать SPA.",
       "category": "frontend"
-    },
-    {
-      "name": "Nuxt.js",
-      "year": 2020,
-      "skillLevel": "intermediate",
-      "description": "SSR, маршруты из файлов, плагины, модули, Nuxt-лайфсайкл.",
-      "insight": "Nuxt дал опыт работы с фреймворком, в котором многое решено за тебя — и это ускоряло.",
-      "category": "framework"
     },
     {
       "name": "Vue 3 + Composition API",
@@ -499,4 +288,4 @@
       "category": "architecture"
     }
   ]
-}
+} 

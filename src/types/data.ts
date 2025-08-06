@@ -7,7 +7,6 @@ export interface Bubble {
   description: string
   insight?: string
   category?: string
-  important?: boolean
 }
 
 export interface Achievement {

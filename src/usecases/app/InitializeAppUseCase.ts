@@ -41,14 +41,14 @@ export class InitializeAppUseCase {
       // Создаем сессию
       await this.sessionStore.startSession({ lives })
 
-      // Проверяем нужно ли загрузить старые пузыри
-      if (this.sessionStore.session && this.sessionStore.session.currentLevel >= 4) {
-        const oldBubbles = await this.repository.getOldBubbles()
-        if (oldBubbles.length > 0) {
-          this.bubbleStore.addBubbles(oldBubbles)
-          console.log('✅ Загружены пузыри из прошлого')
-        }
-      }
+      // // Проверяем нужно ли загрузить старые пузыри
+      // if (this.sessionStore.session && this.sessionStore.session.currentLevel >= 4) {
+      //   const oldBubbles = await this.repository.getOldBubbles()
+      //   if (oldBubbles.length > 0) {
+      //     this.bubbleStore.addBubbles(oldBubbles)
+      //     console.log('✅ Загружены пузыри из прошлого')
+      //   }
+      // }
 
       // Открываем welcome модалку
       this.modalStore.openWelcome()

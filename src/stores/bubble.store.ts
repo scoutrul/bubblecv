@@ -1,20 +1,36 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { NormalizedBubble } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
 import { api } from '@/api'
 import { createHiddenBubble } from '@/utils'
+import { useSessionStore } from './session.store'
 
 
 export const useBubbleStore = defineStore('bubbleStore', () => {
   const bubbles = ref<NormalizedBubble[]>([])
   const isLoading = ref(true)
   
+  // Отслеживаем изменения уровня и перезагружаем баблы при необходимости
+  const sessionStore = useSessionStore()
+  watch(() => sessionStore.currentLevel, (newLevel, oldLevel) => {
+    if (newLevel !== oldLevel) {
+      console.log(`🔄 Уровень изменился с ${oldLevel} на ${newLevel}, перезагружаем баблы...`)
+      loadBubbles()
+    }
+  })
+  
   const loadBubbles = async () => {
     isLoading.value = true
 
     try {
-      const { data } = await api.getBubbles()
+      const currentLevel = sessionStore.currentLevel
+      
+      const { data } = currentLevel <= 1 
+        ? await api.getBubbles()
+        : await api.getProjectBubbles()
+      
+      console.log(`📊 Загружено ${data.length} баблов для уровня ${currentLevel}`)
       bubbles.value = data
     } catch (err) {
       console.error('❌ Ошибка загрузки пузырей:', err)

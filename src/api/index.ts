@@ -1,4 +1,5 @@
 import skills from '@/data/skills.json'
+import project from '@/data/project.json'
 import levels from '@/data/levels.json'
 import achievements from '@/data/achievements.json'
 import bonuses from '@/data/bonuses.json'
@@ -21,6 +22,13 @@ export const api = {
 
   async getBubbles(): Promise<{ data: NormalizedBubble[] }> {
     const data = skills.skills.map((bubble, index) =>
+      normalizeSkillBubble(bubble as Bubble, index)
+    )
+    return { data }
+  },
+
+  async getProjectBubbles(): Promise<{ data: NormalizedBubble[] }> {
+    const data = project.skills.map((bubble, index) =>
       normalizeSkillBubble(bubble as Bubble, index)
     )
     return { data }
