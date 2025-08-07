@@ -1,5 +1,6 @@
 <template>
   <div 
+    ref="tooltipRef"
     class="tooltip-wrapper group"
     @mouseenter="showTooltip"
     @mouseleave="hideTooltip"
@@ -19,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 interface Props {
   text: string
@@ -33,6 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const isVisible = ref(false)
+const tooltipRef = ref<HTMLElement | null>(null)
 let timeoutId: number | null = null
 
 const showTooltip = () => {
@@ -49,10 +51,21 @@ const hideTooltip = () => {
   isVisible.value = false
 }
 
+const handleClickOutside = (event: Event) => {
+  if (tooltipRef.value && !tooltipRef.value.contains(event.target as Node)) {
+    hideTooltip()
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
 onUnmounted(() => {
   if (timeoutId) {
     clearTimeout(timeoutId)
   }
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 

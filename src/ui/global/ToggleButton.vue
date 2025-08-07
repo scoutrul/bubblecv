@@ -204,7 +204,7 @@ onUnmounted(() => {
 .panel-wrapper.bottom {
   @apply absolute bottom-full right-0 mb-4;
   @apply w-72 sm:w-80;
-  @apply z-[10000];
+  @apply z-[100000];
   max-height: calc(100vh - 8rem);
   min-height: fit-content;
 }
