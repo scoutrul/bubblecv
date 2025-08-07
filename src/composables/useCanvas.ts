@@ -78,6 +78,24 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
+  // Функция для добавления новых пузырей к существующим без ререндера
+  const addBubblesToCanvas = (newBubbles: BubbleNode[]) => {
+    if (!canvasUseCase.value || !canvasRef.value) return
+
+    // Получаем текущие пузыри на канвасе
+    const currentBubbles = canvasUseCase.value.getCurrentBubbles?.() || []
+    
+    // Добавляем новые пузыри к существующим
+    const updatedBubbles = [...currentBubbles, ...newBubbles]
+    
+    try {
+      console.log(`➕ Добавляем ${newBubbles.length} новых пузырей к существующим ${currentBubbles.length}`)
+      canvasUseCase.value.updateBubbles({ bubbles: updatedBubbles })
+    } catch (error) {
+      console.error('Error adding bubbles to canvas:', error)
+    }
+  }
+
   // Отслеживаем изменения в bubble store и session store
   watch([() => bubbleStore.bubbles, () => sessionStore.currentLevel], () => {
     console.log('🔄 Данные изменились, обновляем канвас...')
@@ -337,6 +355,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     canvasHeight,
     resetCanvas,
     removeBubble,
+    addBubblesToCanvas,
+    updateCanvasBubbles,
     removeBubbleWithEffects: async (params: { bubble: BubbleNode; xpAmount?: number; isPhilosophyNegative?: boolean; skipFloatingText?: boolean }) => {
       if (canvasUseCase.value) {
         await canvasUseCase.value.removeBubbleWithEffects(params)

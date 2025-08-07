@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { useCanvas } from '@/composables/useCanvas'
-import { useUi, setEventBridge } from '@/composables/useUi'
+import { setEventBridge } from '@/composables/useUi'
 import { setCanvasBridge } from '@/composables/useModals'
 import { onMounted, ref } from 'vue'
 
@@ -23,6 +23,7 @@ const {
   canvasHeight,
   resetCanvas,
   removeBubble,
+  updateCanvasBubbles,
   removeBubbleWithEffects,
   findBubbleById,
   createFloatingText
@@ -37,7 +38,8 @@ onMounted(() => {
     removeBubble,
     removeBubbleWithEffects,
     findBubbleById,
-    createFloatingText
+    createFloatingText,
+    updateCanvasBubbles
   })
 })
 </script>

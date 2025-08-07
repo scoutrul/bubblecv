@@ -207,4 +207,5 @@ export interface CanvasUseCase {
   destroyCanvas(): void
   render(): void
   animate(): void
+  getCurrentBubbles(): BubbleNode[]
 } 

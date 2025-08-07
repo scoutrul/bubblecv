@@ -617,4 +617,8 @@ export class CanvasUseCase implements ICanvasUseCase {
     const currentLevel = this.getCurrentLevel()
     await this.bubbleManagerRepository.updateBubbleStates(this.canvasDomain.nodes, this.canvasDomain.width, this.canvasDomain.height, currentLevel)
   }
+
+  getCurrentBubbles(): BubbleNode[] {
+    return [...this.canvasDomain.nodes]
+  }
 } 

@@ -63,6 +63,8 @@ export const addPendingBubbleRemoval = (removal: PendingBubbleRemoval, requiresM
   pendingBubbleRemovals.value.push(removal)
 }
 
+
+
 export const useModals = () => {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
@@ -280,8 +282,18 @@ export const useModals = () => {
             }
           }
           
+          // Проверяем, был ли это крепкий пузырь, до его удаления
+          const bubble = canvas.findBubbleById(removal.bubbleId)
+          const wasToughBubble = bubble && bubble.isTough
+          
           // Удаляем пузырь с эффектами
           await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+          
+          // Если это был крепкий пузырь и получена ачивка tough-bubble-popper, добавляем скрытые пузыри
+          if (wasToughBubble && sessionStore.hasUnlockedFirstToughBubbleAchievement) {
+            // Добавляем скрытые пузыри после взрыва крепкого пузыря
+            await addHiddenBubblesAfterToughAchievement()
+          }
         }
         pendingBubbleRemovals.value = []
       }
@@ -296,6 +308,54 @@ export const useModals = () => {
     } else {
       // Иначе используем старый способ
       modalStore.closeModal(key)
+    }
+  }
+
+  // Функция для добавления скрытых пузырей после получения ачивки tough-bubble-popper
+  const addHiddenBubblesAfterToughAchievement = async () => {
+    const { useBubbleStore } = await import('@/stores/bubble.store')
+    const { getYearRange } = await import('@/utils')
+    const bubbleStore = useBubbleStore()
+    
+    // Получаем минимальный год от доступных пузырей (как в таймлайне)
+    const yearRange = getYearRange(bubbleStore.bubbles)
+    const startYear = yearRange.startYear
+    const currentYear = sessionStore.currentYear
+    
+    // Добавляем скрытые пузыри для всех лет от минимального до текущего
+    const yearsToAdd: number[] = []
+    for (let year = startYear; year <= currentYear; year++) {
+      // Проверяем, есть ли уже скрытый пузырь для этого года
+      const existingHiddenBubble = bubbleStore.bubbles.find(b => 
+        b.isHidden && b.year === year
+      )
+      
+      // Проверяем, не был ли этот пузырь уже лопнут
+      // ID скрытого пузыря: -(year * 10000 + 9999)
+      const hiddenBubbleId = -(year * 10000 + 9999)
+      const isPopped = sessionStore.visitedBubbles.includes(hiddenBubbleId)
+      
+      if (!existingHiddenBubble && !isPopped) {
+        yearsToAdd.push(year)
+      }
+    }
+    
+    if (yearsToAdd.length > 0) {
+      bubbleStore.addHiddenBubbles(yearsToAdd)
+      
+      // Принудительно обновляем канвас с новыми скрытыми пузырями
+      await import('vue').then(({ nextTick }) => {
+        nextTick(async () => {
+          // Получаем bridge для обновления канваса
+          const canvasBridge = getCanvasBridge()
+          if (canvasBridge && canvasBridge.updateCanvasBubbles) {
+            canvasBridge.updateCanvasBubbles()
+            console.log(`🎯 Добавлено ${yearsToAdd.length} скрытых пузырей после пробития первого крепкого пузыря (годы: ${startYear}-${currentYear})`)
+          } else {
+            console.warn('Canvas bridge not available for updating bubbles')
+          }
+        })
+      })
     }
   }
 
