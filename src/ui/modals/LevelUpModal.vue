@@ -19,11 +19,9 @@
     <!-- Заголовок с анимацией -->
     <div class="level-up-header">
       <div class="level-icon-large">{{ isProjectTransition ? '🚀' : levelData.icon }}</div>
-      <h2 class="level-up-title" v-if="isProjectTransition">🎯 {{ t('modals.levelUp.projectTransition.title') }}</h2>
-      <h2 class="level-up-title" v-else-if="levelData.level > 1">{{ t('modals.levelUp.title') }}</h2>
+      <h2 class="level-up-title" v-if="!isProjectTransition">{{ t('modals.levelUp.title') }}</h2>
       <div class="new-level">
-        <span class="level-number" v-if="isProjectTransition">{{ t('modals.levelUp.projectTransition.subtitle') }}</span>
-        <span class="level-number" v-else>{{ t('modals.levelUp.message', { level: levelData.level }) }}</span>
+        <span class="level-number" v-if="!isProjectTransition">{{ t('modals.levelUp.message', { level: levelData.level }) }}</span>
       </div>
     </div>
 
@@ -33,27 +31,18 @@
     </div>
 
     <!-- Project Transition Description -->
-    <div class="project-transition-description" v-if="isProjectTransition">
-      <p class="main-text">
-        {{ t('modals.levelUp.projectTransition.congratulations') }}
-      </p>
-      
+    <div class="project-transition-description" v-if="isProjectTransition">  
       <div class="info-box">
-        <h3>{{ t('modals.levelUp.projectTransition.whatChanges') }}</h3>
         <ul>
-          <li>{{ t('modals.levelUp.projectTransition.changes.skills') }}</li>
-          <li>{{ t('modals.levelUp.projectTransition.changes.timeline') }}</li>
-          <li>{{ t('modals.levelUp.projectTransition.changes.checkLevel') }}</li>
+          <li v-html="t('modals.levelUp.projectTransition.congratulations')"></li>
+          <li v-html="t('modals.levelUp.projectTransition.changes.skills')"></li>
+          <li v-html="t('modals.levelUp.projectTransition.changes.checkLevel')"></li>
         </ul>
       </div>
-      
-      <p class="challenge-text">
-        <strong>{{ t('modals.levelUp.projectTransition.challenge') }}</strong>
-      </p>
     </div>
 
     <!-- Разблокированные элементы -->
-    <div class="unlocked-items" v-if="!isProjectTransition">
+    <div class="unlocked-items">
       <!-- Разблокированный бонус -->
       <div v-if="unlockedBonus" class="unlocked-item">
         <h3>{{ t('modals.levelUp.newBonus') }}</h3>
@@ -193,17 +182,16 @@ const close = () => {
 
 <style>
 .level-up-modal-container {
-  background: var(--background-secondary);
-  border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 2rem;
   width: 100%;
   max-width: 28rem;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 20px 40px rgb(27, 30, 31);
+  background: linear-gradient(135deg, rgb(30 41 59) 0, rgb(41 35 67) 100%);
   position: relative;
-  cursor: default;
 }
 
 .close-button {
@@ -240,7 +228,7 @@ const close = () => {
 .level-icon-large {
   font-size: 4rem;
   margin-bottom: 1rem;
-  animation: bounce 1s ease-out;
+  animation: bounce 1s ease-out infinite;
 }
 
 .level-up-title {
@@ -380,36 +368,57 @@ const close = () => {
 
 /* Стили для разных уровней */
 
-/* Уровень 2 - синяя обводка */
 .level-up-modal-2 {
-  border: 2px solid #3b82f6 !important;
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3) !important;
+  border: 2px solid rgba(59, 246, 196, 0.2);
+  box-shadow: 0 20px 40px rgb(33 48 78);
 }
 
-/* Уровень 3 - зеленая обводка */
 .level-up-modal-3 {
-  border: 2px solid #22c55e !important;
-  box-shadow: 0 20px 40px rgba(34, 197, 94, 0.3) !important;
+  border: 2px solid rgba(62, 246, 59, 0.2);
+  box-shadow: 0 20px 40px rgba(59, 246, 84, 0.1);
+  background: linear-gradient(135deg, rgb(30 57 59) 0, rgb(35 67 61) 100%);
 }
 
-/* Уровень 4 - фиолетовая обводка */
 .level-up-modal-4 {
-  border: 2px solid #8b5cf6 !important;
-  box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3) !important;
+  border: 2px solid rgba(168, 85, 247, 0.3);
+  box-shadow: 0 20px 40px rgb(168 85 247 / 39%);
 }
 
-/* Уровень 5 - золотая обводка */
 .level-up-modal-5 {
-  border: 2px solid #fbbf24 !important;
-  box-shadow: 0 20px 40px rgba(251, 191, 36, 0.3) !important;
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 20px 40px rgba(245, 158, 11, 0.2);
+  background: linear-gradient(155deg, rgb(100 74 22 / 90%) 70%, rgb(143 117 29) 100%);
+}
+
+/* Стили заголовков для разных уровней */
+.level-up-modal-3 .level-up-title {
+  background: linear-gradient(to right, #3b82f6, #60a5fa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.level-up-modal-4 .level-up-title {
+  background: linear-gradient(to right, #8b5cf6, #a78bfa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.level-up-modal-5 .level-up-title {
+  background: linear-gradient(to right, #fbbf24, #f97316);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Project Transition Styles */
 
 .project-transition {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 25%, #fff8a0 50%, #ffed4e 75%, #ffd700 100%) !important;
-  border: 2px solid #d4af37 !important;
-  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3) !important;
+  background: linear-gradient(to right, #fbbf24, #f97316);
+  border: 2px solid #d4af37;
+  box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+  max-width: 40rem;
 }
 
 .level-up-modal-container.project-transition .level-up-title {
@@ -428,14 +437,6 @@ const close = () => {
   margin-bottom: 2rem;
 }
 
-.project-transition-description .main-text {
-  font-size: 1.1rem;
-  color: #2d1810;
-  margin-bottom: 1.5rem;
-  line-height: 1.6;
-  font-weight: 500;
-}
-
 .project-transition-description .info-box {
   background: rgba(255, 255, 255, 0.95);
   border: 2px solid #d4af37;
@@ -444,13 +445,6 @@ const close = () => {
   margin: 1.5rem 0;
   text-align: left;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.project-transition-description .info-box h3 {
-  color: #2d1810;
-  margin: 0 0 1rem 0;
-  font-size: 1.2rem;
-  font-weight: bold;
 }
 
 .project-transition-description .info-box ul {
@@ -465,21 +459,13 @@ const close = () => {
   font-weight: 500;
 }
 
-.project-transition-description .challenge-text {
-  font-size: 1.1rem;
-  color: #2d1810;
-  font-weight: bold;
-  margin: 1.5rem 0;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
-}
-
 .project-transition-footer {
   margin-top: 2rem;
   text-align: center;
 }
 
 .continue-button {
-  background: linear-gradient(135deg, #2d1810 0%, #4a2c1a 100%);
+  background: linear-gradient(135deg, #9a6ac2 0%, #5a76f6 100%);
   color: white;
   border: none;
   border-radius: 12px;

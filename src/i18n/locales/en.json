@@ -117,17 +117,12 @@
       "clickToView": "Click to view",
       "clickToRead": "Click to read",
       "projectTransition": {
-        "title": "New Game Stage",
-        "subtitle": "Transition to Project Technologies",
-        "congratulations": "Congratulations! You've reached the level where studying <strong>project technologies</strong> begins.",
-        "whatChanges": "What will change:",
+        "congratulations": "Congratulations! You reached the level where the study of <strong>project technologies</strong> begins.",
         "changes": {
-          "skills": "Now only skills and technologies that are <strong>necessary for creating a similar project</strong> will be shown",
-          "timeline": "Timeline is hidden - focus on technologies",
-          "checkLevel": "Check if you match this development level"
+          "skills": "Now only skills and technologies that are <strong>necessary for creating a similar project</strong> will be shown.",
+          "checkLevel": "Check if you match this level of development!"
         },
-        "challenge": "Are you ready to study the technologies used in this project?",
-        "continueButton": "Continue studying technologies"
+        "continueButton": "Продолжить"
       }
     }
   },

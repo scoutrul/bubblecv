@@ -6,7 +6,7 @@ export const GAME_CONFIG = {
   maxLives: 5,
   
   // Уровень на котором происходит переключение с карьеры на технологии проекта
-  LEVEL_SWITCH_THRESHOLD: 2,
+  LEVEL_SWITCH_THRESHOLD: 3,
 
   TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
   HIDDEN_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 6) + 3, // 3-8 кликов

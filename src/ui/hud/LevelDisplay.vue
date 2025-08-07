@@ -42,8 +42,8 @@ const translatedLevelTitle = computed(() => {
 
 const handleLevelClick = () => {
   if(props.currentLevel > 1) {  
-    openLevelUpModal(props.currentLevel)
   }
+  openLevelUpModal(props.currentLevel)
 }
 
 // CSS класс для уровня
@@ -87,9 +87,9 @@ onUnmounted(() => {
 
 /* Уровень 3 - легкий градиент + border */
 .level-3 {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.05) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: linear-gradient(135deg, rgba(59, 246, 100, 0.1) 0%, rgba(147, 197, 253, 0.05) 100%);
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(72, 246, 59, 0.1);
 }
 
 /* Уровень 4 - более яркий градиент + border */
