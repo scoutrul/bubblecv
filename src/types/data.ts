@@ -48,6 +48,5 @@ export interface Memoir {
   level: number
   title: string
   icon: string
-  type: 'text' | 'form' 
   content: string
 }
