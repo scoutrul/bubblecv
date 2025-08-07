@@ -1,4 +1,4 @@
-import { ref, type Ref } from 'vue'
+import { type Ref } from 'vue'
 import type { 
   CanvasUseCase as ICanvasUseCase,
   InitCanvasParams,
@@ -19,6 +19,8 @@ import type {
   CanvasModalStore
 } from './types'
 import type { BubbleNode } from '@/types/canvas'
+import { addPendingBubbleRemoval } from '@/composables/useModals'
+import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
 
 export class CanvasUseCase implements ICanvasUseCase {
   private canvasDomain = {
@@ -48,7 +50,6 @@ export class CanvasUseCase implements ICanvasUseCase {
   private getCurrentLevel(): number {
     return this.sessionStore.session?.currentLevel || 1
   }
-
 
   async initCanvas(params: InitCanvasParams): Promise<InitCanvasResult> {
     try {
@@ -461,7 +462,6 @@ export class CanvasUseCase implements ICanvasUseCase {
         // Добавляем XP за каждый клик по крепкому пузырю
         const result = await this.useSession.gainXP(1)
         if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
-          
           this.modalStore.openLevelUpModal(result.newLevel, {
             ...result.levelData,
             title: result.levelData.title || `Уровень ${result.newLevel}`,
@@ -498,16 +498,7 @@ export class CanvasUseCase implements ICanvasUseCase {
           await this.useSession.visitBubble(bubble.id)
         }
         
-        // Проверяем ачивку за первый скрытый пузырь
-        const { useAchievement } = await import('@/composables/useAchievement')
-        const { useModals } = await import('@/composables/useModals')
-        const { createPendingAchievement } = await import('@/composables/useModals')
-        
-        const achievementComposable = useAchievement()
-        const { openAchievementModal } = useModals()
-        
         // Скрытые пузыри НЕ показывают модалку - добавляем в очередь на удаление
-        const { XP_CALCULATOR } = await import('@/config')
         const xpAmount = XP_CALCULATOR.getBubbleXP(bubble.skillLevel)
         
         // Добавляем XP за финальный взрыв скрытого пузыря
@@ -532,34 +523,27 @@ export class CanvasUseCase implements ICanvasUseCase {
         })
         
         // Добавляем в очередь на удаление через modalStore
-        const { addPendingBubbleRemoval } = await import('@/composables/useModals')
-        
-        // Проверяем, нужна ли ачивка (если ачивка уже получена или недоступна, удаляем сразу)
-        let requiresModal = true
-        try {
-          const achievement = await achievementComposable.unlockAchievement('secret-bubble-discoverer')
-          if (achievement) {
-            // Если ачивка выдана - показываем модалку
-            openAchievementModal(createPendingAchievement(achievement))
-            requiresModal = true // Нужно дождаться закрытия модалки
-          } else {
-            requiresModal = false // Ачивка не выдана, можно удалять сразу
-          }
-        } catch (error) {
-          // Ачивка уже получена или недоступна - удаляем сразу
-          requiresModal = false
-        }
-        
         addPendingBubbleRemoval({
           bubbleId: bubble.id,
           xpAmount: 0, // XP уже добавлен выше
           isPhilosophyNegative: false
-        }, requiresModal)
+        }, false) // Скрытые пузыри удаляем сразу, без ожидания модалок
         
         return { bubblePopped: false }
       } else {
+        // Добавляем XP за каждый клик по скрытому пузырю (сразу)
+        const result = await this.useSession.gainXP(GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK)
+        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
+          this.modalStore.openLevelUpModal(result.newLevel, {
+            ...result.levelData,
+            title: result.levelData.title || `Уровень ${result.newLevel}`,
+            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
+            xpRequired: 0,
+            isProjectTransition: result.levelData.isProjectTransition
+          })
+        }
+        
         // Создаем floating text при каждом клике по скрытому пузырю
-        const { GAME_CONFIG } = await import('@/config')
         this.effectsRepository.createFloatingText({
           x: mouseX,
           y: mouseY,
@@ -576,17 +560,6 @@ export class CanvasUseCase implements ICanvasUseCase {
         if (jump.vx !== 0 || jump.vy !== 0) {
           bubble.vx = jump.vx
           bubble.vy = jump.vy
-        }
-        
-        const result = await this.useSession.gainXP(GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK)
-        if (result.leveledUp && result.levelData && result.newLevel !== undefined) {
-          this.modalStore.openLevelUpModal(result.newLevel, {
-            ...result.levelData,
-            title: result.levelData.title || `Уровень ${result.newLevel}`,
-            description: result.levelData.description || `Поздравляем! Вы достигли ${result.newLevel} уровня!`,
-            xpRequired: 0,
-            isProjectTransition: result.levelData.isProjectTransition
-          })
         }
         
         return { bubblePopped: false }
@@ -623,10 +596,6 @@ export class CanvasUseCase implements ICanvasUseCase {
 
     return { bubblePopped: false }
   }
-
-
-
-
 
   private handleMouseLeave(): void {
     if (this.hoveredBubble && this.hoveredBubble.baseRadius) {

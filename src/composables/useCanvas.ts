@@ -84,7 +84,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     nextTick(() => {
       updateCanvasBubbles()
     })
-  }, { deep: true })
+  })
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     // Проверяем есть ли основные пузыри навыков (исключая философские и скрытые)
