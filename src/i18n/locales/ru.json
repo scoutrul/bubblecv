@@ -160,6 +160,18 @@
   "widgets": {
     "achievements": "Достижения",
     "bonuses": "Бонусы",
-    "memoirs": "Мемуары"
+    "memoirs": "Мемуары",
+    "categoryFilter": {
+      "title": "Фильтр категорий",
+      "tooltip": "Фильтровать пузыри по категориям",
+      "showAll": "Показать всё",
+      "categories": "Категории",
+      "filtered": "Отфильтровано",
+      "noFilters": "Все категории",
+      "bubbleCount": "{count} пузырей",
+      "bubbleCountOne": "{count} пузырь",
+      "bubbleCountFew": "{count} пузыря",
+      "bubbleCountMany": "{count} пузырей"
+    }
   }
 } 

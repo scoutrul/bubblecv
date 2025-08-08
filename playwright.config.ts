@@ -9,7 +9,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3002',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     headless: false,
     video: 'on',
@@ -39,8 +39,8 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:3002',
+    command: 'vite --port 3000 --strictPort',
+    url: 'http://localhost:3000',
     reuseExistingServer: true,
     timeout: 30000,
   },

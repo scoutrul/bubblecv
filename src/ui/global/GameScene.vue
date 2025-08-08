@@ -5,6 +5,11 @@
     
     <!-- UI элементы с шейк-эффектом -->
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
+      <!-- Виджеты в верхней правой части экрана -->
+      <div class="right-top-widgets-container">
+        <CategoryFilterWidget />
+      </div>
+
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
       <div class="left-widgets-container">
         <SettingsWidget />
@@ -36,6 +41,7 @@ import TimelineSlider from '@/ui/timeline/TimelineSlider.vue'
 import YearTransition from '@/ui/global/YearTransition.vue'
 import PerformanceMonitor from '@/ui/global/PerformanceMonitor.vue'
 import SettingsWidget from '@/ui/global/SettingsWidget.vue'
+import CategoryFilterWidget from '@/ui/category-filter/CategoryFilterWidget.vue'
 
 import { computed } from 'vue'
 import { useApp } from '@/composables'
@@ -75,6 +81,14 @@ const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
 
 .game-hud {
   @apply absolute top-0 right-0 z-10 pointer-events-none;
+}
+
+/* Верхний правый контейнер виджетов */
+.right-top-widgets-container {
+  @apply fixed top-16 right-2 sm:right-4;
+  @apply flex flex-col gap-4;
+  @apply pointer-events-auto;
+  z-index: 10000;
 }
 
 /* Левый контейнер виджетов - высокий приоритет */

@@ -1,6 +1,7 @@
 // Экспортируем все утилиты
 export * from './animations'
 export * from './bubble'
+export * from './device'
 export * from './navigation'
 export * from './nodes'
 export * from './normalize'

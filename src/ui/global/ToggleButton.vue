@@ -41,7 +41,7 @@ interface Props {
   icon: string
   badgeCount: number
   position: 'bottom-right' | 'center-right'
-  panelPosition?: 'bottom' | 'left'
+  panelPosition?: 'bottom' | 'left' | 'right'
 }
 
 interface Emits {
@@ -209,6 +209,22 @@ onUnmounted(() => {
   min-height: fit-content;
 }
 
+.panel-wrapper.left {
+  @apply absolute top-full left-0 mt-4;
+  @apply w-72 sm:w-80;
+  @apply z-[100000];
+  max-height: calc(100vh - 8rem);
+  min-height: fit-content;
+}
+
+.panel-wrapper.right {
+  @apply absolute top-0 right-[4rem];
+  @apply w-72 sm:w-80;
+  @apply z-[100000];
+  max-height: calc(100vh - 8rem);
+  min-height: fit-content;
+}
+
 /* Анимации панели */
 .slide-panel-enter-active,
 .slide-panel-leave-active {
@@ -223,5 +239,25 @@ onUnmounted(() => {
 .slide-panel-leave-to.bottom {
   opacity: 0;
   transform: translateY(10px);
+}
+
+.slide-panel-enter-from.left {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-panel-leave-to.left {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-panel-enter-from.right {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+.slide-panel-leave-to.right {
+  opacity: 0;
+  transform: translateY(-10px);
 }
 </style>

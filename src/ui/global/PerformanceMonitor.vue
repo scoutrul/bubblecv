@@ -85,8 +85,8 @@ const performanceLevelText = computed(() => {
 <style scoped>
 .performance-monitor {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  bottom: 1rem;
+  left: 5rem;
   background: rgba(0, 0, 0, 0.8);
   color: white;
   padding: 1rem;

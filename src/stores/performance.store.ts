@@ -6,7 +6,7 @@ export const usePerformanceStore = defineStore('performanceStore', () => {
   const performanceLevel = ref(0)
   const starCount = ref(0)
   const activeNodes = ref(0)
-  const showPerformancePanel = ref(false)
+  const showPerformancePanel = ref(true)
   const starCounts = ref({
     deepBg: 0,
     center: 0,

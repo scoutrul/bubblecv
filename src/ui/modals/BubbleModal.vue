@@ -61,15 +61,7 @@
           </p>
         </div>
         
-        <!-- Importance -->
-        <div v-if="bubble?.important !== undefined" class="importance-section">
-          <h3 class="section-title">{{ t('bubble.importance') }}</h3>
-          <div class="importance-info">
-            <span class="importance-badge" :class="importanceClass">
-              {{ importanceText }}
-            </span>
-          </div>
-        </div>
+
       </div>
 
       <!-- Footer -->
@@ -127,17 +119,7 @@ const xpReward = computed(() => {
   return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
 })
 
-const importanceClass = computed(() => {
-  if (props.bubble?.important === true) return 'importance-important'
-  if (props.bubble?.important === false) return 'importance-not-important'
-  return 'importance-neutral'
-})
 
-const importanceText = computed(() => {
-  if (props.bubble?.important === true) return t.value('bubble.important')
-  if (props.bubble?.important === false) return t.value('bubble.notImportant')
-  return t.value('bubble.neutral')
-})
 
 
 </script>
@@ -261,30 +243,6 @@ const importanceText = computed(() => {
 
 .timeline-start {
   @apply text-sm font-medium text-text-primary;
-}
-
-.importance-section {
-  @apply space-y-3;
-}
-
-.importance-info {
-  @apply flex items-center gap-3;
-}
-
-.importance-badge {
-  @apply px-3 py-1 rounded-full text-sm font-medium;
-}
-
-.importance-important {
-  @apply bg-green-100 text-green-800;
-}
-
-.importance-not-important {
-  @apply bg-red-100 text-red-800;
-}
-
-.importance-neutral {
-  @apply bg-gray-100 text-gray-800;
 }
 
 .modal-footer {

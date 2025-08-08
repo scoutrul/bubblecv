@@ -46,13 +46,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     if (!canvasUseCase.value || !canvasRef.value) return
 
     const initialBubbles = getBubblesToRender(
-      bubbleStore.bubbles, 
-      sessionStore.currentYear, 
-      sessionStore.visitedBubbles, 
-      [], 
+      bubbleStore.bubbles,
+      sessionStore.currentYear,
+      sessionStore.visitedBubbles,
+      [],
       sessionStore.hasUnlockedFirstToughBubbleAchievement
     )
-    
+
     // Apply category filtering if filters are active
     let filteredBubbles = initialBubbles
     if (bubbleStore.hasActiveCategoryFilters) {
@@ -68,46 +68,33 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         resetFilters: bubbleStore.resetCategoryFilters,
         togglePanel: bubbleStore.toggleCategoryFilterPanel,
         closePanel: bubbleStore.closeCategoryFilterPanel,
-        setSelectedCategories: () => {},
-        setAvailableCategories: () => {},
-        saveToLocalStorage: () => {},
-        loadFromLocalStorage: () => {}
+        setSelectedCategories: () => { },
+        setAvailableCategories: () => { },
+        saveToLocalStorage: () => { },
+        loadFromLocalStorage: () => { }
       }
-      
+
       const factory = new CategoryFilterUseCaseFactory(categoryFilterAdapter)
       const applyFiltersUseCase = factory.createApplyFiltersUseCase(bubbleStore.bubbles)
-      
-      // Convert BubbleNode back to NormalizedBubble for filtering
-      const normalizedBubbles = initialBubbles.map(bubble => ({
-        id: bubble.id,
-        name: bubble.name,
-        year: bubble.year,
-        skillLevel: bubble.skillLevel,
-        description: bubble.description,
-        insight: bubble.insight,
-        category: bubble.category,
-        isHidden: bubble.isHidden,
-        isQuestion: bubble.isQuestion,
-        isPopped: bubble.isPopped,
-        isTough: bubble.isTough,
-        toughClicks: bubble.toughClicks,
-        requiredClicks: bubble.requiredClicks,
-        hiddenClicks: bubble.hiddenClicks,
-        requiredHiddenClicks: bubble.requiredHiddenClicks,
-        isActive: bubble.isActive,
-        size: bubble.size
-      }))
-      
+
+      // Apply category filters to ALL bubbles first, then filter by year
       const filteredNormalized = applyFiltersUseCase.execute({
-        bubbles: normalizedBubbles,
+        bubbles: bubbleStore.bubbles,
         selectedCategories: bubbleStore.selectedCategories
       })
-      
-      // Convert back to BubbleNode and preserve original order
-      const filteredIds = new Set(filteredNormalized.filteredBubbles.map(b => b.id))
-      filteredBubbles = initialBubbles.filter(bubble => filteredIds.has(bubble.id))
+
+      // Now apply year and other filters to the category-filtered bubbles
+      filteredBubbles = getBubblesToRender(
+        filteredNormalized.filteredBubbles,
+        sessionStore.currentYear,
+        sessionStore.visitedBubbles,
+        [],
+        sessionStore.hasUnlockedFirstToughBubbleAchievement
+      )
+
+
     }
-    
+
     // Вычисляем сколько места осталось для философских пузырей
     const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
     const extraBubbles: BubbleNode[] = []
@@ -127,17 +114,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     extraBubbles.push(...philosophyBubbles)
 
     try {
-      // Анализируем распределение пузырей по годам
-      const yearDistribution = filteredBubbles.reduce((acc, bubble) => {
-        acc[bubble.year] = (acc[bubble.year] || 0) + 1
-        return acc
-      }, {} as Record<number, number>)
-      
-      const yearInfo = Object.entries(yearDistribution)
-        .sort(([a], [b]) => parseInt(b) - parseInt(a)) // Сортируем по убыванию года
-        .map(([year, count]) => `${year}:${count}`)
-        .join(', ')
-      
       canvasUseCase.value.updateBubbles({ bubbles: [...filteredBubbles, ...extraBubbles] })
     } catch (error) {
       console.error('Error updating bubbles:', error)
@@ -149,10 +125,10 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
     // Получаем текущие пузыри на канвасе
     const currentBubbles = canvasUseCase.value.getCurrentBubbles?.() || []
-    
+
     // Добавляем новые пузыри к существующим
     const updatedBubbles = [...currentBubbles, ...newBubbles]
-    
+
     try {
       canvasUseCase.value.updateBubbles({ bubbles: updatedBubbles })
     } catch (error) {
@@ -160,28 +136,37 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
-  watch([() => bubbleStore.bubbles, () => sessionStore.currentLevel], () => {
+  // Unified watcher for all bubble updates
+  watch([
+    () => bubbleStore.bubbles,
+    () => sessionStore.currentLevel,
+    () => sessionStore.currentYear,
+    () => sessionStore.visitedBubbles,
+    () => bubbleStore.selectedCategories,
+    () => bubbleStore.hasActiveCategoryFilters
+  ], () => {
     nextTick(() => {
       updateCanvasBubbles()
       // Обновляем очередь пузырей при изменении данных
       bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
     })
-  })
+  }, { flush: 'post', deep: true })
 
-  // Watch for category filter changes
-  watch([() => bubbleStore.selectedCategories, () => bubbleStore.hasActiveCategoryFilters], () => {
+  // Additional watcher specifically for category filter changes to ensure immediate updates
+  watch(bubbleStore.selectedCategories, () => {
     nextTick(() => {
       updateCanvasBubbles()
     })
-  })
+  }, { deep: true, flush: 'post' })
 
-  // Отслеживаем изменения года и посещенных пузырей для обновления очереди
-  watch([() => sessionStore.currentYear, () => sessionStore.visitedBubbles], () => {
-    bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
-  })
+  watch(() => bubbleStore.hasActiveCategoryFilters, () => {
+    nextTick(() => {
+      updateCanvasBubbles()
+    })
+  }, { flush: 'post' })
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
-      const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
+    const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
     const hasCoreBubbles = coreBubbles.length > 0
 
     if (!hasCoreBubbles && sessionStore.currentYear < endYear.value) {
@@ -199,32 +184,32 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     usedQuestionIds.value.clear()
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
-      setTimeout(() => {
+    setTimeout(() => {
       updateCanvasBubbles()
     }, 100)
   }
 
   const createPhilosophyBubbleForYear = (year: number): BubbleNode | null => {
-      if (philosophyBubblesByYear.value.has(year)) {
+    if (philosophyBubblesByYear.value.has(year)) {
       const existingBubble = philosophyBubblesByYear.value.get(year)!
-          if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
+      if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
         philosophyBubblesByYear.value.delete(year)
-          if (existingBubble.questionId) {
-            usedQuestionIds.value.delete(existingBubble.questionId)
-          }
+        if (existingBubble.questionId) {
+          usedQuestionIds.value.delete(existingBubble.questionId)
+        }
         return null
       }
       return existingBubble
     }
 
-      if (Math.random() < 0.3) {
+    if (Math.random() < 0.3) {
       const questions = questionsData.questions
-              const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+      const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
 
       if (availableQuestions.length > 0) {
         const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
 
-              usedQuestionIds.value.add(randomQuestion.id)
+        usedQuestionIds.value.add(randomQuestion.id)
 
         const philosophyBubble = createPhilosophyBubble(randomQuestion, year)
         const bubbleNode = normalizedToBubbleNode(philosophyBubble)
@@ -266,7 +251,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   watch(() => sessionStore.currentYear, async (newYear) => {
-    
+
     if (bubbleStore.isLoading || !canvasUseCase.value) {
       console.log('⚠️ Пропускаем обновление: bubbleStore загружается или canvasUseCase не готов')
       return
@@ -283,52 +268,29 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       const yearsToAdd: number[] = []
       for (let year = startYear.value; year <= newYear; year++) {
         // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
-        const existingHiddenBubble = bubbleStore.bubbles.find(b => 
+        const existingHiddenBubble = bubbleStore.bubbles.find(b =>
           b.isHidden && b.year === year
         )
-        
+
         // Проверяем, не был ли этот пузырь уже лопнут
         const isPopped = sessionStore.visitedBubbles.includes(-(year * 10000 + 9999))
-        
+
         if (!existingHiddenBubble && !isPopped) {
           yearsToAdd.push(year)
         }
       }
-      
+
       if (yearsToAdd.length > 0) {
         bubbleStore.addHiddenBubbles(yearsToAdd)
       }
     }
 
-    const filteredBubbles = getBubblesToRender(
-      bubbleStore.bubbles, 
-      newYear, 
-      sessionStore.visitedBubbles, 
-      [], 
-      sessionStore.hasUnlockedFirstToughBubbleAchievement
-    )
-    const extraBubbles: BubbleNode[] = []
-
-    // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
-    const philosophyBubbles: BubbleNode[] = []
-    for (let year = startYear.value; year <= newYear && philosophyBubbles.length < 5; year++) {
-      const philosophyBubble = createPhilosophyBubbleForYear(year)
-      if (philosophyBubble) {
-        // Проверяем, не был ли этот пузырь уже лопнут
-        const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
-        if (!isPopped) {
-          philosophyBubbles.push(philosophyBubble)
-        }
-      }
-    }
-    extraBubbles.push(...philosophyBubbles)
-
-    const allBubbles = [...filteredBubbles, ...extraBubbles]
-
-    canvasUseCase.value.updateBubbles({ bubbles: allBubbles })
+    // Единое обновление пузырей (учитывает фильтры категорий и лимиты)
+    updateCanvasBubbles()
 
     // Проверяем нужно ли перейти к следующему году
-    checkBubblesAndAdvance(allBubbles)
+    const currentNodes = canvasUseCase.value.getCurrentBubbles?.() || []
+    checkBubblesAndAdvance(currentNodes)
 
   })
 
@@ -344,7 +306,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
           canvasRef.value.height = height
 
           // Проверяем, нужно ли переинициализировать canvas (например, при hot reload)
-          const needsReinit = !canvasUseCase.value || 
+          const needsReinit = !canvasUseCase.value ||
             (canvasUseCase.value && !canvasUseCase.value.updateBubbles)
 
           if (!canvasUseCase.value || needsReinit) {
@@ -352,13 +314,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
             if (canvasUseCase.value) {
               canvasUseCase.value.destroyCanvas()
             }
-            
+
             // Создаем use case при первой инициализации или переинициализации
             canvasUseCase.value = canvasUseCaseFactory.createCanvasUseCase(canvasRef, sessionComposable, checkBubblesAndAdvance)
-            
+
             // Инициализируем канвас
             canvasUseCase.value.initCanvas({ width, height, canvasRef })
-            
+
             // Обновляем пузыри с небольшой задержкой
             setTimeout(() => {
               updateCanvasBubbles()
@@ -370,37 +332,37 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         }
       }
     })
-    
+
     // Обработчик изменения размера окна
     const handleWindowResize = () => {
       if (containerRef.value && canvasRef.value) {
         const rect = containerRef.value.getBoundingClientRect()
         const width = rect.width
         const height = rect.height
-        
+
         canvasWidth.value = width
         canvasHeight.value = height
         canvasRef.value.width = width
         canvasRef.value.height = height
-        
+
         if (canvasUseCase.value) {
           canvasUseCase.value.updateCanvasSize({ width, height })
         }
       }
     }
-    
+
     if (containerRef.value) {
       resizeObserver.observe(containerRef.value)
     }
-    
+
     // Добавляем обработчик изменения размера окна
     window.addEventListener('resize', handleWindowResize)
-    
+
     // Обработчик для Vite HMR (Hot Module Replacement)
     if (import.meta.hot) {
       import.meta.hot.accept(() => {
         console.log('🔄 Hot reload detected - reinitializing canvas...')
-        
+
         // Принудительно вызываем resize для переинициализации
         if (containerRef.value) {
           const rect = containerRef.value.getBoundingClientRect()
@@ -409,7 +371,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         }
       })
     }
-    
+
     onUnmounted(() => {
       resizeObserver.disconnect()
       window.removeEventListener('resize', handleWindowResize)

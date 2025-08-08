@@ -160,6 +160,18 @@
   "widgets": {
     "achievements": "Achievements",
     "bonuses": "Bonuses",
-    "memoirs": "Memoirs"
+    "memoirs": "Memoirs",
+    "categoryFilter": {
+      "title": "Category Filter",
+      "tooltip": "Filter bubbles by categories",
+      "showAll": "Show All",
+      "categories": "Categories",
+      "filtered": "Filtered",
+      "noFilters": "All Categories",
+      "bubbleCount": "{count} bubbles",
+      "bubbleCountOne": "{count} bubble",
+      "bubbleCountFew": "{count} bubbles",
+      "bubbleCountMany": "{count} bubbles"
+    }
   }
 } 

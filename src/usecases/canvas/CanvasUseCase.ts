@@ -21,6 +21,7 @@ import type {
 import type { BubbleNode } from '@/types/canvas'
 import { addPendingBubbleRemoval } from '@/composables/useModals'
 import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
+import { usePerformanceStore } from '@/stores/performance.store'
 
 export class CanvasUseCase implements ICanvasUseCase {
   private canvasDomain = {
@@ -100,6 +101,10 @@ export class CanvasUseCase implements ICanvasUseCase {
     this.canvasDomain.nodes = this.bubbleManagerRepository.createNodes(bubbles, this.canvasDomain.width, this.canvasDomain.height)
     
     this.physicsRepository.updateNodes(this.canvasDomain.nodes)
+
+    // Синхронизируем количество активных узлов с панелью производительности
+    const performanceStore = usePerformanceStore()
+    performanceStore.updateActiveNodes(this.canvasDomain.nodes.length)
   }
 
   async handleMouseMove(params: HandleMouseMoveParams): Promise<void> {
@@ -242,6 +247,10 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.onBubblePopped(remainingNodes)
       }
 
+      // Обновляем количество активных узлов после взрыва
+      const performanceStore = usePerformanceStore()
+      performanceStore.updateActiveNodes(this.canvasDomain.nodes.length)
+
       return { success: true, remainingNodes }
     } catch (error) {
       return { success: false, remainingNodes: this.canvasDomain.nodes, error: `Failed to explode bubble: ${error}` }
@@ -328,6 +337,10 @@ export class CanvasUseCase implements ICanvasUseCase {
     this.bubbleManagerRepository.clearSavedPositions()
     this.canvasDomain.nodes = []
     this.canvasDomain.isInitialized = false
+
+    // Обнулили активные узлы
+    const performanceStore = usePerformanceStore()
+    performanceStore.updateActiveNodes(0)
   }
 
   render(): void {

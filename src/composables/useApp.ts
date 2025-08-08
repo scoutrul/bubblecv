@@ -131,6 +131,10 @@ export function useApp() {
     if (!result.success) {
       console.error('Ошибка сброса игры:', result.error)
     }
+    
+    // Reset category filters when game is reset
+    bubbleStore.resetCategoryFilters()
+    bubbleStore.closeCategoryFilterPanel()
   }
 
   // Реактивные computed для состояния игры

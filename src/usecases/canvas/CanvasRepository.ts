@@ -353,23 +353,12 @@ export class CanvasRepository implements ICanvasRepository {
   // Публичные методы для получения информации о производительности
   getPerformanceInfo(): { fps: number; performanceLevel: number; starCount: number; activeNodes: number } {
     const totalStars = this.deepBgStars.value.length + this.centerStars.value.length + this.bgStars.value.length + this.fgStars.value.length
-    const bubbleStore = useBubbleStore()
-    const sessionStore = useSessionStore()
-    
-    // Подсчитываем активные узлы для текущего года
-    const activeNodesForCurrentYear = getBubblesToRender(
-      bubbleStore.bubbles,
-      sessionStore.currentYear,
-      sessionStore.visitedBubbles,
-      [],
-      sessionStore.hasUnlockedFirstToughBubbleAchievement
-    ).length
     
     return {
       fps: Math.round(this.fps),
       performanceLevel: this.performanceLevel,
       starCount: totalStars,
-      activeNodes: activeNodesForCurrentYear
+      activeNodes: usePerformanceStore().activeNodes
     }
   }
 
@@ -556,8 +545,7 @@ export class CanvasRepository implements ICanvasRepository {
     performanceStore.updatePerformanceInfo({
       fps: Math.round(this.fps),
       performanceLevel: this.performanceLevel,
-      starCount: this.deepBgStars.value.length + this.centerStars.value.length + this.bgStars.value.length + this.fgStars.value.length,
-      activeNodes: activeNodesForCurrentYear
+      starCount: this.deepBgStars.value.length + this.centerStars.value.length + this.bgStars.value.length + this.fgStars.value.length
     })
     
     performanceStore.updateStarCounts({
