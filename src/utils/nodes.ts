@@ -1,5 +1,6 @@
 import type { BubbleNode } from '@/types/canvas'
 import type { NormalizedBubble } from '@/types/normalized'
+import { GAME_CONFIG } from '@/config'
 
 const defaultBubbleNode: BubbleNode = {
     id: 0,
@@ -50,7 +51,8 @@ export const getBubblesToRender = (
   currentYear: number,
   visited: number[],
   activeHiddenBubbles: BubbleNode[] = [],
-  hasUnlockedFirstToughBubbleAchievement: boolean = false
+  hasUnlockedFirstToughBubbleAchievement: boolean = false,
+  maxBubbles: number = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN
 ): BubbleNode[] => {
   // Фильтруем обычные пузыри (не скрытые, не вопросы)
   const filtered = getBubblesUpToYear(bubbles, currentYear, visited)
@@ -62,7 +64,27 @@ export const getBubblesToRender = (
         .map(normalizedToBubbleNode)
     : []
   
-  return [...filtered.map(normalizedToBubbleNode), ...hiddenBubbles, ...(activeHiddenBubbles || [])]
+  // Объединяем все пузыри и сортируем по приоритету: текущий год → предыдущие годы по убыванию
+  const allBubbles = [
+    ...filtered.map(normalizedToBubbleNode),
+    ...hiddenBubbles,
+    ...(activeHiddenBubbles || [])
+  ].sort((a, b) => {
+    // Приоритет 1: пузыри текущего года
+    if (a.year === currentYear && b.year !== currentYear) return -1
+    if (b.year === currentYear && a.year !== currentYear) return 1
+    
+    // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
+    if (a.year === currentYear && b.year === currentYear) {
+      return a.id - b.id
+    }
+    
+    // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
+    return b.year - a.year
+  })
+  
+  // Ограничиваем до максимального количества
+  return allBubbles.slice(0, maxBubbles)
 }
 
 export const findNextYearWithNewBubbles = (

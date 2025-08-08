@@ -49,11 +49,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       [], 
       sessionStore.hasUnlockedFirstToughBubbleAchievement
     )
+    
+    // Вычисляем сколько места осталось для философских пузырей
+    const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN - initialBubbles.length
     const extraBubbles: BubbleNode[] = []
 
     // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
     const philosophyBubbles: BubbleNode[] = []
-    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < 5; year++) {
+    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < Math.min(5, remainingSlots); year++) {
       const philosophyBubble = createPhilosophyBubbleForYear(year)
       if (philosophyBubble) {
         // Проверяем, не был ли этот пузырь уже лопнут
@@ -66,7 +69,17 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     extraBubbles.push(...philosophyBubbles)
 
     try {
-      console.log(`🔄 Обновляем канвас: ${initialBubbles.length} основных + ${extraBubbles.length} дополнительных баблов`)
+      // Анализируем распределение пузырей по годам
+      const yearDistribution = initialBubbles.reduce((acc, bubble) => {
+        acc[bubble.year] = (acc[bubble.year] || 0) + 1
+        return acc
+      }, {} as Record<number, number>)
+      
+      const yearInfo = Object.entries(yearDistribution)
+        .sort(([a], [b]) => parseInt(b) - parseInt(a)) // Сортируем по убыванию года
+        .map(([year, count]) => `${year}:${count}`)
+        .join(', ')
+      
       canvasUseCase.value.updateBubbles({ bubbles: [...initialBubbles, ...extraBubbles] })
     } catch (error) {
       console.error('Error updating bubbles:', error)
@@ -83,7 +96,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     const updatedBubbles = [...currentBubbles, ...newBubbles]
     
     try {
-      console.log(`➕ Добавляем ${newBubbles.length} новых пузырей к существующим ${currentBubbles.length}`)
       canvasUseCase.value.updateBubbles({ bubbles: updatedBubbles })
     } catch (error) {
       console.error('Error adding bubbles to canvas:', error)
@@ -93,7 +105,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   watch([() => bubbleStore.bubbles, () => sessionStore.currentLevel], () => {
     nextTick(() => {
       updateCanvasBubbles()
+      // Обновляем очередь пузырей при изменении данных
+      bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
     })
+  })
+
+  // Отслеживаем изменения года и посещенных пузырей для обновления очереди
+  watch([() => sessionStore.currentYear, () => sessionStore.visitedBubbles], () => {
+    bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
   })
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
@@ -111,7 +130,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   const resetCanvas = async () => {
-    console.log('🔄 Сброс канваса...')
     philosophyBubblesByYear.value.clear()
     usedQuestionIds.value.clear()
     updateCurrentYear(GAME_CONFIG.initialYear)
@@ -156,25 +174,29 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   const removeBubble = async (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
-      for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
-      if (bubble.id === bubbleId) {
-        philosophyBubblesByYear.value.delete(year)
-        break
-      }
-    }
+    if (!canvasUseCase.value) return
 
-      if (canvasUseCase.value) {
-      const bubble = canvasUseCase.value.findBubbleById(bubbleId)
-      if (bubble) {
-
-        const isPhilosophyBubble = bubble.isQuestion
-              await canvasUseCase.value.removeBubbleWithEffects({
-        bubble,
+    try {
+      // Удаляем пузырь с эффектами
+      await canvasUseCase.value.removeBubbleWithEffects({
+        bubble: { id: bubbleId } as BubbleNode,
         xpAmount,
-        isPhilosophyNegative,
-        skipFloatingText: true // Всегда пропускаем floating text, так как он создается в processPendingBubbleRemovals
+        isPhilosophyNegative
       })
+
+      // Проверяем, есть ли пузыри в очереди для добавления
+      const nextBubble = bubbleStore.getNextBubbleFromQueue()
+      if (nextBubble) {
+        const bubbleNode = normalizedToBubbleNode(nextBubble)
+        console.log(`➕ Добавляем следующий пузырь из очереди: ${nextBubble.name} (${nextBubble.year}) - приоритет: ${nextBubble.year === sessionStore.currentYear ? 'текущий год' : 'предыдущий год'}`)
+        addBubblesToCanvas([bubbleNode])
       }
+
+      // Проверяем, нужно ли продвигать год
+      const currentNodes = canvasUseCase.value.getCurrentBubbles?.() || []
+      checkBubblesAndAdvance(currentNodes)
+    } catch (error) {
+      console.error('Error removing bubble:', error)
     }
   }
 

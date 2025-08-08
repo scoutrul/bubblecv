@@ -12,6 +12,8 @@ import { getYearRange } from '@/utils'
 export const useBubbleStore = defineStore('bubbleStore', () => {
   const bubbles = ref<NormalizedBubble[]>([])
   const isLoading = ref(true)
+  // Очередь пузырей для добавления при удалении
+  const bubbleQueue = ref<NormalizedBubble[]>([])
   
   // Отслеживаем изменения уровня и перезагружаем баблы при необходимости
   const sessionStore = useSessionStore()
@@ -21,6 +23,38 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
       loadBubbles()
     }
   })
+  
+  // Функция для получения следующего пузыря из очереди
+  const getNextBubbleFromQueue = (): NormalizedBubble | null => {
+    if (bubbleQueue.value.length === 0) return null
+    return bubbleQueue.value.shift() || null
+  }
+  
+  // Функция для обновления очереди пузырей
+  const updateBubbleQueue = (currentYear: number, visited: number[]) => {
+    const allAvailableBubbles = bubbles.value.filter(b => 
+      b.year <= currentYear && 
+      !b.isHidden && 
+      !b.isQuestion && 
+      !b.isPopped && 
+      !visited.includes(b.id)
+    ).sort((a, b) => {
+      // Приоритет 1: пузыри текущего года
+      if (a.year === currentYear && b.year !== currentYear) return -1
+      if (b.year === currentYear && a.year !== currentYear) return 1
+      
+      // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
+      if (a.year === currentYear && b.year === currentYear) {
+        return a.id - b.id
+      }
+      
+      // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
+      return b.year - a.year
+    })
+    
+    // Оставляем только те пузыри, которые не помещаются на экран
+    bubbleQueue.value = allAvailableBubbles.slice(GAME_CONFIG.MAX_BUBBLES_ON_SCREEN)
+  }
   
   const loadBubbles = async () => {
     isLoading.value = true
@@ -53,6 +87,9 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
            }
          }
        }
+      
+      // Обновляем очередь пузырей после загрузки
+      updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
     } catch (err) {
       console.error('❌ Ошибка загрузки пузырей:', err)
     } finally {
@@ -107,9 +144,12 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   return {
     bubbles,
     isLoading,
+    bubbleQueue,
     loadBubbles,
     incrementToughBubbleClicks,
     incrementHiddenBubbleClicks,
-    addHiddenBubbles
+    addHiddenBubbles,
+    getNextBubbleFromQueue,
+    updateBubbleQueue
   }
 })

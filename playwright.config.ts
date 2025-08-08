@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-defineConfig({
+export default defineConfig({
   testDir: './tests',
   timeout: 60000,
   fullyParallel: true,
@@ -9,7 +9,7 @@ defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:3002',
     trace: 'on-first-retry',
     headless: false,
     video: 'on',
@@ -40,7 +40,7 @@ defineConfig({
 
   webServer: {
     command: 'npm run dev',
-    url: 'http://localhost:5173',
+    url: 'http://localhost:3002',
     reuseExistingServer: true,
     timeout: 30000,
   },
