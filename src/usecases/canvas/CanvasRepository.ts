@@ -51,7 +51,6 @@ export class CanvasRepository implements ICanvasRepository {
 
   getContext(): CanvasRenderingContext2D | null {
     if (!this.canvas) {
-      console.log('CanvasRepository.getContext: canvas is null/undefined')
       return null
     }
     
@@ -73,9 +72,7 @@ export class CanvasRepository implements ICanvasRepository {
     const context = this.getContext()
     if (!context) return
 
-    // Проверяем, инициализированы ли звезды
     if (!this.centerStars.value || !this.bgStars.value || !this.fgStars.value || !this.deepBgStars.value) {
-      console.log('CanvasRepository.drawStarfield: stars not initialized, skipping')
       return
     }
 
@@ -142,14 +139,12 @@ export class CanvasRepository implements ICanvasRepository {
   drawBubble(bubble: BubbleNode): void {
     const context = this.getContext()
     if (!context) {
-      console.log('CanvasRepository.drawBubble: no context')
       return
     }
 
     context.save()
     
     if (!Number.isFinite(bubble.x) || !Number.isFinite(bubble.y) || !Number.isFinite(bubble.currentRadius)) {
-      console.log('CanvasRepository.drawBubble: invalid values:', bubble.x, bubble.y, bubble.currentRadius)
       context.restore()
       return
     }

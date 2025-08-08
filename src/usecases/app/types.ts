@@ -1,12 +1,9 @@
-import type { Ref, ComputedRef } from 'vue'
+import type { Ref } from 'vue'
 import type { BubbleNode } from '@/types/canvas'
 import type { Level } from '@/types/levels'
 import type { NormalizedAchievement as Achievement, NormalizedBubble, NormalizedMemoir } from '@/types/normalized'
 import type { NormalizedBonus as Bonus } from '@/types/normalized'
 
-// === ПАРАМЕТРЫ И РЕЗУЛЬТАТЫ USE CASES ===
-
-// InitializeApp
 export interface InitializeAppParams {
   lives?: number
 }
@@ -17,18 +14,12 @@ export interface InitializeAppResult {
   error?: string
 }
 
-// ResetGame
-export interface ResetGameParams {
-  // Пустые параметры
-}
-
 export interface ResetGameResult {
   success: boolean
   gameReset: boolean
   error?: string
 }
 
-// LoadOldBubbles
 export interface LoadOldBubblesParams {
   currentLevel: number
 }
@@ -40,10 +31,7 @@ export interface LoadOldBubblesResult {
   error?: string
 }
 
-// GetGameState
-export interface GetGameStateParams {
-  // Пустые параметры
-}
+export interface GetGameStateParams {}
 
 export interface GetGameStateResult {
   success: boolean
@@ -63,8 +51,6 @@ export interface GetGameStateResult {
   }
   error?: string
 }
-
-// === ИНТЕРФЕЙСЫ ДЛЯ STORES ===
 
 export interface AppSessionStore {
   session: {
@@ -128,22 +114,18 @@ export interface AppModalStore {
   openWelcome(): void
 }
 
-// === ИНТЕРФЕЙСЫ ДЛЯ РЕПОЗИТОРИЯ ===
-
 export interface AppRepository {
   getOldBubbles(): Promise<NormalizedBubble[]>
   getYearRange(bubbles: NormalizedBubble[]): { startYear: number; endYear: number }
   getFirstLevelData(): { title: string; icon: string }
 }
 
-// === ИНТЕРФЕЙСЫ ДЛЯ USE CASES ===
-
 export interface InitializeAppUseCase {
   execute(params: InitializeAppParams): Promise<InitializeAppResult>
 }
 
 export interface ResetGameUseCase {
-  execute(params: ResetGameParams): Promise<ResetGameResult>
+  execute(): Promise<ResetGameResult>
 }
 
 export interface LoadOldBubblesUseCase {

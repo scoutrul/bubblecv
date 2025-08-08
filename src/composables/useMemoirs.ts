@@ -10,7 +10,6 @@ export function useMemoirs() {
   const isLoading = computed(() => memoirStore.isLoading)
 
   const unlockedMemoirsCount = computed(() => {
-    // Убеждаемся, что мемуары загружены и обновлены
     if (memoirs.value.length > 0) {
       return unlockedMemoirs.value.length
     }

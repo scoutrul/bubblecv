@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import type { UnlockAchievementParams, UnlockAchievementResult, AchievementStore, SessionStore, UiEventStore } from './types'
+import type { UnlockAchievementParams, UnlockAchievementResult, AchievementStore, SessionStore } from './types'
 import type { Achievement } from '@/types/data'
 
 export class UnlockAchievementUseCase {
@@ -7,8 +7,7 @@ export class UnlockAchievementUseCase {
 
   constructor(
     private achievementStore: AchievementStore,
-    private sessionStore: SessionStore,
-    private uiEventStore: UiEventStore
+    private sessionStore: SessionStore
   ) {}
 
   async execute(params: UnlockAchievementParams): Promise<UnlockAchievementResult> {
@@ -30,7 +29,6 @@ export class UnlockAchievementUseCase {
     this.pendingUnlockIds.value.add(id)
 
     try {
-      // Проверяем условия для конкретных ачивок
       if (id === 'tough-bubble-popper') {
         if (this.sessionStore.session?.hasUnlockedFirstToughBubbleAchievement) {
           return { success: false, error: 'Achievement already unlocked' }

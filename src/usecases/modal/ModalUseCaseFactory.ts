@@ -1,6 +1,4 @@
 import type {
-  ModalSessionStore,
-  ModalLevelStore,
   ModalAchievementStore,
   ModalModalStore
 } from './types'
@@ -8,8 +6,6 @@ import { ProcessAchievementEventChainUseCase } from './ProcessAchievementEventCh
 
 export class ModalUseCaseFactory {
   constructor(
-    private sessionStore: ModalSessionStore,
-    private levelStore: ModalLevelStore,
     private achievementStore: ModalAchievementStore,
     private modalStore: ModalModalStore
   ) {}

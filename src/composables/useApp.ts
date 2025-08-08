@@ -126,7 +126,7 @@ export function useApp() {
     const factory = createFactory()
     const useCase = factory.createResetGameUseCase()
     
-    const result = await useCase.execute({})
+    const result = await useCase.execute()
     
     if (!result.success) {
       console.error('Ошибка сброса игры:', result.error)

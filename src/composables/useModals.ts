@@ -37,7 +37,7 @@ export const getEventChainCompletedHandler = (): (() => Promise<void>) | null =>
   return eventChainCompletedHandler
 }
 
-// === ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ===
+// Utils
 
 /**
  * Создает PendingAchievement из Achievement объекта
@@ -114,8 +114,6 @@ export const useModals = () => {
   const createFactory = () => {
     const adapters = createAdapters()
     return new ModalUseCaseFactory(
-      adapters.sessionAdapter,
-      adapters.levelAdapter,
       adapters.achievementAdapter,
       adapters.modalAdapter
     )
@@ -138,8 +136,6 @@ export const useModals = () => {
     xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string; isProjectTransition?: boolean } },
     context: Record<string, unknown> = {}
   ) => {
-
-    // Создаем LevelUpData если есть данные для level up
     const pendingLevelUp = xpResult?.leveledUp && xpResult.levelData ? {
       level: xpResult.newLevel!,
       data: {
@@ -160,7 +156,7 @@ export const useModals = () => {
       pendingAchievements: achievements,
       pendingLevelAchievements: levelAchievements,
       pendingLevelUp,
-      currentStep: (type === 'manual') ? 'achievement' as const : 'achievement' as const,
+      currentStep: type === 'manual' ? 'achievement' as const : 'achievement' as const,
       context
     }
   }
@@ -191,7 +187,6 @@ export const useModals = () => {
     await processPendingBubbleRemovals()
   }
 
-  // Устанавливаем обработчик для modal store
   setEventChainCompletedHandler(handleEventChainCompleted)
 
   const modals = computed(() => modalStore.modals)
@@ -300,13 +295,10 @@ export const useModals = () => {
     }
   }
 
-  // Обновленная логика закрытия модалок для Event Chains
   const closeModalWithLogic = (key: keyof ModalStates) => {
-    // Если используется система event chains - используем closeCurrentModal
     if (modalStore.currentEventChain || modalStore.currentModal) {
       modalStore.closeCurrentModal()
     } else {
-      // Иначе используем старый способ
       modalStore.closeModal(key)
     }
   }

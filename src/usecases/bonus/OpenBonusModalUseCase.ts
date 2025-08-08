@@ -10,10 +10,8 @@ export class OpenBonusModalUseCase {
       return { success: false, error: 'Bonus is not unlocked' }
     }
 
-    // Приостанавливаем Event Chain если он активен
     const currentChain = this.modalStore.currentEventChain
     if (currentChain) {
-      // Сохраняем состояние Event Chain для восстановления после закрытия бонуса
       sessionStorage.setItem('pausedEventChain', JSON.stringify(currentChain))
       this.modalStore.completeEventChain()
     }

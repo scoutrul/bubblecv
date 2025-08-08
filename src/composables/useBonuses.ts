@@ -8,7 +8,6 @@ export function useBonuses() {
   const modalStore = useModalStore()
   const uiEventStore = useUiEventStore()
 
-  // Создаем фабрику use cases
   const factory = new BonusUseCaseFactory(
     bonusStore,
     modalStore,
@@ -26,7 +25,6 @@ export function useBonuses() {
   const unlockedBonuses = computed(() => bonusStore.unlockedBonuses)
   const isLoading = computed(() => bonusStore.isLoading)
 
-  // UI состояния для панели бонусов
   const showBonusPanel = computed(() => bonusUiUseCase.isBonusPanelActive())
   const unlockedBonusesCount = computed(() => unlockedBonuses.value.length)
 
@@ -40,7 +38,6 @@ export function useBonuses() {
     return result.success ? result.bonus : undefined
   }
 
-  // Управление панелью бонусов
   const toggleBonusPanel = () => {
     bonusUiUseCase.toggleBonusPanel()
   }

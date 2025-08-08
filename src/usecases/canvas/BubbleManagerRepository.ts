@@ -10,7 +10,7 @@ export class BubbleManagerRepository implements IBubbleManagerRepository {
     const sizes = calculateAdaptiveSizes()
     const nodes: BubbleNode[] = []
     
-    bubbles.forEach((bubble, index) => {
+    bubbles.forEach((bubble) => {
       const baseRadius = calcBubbleRadius(bubble.skillLevel, sizes, bubble)
       const savedPos = this.savedPositions.get(bubble.id)
       

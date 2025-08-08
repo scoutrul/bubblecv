@@ -17,7 +17,6 @@ export class ShouldShowProjectTransitionModalUseCase {
   execute(request: ShouldShowProjectTransitionModalUseCaseRequest): ShouldShowProjectTransitionModalUseCaseResponse {
     const { currentLevel, previousLevel } = request
     
-    // Показываем модалку только при переходе на уровень переключения
     if (currentLevel === GAME_CONFIG.LEVEL_SWITCH_THRESHOLD && 
         (!previousLevel || previousLevel < GAME_CONFIG.LEVEL_SWITCH_THRESHOLD)) {
       return {

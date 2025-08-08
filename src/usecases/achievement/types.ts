@@ -25,12 +25,6 @@ export interface SessionStore {
   setHasUnlockedSecretBubbleAchievement(value: boolean): void
 }
 
-export interface UiEventStore {
-  showAchievements: boolean
-  toggleAchievements(): void
-  closeAchievements(): void
-}
-
 export interface AchievementUseCase {
   unlockAchievement(params: UnlockAchievementParams): Promise<UnlockAchievementResult>
   resetAchievements(): void

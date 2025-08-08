@@ -24,12 +24,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const canvasWidth = ref(0)
   const canvasHeight = ref(0)
 
-  // Сохраняем философские пузыри для каждого года
   const philosophyBubblesByYear = ref<Map<number, BubbleNode>>(new Map())
-  // Отслеживаем использованные вопросы чтобы избежать дублирования
   const usedQuestionIds = ref<Set<string>>(new Set())
 
-  // Создаем фабрику use cases
   const canvasUseCaseFactory = new CanvasUseCaseFactory(
     bubbleStore,
     sessionStore,
@@ -43,7 +40,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
   const canvasUseCase = ref<ReturnType<typeof canvasUseCaseFactory.createCanvasUseCase> | null>(null)
 
-  // Функция для обновления баблов на канвасе
   const updateCanvasBubbles = () => {
     if (!canvasUseCase.value || !canvasRef.value) return
 
@@ -78,7 +74,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
-  // Функция для добавления новых пузырей к существующим без ререндера
   const addBubblesToCanvas = (newBubbles: BubbleNode[]) => {
     if (!canvasUseCase.value || !canvasRef.value) return
 
@@ -96,17 +91,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
-  // Отслеживаем изменения в bubble store и session store
   watch([() => bubbleStore.bubbles, () => sessionStore.currentLevel], () => {
-    console.log('🔄 Данные изменились, обновляем канвас...')
     nextTick(() => {
       updateCanvasBubbles()
     })
   })
 
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
-    // Проверяем есть ли основные пузыри навыков (исключая философские и скрытые)
-    const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
+      const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
     const hasCoreBubbles = coreBubbles.length > 0
 
     if (!hasCoreBubbles && sessionStore.currentYear < endYear.value) {
@@ -125,39 +117,32 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     usedQuestionIds.value.clear()
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
-    // Принудительно обновляем баблы после сброса
-    setTimeout(() => {
+      setTimeout(() => {
       updateCanvasBubbles()
     }, 100)
   }
 
   const createPhilosophyBubbleForYear = (year: number): BubbleNode | null => {
-    // Проверяем есть ли уже пузырь для этого года
-    if (philosophyBubblesByYear.value.has(year)) {
+      if (philosophyBubblesByYear.value.has(year)) {
       const existingBubble = philosophyBubblesByYear.value.get(year)!
-      // Если пузырь был лопнут, удаляем его из Map
-      if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
+          if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
         philosophyBubblesByYear.value.delete(year)
-        // Убираем вопрос из использованных, чтобы его можно было использовать снова
-        if (existingBubble.questionId) {
-          usedQuestionIds.value.delete(existingBubble.questionId)
-        }
+          if (existingBubble.questionId) {
+            usedQuestionIds.value.delete(existingBubble.questionId)
+          }
         return null
       }
       return existingBubble
     }
 
-    // Создаем новый пузырь с 30% вероятностью
-    if (Math.random() < 0.3) {
+      if (Math.random() < 0.3) {
       const questions = questionsData.questions
-      // Фильтруем неиспользованные вопросы
-      const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+              const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
 
       if (availableQuestions.length > 0) {
         const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]
 
-        // Отмечаем вопрос как использованный
-        usedQuestionIds.value.add(randomQuestion.id)
+              usedQuestionIds.value.add(randomQuestion.id)
 
         const philosophyBubble = createPhilosophyBubble(randomQuestion, year)
         const bubbleNode = normalizedToBubbleNode(philosophyBubble)
@@ -172,16 +157,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   }
 
   const removeBubble = async (bubbleId: number, xpAmount?: number, isPhilosophyNegative?: boolean) => {
-    // Удаляем философский пузырь из Map если он был лопнут
-    for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
+      for (const [year, bubble] of philosophyBubblesByYear.value.entries()) {
       if (bubble.id === bubbleId) {
         philosophyBubblesByYear.value.delete(year)
         break
       }
     }
 
-    // Используем use case для удаления пузыря с эффектами
-    if (canvasUseCase.value) {
+      if (canvasUseCase.value) {
       const bubble = canvasUseCase.value.findBubbleById(bubbleId)
       if (bubble) {
 

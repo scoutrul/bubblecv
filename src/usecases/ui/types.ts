@@ -12,11 +12,7 @@ export interface AnimateXPGainResult {
   error?: string
 }
 
-// Интерфейс для UI Event Store
-export interface UiUiEventStore {
-  // Методы для работы с UI событиями
-}
-
+export interface UiUiEventStore { }
 // Интерфейс для репозитория UI
 export interface UiRepository {
   resetCanvas(): Promise<void>

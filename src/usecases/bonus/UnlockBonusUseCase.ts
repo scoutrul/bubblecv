@@ -16,8 +16,6 @@ export class UnlockBonusUseCase {
     }
 
     this.bonusStore.unlockBonusForLevel(level)
-    
-    // Обновляем разблокированные бонусы
     this.bonusStore.updateUnlockedBonuses()
 
     return { success: true, bonus }

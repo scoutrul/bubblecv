@@ -78,10 +78,6 @@ export class GainXPUseCase {
         isProjectTransition: shouldShowResult.shouldShow
       }
       
-      // Временный отладочный лог
-      console.log('🚀 GainXPUseCase levelData:', levelDataResult)
-      console.log('🚀 GainXPUseCase shouldShowResult:', shouldShowResult)
-      
       return {
         success: true,
         leveledUp: true,

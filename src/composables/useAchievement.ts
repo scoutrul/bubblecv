@@ -7,11 +7,9 @@ export function useAchievement() {
   const sessionStore = useSessionStore()
   const uiEventStore = useUiEventStore()
 
-  // Создаем фабрику use cases
   const factory = new AchievementUseCaseFactory(
     achievementStore,
-    sessionStore,
-    uiEventStore
+    sessionStore
   )
 
   // Создаем экземпляры use cases

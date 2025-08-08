@@ -33,7 +33,6 @@ export class AppUseCaseFactory {
       this.achievementStore,
       this.bonusStore,
       this.modalStore,
-      this.repository,
       this.memoirStore
     )
   }
@@ -47,7 +46,6 @@ export class AppUseCaseFactory {
 
   createLoadOldBubblesUseCase(): LoadOldBubblesUseCase {
     return new LoadOldBubblesUseCase(
-      this.sessionStore,
       this.bubbleStore,
       this.repository
     )
