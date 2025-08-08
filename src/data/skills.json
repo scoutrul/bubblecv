@@ -497,6 +497,30 @@
       "description": "SRP, DIP, OCP — впервые реально применены в проде.",
       "insight": "До этого принципы казались теорией, но в проекте они сработали на практике.",
       "category": "architecture"
+    },
+    {
+      "name": "Docker",
+      "year": 2017,
+      "skillLevel": "novice",
+      "description": "Первые контейнеры, docker run, docker ps, базовые команды",
+      "insight": "Docker дал понимание неизменяемых окружений и развёл dev/prod. Начало пути.",
+      "category": "infrastructure"
+    },
+    {
+      "name": "Docker",
+      "year": 2024,
+      "skillLevel": "intermediate",
+      "description": "Dockerfile, multi-stage, docker-compose, оптимизация образов",
+      "insight": "Контейнеризация стала нормой. Сборка и запуск сервисов в единых окружениях.",
+      "category": "infrastructure"
+    },
+    {
+      "name": "Docker",
+      "year": 2025,
+      "skillLevel": "confident",
+      "description": "Реальные прод-пайплайны, Registry, k8s-интеграция, безопасность",
+      "insight": "Контейнеры — это не только запуск, но и культура доставки. Важны стандарты и безопасность.",
+      "category": "infrastructure"
     }
   ]
 }
