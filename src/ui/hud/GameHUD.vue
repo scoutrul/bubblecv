@@ -75,9 +75,9 @@ import { useApp, useUi } from '@/composables/'
 import LivesDisplay from '@/ui/hud/LivesDisplay.vue'
 import XPDisplay from '@/ui/hud/XPDisplay.vue'
 import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
-import BonusWidget from '@/ui/bonuses/BonusWidget.vue'
-import AchievementsWidget from '@/ui/achievements/AchievementsWidget.vue'
-import MemoirWidget from '@/ui/memoirs/MemoirWidget.vue'
+import BonusWidget from '@/ui/widgets/bonuses/BonusWidget.vue'
+import AchievementsWidget from '@/ui/widgets/achievements/AchievementsWidget.vue'
+import MemoirWidget from '@/ui/widgets/memoirs/MemoirWidget.vue'
 import { computed } from 'vue'
 
 const {

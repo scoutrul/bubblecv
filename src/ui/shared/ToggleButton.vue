@@ -4,10 +4,11 @@
       class="toggle-button-container"
       @click="handleToggle"
     >
-      <div class="button-container">
+      <div class="button-container" :class="{ 'button-container--transparent': transparent }">
         <button
           ref="toggleButton"
           class="toggle-button"
+          :class="{ 'toggle-button--transparent': transparent }"
         >
           {{ icon }}
         </button>
@@ -42,6 +43,7 @@ interface Props {
   badgeCount: number
   position: 'bottom-right' | 'center-right'
   panelPosition?: 'bottom' | 'left' | 'right'
+  transparent?: boolean
 }
 
 interface Emits {
@@ -49,8 +51,14 @@ interface Emits {
   (e: 'close'): void
 }
 
+// Типизация слотов компонента
+defineSlots<{
+  panel(props: { close: () => void }): any
+}>()
+
 const props = withDefaults(defineProps<Props>(), {
-  panelPosition: 'bottom'
+  panelPosition: 'bottom',
+  transparent: false
 })
 
 const emit = defineEmits<Emits>()
@@ -127,6 +135,14 @@ onUnmounted(() => {
   @apply transition-all duration-300;
 }
 
+/* Прозрачная версия контейнера — убираем тени и на hover */
+.button-container--transparent {
+  @apply shadow-none;
+}
+.button-container--transparent:hover {
+  @apply shadow-none;
+}
+
 .button-container:hover {
   @apply shadow-xl shadow-background-card/100;
 }
@@ -153,6 +169,11 @@ onUnmounted(() => {
   @apply relative;
   @apply w-8 h-8 sm:w-12 sm:h-12;
   cursor: pointer;
+}
+
+/* Прозрачная версия кнопки */
+.toggle-button--transparent {
+  @apply bg-transparent border-0 shadow-none;
 }
 
 .toggle-button:hover {
@@ -260,4 +281,4 @@ onUnmounted(() => {
   opacity: 0;
   transform: translateY(-10px);
 }
-</style>
+</style> 

@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'
+import { onMounted } from 'vue'
 import { useMemoirs } from '@/composables'
 import { useI18n } from '@/composables'
 import MemoirItem from './MemoirItem.vue'
@@ -45,10 +45,7 @@ onMounted(async () => {
   await loadMemoirs()
 })
 
-
-
 const handleMemoirClick = async (memoir: NormalizedMemoir) => {
-  // Импортируем useModals для открытия модального окна мемуаров
   const { useModals } = await import('@/composables/useModals')
   const { openMemoirModal } = useModals()
   openMemoirModal(memoir)
@@ -96,11 +93,5 @@ const handleMemoirClick = async (memoir: NormalizedMemoir) => {
 
 .memoir-placeholder {
   @apply text-center py-8;
-}
-
-.content-card {
-  @apply bg-background-secondary border border-border rounded-lg p-4 shadow-lg;
-  backdrop-filter: blur(10px);
-  background: rgba(30, 41, 59, 0.95);
 }
 </style> 

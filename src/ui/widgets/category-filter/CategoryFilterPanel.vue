@@ -175,4 +175,4 @@ const handleResetFilters = () => {
     max-height: calc(100vh - 10rem);
   }
 }
-</style>
+</style> 

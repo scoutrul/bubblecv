@@ -88,4 +88,4 @@ onMounted(async () => {
   backdrop-filter: blur(10px);
   background: rgba(30, 41, 59, 0.95);
 }
-</style>
+</style> 

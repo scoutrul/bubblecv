@@ -9,9 +9,9 @@
 <script setup lang="ts">
 import { useApp } from '@/composables/'
 
-import LoadingSpinner from '@/ui/global/LoadingSpinner.vue'
+import LoadingSpinner from '@/ui/shared/LoadingSpinner.vue'
 import ModalManager from '@/ui/modals/ModalManager.vue'
-import GameScene from './ui/global/GameScene.vue'
+import GameScene from './ui/shared/GameScene.vue'
 import { onMounted } from 'vue'
 
 const { initialize, isAppLoading } = useApp()

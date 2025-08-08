@@ -6,7 +6,7 @@
         :badge-count="activeFilterCount"
         position="center-right"
         panel-position="right"
-        
+        :transparent="true"
         @toggle="toggleCategoryFilter"
         @close="closeCategoryFilter"
       >
@@ -27,8 +27,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ToolTip from '@/ui/global/ToolTip.vue'
-import ToggleButton from '@/ui/global/ToggleButton.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
+import ToggleButton from '@/ui/shared/ToggleButton.vue'
 import CategoryFilterPanel from './CategoryFilterPanel.vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useI18n } from '@/composables'

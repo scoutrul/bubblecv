@@ -33,12 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import BubbleCanvas from '@/ui/global/BubbleCanvas.vue'
+import BubbleCanvas from '@/ui/shared/BubbleCanvas.vue'
 import ResetButton from '@/ui/widgets/misc/ResetButton.vue'
 import LanguageWidget from '@/ui/widgets/language/LanguageWidget.vue'
 import GameHUD from '@/ui/hud/GameHUD.vue'
 import TimelineSlider from '@/ui/hud/TimelineSlider.vue'
-import YearTransition from '@/ui/global/YearTransition.vue'
+import YearTransition from '@/ui/shared/YearTransition.vue'
 import PerformanceMonitor from '@/ui/widgets/performance/PerformanceMonitor.vue'
 import SettingsWidget from '@/ui/widgets/performance/SettingsWidget.vue'
 import CategoryFilterWidget from '@/ui/widgets/category-filter/CategoryFilterWidget.vue'
@@ -114,4 +114,4 @@ const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
     z-index: 900;
   }
 }
-</style>
+</style> 

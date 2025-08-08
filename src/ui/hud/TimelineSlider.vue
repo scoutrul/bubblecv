@@ -70,7 +70,7 @@ import { nextTick, ref, watch } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 import { createShakeAnimation, createYearChangeAnimation } from '@/utils'
-import ToolTip from '@/ui/global/ToolTip.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
 
 import { useI18n, useGameMode } from '@/composables'
 
@@ -276,4 +276,4 @@ const { t } = useI18n()
 }
 
 
-</style>
+</style> 

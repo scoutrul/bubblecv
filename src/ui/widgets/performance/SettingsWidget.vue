@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ToolTip from '@/ui/global/ToolTip.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
 import { usePerformanceStore } from '@/stores/performance.store'
 import { useI18n } from '@/composables'
 
@@ -67,21 +67,4 @@ const toggleSettingsPanel = () => {
   @apply shadow-xl shadow-primary/30;
 }
 
-.settings-button.is-shaking {
-  animation: shake 0.5s ease-in-out;
-}
-
-.settings-button svg {
-  @apply w-4 h-4 sm:w-5 sm:h-5 transition-transform duration-300;
-}
-
-.settings-button:hover svg {
-  @apply rotate-90;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-2px); }
-  75% { transform: translateX(2px); }
-}
 </style> 

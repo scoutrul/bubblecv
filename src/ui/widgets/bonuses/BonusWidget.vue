@@ -18,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import ToolTip from '@/ui/global/ToolTip.vue'
-import ToggleButton from '@/ui/global/ToggleButton.vue'
-import BonusPanel from '@/ui/bonuses/BonusPanel.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
+import ToggleButton from '@/ui/shared/ToggleButton.vue'
+import BonusPanel from '@/ui/widgets/bonuses/BonusPanel.vue'
 import { useI18n } from '@/composables'
 import type { NormalizedBonus } from '@/types/normalized'
 

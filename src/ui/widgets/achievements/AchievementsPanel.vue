@@ -82,4 +82,4 @@ defineEmits<{
 .achievement-placeholder {
   @apply text-center py-8;
 }
-</style>
+</style> 

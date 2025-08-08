@@ -22,8 +22,8 @@
 
 <script setup lang="ts">
 import ToolTip from '@/ui/global/ToolTip.vue'
-import ToggleButton from '@/ui/global/ToggleButton.vue'
-import AchievementsPanel from '@/ui/achievements/AchievementsPanel.vue'
+import ToggleButton from '@/ui/shared/ToggleButton.vue'
+import AchievementsPanel from '@/ui/widgets/achievements/AchievementsPanel.vue'
 import { useI18n } from '@/composables'
 import type { Achievement } from '@/types/data'
 

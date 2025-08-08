@@ -19,12 +19,12 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import ToolTip from '@/ui/global/ToolTip.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
 import { useMemoirs } from '@/composables'
 import { useUiEventStore } from '@/stores'
 import { useI18n } from '@/composables'
-import ToggleButton from '@/ui/global/ToggleButton.vue'
-import MemoirPanel from '@/ui/memoirs/MemoirPanel.vue'
+import ToggleButton from '@/ui/shared/ToggleButton.vue'
+import MemoirPanel from '@/ui/widgets/memoirs/MemoirPanel.vue'
 
 const { unlockedMemoirsCount } = useMemoirs()
 const uiEventStore = useUiEventStore()
