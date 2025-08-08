@@ -138,7 +138,6 @@ export interface CanvasModalStore {
   }): void
   openBubbleModal(bubble: NormalizedBubble): void
   openPhilosophyModal(question: Question, bubbleId: number): void
-  handleSecretBubbleDestroyed(): Promise<void>
 }
 
 // Repository Interfaces

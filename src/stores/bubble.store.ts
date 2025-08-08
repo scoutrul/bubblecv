@@ -6,6 +6,7 @@ import { api } from '@/api'
 import { createHiddenBubble } from '@/utils'
 import { useSessionStore } from './session.store'
 import { GameModeUseCaseFactory } from '@/usecases/game-mode'
+import { getYearRange } from '@/utils'
 
 
 export const useBubbleStore = defineStore('bubbleStore', () => {
@@ -37,6 +38,21 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
         ? await api.getBubbles()
         : await api.getProjectBubbles()
        bubbles.value = data
+
+       // Если разблокирован крепкий пузырь, гарантируем наличие скрытых пузырей для всех лет до текущего
+       if (sessionStore.hasUnlockedFirstToughBubbleAchievement) {
+         const yearRange = getYearRange(bubbles.value)
+         const startYear = yearRange.startYear
+         const endYear = sessionStore.currentYear
+         for (let year = startYear; year <= endYear; year++) {
+           const existingHidden = bubbles.value.find(b => b.isHidden && b.year === year)
+           const hiddenId = -(year * 10000 + 9999)
+           const isPopped = sessionStore.visitedBubbles.includes(hiddenId)
+           if (!existingHidden && !isPopped) {
+             bubbles.value.push(createHiddenBubble(year))
+           }
+         }
+       }
     } catch (err) {
       console.error('❌ Ошибка загрузки пузырей:', err)
     } finally {

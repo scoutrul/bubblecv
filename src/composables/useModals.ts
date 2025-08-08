@@ -119,12 +119,7 @@ export const useModals = () => {
     )
   }
 
-  const checkAndAddLevelAchievement = async (
-    xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string; isProjectTransition?: boolean } },
-    levelAchievements: PendingAchievement[]
-  ): Promise<void> => {
-    // Ачивка first-level-master удалена из модели данных
-  }
+
 
   /**
    * Создает базовый Event Chain конфиг
@@ -576,9 +571,6 @@ export const useModals = () => {
       // Создаем массив level ачивок
       const levelAchievements: PendingAchievement[] = []
 
-      // Проверяем level achievement
-      await checkAndAddLevelAchievement(achievementResult, levelAchievements)
-
       // Запускаем Event Chain для философского пузыря
       modalStore.startEventChain(createEventChainConfig(
         'bubble',
@@ -706,13 +698,6 @@ export const useModals = () => {
 
 
 
-  const handleSecretBubbleDestroyed = async () => {
-    try {
-      await processAchievementEventChain('secret-bubble-discoverer', 'manual')
-    } catch (error) {
-      // Игнорируем ошибки ачивки - пузырь должен удалиться в любом случае
-    }
-  }
 
   return {
     // State
@@ -759,7 +744,6 @@ export const useModals = () => {
     openMemoirModal,
     closeMemoirModal,
 
-    // Handlers
-    handleSecretBubbleDestroyed
+    
   }
 }

@@ -521,6 +521,9 @@ export class CanvasUseCase implements ICanvasUseCase {
           type: 'xp',
           color: '#22c55e'
         })
+
+        // Выдаем ачивку за скрытый пузырь (через сессию, без модалок)
+        await this.useSession.handleSecretBubbleDestroyed()
         
         // Добавляем в очередь на удаление через modalStore
         addPendingBubbleRemoval({

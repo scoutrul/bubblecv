@@ -30,13 +30,6 @@ export class ProcessAchievementEventChainUseCase {
     }
   }
 
-  private async checkAndAddLevelAchievement(
-    xpResult: GainXPComposableResult,
-    levelAchievements: PendingAchievement[]
-  ): Promise<void> {
-    // TODO: Implement level achievement checking logic
-  }
-
   private createEventChainConfig(
     type: EventChain['type'],
     achievements: PendingAchievement[],
@@ -89,11 +82,9 @@ export class ProcessAchievementEventChainUseCase {
       // Создаем массив основных ачивок
       const achievements = [this.createPendingAchievement(achievement)]
 
-      // Создаем массив level ачивок
+      // Создаем массив level ачивок (не используется сейчас)
       const levelAchievements: PendingAchievement[] = []
 
-      // Проверяем level achievement
-      await this.checkAndAddLevelAchievement(xpResult, levelAchievements)
 
       // Запускаем Event Chain
       this.modalStore.startEventChain(this.createEventChainConfig(

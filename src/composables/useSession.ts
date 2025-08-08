@@ -120,6 +120,21 @@ export function useSession() {
     return { leveledUp: false }
   }
 
+  const handleSecretBubbleDestroyed = async (): Promise<void> => {
+    const achievement = await unlockAchievement('secret-bubble-discoverer', true)
+    if (achievement) {
+      const { useModals } = await import('@/composables/useModals')
+      const { openAchievementModal } = useModals()
+      openAchievementModal({
+        title: achievement.name,
+        description: achievement.description,
+        icon: achievement.icon,
+        xpReward: achievement.xpReward
+      })
+      // XP за ачивку будет начислен при закрытии модалки (см. closeAchievementModal)
+    }
+  }
+
   const losePhilosophyLife = async (): Promise<boolean> => {
     const factory = createFactory()
     const loseLivesUseCase = factory.createLoseLivesUseCase()
@@ -177,6 +192,7 @@ export function useSession() {
     updateCurrentYear,
     yearTransitionTrigger,
     saveCustomPhilosophyAnswer,
-    saveSelectedPhilosophyAnswer
+    saveSelectedPhilosophyAnswer,
+    handleSecretBubbleDestroyed
   }
 }

@@ -15,7 +15,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const sessionStore = useSessionStore()
   const sessionComposable = useSession()
   const { updateCurrentYear } = sessionComposable
-  const { openLevelUpModal, openBubbleModal, openPhilosophyModal, handleSecretBubbleDestroyed } = useModals()
+  const { openLevelUpModal, openBubbleModal, openPhilosophyModal } = useModals()
 
   const yearRange = computed(() => getYearRange(bubbleStore.bubbles))
   const startYear = computed(() => yearRange.value.startYear)
@@ -33,8 +33,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     {
       openLevelUpModal,
       openBubbleModal,
-      openPhilosophyModal,
-      handleSecretBubbleDestroyed
+      openPhilosophyModal
     }
   )
 
