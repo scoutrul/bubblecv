@@ -1,10 +1,12 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick, type Ref } from 'vue'
 import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
+
 import { useModals, setCanvasBridge } from '@/composables/useModals'
 import { getBubblesToRender, findNextYearWithNewBubbles, normalizedToBubbleNode, createPhilosophyBubble } from '@/utils'
 import { useSession } from '@/composables/useSession'
 import { CanvasUseCaseFactory } from '@/usecases/canvas'
+import { CategoryFilterUseCaseFactory } from '@/usecases/category-filter'
 import type { BubbleNode } from '@/types/canvas'
 import { getYearRange } from '@/utils'
 import { GAME_CONFIG } from '@/config'
@@ -13,6 +15,7 @@ import questionsData from '@/data/questions.json'
 export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef: Ref<HTMLElement | null>) {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
+
   const sessionComposable = useSession()
   const { updateCurrentYear } = sessionComposable
   const { openLevelUpModal, openBubbleModal, openPhilosophyModal } = useModals()
@@ -50,8 +53,63 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       sessionStore.hasUnlockedFirstToughBubbleAchievement
     )
     
+    // Apply category filtering if filters are active
+    let filteredBubbles = initialBubbles
+    if (bubbleStore.hasActiveCategoryFilters) {
+      // Create adapter for bubbleStore to match CategoryFilterStore interface
+      const categoryFilterAdapter = {
+        selectedCategories: bubbleStore.selectedCategories,
+        hasActiveFilters: bubbleStore.hasActiveCategoryFilters,
+        availableCategories: [],
+        isPanelOpen: bubbleStore.isCategoryFilterPanelOpen,
+        activeFilterCount: bubbleStore.activeCategoryFilterCount,
+        selectedCategoriesInfo: [],
+        toggleCategory: bubbleStore.toggleCategory,
+        resetFilters: bubbleStore.resetCategoryFilters,
+        togglePanel: bubbleStore.toggleCategoryFilterPanel,
+        closePanel: bubbleStore.closeCategoryFilterPanel,
+        setSelectedCategories: () => {},
+        setAvailableCategories: () => {},
+        saveToLocalStorage: () => {},
+        loadFromLocalStorage: () => {}
+      }
+      
+      const factory = new CategoryFilterUseCaseFactory(categoryFilterAdapter)
+      const applyFiltersUseCase = factory.createApplyFiltersUseCase(bubbleStore.bubbles)
+      
+      // Convert BubbleNode back to NormalizedBubble for filtering
+      const normalizedBubbles = initialBubbles.map(bubble => ({
+        id: bubble.id,
+        name: bubble.name,
+        year: bubble.year,
+        skillLevel: bubble.skillLevel,
+        description: bubble.description,
+        insight: bubble.insight,
+        category: bubble.category,
+        isHidden: bubble.isHidden,
+        isQuestion: bubble.isQuestion,
+        isPopped: bubble.isPopped,
+        isTough: bubble.isTough,
+        toughClicks: bubble.toughClicks,
+        requiredClicks: bubble.requiredClicks,
+        hiddenClicks: bubble.hiddenClicks,
+        requiredHiddenClicks: bubble.requiredHiddenClicks,
+        isActive: bubble.isActive,
+        size: bubble.size
+      }))
+      
+      const filteredNormalized = applyFiltersUseCase.execute({
+        bubbles: normalizedBubbles,
+        selectedCategories: bubbleStore.selectedCategories
+      })
+      
+      // Convert back to BubbleNode and preserve original order
+      const filteredIds = new Set(filteredNormalized.filteredBubbles.map(b => b.id))
+      filteredBubbles = initialBubbles.filter(bubble => filteredIds.has(bubble.id))
+    }
+    
     // Вычисляем сколько места осталось для философских пузырей
-    const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN - initialBubbles.length
+    const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
     const extraBubbles: BubbleNode[] = []
 
     // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
@@ -70,7 +128,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
     try {
       // Анализируем распределение пузырей по годам
-      const yearDistribution = initialBubbles.reduce((acc, bubble) => {
+      const yearDistribution = filteredBubbles.reduce((acc, bubble) => {
         acc[bubble.year] = (acc[bubble.year] || 0) + 1
         return acc
       }, {} as Record<number, number>)
@@ -80,7 +138,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         .map(([year, count]) => `${year}:${count}`)
         .join(', ')
       
-      canvasUseCase.value.updateBubbles({ bubbles: [...initialBubbles, ...extraBubbles] })
+      canvasUseCase.value.updateBubbles({ bubbles: [...filteredBubbles, ...extraBubbles] })
     } catch (error) {
       console.error('Error updating bubbles:', error)
     }
@@ -107,6 +165,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       updateCanvasBubbles()
       // Обновляем очередь пузырей при изменении данных
       bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
+    })
+  })
+
+  // Watch for category filter changes
+  watch([() => bubbleStore.selectedCategories, () => bubbleStore.hasActiveCategoryFilters], () => {
+    nextTick(() => {
+      updateCanvasBubbles()
     })
   })
 

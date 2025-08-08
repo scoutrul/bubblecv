@@ -52,7 +52,7 @@ export const getBubblesToRender = (
   visited: number[],
   activeHiddenBubbles: BubbleNode[] = [],
   hasUnlockedFirstToughBubbleAchievement: boolean = false,
-  maxBubbles: number = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN
+  maxBubbles: number = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN()
 ): BubbleNode[] => {
   // Фильтруем обычные пузыри (не скрытые, не вопросы)
   const filtered = getBubblesUpToYear(bubbles, currentYear, visited)

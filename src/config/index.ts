@@ -1,4 +1,5 @@
 import { SKILL_LEVELS } from '@/types/skill-levels'
+import { isMobileDevice } from '@/utils'
 
 export const GAME_CONFIG = {
   initialYear: 2015,
@@ -8,8 +9,8 @@ export const GAME_CONFIG = {
   // Уровень на котором происходит переключение с карьеры на технологии проекта
   LEVEL_SWITCH_THRESHOLD: 3,
 
-  // Максимальное количество пузырей на экране
-  MAX_BUBBLES_ON_SCREEN: 30,
+  // Максимальное количество пузырей на экране (адаптивное для мобильных устройств)
+  MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30,
 
   TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
   HIDDEN_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 6) + 3, // 3-8 кликов

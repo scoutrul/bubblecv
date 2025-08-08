@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { NormalizedBubble } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
 import { api } from '@/api'
@@ -14,6 +14,10 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   const isLoading = ref(true)
   // Очередь пузырей для добавления при удалении
   const bubbleQueue = ref<NormalizedBubble[]>([])
+  
+  // Category filter state
+  const selectedCategories = ref<string[]>([])
+  const isCategoryFilterPanelOpen = ref(false)
   
   // Отслеживаем изменения уровня и перезагружаем баблы при необходимости
   const sessionStore = useSessionStore()
@@ -53,7 +57,7 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     })
     
     // Оставляем только те пузыри, которые не помещаются на экран
-    bubbleQueue.value = allAvailableBubbles.slice(GAME_CONFIG.MAX_BUBBLES_ON_SCREEN)
+          bubbleQueue.value = allAvailableBubbles.slice(GAME_CONFIG.MAX_BUBBLES_ON_SCREEN())
   }
   
   const loadBubbles = async () => {
@@ -141,6 +145,31 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     })
   }
 
+  // Category filter methods
+  const toggleCategory = (categoryId: string) => {
+    const index = selectedCategories.value.indexOf(categoryId)
+    if (index > -1) {
+      selectedCategories.value.splice(index, 1)
+    } else {
+      selectedCategories.value.push(categoryId)
+    }
+  }
+
+  const resetCategoryFilters = () => {
+    selectedCategories.value = []
+  }
+
+  const toggleCategoryFilterPanel = () => {
+    isCategoryFilterPanelOpen.value = !isCategoryFilterPanelOpen.value
+  }
+
+  const closeCategoryFilterPanel = () => {
+    isCategoryFilterPanelOpen.value = false
+  }
+
+  const hasActiveCategoryFilters = computed(() => selectedCategories.value.length > 0)
+  const activeCategoryFilterCount = computed(() => selectedCategories.value.length)
+
   return {
     bubbles,
     isLoading,
@@ -150,6 +179,18 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     incrementHiddenBubbleClicks,
     addHiddenBubbles,
     getNextBubbleFromQueue,
-    updateBubbleQueue
+    updateBubbleQueue,
+    
+    // Category filter state
+    selectedCategories,
+    isCategoryFilterPanelOpen,
+    hasActiveCategoryFilters,
+    activeCategoryFilterCount,
+    
+    // Category filter methods
+    toggleCategory,
+    resetCategoryFilters,
+    toggleCategoryFilterPanel,
+    closeCategoryFilterPanel
   }
 })
