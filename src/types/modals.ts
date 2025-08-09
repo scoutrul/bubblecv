@@ -13,6 +13,7 @@ export interface PendingBubbleRemoval {
   bubbleId: number
   xpAmount: number
   isPhilosophyNegative: boolean
+  bubble?: BubbleNode // Optional snapshot for reliable effects (x, y, radius)
 }
 
 export interface CanvasBridge {

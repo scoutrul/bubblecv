@@ -450,11 +450,6 @@ export class CanvasUseCase implements ICanvasUseCase {
       
       if (toughResult.isReady) {
         bubble.isReady = true
-        bubble.isVisited = true
-        
-        if (bubble.id !== undefined) {
-          await this.useSession.visitBubble(bubble.id)
-        }
         
         // Показываем модалку с информацией о пузыре (Event Chain сам обработает достижение)
         this.modalStore.openBubbleModal(bubble)
@@ -582,10 +577,6 @@ export class CanvasUseCase implements ICanvasUseCase {
       }
     }
 
-    bubble.isVisited = true
-    if (bubble.id !== undefined) {
-      await this.useSession.visitBubble(bubble.id)
-    }
 
     if (bubble.isQuestion) {
       // Открываем философский модал

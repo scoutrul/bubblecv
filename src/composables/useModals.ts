@@ -54,8 +54,18 @@ export const addPendingBubbleRemoval = (removal: PendingBubbleRemoval, requiresM
     // Если модалка не требуется - удаляем сразу
     const canvasBridge = getCanvasBridge()
     if (canvasBridge) {
-      // Находим пузырь по ID и удаляем его
-      canvasBridge.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+      const bubble = canvasBridge.findBubbleById(removal.bubbleId)
+      if (bubble) {
+        // Полный набор эффектов
+        canvasBridge.removeBubbleWithEffects({
+          bubble,
+          xpAmount: removal.xpAmount,
+          isPhilosophyNegative: removal.isPhilosophyNegative,
+          skipFloatingText: true
+        })
+      } else {
+        canvasBridge.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+      }
     }
     return
   }
@@ -215,14 +225,34 @@ export const useModals = () => {
       const canvas = getCanvasBridge()
       if (canvas) {
         for (const removal of pendingBubbleRemovals.value) {
-          // Добавляем XP только для обычных пузырей (не скрытых, не философских)
+          // Находим пузырь до любых действий (или используем снапшот)
+          const bubble = canvas.findBubbleById(removal.bubbleId) || removal.bubble
+
+          // Отмечаем визит прямо перед начислением XP/взрывом
+          await visitBubble(removal.bubbleId)
+
+          // Добавляем XP для обычных пузырей и философских
           let xpResult = null
           if (removal.xpAmount > 0) {
             xpResult = await gainXP(removal.xpAmount)
-            
-            // Создаем Floating Text для XP для всех пузырей с XP > 0
-            const bubble = canvas.findBubbleById(removal.bubbleId)
-            if (bubble && removal.xpAmount > 0) {
+          }
+
+          // Удаляем пузырь с полным набором эффектов, избегая дублирования floating text
+          if (bubble) {
+            await canvas.removeBubbleWithEffects({
+              bubble,
+              xpAmount: removal.xpAmount,
+              isPhilosophyNegative: removal.isPhilosophyNegative,
+              skipFloatingText: true
+            })
+          } else {
+            // Fallback на старый метод
+            await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
+          }
+
+          // Создаем floating text после удаления (централизовано)
+          if (bubble) {
+            if (removal.xpAmount > 0) {
               canvas.createFloatingText({
                 x: bubble.x,
                 y: bubble.y,
@@ -231,57 +261,45 @@ export const useModals = () => {
                 color: '#22c55e'
               })
             }
-            
-            // Создаем Floating Text для негативных философских пузырей
-            if (bubble && removal.isPhilosophyNegative) {
+            if (removal.isPhilosophyNegative) {
               canvas.createFloatingText({
                 x: bubble.x,
                 y: bubble.y,
-                text: '-💔',
+                text: '💔',
                 type: 'life',
                 color: '#ef4444'
               })
             }
-            
-            // Проверяем level up для обычных пузырей
-            if (xpResult.leveledUp && xpResult.levelData) {
-                          // Проверяем level achievement для 2 уровня
-            const levelAchievements: PendingAchievement[] = []
-            // Ачивка first-level-master удалена из модели данных
-              
-              modalStore.startEventChain({
-                type: 'manual',
-                pendingAchievements: [],
-                pendingLevelAchievements: levelAchievements,
-                pendingLevelUp: {
-                  level: xpResult.newLevel!,
-                  data: {
-                    level: xpResult.levelData.level,
-                    title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
-                    description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
-                    icon: xpResult.levelData.icon || '✨',
-                    currentXP: xpResult.levelData.currentXP,
-                    xpGained: xpResult.levelData.xpGained,
-                    xpRequired: 0,
-                    isProjectTransition: xpResult.levelData.isProjectTransition || false
-                  }
-                },
-                currentStep: 'levelUp',
-                context: {}
-              })
-            }
           }
-          
-          // Проверяем, был ли это крепкий пузырь, до его удаления
-          const bubble = canvas.findBubbleById(removal.bubbleId)
-          const wasToughBubble = bubble && bubble.isTough
-          
-          // Удаляем пузырь с эффектами
-          await canvas.removeBubble(removal.bubbleId, removal.xpAmount, removal.isPhilosophyNegative)
-          
+
+          // Проверяем level up
+          if (xpResult?.leveledUp && xpResult.levelData) {
+            const levelAchievements: PendingAchievement[] = []
+            modalStore.startEventChain({
+              type: 'manual',
+              pendingAchievements: [],
+              pendingLevelAchievements: levelAchievements,
+              pendingLevelUp: {
+                level: xpResult.newLevel!,
+                data: {
+                  level: xpResult.levelData.level,
+                  title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
+                  description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+                  icon: xpResult.levelData.icon || '✨',
+                  currentXP: xpResult.levelData.currentXP,
+                  xpGained: xpResult.levelData.xpGained,
+                  xpRequired: 0,
+                  isProjectTransition: xpResult.levelData.isProjectTransition || false
+                }
+              },
+              currentStep: 'levelUp',
+              context: {}
+            })
+          }
+
           // Если это был крепкий пузырь и получена ачивка tough-bubble-popper, добавляем скрытые пузыри
+          const wasToughBubble = bubble && (bubble as any).isTough
           if (wasToughBubble && sessionStore.hasUnlockedFirstToughBubbleAchievement) {
-            // Добавляем скрытые пузыри после взрыва крепкого пузыря
             await addHiddenBubblesAfterToughAchievement()
           }
         }
@@ -355,8 +373,7 @@ export const useModals = () => {
     isProcessingBubbleModal.value = true
 
     try {
-      // Посещаем пузырь (НЕ получаем XP сразу)
-      await visitBubble(bubble.id)
+      // Не посещаем пузырь и не начисляем XP сразу. Всё произойдет при завершении цепочки.
       
       // Определяем количество XP в зависимости от типа пузыря
       let xpGained = XP_CALCULATOR.getBubbleXP(bubble.skillLevel || 'novice')
@@ -365,7 +382,8 @@ export const useModals = () => {
       addPendingBubbleRemoval({
         bubbleId: bubble.id,
         xpAmount: xpGained,
-        isPhilosophyNegative: false
+        isPhilosophyNegative: false,
+        bubble
       })
 
       // Собираем ТОЛЬКО обычные ачивки (bubble-explorer)
@@ -528,10 +546,7 @@ export const useModals = () => {
       xpAmount = XP_CALCULATOR.getPhilosophyBubbleXP({isCustom: true})
     }
 
-    // Помечаем пузырь как посещенный СРАЗУ
-    if (bubbleId) {
-      await visitBubble(bubbleId)
-    }
+    // Не помечаем визит сразу. Он произойдет при завершении цепочки, перед взрывом.
 
     // Обрабатываем ответ
     if (isNegative) {
@@ -553,7 +568,8 @@ export const useModals = () => {
       addPendingBubbleRemoval({
         bubbleId,
         xpAmount, // Передаем xpAmount для начисления в processPendingBubbleRemovals
-        isPhilosophyNegative: isNegative
+        isPhilosophyNegative: isNegative,
+        bubble: canvasBridge?.findBubbleById ? canvasBridge.findBubbleById(bubbleId) : undefined
       })
     }
 
