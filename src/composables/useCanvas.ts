@@ -3,6 +3,7 @@ import { useBubbleStore } from '@/stores/bubble.store'
 import { useSessionStore } from '@/stores/session.store'
 
 import { useModals, setCanvasBridge } from '@/composables/useModals'
+import { useGameMode } from '@/composables/useGameMode'
 import { getBubblesToRender, findNextYearWithNewBubbles, normalizedToBubbleNode, createPhilosophyBubble } from '@/utils'
 import { useSession } from '@/composables/useSession'
 import { CanvasUseCaseFactory } from '@/usecases/canvas'
@@ -41,6 +42,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   )
 
   const canvasUseCase = ref<ReturnType<typeof canvasUseCaseFactory.createCanvasUseCase> | null>(null)
+  const { isProjectMode } = useGameMode()
 
   const updateCanvasBubbles = () => {
     if (!canvasUseCase.value || !canvasRef.value) return
@@ -102,16 +104,28 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
     const extraBubbles: BubbleNode[] = []
 
-    // Гарантированно добавляем философские пузыри до текущего года включительно (но не больше резерва)
+    // Гарантированно добавляем философские пузыри (не меньше резерва)
     const philosophyBubbles: BubbleNode[] = []
     const maxPhilosophyToAdd = Math.min(GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX, Math.max(0, remainingSlots))
-    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < maxPhilosophyToAdd; year++) {
-      const philosophyBubble = createPhilosophyBubbleForYear(year, true)
-      if (philosophyBubble) {
-        // Проверяем, не был ли этот пузырь уже лопнут
-        const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
-        if (!isPopped) {
+
+    if (isProjectMode.value) {
+      // В режиме проекта не привязываемся к годам — заполняем слоты философии
+      for (let slot = 0; slot < maxPhilosophyToAdd; slot++) {
+        const virtualYear = GAME_CONFIG.initialYear + slot // уникальные ключи для Map
+        const philosophyBubble = createPhilosophyBubbleForYear(virtualYear, true)
+        if (philosophyBubble && !sessionStore.visitedBubbles.includes(philosophyBubble.id)) {
           philosophyBubbles.push(philosophyBubble)
+        }
+      }
+    } else {
+      // В режиме карьеры распределяем по годам до текущего года
+      for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < maxPhilosophyToAdd; year++) {
+        const philosophyBubble = createPhilosophyBubbleForYear(year, true)
+        if (philosophyBubble) {
+          const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
+          if (!isPopped) {
+            philosophyBubbles.push(philosophyBubble)
+          }
         }
       }
     }
@@ -169,6 +183,15 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     })
   }, { flush: 'post' })
 
+  // Дополнительный watcher для философских пузырей в project-режиме
+  watch(() => sessionStore.visitedBubbles.slice(), () => {
+    if (isProjectMode.value) {
+      nextTick(() => {
+        updateCanvasBubbles()
+      })
+    }
+  }, { flush: 'post' })
+
   const checkBubblesAndAdvance = (currentNodes: BubbleNode[]) => {
     const coreBubbles = currentNodes.filter(n => !n.isQuestion && !n.isHidden && !n.isPopped)
     const hasCoreBubbles = coreBubbles.length > 0
@@ -197,16 +220,15 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     if (philosophyBubblesByYear.value.has(year)) {
       const existingBubble = philosophyBubblesByYear.value.get(year)!
       if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
+        // Удаляем посещенный пузырь из слота, но НЕ освобождаем usedQuestionIds
         philosophyBubblesByYear.value.delete(year)
-        if (existingBubble.questionId) {
-          usedQuestionIds.value.delete(existingBubble.questionId)
-        }
-        return null
+        // не возвращаемся, создадим новый сразу ниже
+      } else {
+        return existingBubble
       }
-      return existingBubble
     }
 
-    if (forceCreate || Math.random() < 0.3) {
+    if (forceCreate || (!isProjectMode.value && Math.random() < 0.3) || (isProjectMode.value)) {
       const questions = questionsData.questions
       const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
 

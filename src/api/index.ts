@@ -11,6 +11,7 @@ import type { Bubble, Achievement, Bonus, Memoir } from '@/types/data'
 import type { Level } from '@/types/levels'
 
 import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeMemoir, normalizeOldBubble } from '@/utils'
+import { GAME_CONFIG } from '@/config'
 
 export const api = {
   async getLevels(): Promise<{ data: NormalizedLevel[] }> {
@@ -28,9 +29,13 @@ export const api = {
   },
 
   async getProjectBubbles(): Promise<{ data: NormalizedBubble[] }> {
-    const data = project.skills.map((bubble, index) =>
-      normalizeSkillBubble(bubble as Bubble, index)
-    )
+    const data = project.skills.map((bubble, index) => {
+      const bubbleWithDefaultYear = {
+        ...bubble,
+        year: (bubble as any).year ?? GAME_CONFIG.initialYear,
+      }
+      return normalizeSkillBubble(bubbleWithDefaultYear as Bubble, index)
+    })
     return { data }
   },
 

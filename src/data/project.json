@@ -1,291 +1,109 @@
 {
   "skills": [
     {
-      "name": "Git",
-      "year": 2012,
-      "skillLevel": "novice",
-      "description": "Код можно хранить в облаке, а не на диске",
-      "insight": "Git стал основным инструментом для работы с кодом. Он позволяет хранить код в облаке, а не на диске.",
-      "category": "infrastructure"
-    },
-    {
-      "name": "Верстка",
-      "year": 2002,
-      "skillLevel": "novice",
-      "description": "Табличная верстка, простые макеты, адаптация под IE",
-      "insight": "Верстка начиналась с таблиц. Каждый пиксель был важен, а кроссбраузерность была настоящим испытанием.",
-      "category": "frontend"
-    },
-    {
-      "name": "HTML",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "Формы, атрибуты, фреймы, валидация, структура документа",
-      "insight": "Понимание структуры и правильных атрибутов стало основой будущего развития. HTML начал обрастать правилами.",
-      "category": "frontend"
-    },
-    {
-      "name": "HTML",
-      "year": 2010,
+      "name": "Vue 3",
       "skillLevel": "confident",
-      "description": "HTML5, семантические теги, новые API, встроенное видео",
-      "insight": "HTML стал зрелым: <article>, <section>, <nav> — теперь у каждого элемента появилась суть.",
+      "description": "Основной UI-фреймворк проекта: компоненты, реактивность, композиция логики через composables.",
+      "insight": "Vue обеспечивает читаемую архитектуру интерфейса и быстрый дев‑цикл.",
       "category": "frontend"
-    },
-    {
-      "name": "HTML",
-      "year": 2015,
-      "skillLevel": "expert",
-      "description": "Адаптивная разметка, доступность, взаимодействие с ARIA",
-      "insight": "Семантика без доступности — как дом без дверей. HTML стал о внимании к деталям.",
-      "category": "frontend"
-    },
-    {
-      "name": "HTML",
-      "year": 2023,
-      "skillLevel": "master",
-      "description": "Компонентный HTML, Web Components, accessibility-first подход",
-      "insight": "HTML — это язык интерфейса между человеком и машиной. И чем он чище, тем лучше тебя понимают.",
-      "category": "frontend"
-    },
-    {
-      "name": "CSS",
-      "year": 2002,
-      "skillLevel": "novice",
-      "description": "Инлайн-стили, цветные шрифты, границы, background",
-      "insight": "CSS сначала казался магией: всё вроде бы работает, пока не откроешь в Netscape Navigator.",
-      "category": "frontend"
-    },
-    {
-      "name": "CSS",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "Каскадность, specificity, позиционирование, float-верстка",
-      "insight": "CSS всегда был и остаётся фундаментом визуального фронтенда. Вспоминаю баги в IE6 как боевые шрамы.Float был злом и спасением одновременно. Появилось осознание, что CSS — это управление сложностью.",
-      "category": "frontend"
-    },
-    {
-      "name": "Верстка",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "Float-верстка, кроссбраузерность, семантическая разметка",
-      "insight": "Верстка стала более осознанной. Понимание float и clearfix открыло новые возможности макетов.",
-      "category": "frontend"
-    },
-    {
-      "name": "CSS",
-      "year": 2010,
-      "skillLevel": "confident",
-      "description": "Reset/Normalize, clearfix, layout-сетки, псевдоклассы",
-      "insight": "Настоящая боль — это кроссбраузерность. В ней и рождается настоящий CSS-воин.",
-      "category": "frontend"
-    },
-    {
-      "name": "CSS",
-      "year": 2015,
-      "skillLevel": "expert",
-      "description": "Flexbox, анимации, media queries, переменные через препроцессоры",
-      "insight": "Flexbox подарил свободу. А миксины в Sass дали первое чувство, что CSS — это язык программирования.",
-      "category": "frontend"
-    },
-    {
-      "name": "Верстка",
-      "year": 2015,
-      "skillLevel": "master",
-      "description": "Современные стандарты, компонентный подход, архитектура стилей",
-      "insight": "Верстка стала искусством. Понимание принципов и инструментов позволяет создавать масштабируемые решения.",
-      "category": "frontend"
-    },
-    {
-      "name": "jQuery",
-      "year": 2015,
-      "skillLevel": "confident",
-      "description": "Продвинутые техники, плагины, оптимизация, архитектура",
-      "insight": "jQuery достиг зрелости. Понимание внутренних механизмов и лучших практик.",
-      "category": "frontend"
-    },
-    {
-      "name": "CSS",
-      "year": 2023,
-      "skillLevel": "master",
-      "description": "CSS Grid, custom properties, Tailwind CSS, архитектура и масштабируемость",
-      "insight": "CSS стал мощным инструментом. Главное — использовать его с умом: читаемо, предсказуемо и модульно.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript",
-      "year": 2002,
-      "skillLevel": "novice",
-      "description": "Alert'ы, document.write, простейшие скрипты для эффектов",
-      "insight": "JavaScript казался игрушкой для того, чтобы что-то мигало. Тогда ещё никто не знал, что это станет сердцем веба.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript",
-      "year": 2006,
-      "skillLevel": "intermediate",
-      "description": "DOM API, события, jQuery, простая логика и формы",
-      "insight": "С появлением jQuery код стал выглядеть волшебно. JavaScript начал выходить из тени.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript",
-      "year": 2010,
-      "skillLevel": "confident",
-      "description": "Замыкания, таймеры, AJAX, модули, самописные паттерны",
-      "insight": "Понимание замыканий и асинхронности — момент, когда JavaScript стал взрослым.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript",
-      "year": 2015,
-      "skillLevel": "expert",
-      "description": "ES6+, промисы, классы, import/export, Babel, SPA",
-      "insight": "С ES6 JavaScript обрёл стройность. Теперь это был не хаос, а мощный язык с настоящим синтаксисом.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript",
-      "year": 2023,
-      "skillLevel": "master",
-      "description": "Modern JS: async/await, deep patterns, архитектура приложений, TypeScript-интеграция",
-      "insight": "JavaScript стал языком систем. Уже не скрипт, а платформа. Главное — мыслить не строчками, а архитектурой.",
-      "category": "frontend"
-    },
-    {
-      "name": "Верстка",
-      "year": 2008,
-      "skillLevel": "confident",
-      "description": "Сложные макеты, адаптивность, оптимизация, препроцессоры",
-      "insight": "Верстка стала профессиональной. Понимание принципов и инструментов позволило создавать качественные интерфейсы.",
-      "category": "frontend"
-    },
-    {
-      "name": "JavaScript (ES5/ES6)",
-      "year": 2010,
-      "skillLevel": "confident",
-      "description": "Прототипы, замыкания, jQuery, переход к ES6",
-      "insight": "С приходом ES6 JavaScript стал тем, чем он должен был быть с самого начала."
-    },
-    {
-      "name": "Верстка",
-      "year": 2010,
-      "skillLevel": "expert",
-      "description": "Современные стандарты, производительность, доступность",
-      "insight": "Верстка достигла профессионального уровня. Фокус на качестве, производительности и доступности.",
-      "category": "frontend"
-    },
-    {
-      "name": "jQuery",
-      "year": 2010,
-      "skillLevel": "intermediate",
-      "description": "DOM манипуляции, AJAX, плагины, анимации",
-      "insight": "jQuery упростил работу с DOM и AJAX. Код стал более читаемым и кроссбраузерным.",
-      "category": "frontend"
-    },
-    {
-      "name": "Vue.js",
-      "year": 2016,
-      "skillLevel": "expert",
-      "description": "Компонентная архитектура, Vuex, Composition API, SSR, Vue Router",
-      "insight": "Vue стал моим основным инструментом. Он воплощает баланс между простотой и масштабируемостью."
-    },
-    {
-      "name": "SCSS / PostCSS / BEM",
-      "year": 2016,
-      "skillLevel": "confident",
-      "description": "Организация стилей, структура, переменные, миксины",
-      "insight": "Хорошо структурированные стили — это читаемый и поддерживаемый фронтенд."
-    },
-    {
-      "name": "Node.js",
-      "year": 2018,
-      "skillLevel": "confident",
-      "description": "Express, API, скрипты CLI, SSR",
-      "insight": "Сервер на JS — мощно. Даже если потом от него отказываешься."
-    },
-    {
-      "name": "MongoDB",
-      "year": 2019,
-      "skillLevel": "intermediate",
-      "description": "Mongoose, схемы, CRUD, индексация",
-      "insight": "Документные БД — идеальны для прототипирования и динамических данных."
     },
     {
       "name": "TypeScript",
-      "year": 2021,
       "skillLevel": "confident",
-      "description": "Типизация, интерфейсы, дженерики, расширенные типы",
-      "insight": "Типы добавляют боли, но и защиты. Чем больше проект, тем выше ценность TypeScript."
-    },
-    {
-      "name": "Canvas / D3.js / визуализации",
-      "year": 2023,
-      "skillLevel": "intermediate",
-      "description": "Рисование графики, работа с геометрией, анимации",
-      "insight": "Это про чистую магию и математику. D3 — мощный, хоть и не самый дружелюбный."
-    },
-    {
-      "name": "GSAP",
-      "year": 2024,
-      "skillLevel": "intermediate",
-      "description": "Таймлайны, easing, последовательности, scroll-based-анимации",
-      "insight": "Когда нужна настоящая анимация, GSAP даёт контроль, которого не даёт CSS."
-    },
-    {
-      "name": "AI/Prompt Engineering",
-      "year": 2024,
-      "skillLevel": "confident",
-      "description": "Чат-архитектура, генерация кода, сценарии взаимодействия",
-      "insight": "Я не просто использую AI. Я строю с его помощью. И это — ключевой скилл нового времени."
-    },
-    {
-      "name": "Vue 2 + Vuex",
-      "year": 2017,
-      "skillLevel": "intermediate",
-      "description": "Options API, реактивность, глобальное состояние, слоты.",
-      "insight": "Vue показался более человечным после React. Наконец-то стало понятно, как структурировать SPA.",
-      "category": "frontend"
-    },
-    {
-      "name": "Vue 3 + Composition API",
-      "year": 2022,
-      "skillLevel": "confident",
-      "description": "setup(), composables, provide/inject, реактивные структуры.",
-      "insight": "Композиция логики через функции сделала код чище и модульнее. Осознание настоящего переиспользования.",
-      "category": "frontend"
+      "description": "Типобезопасность слоёв: use cases, store, данные пузырей/уровней/ачивок.",
+      "insight": "Типы снижают количество дефектов и ускоряют рефакторинг.",
+      "category": "architecture"
     },
     {
       "name": "Pinia",
-      "year": 2023,
-      "skillLevel": "confident",
-      "description": "Новый стор, разделение логики, декларативность, SSR-созвучность.",
-      "insight": "Pinia показал, насколько store может быть простым и мощным без избыточности.",
+      "skillLevel": "intermediate",
+      "description": "Глобальное состояние игры: пузыри, сессия, модальные окна, производительность.",
+      "insight": "Простой и предсказуемый store без избыточности.",
       "category": "architecture"
+    },
+    {
+      "name": "D3.js (d3-force)",
+      "skillLevel": "intermediate",
+      "description": "Симуляция физики и столкновений пузырей, управление узлами и силами.",
+      "insight": "d3-force даёт стабильную и настраиваемую физику для визуализаций.",
+      "category": "frontend"
+    },
+    {
+      "name": "Canvas API",
+      "skillLevel": "intermediate",
+      "description": "Рендеринг пузырей и эффектов на холсте с упором на производительность.",
+      "insight": "Холст позволяет отрисовывать сотни объектов без просадок FPS.",
+      "category": "frontend"
+    },
+    {
+      "name": "GSAP",
+      "skillLevel": "intermediate",
+      "description": "Анимации интерфейса: переходы между годами, всплытия, эффекты усиления.",
+      "insight": "Контролируемые таймлайны и плавные эффекты повышают вовлечённость.",
+      "category": "frontend"
+    },
+    {
+      "name": "Tailwind CSS",
+      "skillLevel": "intermediate",
+      "description": "Стилизация интерфейса и дизайн‑система через utility‑классы.",
+      "insight": "Единая типографика и отступы ускоряют разработку и поддерживаемость.",
+      "category": "frontend"
+    },
+    {
+      "name": "i18n (custom)",
+      "skillLevel": "novice",
+      "description": "Переключение языков (ru/en), вложенные ключи, интерполяция строк.",
+      "insight": "Простая локализация без внешних зависимостей.",
+      "category": "frontend"
+    },
+    {
+      "name": "Vite",
+      "skillLevel": "novice",
+      "description": "Dev‑сервер, HMR и прод‑сборка проекта.",
+      "insight": "Молниеносный запуск и быстрая пересборка улучшают DX.",
+      "category": "tooling"
+    },
+    {
+      "name": "Playwright",
+      "skillLevel": "novice",
+      "description": "E2E‑тесты ключевых пользовательских сценариев.",
+      "insight": "Автотесты защищают от регрессий при активных изменениях.",
+      "category": "testing"
+    },
+    {
+      "name": "ESLint + Prettier",
+      "skillLevel": "novice",
+      "description": "Единые правила стиля, автоформатирование, контроль качества кода.",
+      "insight": "Стабильный стиль кода ускоряет ревью и снижает шум изменений.",
+      "category": "tooling"
     },
     {
       "name": "Use Case Pattern",
-      "year": 2025,
       "skillLevel": "intermediate",
-      "description": "Одна задача — один класс. Инкапсуляция бизнес-логики вне UI.",
-      "insight": "Ощущение, что каждая функция теперь на своем месте. Код стал дышать.",
+      "description": "Изоляция бизнес‑логики от UI в отдельных классах с фабриками.",
+      "insight": "Чёткие границы делают фичи расширяемыми и тестируемыми.",
       "category": "architecture"
     },
     {
-      "name": "Clean Architecture + DDD",
-      "year": 2025,
+      "name": "Clean Architecture",
       "skillLevel": "novice",
-      "description": "Слои Domain, Application, Infrastructure. Чёткое разделение зон ответственности.",
-      "insight": "Всё встало на свои места. Проект стал больше походить на систему, чем на код.",
+      "description": "Слои Presentation/Application/Domain, инверсия зависимостей.",
+      "insight": "Снижение связности и упрощение рефакторинга.",
+      "category": "architecture"
+    },
+    {
+      "name": "Domain-Driven Design (DDD)",
+      "skillLevel": "novice",
+      "description": "Моделирование домена (пузырь, сессия, ачивка), контексты и репозитории.",
+      "insight": "Код отражает предметную область, а не детали реализации.",
       "category": "architecture"
     },
     {
       "name": "SOLID Principles",
-      "year": 2025,
       "skillLevel": "novice",
-      "description": "SRP, DIP, OCP — впервые реально применены в проде.",
-      "insight": "До этого принципы казались теорией, но в проекте они сработали на практике.",
+      "description": "SRP в use cases и репозиториях, DIP через фабрики и интерфейсы.",
+      "insight": "Принципы помогают держать код гибким и поддерживаемым.",
       "category": "architecture"
     }
   ]
-} 
+}

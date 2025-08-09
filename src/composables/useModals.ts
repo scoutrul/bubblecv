@@ -304,6 +304,11 @@ export const useModals = () => {
           }
         }
         pendingBubbleRemovals.value = []
+        
+        // Обновляем канвас для добавления новых философских пузырей (особенно в project-режиме)
+        if (canvas.updateCanvasBubbles) {
+          canvas.updateCanvasBubbles()
+        }
       }
     }
   }
