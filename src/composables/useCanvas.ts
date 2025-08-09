@@ -230,7 +230,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
     if (forceCreate || (!isProjectMode.value && Math.random() < 0.3) || (isProjectMode.value)) {
       const questions = questionsData.questions
-      const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+      let availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+
+      // Если все вопросы использованы, сбрасываем список и начинаем заново (циклическое переиспользование)
+      if (availableQuestions.length === 0) {
+        usedQuestionIds.value.clear()
+        availableQuestions = questions
+      }
 
       if (availableQuestions.length > 0) {
         const randomQuestion = availableQuestions[Math.floor(Math.random() * availableQuestions.length)]

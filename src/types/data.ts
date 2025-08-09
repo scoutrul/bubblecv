@@ -31,7 +31,6 @@ export interface Question {
 export interface QuestionOption {
   id: string | number
   text: string
-  response: string
   agreementLevel: number
   livesLost: number
 }
