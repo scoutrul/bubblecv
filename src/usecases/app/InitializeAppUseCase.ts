@@ -37,7 +37,7 @@ export class InitializeAppUseCase {
 
       await this.sessionStore.startSession({ lives })
 
-      this.modalStore.openWelcome()
+      // this.modalStore.openWelcome() // TODO DEV
 
       return {
         success: true,

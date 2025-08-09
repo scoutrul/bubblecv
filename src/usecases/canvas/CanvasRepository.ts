@@ -27,6 +27,10 @@ interface StarLayerConfig {
   speedRange: [number, number]
   animationDuration: [number, number]
   isCenter: boolean
+  // Optional performance hints
+  enableFlicker?: boolean
+  fixedOpacity?: number
+  updateEveryNFrames?: number
 }
 
 export class CanvasRepository implements ICanvasRepository {
@@ -35,6 +39,8 @@ export class CanvasRepository implements ICanvasRepository {
   private bgStars = ref<Star[]>([])
   private fgStars = ref<Star[]>([])
   private deepBgStars = ref<Star[]>([])
+  private deepBgOffscreenCanvas: HTMLCanvasElement | null = null
+  private deepBgOffscreenContext: CanvasRenderingContext2D | null = null
   private previousWidth = 0
   private previousHeight = 0
   
@@ -80,18 +86,31 @@ export class CanvasRepository implements ICanvasRepository {
     this.updatePerformanceMetrics()
 
     // Рисуем самый дальний фоновый слой (медленно вращающиеся звезды)
-    context.save()
-    this.deepBgStars.value.forEach(star => {
-      star.angle += star.speed
-      star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
-      star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
-      
-      context.beginPath()
-      context.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
-      context.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
-      context.fill()
-    })
-    context.restore()
+    {
+      const deepBgConfig = GAME_CONFIG.performance.starLayers.deepBg as StarLayerConfig
+      const updateEvery = deepBgConfig.updateEveryNFrames && deepBgConfig.updateEveryNFrames > 1
+        ? deepBgConfig.updateEveryNFrames
+        : 1
+      const shouldUpdateThisFrame = (this.frameCount % updateEvery) === 0
+      if (this.deepBgStars.value.length > 0) {
+        if (!this.deepBgOffscreenCanvas || !this.deepBgOffscreenContext) {
+          const width = this.canvas?.width || 0
+          const height = this.canvas?.height || 0
+          this.setupDeepBgOffscreen(width, height)
+        }
+        if (shouldUpdateThisFrame) {
+          this.deepBgStars.value.forEach(star => {
+            star.angle += star.speed
+            star.x = star.centerX + Math.cos(star.angle) * star.orbitRadius
+            star.y = star.centerY + Math.sin(star.angle) * star.orbitRadius
+          })
+          this.renderDeepBgOffscreen()
+        }
+        if (this.deepBgOffscreenCanvas && this.deepBgOffscreenContext) {
+          context.drawImage(this.deepBgOffscreenCanvas, 0, 0)
+        }
+      }
+    }
 
     // Рисуем центральный слой
     context.save()
@@ -286,9 +305,16 @@ export class CanvasRepository implements ICanvasRepository {
       const deepBgConfig = config.starLayers.deepBg
       const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, width, height)
       this.deepBgStars.value = this.createStars(starCounts.deepBg, width, height, deepBgConfig, orbitRadiusRange)
-      this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
+      // Оффскрин для дальних звезд
+      this.setupDeepBgOffscreen(width, height)
+      this.renderDeepBgOffscreen()
+      if (deepBgConfig.enableFlicker !== false) {
+        this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
+      }
     } else {
       this.deepBgStars.value = []
+      this.deepBgOffscreenCanvas = null
+      this.deepBgOffscreenContext = null
     }
     
     // Центральный слой
@@ -323,6 +349,8 @@ export class CanvasRepository implements ICanvasRepository {
       const deepBgConfig = config.starLayers.deepBg
       const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, width, height)
       this.filterAndAddStars(this.deepBgStars, starCounts.deepBg, width, height, deepBgConfig, orbitRadiusRange)
+      this.setupDeepBgOffscreen(width, height)
+      this.renderDeepBgOffscreen()
     }
     
     const centerConfig = config.starLayers.center
@@ -348,6 +376,8 @@ export class CanvasRepository implements ICanvasRepository {
       this.canvas.height = height
     }
     this.updateStarfieldSize(width, height)
+    this.setupDeepBgOffscreen(width, height)
+    this.renderDeepBgOffscreen()
   }
 
   // Публичные методы для получения информации о производительности
@@ -511,8 +541,10 @@ export class CanvasRepository implements ICanvasRepository {
     if (needed > 0) {
       const newStars = this.createStars(needed, width, height, layerConfig, orbitRadiusRange)
       starsRef.value.push(...newStars)
-      // Анимируем новые звезды
-      this.animateStars(newStars, layerConfig.opacityRange, layerConfig.animationDuration)
+      // Анимируем новые звезды, если включено мерцание
+      if ((layerConfig as StarLayerConfig).enableFlicker !== false) {
+        this.animateStars(newStars, layerConfig.opacityRange, layerConfig.animationDuration)
+      }
     }
   }
 
@@ -605,7 +637,9 @@ export class CanvasRepository implements ICanvasRepository {
       const orbitRadiusRange = this.calculateOrbitRadiusRange(deepBgConfig.orbitRadiusRange, currentWidth, currentHeight)
       const newStars = this.createStars(needed, currentWidth, currentHeight, deepBgConfig, orbitRadiusRange)
       this.deepBgStars.value.push(...newStars)
-      this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
+      if (deepBgConfig.enableFlicker !== false) {
+        this.animateStars(this.deepBgStars.value, deepBgConfig.opacityRange, deepBgConfig.animationDuration)
+      }
     }
     
     // Восстанавливаем центральный слой
@@ -625,6 +659,8 @@ export class CanvasRepository implements ICanvasRepository {
     
     // Убираем дальний фон полностью
     this.deepBgStars.value = []
+    this.deepBgOffscreenCanvas = null
+    this.deepBgOffscreenContext = null
     
     // Сокращаем центральный слой
     if (this.centerStars.value.length > starCounts.center) {
@@ -638,6 +674,46 @@ export class CanvasRepository implements ICanvasRepository {
     
     // Убираем дальний и центральный фон полностью
     this.deepBgStars.value = []
+    this.deepBgOffscreenCanvas = null
+    this.deepBgOffscreenContext = null
     this.centerStars.value = []
+  }
+
+  private setupDeepBgOffscreen(width: number, height: number): void {
+    if (!this.deepBgOffscreenCanvas) {
+      this.deepBgOffscreenCanvas = document.createElement('canvas')
+    }
+    if (!this.deepBgOffscreenContext && this.deepBgOffscreenCanvas) {
+      this.deepBgOffscreenContext = this.deepBgOffscreenCanvas.getContext('2d')
+    }
+    if (this.deepBgOffscreenCanvas) {
+      this.deepBgOffscreenCanvas.width = width
+      this.deepBgOffscreenCanvas.height = height
+    }
+  }
+
+  private renderDeepBgOffscreen(): void {
+    if (!this.deepBgOffscreenCanvas || !this.deepBgOffscreenContext) return
+    const ctx = this.deepBgOffscreenContext
+    const width = this.deepBgOffscreenCanvas.width
+    const height = this.deepBgOffscreenCanvas.height
+    ctx.clearRect(0, 0, width, height)
+    const deepBgConfig = GAME_CONFIG.performance.starLayers.deepBg as StarLayerConfig
+    const noFlicker = deepBgConfig.enableFlicker === false
+    const fixedOpacity = typeof deepBgConfig.fixedOpacity === 'number' ? deepBgConfig.fixedOpacity : 1
+    this.deepBgStars.value.forEach(star => {
+      ctx.beginPath()
+      ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2)
+      if (noFlicker) {
+        if (fixedOpacity >= 1) {
+          ctx.fillStyle = '#FFFFFF'
+        } else {
+          ctx.fillStyle = `rgba(255, 255, 255, ${fixedOpacity})`
+        }
+      } else {
+        ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`
+      }
+      ctx.fill()
+    })
   }
 } 

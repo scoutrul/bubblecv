@@ -51,25 +51,25 @@ export const GAME_CONFIG = {
   // Настройки производительности
   performance: {
     // Пороги FPS для оптимизации
-    fpsThreshold: 24, // Порог FPS для начала оптимизации
-    fpsTarget: 58, // Целевой FPS для повышения производительности
+    fpsThreshold: 30, // Порог FPS для начала оптимизации
+    fpsTarget: 40, // Целевой FPS для повышения производительности
     
     // Частота проверки производительности
-    optimizationCheckFrequency: 60, // Проверяем каждые 60 кадров
+    optimizationCheckFrequency: 40, // Проверяем каждые 60 кадров
     
     // Количество звезд по уровням производительности
     starCounts: {
       // Уровень 0 - полная производительность
       full: {
-        deepBg: 4000, // Самый дальний фоновый слой
-        center: 400,  // Центральный слой
-        bg: 70,       // Задний слой
-        fg: 30        // Передний слой
+        deepBg: 2000, // Самый дальний фоновый слой
+        center: 1000,  // Центральный слой
+        bg: 120,       // Задний слой
+        fg: 80        // Передний слой
       },
       // Уровень 1 - оптимизированная производительность
       optimized: {
-        deepBg: 1000,    // Убираем дальний фон
-        center: 400,  // Сокращаем центральный слой в 2 раза
+        deepBg: 500,    // Убираем дальний фон
+        center: 200,  // Сокращаем центральный слой в 2 раза
         bg: 70,       // Задний слой без изменений
         fg: 30        // Передний слой без изменений
       },
@@ -90,7 +90,10 @@ export const GAME_CONFIG = {
         orbitRadiusRange: [10, 30] as [number, number], // Небольшая орбита для движения
         speedRange: [0.0001, 0.0003] as [number, number],
         animationDuration: [8, 15] as [number, number],
-        isCenter: true
+        isCenter: true,
+        enableFlicker: false,
+        fixedOpacity: 0.4,
+        updateEveryNFrames: 88
       },
       center: {
         radiusRange: [0.3, 1.3] as [number, number],
@@ -104,7 +107,7 @@ export const GAME_CONFIG = {
         radiusRange: [0.5, 1.7] as [number, number],
         opacityRange: [0.1, 0.5] as [number, number],
         orbitRadiusRange: [20, 120] as [number, number],
-        speedRange: [0.001, 0.003] as [number, number],
+        speedRange: [0.0003, 0.001] as [number, number],
         animationDuration: [2, 5] as [number, number],
         isCenter: false
       },
@@ -112,7 +115,7 @@ export const GAME_CONFIG = {
         radiusRange: [0.8, 2.4] as [number, number],
         opacityRange: [0.4, 1.0] as [number, number],
         orbitRadiusRange: [30, 180] as [number, number],
-        speedRange: [0.001, 0.004] as [number, number],
+        speedRange: [0.001, 0.0015] as [number, number],
         animationDuration: [0.8, 2.3] as [number, number],
         isCenter: false
       }

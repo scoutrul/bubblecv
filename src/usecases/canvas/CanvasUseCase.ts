@@ -391,12 +391,9 @@ export class CanvasUseCase implements ICanvasUseCase {
 
   animate(): void {
     this.updateBubbleStates()
-    
-    // Рендерим только если есть узлы
     if (this.canvasDomain.nodes.length > 0) {
       this.render()
     }
-    
     this.canvasDomain.animationId = requestAnimationFrame(() => this.animate())
   }
 
