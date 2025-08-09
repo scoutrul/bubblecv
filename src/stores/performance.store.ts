@@ -15,7 +15,7 @@ export const usePerformanceStore = defineStore('performanceStore', () => {
   })
 
   const updatePerformanceInfo = (info: { fps: number; performanceLevel: number; starCount: number; activeNodes?: number }) => {
-    fps.value = info.fps
+    fps.value = Math.min(info.fps, 60)
     performanceLevel.value = info.performanceLevel
     starCount.value = info.starCount
     if (info.activeNodes !== undefined) {

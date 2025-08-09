@@ -55,7 +55,7 @@ export const GAME_CONFIG = {
     fpsTarget: 40, // Целевой FPS для повышения производительности
     
     // Частота проверки производительности
-    optimizationCheckFrequency: 40, // Проверяем каждые 60 кадров
+    optimizationCheckFrequency: 60, // Проверяем каждые 60 кадров
     
     // Количество звезд по уровням производительности
     starCounts: {
