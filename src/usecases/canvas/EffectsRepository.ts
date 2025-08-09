@@ -89,38 +89,47 @@ export class EffectsRepository implements IEffectsRepository {
   async calculateBubbleJump(mouseX: number, mouseY: number, bubble: BubbleNode, clicks?: number, level: number = 1): Promise<{ vx: number, vy: number, x: number, y: number }> {
     const clickOffsetX = mouseX - bubble.x
     const clickOffsetY = mouseY - bubble.y
-    const distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
+    let distanceToCenter = Math.sqrt(clickOffsetX * clickOffsetX + clickOffsetY * clickOffsetY)
 
-    if (distanceToCenter > 0) {
-      const dirX = clickOffsetX / distanceToCenter
-      const dirY = clickOffsetY / distanceToCenter
-      
-      const strengthFactor = Math.min(distanceToCenter / (bubble.radius || 20), 1)
-      
-      // Базовая сила отскакивания
-      // Получаем параметры физики для текущего уровня
-      const { PHYSICS_CALCULATOR } = await import('@/config')
-      const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
-      
-      let baseStrength = (bubble.radius || 20) * explosionPhysics.bubbleJumpBaseStrength
-      
-      // Для крепких бабблов увеличиваем силу с каждым кликом
-      if (bubble.isTough && clicks && clicks > 0) {
-        const clickMultiplier = 1 + (clicks * explosionPhysics.bubbleJumpClickMultiplier)
-        baseStrength *= clickMultiplier
-      }
-      
-      const jumpStrength = baseStrength * strengthFactor
-
-      return {
-        vx: -dirX * jumpStrength,
-        vy: -dirY * jumpStrength,
-        x: -dirX * jumpStrength * 0.5,
-        y: -dirY * jumpStrength * 0.5
-      }
+    // Если клик близко к центру, задаем псевдослучайное направление, чтобы был видимый отскок
+    const minDistance = (bubble.radius || 20) * 0.25
+    let dirX: number
+    let dirY: number
+    if (distanceToCenter < minDistance) {
+      const angle = Math.random() * Math.PI * 2
+      dirX = Math.cos(angle)
+      dirY = Math.sin(angle)
+      distanceToCenter = minDistance
+    } else {
+      dirX = clickOffsetX / distanceToCenter
+      dirY = clickOffsetY / distanceToCenter
     }
 
-    return { vx: 0, vy: 0, x: 0, y: 0 }
+    const strengthFactor = Math.min(distanceToCenter / (bubble.radius || 20), 1)
+
+    // Базовая сила отскакивания
+    const { PHYSICS_CALCULATOR } = await import('@/config')
+    const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
+    const levelMultiplier = PHYSICS_CALCULATOR.getLevelMultiplier(level)
+
+    let baseStrength = (bubble.radius || 20) * explosionPhysics.bubbleJumpBaseStrength
+
+    // Для крепких бабблов увеличиваем силу с каждым кликом
+    if (bubble.isTough && clicks && clicks > 0) {
+      const clickMultiplier = 1 + (clicks * explosionPhysics.bubbleJumpClickMultiplier)
+      baseStrength *= clickMultiplier
+    }
+
+    // Минимальная сила, чтобы отскок был заметен, но мягче на низких уровнях
+    const minStrengthFactor = Math.min(0.15 * Math.min(levelMultiplier, 3), 0.35)
+    const jumpStrength = Math.max(baseStrength * strengthFactor, (bubble.radius || 20) * minStrengthFactor)
+
+    return {
+      vx: -dirX * jumpStrength,
+      vy: -dirY * jumpStrength,
+      x: -dirX * jumpStrength * 0.15,
+      y: -dirY * jumpStrength * 0.15
+    }
   }
 
   createFloatingText(params: CreateFloatingTextParams): void {

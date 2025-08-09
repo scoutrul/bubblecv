@@ -140,9 +140,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
-  // Unified watcher for all bubble updates
+  // Unified watcher for all bubble updates (avoid deep reactivity to prevent physics reset on minor property changes)
   watch([
-    () => bubbleStore.bubbles,
+    () => bubbleStore.bubbles.length, // react on additions/removals/reloads only
     () => sessionStore.currentLevel,
     () => sessionStore.currentYear,
     () => sessionStore.visitedBubbles,
@@ -154,14 +154,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       // Обновляем очередь пузырей при изменении данных
       bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
     })
-  }, { flush: 'post', deep: true })
+  }, { flush: 'post' })
 
   // Additional watcher specifically for category filter changes to ensure immediate updates
-  watch(bubbleStore.selectedCategories, () => {
+  watch(() => bubbleStore.selectedCategories.slice(), () => {
     nextTick(() => {
       updateCanvasBubbles()
     })
-  }, { deep: true, flush: 'post' })
+  }, { flush: 'post' })
 
   watch(() => bubbleStore.hasActiveCategoryFilters, () => {
     nextTick(() => {

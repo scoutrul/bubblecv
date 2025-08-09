@@ -100,6 +100,7 @@ export class CanvasUseCase implements ICanvasUseCase {
     // Создаем новые узлы с помощью BubbleManagerRepository
     this.canvasDomain.nodes = this.bubbleManagerRepository.createNodes(bubbles, this.canvasDomain.width, this.canvasDomain.height)
     
+    // Обновляем узлы без жесткого ресета инерции
     this.physicsRepository.updateNodes(this.canvasDomain.nodes)
 
     // Синхронизируем количество активных узлов с панелью производительности
@@ -450,6 +451,17 @@ export class CanvasUseCase implements ICanvasUseCase {
       
       if (toughResult.isReady) {
         bubble.isReady = true
+
+        // Визуальный удар и физический отскок даже на финальном клике
+        this.effectsRepository.animateToughBubbleHit(bubble)
+        const jumpReady = await this.effectsRepository.calculateBubbleJump(mouseX, mouseY, bubble, toughResult.clicks, currentLevel)
+        if (jumpReady.vx !== 0 || jumpReady.vy !== 0) {
+          bubble.vx = jumpReady.vx
+          bubble.vy = jumpReady.vy
+        }
+        // Немедленное небольшое смещение для мгновенной обратной связи на финальном клике
+        bubble.x += jumpReady.x
+        bubble.y += jumpReady.y
         
         // Показываем модалку с информацией о пузыре (Event Chain сам обработает достижение)
         this.modalStore.openBubbleModal(bubble)
@@ -488,6 +500,9 @@ export class CanvasUseCase implements ICanvasUseCase {
           bubble.vx = jump.vx
           bubble.vy = jump.vy
         }
+        // Немедленное небольшое смещение для мгновенной обратной связи
+        bubble.x += jump.x
+        bubble.y += jump.y
         
         return { bubblePopped: false }
       }
@@ -572,6 +587,9 @@ export class CanvasUseCase implements ICanvasUseCase {
           bubble.vx = jump.vx
           bubble.vy = jump.vy
         }
+        // Немедленное небольшое смещение для скрытого пузыря
+        bubble.x += jump.x
+        bubble.y += jump.y
         
         return { bubblePopped: false }
       }

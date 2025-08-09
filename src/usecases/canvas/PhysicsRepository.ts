@@ -52,19 +52,23 @@ export class PhysicsRepository implements IPhysicsRepository {
 
     this.simulation
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .alpha(0.5)
-      .restart()
+
+    // Сохраняем текущее alpha, не разгоняем симуляцию резко
+    if (this.simulation.alpha() < 0.1) {
+      this.simulation.alpha(0.15).restart()
+    }
   }
 
   updateNodes(nodes: BubbleNode[]): void {
     if (!this.simulation) return
+
+    // Обновляем только ссылки на массив узлов без сильного перезапуска
     this.simulation.nodes(nodes)
-    
-    // Если это первое обновление узлов, запускаем с высокой энергией
-    const isFirstUpdate = this.simulation.alpha() === 0
-    const alpha = isFirstUpdate ? 0.9 : 0.7
-    
-    this.simulation.alpha(alpha).restart()
+
+    // Мягкий пинок симуляции, чтобы сохранить инерцию, а не сбрасывать её
+    if (this.simulation.alpha() < 0.15) {
+      this.simulation.alpha(0.2).restart()
+    }
   }
 
   pushNeighbors(params: PushNeighborsParams, level: number = 1): void {

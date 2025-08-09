@@ -135,6 +135,9 @@ export function useApp() {
     // Reset category filters when game is reset
     bubbleStore.resetCategoryFilters()
     bubbleStore.closeCategoryFilterPanel()
+
+    // Reset tough bubble counters to avoid carry-over after reset
+    bubbleStore.resetToughBubbleCounters()
   }
 
   // Реактивные computed для состояния игры

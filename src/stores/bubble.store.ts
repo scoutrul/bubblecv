@@ -168,6 +168,16 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     isCategoryFilterPanelOpen.value = false
   }
 
+  // Resets tough bubble click counters so newly created tough bubbles require multiple clicks again
+  const resetToughBubbleCounters = () => {
+    bubbles.value.forEach(bubble => {
+      if (bubble.isTough) {
+        bubble.toughClicks = 0
+        bubble.requiredClicks = undefined
+      }
+    })
+  }
+
   const hasActiveCategoryFilters = computed(() => selectedCategories.value.length > 0)
   const activeCategoryFilterCount = computed(() => selectedCategories.value.length)
 
@@ -192,6 +202,9 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     toggleCategory,
     resetCategoryFilters,
     toggleCategoryFilterPanel,
-    closeCategoryFilterPanel
+    closeCategoryFilterPanel,
+
+    // Tough bubble helpers
+    resetToughBubbleCounters
   }
 })
