@@ -36,24 +36,37 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   
   // Функция для обновления очереди пузырей
   const updateBubbleQueue = (currentYear: number, visited: number[]) => {
+    // Определяем режим игры
+    const gameModeUseCaseFactory = new GameModeUseCaseFactory(sessionStore)
+    const getGameModeUseCase = gameModeUseCaseFactory.createGetGameModeUseCase()
+    const result = getGameModeUseCase.execute({ currentLevel: sessionStore.currentLevel })
+    const isProjectMode = !result.isCareerMode
+    
+    // В режиме проекта показываем ВСЕ пузыри, в режиме карьеры фильтруем по году
     const allAvailableBubbles = bubbles.value.filter(b => 
-      b.year <= currentYear && 
+      (isProjectMode || b.year <= currentYear) && 
       !b.isHidden && 
       !b.isQuestion && 
       !b.isPopped && 
       !visited.includes(b.id)
     ).sort((a, b) => {
-      // Приоритет 1: пузыри текущего года
-      if (a.year === currentYear && b.year !== currentYear) return -1
-      if (b.year === currentYear && a.year !== currentYear) return 1
-      
-      // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
-      if (a.year === currentYear && b.year === currentYear) {
+      if (isProjectMode) {
+        // В режиме проекта сортируем по ID (порядок в данных)
         return a.id - b.id
+      } else {
+        // В режиме карьеры сортируем по приоритету годов
+        // Приоритет 1: пузыри текущего года
+        if (a.year === currentYear && b.year !== currentYear) return -1
+        if (b.year === currentYear && a.year !== currentYear) return 1
+        
+        // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
+        if (a.year === currentYear && b.year === currentYear) {
+          return a.id - b.id
+        }
+        
+        // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
+        return b.year - a.year
       }
-      
-      // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
-      return b.year - a.year
     })
     
     // Оставляем только те пузыри, которые не помещаются на экран

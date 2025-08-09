@@ -52,10 +52,13 @@ export const getBubblesToRender = (
   visited: number[],
   activeHiddenBubbles: BubbleNode[] = [],
   hasUnlockedFirstToughBubbleAchievement: boolean = false,
-  maxBubbles: number = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN()
+  maxBubbles: number = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN(),
+  isProjectMode: boolean = false
 ): BubbleNode[] => {
-  // Фильтруем обычные пузыри (не скрытые, не вопросы)
-  const filtered = getBubblesUpToYear(bubbles, currentYear, visited)
+  // В режиме проекта показываем ВСЕ пузыри (кроме скрытых/вопросов), в режиме карьеры фильтруем по году
+  const filtered = isProjectMode 
+    ? bubbles.filter(b => !b.isHidden && !b.isQuestion && !b.isPopped && !visited.includes(b.id))
+    : getBubblesUpToYear(bubbles, currentYear, visited)
   
   // Добавляем скрытые пузыри из bubbleStore только если получена ачивка "крепыш"
   const hiddenBubbles = hasUnlockedFirstToughBubbleAchievement 
@@ -64,23 +67,29 @@ export const getBubblesToRender = (
         .map(normalizedToBubbleNode)
     : []
   
-  // Объединяем все пузыри и сортируем по приоритету: текущий год → предыдущие годы по убыванию
+  // Объединяем все пузыри и сортируем
   const allBubbles = [
     ...filtered.map(normalizedToBubbleNode),
     ...hiddenBubbles,
     ...(activeHiddenBubbles || [])
   ].sort((a, b) => {
-    // Приоритет 1: пузыри текущего года
-    if (a.year === currentYear && b.year !== currentYear) return -1
-    if (b.year === currentYear && a.year !== currentYear) return 1
-    
-    // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
-    if (a.year === currentYear && b.year === currentYear) {
+    if (isProjectMode) {
+      // В режиме проекта сортируем по ID (порядок в данных)
       return a.id - b.id
+    } else {
+      // В режиме карьеры сортируем по приоритету годов
+      // Приоритет 1: пузыри текущего года
+      if (a.year === currentYear && b.year !== currentYear) return -1
+      if (b.year === currentYear && a.year !== currentYear) return 1
+      
+      // Приоритет 2: пузыри текущего года сортируются по ID (порядок в данных)
+      if (a.year === currentYear && b.year === currentYear) {
+        return a.id - b.id
+      }
+      
+      // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
+      return b.year - a.year
     }
-    
-    // Приоритет 3: предыдущие годы сортируются по убыванию (новые → старые)
-    return b.year - a.year
   })
   
   // Ограничиваем до максимального количества

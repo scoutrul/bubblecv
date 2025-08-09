@@ -54,7 +54,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       sessionStore.visitedBubbles,
       [],
       sessionStore.hasUnlockedFirstToughBubbleAchievement,
-      normalCapacity
+      normalCapacity,
+      isProjectMode.value
     )
 
     // Apply category filtering if filters are active
@@ -94,7 +95,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         sessionStore.visitedBubbles,
         [],
         sessionStore.hasUnlockedFirstToughBubbleAchievement,
-        normalCapacity
+        normalCapacity,
+        isProjectMode.value
       )
 
 
