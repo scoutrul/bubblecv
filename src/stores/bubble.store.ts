@@ -57,7 +57,8 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
     })
     
     // Оставляем только те пузыри, которые не помещаются на экран
-          bubbleQueue.value = allAvailableBubbles.slice(GAME_CONFIG.MAX_BUBBLES_ON_SCREEN())
+          const normalCapacity = Math.max(0, GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX)
+          bubbleQueue.value = allAvailableBubbles.slice(normalCapacity)
   }
   
   const loadBubbles = async () => {

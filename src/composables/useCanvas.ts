@@ -45,12 +45,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const updateCanvasBubbles = () => {
     if (!canvasUseCase.value || !canvasRef.value) return
 
+    const normalCapacity = Math.max(0, GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX)
     const initialBubbles = getBubblesToRender(
       bubbleStore.bubbles,
       sessionStore.currentYear,
       sessionStore.visitedBubbles,
       [],
-      sessionStore.hasUnlockedFirstToughBubbleAchievement
+      sessionStore.hasUnlockedFirstToughBubbleAchievement,
+      normalCapacity
     )
 
     // Apply category filtering if filters are active
@@ -89,7 +91,8 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         sessionStore.currentYear,
         sessionStore.visitedBubbles,
         [],
-        sessionStore.hasUnlockedFirstToughBubbleAchievement
+        sessionStore.hasUnlockedFirstToughBubbleAchievement,
+        normalCapacity
       )
 
 
@@ -99,10 +102,11 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
     const extraBubbles: BubbleNode[] = []
 
-    // Добавляем ВСЕ философские пузыри до текущего года включительно (но не больше 5)
+    // Гарантированно добавляем философские пузыри до текущего года включительно (но не больше резерва)
     const philosophyBubbles: BubbleNode[] = []
-    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < Math.min(5, remainingSlots); year++) {
-      const philosophyBubble = createPhilosophyBubbleForYear(year)
+    const maxPhilosophyToAdd = Math.min(GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX, Math.max(0, remainingSlots))
+    for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < maxPhilosophyToAdd; year++) {
+      const philosophyBubble = createPhilosophyBubbleForYear(year, true)
       if (philosophyBubble) {
         // Проверяем, не был ли этот пузырь уже лопнут
         const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
@@ -189,7 +193,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }, 100)
   }
 
-  const createPhilosophyBubbleForYear = (year: number): BubbleNode | null => {
+  const createPhilosophyBubbleForYear = (year: number, forceCreate: boolean = false): BubbleNode | null => {
     if (philosophyBubblesByYear.value.has(year)) {
       const existingBubble = philosophyBubblesByYear.value.get(year)!
       if (sessionStore.visitedBubbles.includes(existingBubble.id)) {
@@ -202,7 +206,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       return existingBubble
     }
 
-    if (Math.random() < 0.3) {
+    if (forceCreate || Math.random() < 0.3) {
       const questions = questionsData.questions
       const availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
 

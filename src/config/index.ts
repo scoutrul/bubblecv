@@ -12,6 +12,9 @@ export const GAME_CONFIG = {
   // Максимальное количество пузырей на экране (адаптивное для мобильных устройств)
   MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30,
 
+  // Резерв мест под философские пузыри на экране
+  PHILOSOPHY_BUBBLES_ON_SCREEN_MAX: 3,
+
   TOUGH_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 8) + 5, // 5-12 кликов
   HIDDEN_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 6) + 3, // 3-8 кликов
   HIDDEN_BUBBLE_XP_PER_CLICK: 2, // XP за каждый клик по скрытому пузырю
