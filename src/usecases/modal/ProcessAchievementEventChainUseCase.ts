@@ -15,6 +15,9 @@ type GainXPComposableResult = {
   levelData?: GainXPResult['levelData']
 }
 
+// Простая функция для генерации уникального ID
+const generateId = (): string => Date.now().toString() + Math.random().toString(36).substr(2, 9)
+
 export class ProcessAchievementEventChainUseCase {
   constructor(
     private achievementStore: ModalAchievementStore,
@@ -38,7 +41,9 @@ export class ProcessAchievementEventChainUseCase {
     context: Record<string, unknown> = {}
   ): EventChain {
     // Создаем LevelUpData если есть данные для level up
-    const pendingLevelUp = (xpResult?.leveledUp && levelAchievements.length === 0 && xpResult.levelData) ? {
+    // Убираем условие levelAchievements.length === 0, так как level up может произойти от любой ачивки
+
+    const pendingLevelUp = (xpResult?.leveledUp && xpResult.levelData) ? {
       level: xpResult.newLevel!,
       data: {
         level: xpResult.levelData.level,
@@ -47,17 +52,29 @@ export class ProcessAchievementEventChainUseCase {
         icon: xpResult.levelData.icon,
         currentXP: xpResult.levelData.currentXP,
         xpGained: xpResult.levelData.xpGained,
-        xpRequired: 0
+        xpRequired: 0, // Добавляем недостающее поле
+        isProjectTransition: xpResult.levelData.isProjectTransition
       } as LevelUpData
     } : null
 
+    // Определяем начальный шаг
+    let initialStep: EventChain['currentStep'] = 'bubble'
+    
+    if (achievements.length > 0) {
+      initialStep = 'achievement'
+    } else if (pendingLevelUp) {
+      initialStep = 'levelUp'
+    } else if (levelAchievements.length > 0) {
+      initialStep = 'levelAchievement'
+    }
+
     return {
-      id: Date.now().toString(), // Уникальный ID для EventChain
+      id: generateId(),
       type,
+      currentStep: initialStep,
       pendingAchievements: achievements,
-      pendingLevelAchievements: levelAchievements,
       pendingLevelUp,
-      currentStep: (type === 'manual') ? 'achievement' as const : 'bubble' as const,
+      pendingLevelAchievements: levelAchievements,
       context
     }
   }
@@ -85,14 +102,15 @@ export class ProcessAchievementEventChainUseCase {
       // Создаем массив level ачивок (не используется сейчас)
       const levelAchievements: PendingAchievement[] = []
 
-
       // Запускаем Event Chain
-      this.modalStore.startEventChain(this.createEventChainConfig(
+      const eventChainConfig = this.createEventChainConfig(
         chainType,
         achievements,
         levelAchievements,
         xpResult
-      ))
+      )
+
+      this.modalStore.startEventChain(eventChainConfig)
 
       return {
         success: true,

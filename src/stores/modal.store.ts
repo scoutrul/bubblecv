@@ -175,8 +175,13 @@ export const useModalStore = defineStore('modalStore', () => {
           processEventChain()
           return
         }
-        // После всех обычных ачивок → levelUp
-        chain.currentStep = 'levelUp'
+        // После всех обычных ачивок → levelUp (если есть)
+        if (chain.pendingLevelUp) {
+          chain.currentStep = 'levelUp'
+        } else {
+          // Нет level up, переходим к level achievements
+          chain.currentStep = 'levelAchievement'
+        }
         break
       case 'levelUp':
         // После level up → level achievements
@@ -282,6 +287,7 @@ export const useModalStore = defineStore('modalStore', () => {
     if (!currentModal.value) return
 
     const modalType = currentModal.value.type
+
     modals[modalType] = false
     currentModal.value = null
 

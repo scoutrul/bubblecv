@@ -141,27 +141,39 @@ export const useModals = () => {
     xpResult: { leveledUp: boolean; newLevel?: number; levelData?: { level: number; title?: string; description?: string; currentXP: number; xpGained: number; icon: string; isProjectTransition?: boolean } },
     context: Record<string, unknown> = {}
   ) => {
+    // Создаем pendingLevelUp если произошел level up
     const pendingLevelUp = xpResult?.leveledUp && xpResult.levelData ? {
-      level: xpResult.newLevel!,
+      level: xpResult.newLevel || xpResult.levelData.level,
       data: {
-        level: xpResult.levelData.level,
-        title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
-        description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
+        level: xpResult.newLevel || xpResult.levelData.level,
+        title: xpResult.levelData.title || `Уровень ${xpResult.newLevel || xpResult.levelData.level}`,
+        description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel || xpResult.levelData.level} уровня!`,
         icon: xpResult.levelData.icon,
         currentXP: xpResult.levelData.currentXP,
         xpGained: xpResult.levelData.xpGained,
-        xpRequired: 0,
-        isProjectTransition: (xpResult.levelData as any).isProjectTransition || false
+        xpRequired: 0, // Добавляем недостающее поле
+        isProjectTransition: xpResult.levelData.isProjectTransition
       } as LevelUpData
     } : null
+
+    // Определяем начальный шаг
+    let initialStep: EventChain['currentStep'] = 'bubble'
     
+    if (achievements.length > 0) {
+      initialStep = 'achievement'
+    } else if (pendingLevelUp) {
+      initialStep = 'levelUp'
+    } else if (levelAchievements.length > 0) {
+      initialStep = 'levelAchievement'
+    }
+
     return {
-      id: Date.now().toString(),
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       type,
+      currentStep: initialStep,
       pendingAchievements: achievements,
-      pendingLevelAchievements: levelAchievements,
       pendingLevelUp,
-      currentStep: type === 'manual' ? 'achievement' as const : 'achievement' as const,
+      pendingLevelAchievements: levelAchievements,
       context
     }
   }
@@ -228,13 +240,33 @@ export const useModals = () => {
           // Находим пузырь до любых действий (или используем снапшот)
           const bubble = canvas.findBubbleById(removal.bubbleId) || removal.bubble
 
-          // Отмечаем визит прямо перед начислением XP/взрывом
+          // Отмечаем визит пузыря
           await visitBubble(removal.bubbleId)
 
-          // Добавляем XP для обычных пузырей и философских
-          let xpResult = null
-          if (removal.xpAmount > 0) {
-            xpResult = await gainXP(removal.xpAmount)
+          // Теперь начисляем XP за пузырь (после закрытия модалки)
+          const xpResult = await gainXP(removal.xpAmount)
+
+          // Если произошел level up, создаем новый Event Chain для level-up
+          if (xpResult?.leveledUp && xpResult.levelData) {
+            
+            // Создаем пустой массив level achievements (как в других местах)
+            const levelAchievements: PendingAchievement[] = []
+            
+            // Создаем новый Event Chain для level-up
+            const levelUpEventChainConfig = createEventChainConfig(
+              'manual', // используем тип 'manual' как в openLevelUpModal
+              [], // нет новых achievements
+              levelAchievements,
+              { 
+                leveledUp: true, 
+                newLevel: xpResult.newLevel,
+                levelData: xpResult.levelData 
+              },
+              {} // пустой context
+            )
+            
+            // Запускаем новый Event Chain
+            modalStore.startEventChain(levelUpEventChainConfig)
           }
 
           // Удаляем пузырь с полным набором эффектов, избегая дублирования floating text
@@ -270,31 +302,6 @@ export const useModals = () => {
                 color: '#ef4444'
               })
             }
-          }
-
-          // Проверяем level up
-          if (xpResult?.leveledUp && xpResult.levelData) {
-            const levelAchievements: PendingAchievement[] = []
-            modalStore.startEventChain({
-              type: 'manual',
-              pendingAchievements: [],
-              pendingLevelAchievements: levelAchievements,
-              pendingLevelUp: {
-                level: xpResult.newLevel!,
-                data: {
-                  level: xpResult.levelData.level,
-                  title: xpResult.levelData.title || `Уровень ${xpResult.newLevel}`,
-                  description: xpResult.levelData.description || `Поздравляем! Вы достигли ${xpResult.newLevel} уровня!`,
-                  icon: xpResult.levelData.icon || '✨',
-                  currentXP: xpResult.levelData.currentXP,
-                  xpGained: xpResult.levelData.xpGained,
-                  xpRequired: 0,
-                  isProjectTransition: xpResult.levelData.isProjectTransition || false
-                }
-              },
-              currentStep: 'levelUp',
-              context: {}
-            })
           }
 
           // Если это был крепкий пузырь и получена ачивка tough-bubble-popper, добавляем скрытые пузыри
@@ -421,24 +428,17 @@ export const useModals = () => {
       // Собираем ОТДЕЛЬНО level ачивки
       const levelAchievements: PendingAchievement[] = []
 
-      // Запускаем Event Chain с разделенными ачивками
-      // XP будет прибавлен позже в processPendingBubbleRemovals
-      modalStore.startEventChain({
-        type: 'bubble',
-        pendingAchievements: achievements,           // Только bubble ачивки
-        pendingLevelAchievements: levelAchievements, // Отдельно level ачивки
-        pendingLevelUp: null, // Level up будет обработан после прибавления XP
-        currentStep: 'bubble',
-        context: {
-          bubble,
-          xpResult: {
-            xpGained,
-            livesLost: 0,
-            agreementChange: 0,
-            isPhilosophyNegative: false
-          }
-        }
-      })
+      // НЕ начисляем XP здесь! XP будет начислен после закрытия модалки в processPendingBubbleRemovals
+      // Создаем Event Chain с временной информацией (XP еще не начислен)
+      const eventChainConfig = createEventChainConfig(
+        'bubble',
+        achievements,
+        levelAchievements,
+        { leveledUp: false }, // XP еще не начислен, поэтому levelUp = false
+        { bubble } // Передаем bubble в context
+      )
+
+      modalStore.startEventChain(eventChainConfig)
 
     } finally {
       isProcessingBubbleModal.value = false
@@ -463,7 +463,7 @@ export const useModals = () => {
   }
 
   const continueBubbleModal = async () => {
-    // Просто закрываем модалку, Event Chain система сама продолжит цепочку
+    // Закрываем модалку пузыря
     closeModalWithLogic('bubble')
   }
 
@@ -652,10 +652,17 @@ export const useModals = () => {
   }
 
   const closeAchievementModal = async () => {
-    // Начисляем XP за ачивку (кроме level achievements, которые начисляются отдельно)
-    if (modalStore.data.achievement && 
-        (!modalStore.currentEventChain || 
-         modalStore.currentEventChain.currentStep !== 'levelAchievement')) {
+    // Отладочный лог
+    console.log('🔒 closeAchievementModal:', {
+      hasAchievement: !!modalStore.data.achievement,
+      hasEventChain: !!modalStore.currentEventChain,
+      currentStep: modalStore.currentEventChain?.currentStep,
+      hasPendingLevelUp: !!modalStore.currentEventChain?.pendingLevelUp
+    })
+
+    // Начисляем XP за ачивку только если НЕТ активного Event Chain
+    // (XP уже начислен в ProcessAchievementEventChainUseCase)
+    if (modalStore.data.achievement && !modalStore.currentEventChain) {
       await gainXP(modalStore.data.achievement.xpReward)
     }
 
