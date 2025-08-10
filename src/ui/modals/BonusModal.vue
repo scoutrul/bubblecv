@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import ContactForm from './ContactForm.vue'
 import { useModalStore } from '@/stores'
 import { useI18n } from '@/composables'

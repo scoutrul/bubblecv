@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { useBonuses, useMemoirs } from '@/composables'
 import { useI18n } from '@/composables'
 import { computed, onMounted } from 'vue'

@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import ToolTip from '@/ui/global/ToolTip.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
 import { useI18n } from '@/composables'
 
 const emit = defineEmits(['handleReset'])

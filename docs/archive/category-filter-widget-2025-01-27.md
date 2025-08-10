@@ -132,8 +132,8 @@ MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30
 ### Измененные файлы
 - `src/stores/bubble.store.ts` - добавлена функциональность фильтров
 - `src/composables/useCanvas.ts` - интеграция фильтрации
-- `src/ui/global/GameScene.vue` - добавление виджета
-- `src/ui/global/ToggleButton.vue` - поддержка right panel position
+- `src/ui/shared/GameScene.vue` - добавление виджета
+- `src/ui/shared/ToggleButton.vue` - поддержка right panel position
 - `src/config/index.ts` - адаптивное ограничение баблов
 - `src/utils/nodes.ts` - использование адаптивного лимита
 - `src/stores/performance.store.ts` - синхронизация activeNodes
@@ -144,7 +144,7 @@ MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30
 
 ### Удаленные файлы
 - `src/stores/category-filter.store.ts` - мигрировано в bubble.store
-- `src/ui/global/CategoryFilterWidget.vue` - перемещено в category-filter/
+- `src/ui/shared/CategoryFilterWidget.vue` - перемещено в category-filter/
 - `tests/category-filter.spec.ts` - удалено при очистке кода
 
 ## 🎯 Метрики успеха

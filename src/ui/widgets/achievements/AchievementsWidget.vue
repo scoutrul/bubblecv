@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import ToolTip from '@/ui/global/ToolTip.vue'
+import ToolTip from '@/ui/shared/ToolTip.vue'
 import ToggleButton from '@/ui/shared/ToggleButton.vue'
 import AchievementsPanel from '@/ui/widgets/achievements/AchievementsPanel.vue'
 import { useI18n } from '@/composables'

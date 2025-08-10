@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { useI18n } from '@/composables'
 
 interface Props {

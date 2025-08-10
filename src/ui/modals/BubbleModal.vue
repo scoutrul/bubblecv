@@ -84,7 +84,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { XP_CALCULATOR } from '@/config'
 import { SKILL_LEVEL_LABELS } from '@/types/skill-levels'
 import type { NormalizedBubble } from '@/types/normalized'

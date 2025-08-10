@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import type { PendingAchievement } from '@/types/modals'
 import { useI18n } from '@/composables'
 

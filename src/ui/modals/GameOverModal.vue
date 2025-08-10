@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang="ts">
-import BaseModal from '@/ui/global/BaseModal.vue'
+import BaseModal from '@/ui/shared/BaseModal.vue'
 import { useApp } from '@/composables'
 import { useI18n } from '@/composables'
 import { computed } from 'vue'

@@ -55,7 +55,6 @@
 - [x] Миграция состояния в bubble.store (без LocalStorage)
 - [x] Исправление багов множественного выбора и сброса фильтров
 - [x] Адаптивное позиционирование (top-right corner)
-- [x] Адаптивное ограничение баблов (30 desktop / 15 mobile)
 - [x] Синхронизация с панелью производительности
 - [x] Интеграция с глобальным сбросом игры
 - [x] Многоязычная поддержка (русский/английский)
@@ -63,12 +62,10 @@
 - [x] **АРХИВИРОВАНО**: [category-filter-widget-2025-01-27.md](archive/category-filter-widget-2025-01-27.md)
 
 ## 🔄 Текущие задачи (актуальные)
-- [ ] Проверить работу ToolTip компонента в реальных условиях
-- [ ] Убедиться, что переключение режимов игры работает корректно
-- [ ] Проверить отображение модалок на разных уровнях
-- [ ] Протестировать многоязычную поддержку (переключение языков)
+- [ ] Бонус-режим «Кликер» — Phase 2 (Polish & Fixes). См. раздел ниже «Кликер: Полное ТЗ (Phase 2 — Polish & Fixes)».
+  - VAN: контекст зафиксирован 10 августа 2025; следующий режим: PLAN
 
-## 🎯 НОВАЯ ЗАДАЧА: Виджет фильтрации по категориям
+## 🎯 Виджет фильтрации по категориям — ВЫПОЛНЕНО
 
 ### 📋 Описание задачи
 Создание виджета для фильтрации пузырей по категориям с размещением в верхнем левом углу интерфейса.
@@ -90,12 +87,12 @@
 - [ ] Добавление переводов в i18n файлы
 
 ### 📁 Файлы для создания/изменения
-- [ ] `src/ui/global/CategoryFilterWidget.vue` - основной компонент виджета
+- [ ] `src/ui/shared/CategoryFilterWidget.vue` - основной компонент виджета
 - [ ] `src/stores/category-filter.store.ts` - store для состояния фильтров
 - [ ] `src/usecases/category-filter/` - use cases для фильтрации
 - [ ] `src/i18n/locales/ru.json` - добавление переводов
 - [ ] `src/i18n/locales/en.json` - добавление переводов
-- [ ] `src/ui/global/GameScene.vue` - интеграция виджета
+- [ ] `src/ui/shared/GameScene.vue` - интеграция виджета
 
 ### 🔄 Архитектурные решения
 - [ ] Использование Clean Architecture с use cases
@@ -177,10 +174,10 @@
 - **Store Layer**: `src/stores/category-filter.store.ts` - State management with persistence
 - **Use Case Layer**: Complete Clean Architecture implementation with 4 use cases
 - **Repository Layer**: `src/usecases/category-filter/CategoryFilterRepository.ts` - Efficient filtering algorithms
-- **UI Component**: `src/ui/global/CategoryFilterWidget.vue` - Hybrid ToggleButton with smart panel
+- **UI Component**: `src/ui/shared/CategoryFilterWidget.vue` - Hybrid ToggleButton with smart panel
 - **Integration**: Canvas filtering integration in `src/composables/useCanvas.ts`
 - **Translations**: Multi-language support in `src/i18n/locales/ru.json` and `en.json`
-- **Game Scene Integration**: Widget added to `src/ui/global/GameScene.vue`
+- **Game Scene Integration**: Widget added to `src/ui/shared/GameScene.vue`
 
 #### ✅ Features Implemented:
 - ✅ **Category Filtering**: Multi-category selection with checkboxes
@@ -464,128 +461,7 @@ watch(() => sessionStore.currentLevel, () => {
 ```
 
 ### ✅ **Verification Results:**
-- **Multiple Selection**: ✅ Now works correctly - multiple categories can be selected and filtered simultaneously
-- **State Persistence**: ✅ Filters persist across timeline changes and page reloads
-- **Game Mode Awareness**: ✅ Filters work correctly in both career mode (skills.json) and project mode (project.json)
-- **Level Transitions**: ✅ Filters are properly maintained when crossing LEVEL_SWITCH_THRESHOLD (level 3)
-- **Performance**: ✅ No performance impact from enhanced state management
-- **User Experience**: ✅ Seamless filtering experience across all game phases
-
-### 🎯 **Final Status:**
-**Multi-Selection**: ✅ Fully functional with proper state management
-**State Persistence**: ✅ Filters persist across all game state changes
-**Game Phase Integration**: ✅ Correctly filters based on current game mode
-**User Experience**: ✅ Robust and reliable filtering system
-
-**Status**: ✅ All multi-selection and persistence issues resolved
-**Architecture**: ✅ Enhanced with proper state management and game mode awareness
-**Production Ready**: ✅ Feature is fully functional and production-ready
-
-## 🔄 Store Migration & Integration ✅ COMPLETED
-
-### 🏗️ **Architecture Refactoring:**
-
-#### **Problem Identified:**
-- ❌ **LocalStorage Usage**: User requested not to use LocalStorage for state persistence
-- ❌ **Separate Store**: Category filter had its own separate store, creating complexity
-- ❌ **State Synchronization**: Multiple stores made state management difficult
-
-#### **Solution Implemented:**
-- ✅ **Bubble Store Integration**: Migrated all category filter functionality to `bubble.store.ts`
-- ✅ **Unified State Management**: Single source of truth for all bubble-related state
-- ✅ **Simplified Architecture**: Removed separate category-filter.store.ts
-
-### 🔧 **Technical Implementation:**
-
-#### **Enhanced Bubble Store:**
-```typescript
-// Added to bubble.store.ts
-const selectedCategories = ref<string[]>([])
-const isCategoryFilterPanelOpen = ref(false)
-
-// Category filter methods
-const toggleCategory = (categoryId: string) => {
-  const index = selectedCategories.value.indexOf(categoryId)
-  if (index > -1) {
-    selectedCategories.value.splice(index, 1)
-  } else {
-    selectedCategories.value.push(categoryId)
-  }
-}
-
-const resetCategoryFilters = () => {
-  selectedCategories.value = []
-}
-
-const hasActiveCategoryFilters = computed(() => selectedCategories.value.length > 0)
-const activeCategoryFilterCount = computed(() => selectedCategories.value.length)
-```
-
-#### **Component Updates:**
-- ✅ **CategoryFilterWidget**: Now uses `bubbleStore` directly
-- ✅ **CategoryFilterPanel**: Self-contained category loading with bubbleStore integration
-- ✅ **CategoryFilterItem**: Uses `bubbleStore.selectedCategories` for state
-- ✅ **useCanvas**: Updated with adapter pattern for compatibility
-
-#### **Adapter Pattern Implementation:**
-```typescript
-// In useCanvas.ts - adapter for CategoryFilterUseCaseFactory
-const categoryFilterAdapter = {
-  selectedCategories: bubbleStore.selectedCategories,
-  hasActiveFilters: bubbleStore.hasActiveCategoryFilters,
-  availableCategories: [],
-  isPanelOpen: bubbleStore.isCategoryFilterPanelOpen,
-  activeFilterCount: bubbleStore.activeCategoryFilterCount,
-  selectedCategoriesInfo: [],
-  toggleCategory: bubbleStore.toggleCategory,
-  resetFilters: bubbleStore.resetCategoryFilters,
-  // ... other required methods
-}
-```
-
-### ✅ **Benefits Achieved:**
-
-#### **1. Unified State Management:**
-- ✅ **Single Source of Truth**: All bubble-related state in one store
-- ✅ **Automatic Persistence**: State persists with bubble store lifecycle
-- ✅ **Simplified Debugging**: Easier to track state changes
-
-#### **2. Improved Performance:**
-- ✅ **Reduced Store Overhead**: Eliminated separate store instance
-- ✅ **Better Memory Management**: Single store reduces memory footprint
-- ✅ **Optimized Reactivity**: Direct access to bubble store state
-
-#### **3. Enhanced Maintainability:**
-- ✅ **Cleaner Architecture**: Removed unnecessary abstraction layer
-- ✅ **Easier Testing**: Single store to mock and test
-- ✅ **Better Code Organization**: Related functionality grouped together
-
-#### **4. Game Mode Integration:**
-- ✅ **Automatic State Reset**: Filters reset when switching game modes (skills.json ↔ project.json)
-- ✅ **Level Change Awareness**: Filters adapt to current game phase
-- ✅ **Consistent Behavior**: Same filtering logic across all game modes
-
-### 🎯 **Final Architecture:**
-
-```
-Bubble Store (bubble.store.ts)
-├── Bubbles Data
-├── Category Filters
-│   ├── selectedCategories
-│   ├── isCategoryFilterPanelOpen
-│   ├── toggleCategory()
-│   └── resetCategoryFilters()
-└── Game Mode Integration
-
-Components
-├── CategoryFilterWidget → bubbleStore
-├── CategoryFilterPanel → bubbleStore + dynamic loading
-├── CategoryFilterItem → bubbleStore.selectedCategories
-└── useCanvas → bubbleStore (via adapter)
-```
-
-### ✅ **Verification Results:**
-- **Multiple Selection**: ✅ Works correctly with bubble store state
+- **Multiple Selection**: ✅ Now works correctly with bubble store state
 - **State Persistence**: ✅ Persists across timeline changes and game mode switches
 - **Game Mode Awareness**: ✅ Correctly filters based on current phase (skills/project)
 - **Performance**: ✅ Improved with unified state management
@@ -609,13 +485,13 @@ Components
 
 ## 🔄 Game Reset Integration ✅ COMPLETED
 
-### 🎯 **Game Reset Enhancement:**
+### 🎯 Game Reset Enhancement:
 - ✅ **Category Filter Reset**: Added automatic reset of category filters when game is reset
 - ✅ **Panel Close**: Category filter panel automatically closes when game is reset
-- ✅ **Global Reset Integration**: Category filters are now cleared as part of the main game reset function
+- ✅ **shared Reset Integration**: Category filters are now cleared as part of the main game reset function
 - ✅ **Consistent State**: Ensures clean state when starting a new game
 
-### 🔧 **Technical Implementation:**
+### 🔧 Technical Implementation:
 ```typescript
 // In useApp.ts - resetGame function
 const resetGame = async () => {
@@ -804,3 +680,201 @@ MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30,
 **Status**: ✅ Adaptive bubble limit fully implemented
 **Architecture**: ✅ Responsive design with device-specific optimization
 **Production Ready**: ✅ Enhanced user experience across all devices 
+
+## 🧭 PLAN — Clicker Phase 2 (Polish & Fixes)
+
+- Архитектура и сторы:
+  - [ ] Создать `src/stores/clicker.store.ts` со состоянием: `isActive`, `isRunning`, `countdown`, `timeLeftMs`, `gameEndAtMs`, `score`, `clicked`, `totalTargets`, `bestScore`, `bubblePool` и действиями: `openRules`, `startCountdown`, `startGame`, `onBubblePopped`, `finish`, `abort`, `clearTimers`, `resetState`.
+  - [ ] Экспортировать стор в `src/stores/index.ts`.
+- Конфиг:
+  - [ ] Добавить `GAME_CONFIG.clicker = { DURATION_MS: 60000, SPEED_LEVEL: 5, TIME_BONUS_PER_SECOND: 2, computeTimeBonus(timeLeftMs) }` в `src/config/index.ts`.
+- Типы модалок:
+  - [ ] В `src/types/modals.ts` добавить типы: `clickerRules`, `clickerResults` и интерфейс данных `ClickerResultsData = { score, clicked, total, timeLeftMs, bonus, totalScore }`.
+- UI:
+  - [ ] Создать `src/ui/widgets/clicker/ClickerWidget.vue` (tooltip, клик: открыть правила; при активной игре — `abort()`).
+  - [ ] Создать `src/ui/modals/ClickerRulesModal.vue` (кнопки «Старт», «Отмена»). На «Старт»: сначала закрыть модалку, затем `clicker.startCountdown()`.
+  - [ ] Создать `src/ui/modals/ClickerResultsModal.vue` («Ещё раз» → закрыть модалку и перезапустить сценарий).
+  - [ ] Зарегистрировать модалки в `src/ui/modals/ModalManager.vue` c быстрым закрытием через `modalStore.closeCurrentModal()` перед стартом/рестартом.
+- GameScene:
+  - [ ] Добавить контейнер `left-top-widgets-container` и разместить `ClickerWidget` (top-left).
+  - [ ] Скрывать HUD/таймлайн/перфоманс при `clicker.isActive` (включая отсчёт).
+  - [ ] Добавить таймер в top-right: формат `mm:ss.t`, красный ≤10 сек, отображается только когда `isRunning === true`.
+  - [ ] Использовать `YearTransition` для отсчёта: числа 3/2/1 через `:year`, «GO!» — через проп `text`. Исключить «2015» после «GO!». На первый рендер не анимировать.
+- YearTransition:
+  - [ ] Добавить пропы `text?: string`, `animateOnMount?: boolean=false`; показывать `text`, если задан, иначе `year`; не анимировать на первом рендере.
+- Canvas/Physics/Effects:
+  - [ ] `CanvasRepository.ts`: флаг `hideLabels: boolean` — блокирует `drawText` при `true`.
+  - [ ] `CanvasUseCase.ts`:
+    - [ ] `getCurrentLevel()` — при `clicker.isActive` возвращать `GAME_CONFIG.clicker.SPEED_LEVEL`.
+    - [ ] `render()` — не вызывать `drawStarfield()` при активном кликере; выставлять `canvasRepository.hideLabels = clicker.isActive`.
+    - [ ] `handleClick()` — при активном кликере: не открывать модалки/ачивки/XP; обрабатывать tough‑клики с bounce; на финальном клике — мгновенно взрывать и вызывать `clicker.onBubblePopped()`; обычные пузыри — мгновенный поп + `onBubblePopped()`.
+  - [ ] `useCanvas.ts`: при `clicker.isActive` не выполнять обычные обновления; предоставить мост (`updateCanvasBubbles`, `addBubblesToCanvas`, `removeBubbleWithEffects`) для стора кликера.
+- Пул бабблов:
+  - [ ] В сторе кликера собрать пул из `api.getBubbles()` + `api.getProjectBubbles()` (+ философские для визуала, без подписей/модалок), с оффсетом ID для проектных (+10000).
+  - [ ] Поддерживать очередь пополнения: при попе — сразу добавлять следующий, соблюдая `GAME_CONFIG.MAX_BUBBLES_ON_SCREEN()`.
+- i18n:
+  - [ ] Добавить строки ru/en: виджет/тултип, правила, кнопки «Старт/Отмена/Ещё раз», результаты, «GO!», формат таймера.
+- Проверки:
+  - [ ] Повторный клик по виджету во время игры — аварийный выход (без результатов), мгновенное восстановление обычного режима.
+  - [ ] Таймер только во время игры (не на отсчёте). UI скрыт на всём периоде `isActive`.
+  - [ ] Tough‑пузыри требуют несколько кликов с визуальной обратной связью.
+  - [ ] Без конфликтов с Event Chain, ачивками и XP.
+
+🎨🎨🎨 ENTERING CREATIVE PHASE: CLICKER PHASE 2
+
+— Component: Режим «Кликер» (архитектура, алгоритмы, UI/UX)
+— Цель: стабильный бонус-режим с отсчётом, таймером, мгновенным попом и без конфликтов с обычным режимом
+— Ограничения: без rebuild; соответствие Clean Architecture; минимальные инвазии в текущие слои
+
+1) ARCHITECTURE DESIGN
+- Требования и ограничения:
+  - Изолированный `clicker.store` управляет сценарием игры; интеграция через узкие мосты.
+  - Обычный режим не должен получать XP/ачивки/модалки во время кликера.
+  - Canvas/Physics не перезапускаются лишний раз; labels скрываются; starfield отключён.
+- Опции:
+  - A. «Флаги в CanvasUseCase»: проверять `clicker.isActive` внутри `getCurrentLevel()`/`render()`/`handleClick()`.
+    - Pros: минимум кода, быстрый ввод. Cons: смешение режимов, риск разрастания условной логики.
+  - B. «Лёгкая стратегия режимов»: в `CanvasUseCase` ввести мини-стратегии поведения для Normal/Clicker (объект с тройкой методов: level/render/click). Выбор стратегии по `clicker.isActive`.
+    - Pros: чище ответственность, проще тестировать; минимум рефакторинга. Cons: немного больше каркаса.
+  - C. «Отдельный ClickerCanvasUseCase»: полноценный сабкласс/вариант use case.
+    - Pros: полная изоляция. Cons: дублирование, высокий охват изменений, риск регрессий.
+- Рекомендация: B (лёгкая стратегия) как баланс чистоты и скорости.
+- Гайды реализации:
+  - Добавить лёгкий интерфейс стратегии в `CanvasUseCase.ts` (только делегирование 3-х мест: currentLevel/render/click).
+  - ClickerStrategy: возвращает `GAME_CONFIG.clicker.SPEED_LEVEL`, в `render()` пропускает starfield + включает `hideLabels`, в `click()` мгновенно попает и сообщает в `clicker.onBubblePopped()`.
+  - NormalStrategy: текущее поведение без изменений.
+  - `useCanvas.ts`: при активном кликере обновление пузырей делает только кликер через мост; обычные вотчеры не мешают (ранние выходы при `clicker.isActive`).
+
+2) ALGORITHM DESIGN
+- Требования:
+  - Отсчёт 3→2→1→GO!; игра 60s; таймер с десятыми; аварийный выход; очередь пополнения; tough‑клики с bounce.
+- Опции таймера:
+  - A. setInterval(100ms) + дрейф коррекция по `performance.now()`.
+  - B. requestAnimationFrame + вычисление `timeLeftMs = gameEndAt - performance.now()`.
+  - C. Web Worker таймер (overkill).
+- Рекомендация: B (RAF) для гладкости UI; хранить `gameEndAtMs`; отображение с округлением до 100ms.
+- Отсчёт:
+  - Одно состояние `countdown` (3→2→1→0) с `setTimeout` цепочкой; `0` означает «GO!» overlay через `YearTransition.text`.
+- Пул/очередь:
+  - Собрать массив целей: `getBubbles()` + `getProjectBubbles()`; проектным ID +10000; добавить N философских «визуальных» без модалок.
+  - FIFO‑очередь. При попе — push следующий, поддерживая `MAX_BUBBLES_ON_SCREEN()`.
+- Tough‑клики:
+  - Локальный счётчик в кликер‑пуле (не трогать основной `bubbleStore`), bounce через `EffectsRepository`.
+- Сложность:
+  - Обновление по попу O(1); отрисовка/тик — O(nodes) в кадр; память линейная по пулу.
+
+3) UI/UX DESIGN
+- Требования:
+  - Виджет вверху слева (кнопка без панели); правила/результаты — лёгкие модалки; таймер сверху справа, ≤10s — danger; отсчёт через `YearTransition`.
+- Опции виджета:
+  - A. Круглая иконка‑кнопка (в стиле SettingsWidget) — консистентность с UI.
+  - B. Текстовая кнопка — хуже визуально.
+  - Рекомендация: A, с ToolTip.
+- Опции модалок:
+  - A. Полн экран BaseModal; B. Компактная карточка; Рекомендация: B, чтобы не перекрывать сцену дольше, чем нужно.
+- Таймер:
+  - Фиксированный блок top‑right; моноширинный шрифт; формат `mm:ss.t`; плавный цветовой переход к красному ≤10s.
+- Отсчёт:
+  - `YearTransition` расширить: `text?: string`, `animateOnMount?: boolean=false`.
+
+Рекомендованный подход (сводка):
+- Strategy‑слой в `CanvasUseCase` + `clicker.store` как единая точка сценария; RAF‑таймер; FIFO‑очередь; минимальные правки в UI‑слоях.
+
+Implementation Guidelines (минимальные правки по файлам):
+- `src/stores/clicker.store.ts`: состояние/действия из PLAN; RAF‑петля; `gameEndAtMs`; мост к canvas.
+- `src/stores/index.ts`: экспорт стора.
+- `src/config/index.ts`: блок `GAME_CONFIG.clicker` + `computeTimeBonus`.
+- `src/types/modals.ts`: `clickerResults` + `ClickerResultsData`.
+- `src/ui/modals/ModalManager.vue`: регистрация `clickerRules`/`clickerResults` с быстрым закрытием перед запуском/рестартом.
+- `src/ui/widgets/clicker/ClickerWidget.vue`: кнопка + ToolTip; click: `openRules()`; если `isActive` — `abort()`.
+- `src/ui/modals/ClickerRulesModal.vue` и `ClickerResultsModal.vue`: простые карточки.
+- `src/ui/shared/GameScene.vue`: добавить `left-top-widgets-container`; таймерный узел; скрытие HUD/панелей/таймлайна при `isActive`.
+- `src/ui/shared/YearTransition.vue`: новые пропсы и логика отображения `text`.
+- `src/usecases/canvas/CanvasUseCase.ts`: внедрить мини‑стратегии (Normal/Clicker) в `getCurrentLevel`/`render`/`handleClick`.
+- `src/usecases/canvas/CanvasRepository.ts`: `hideLabels` флаг в `drawText`.
+- `src/composables/useCanvas.ts`: ранний выход для обычных обновлений при `isActive`; мост вызовов от стора.
+
+Verification Checklist:
+- UI скрыт при всём `isActive` (включая отсчёт); starfield не рисуется; подписи скрыты.
+- Таймер только во время игры; формат и цвет корректны; отсчёт без «2015» после «GO!».
+- Мгновенный поп без XP/ачивок/модалок; очередь пополнения держит лимит.
+- Аварийный выход восстанавливает нормальный режим; без зависших оверлеев.
+
+🎨🎨🎨 EXITING CREATIVE PHASE — готово к IMPLEMENT
+
+## 🕹️ Кликер: Полное ТЗ (Phase 2 — Polish & Fixes)
+
+### Цели
+- Довести бонус-режим «Кликер» до играбельного состояния с корректным UX/визуалом и без конфликтов с обычным режимом.
+- Устранить глитчи с отсчётом, невидимостью таймера и оверлеями модалок.
+
+### Пользовательский поток
+1) Клик по виджету 🕹️ (верх‑левый угол) → открывается модалка правил.
+2) Нажатие «Старт» в правилах → модалка мгновенно закрывается, начинается отсчёт 3‑2‑1 → «GO!». Во время отсчёта уже применяются: скрытие HUD/панелей/таймлайна, отключение звёздного фона, повышенная физика.
+3) После «GO!» стартует 60‑секундная игра. В правом верхнем углу отображается таймер обратного отсчёта (с десятыми долями). На 10 сек и меньше — красный цвет.
+4) По окончании или при раннем завершении (все пузыри выбиты) показывается модалка результатов с кнопкой «Ещё раз».
+5) Повторный клик по виджету во время игры — аварийный выход без результатов, мгновенное восстановление обычного режима.
+
+### UI/UX требования
+- Виджет
+  - `src/ui/widgets/clicker/ClickerWidget.vue` (shared): панель убрать; оставить тултип по наведению; клик по виджету открывает правила. При активной игре — выполняет `abort()`.
+- Правила
+  - `src/ui/modals/ClickerRulesModal.vue`: «Старт» закрывает модалку сразу, запускает `clicker.startCountdown()`.
+- Отсчёт
+  - Показ через `src/ui/shared/YearTransition.vue` с пропом `text`: при метке «GO!» выводить именно «GO!». Никаких «2015» после «GO!». На первый рендер анимацию не запускать.
+  - В `src/ui/shared/GameScene.vue` вычисление `countdownOverlayYear` и `countdownText`: числа 3/2/1 как год, «GO!» — через `text`.
+- Таймер
+  - Отображение только во время активной игры (не во время отсчёта).
+  - Позиция: top‑right; формат: `mm:ss.t` (десятые доли); ≤10 сек — класс danger (красный).
+  - Узел таймера находится в `src/ui/shared/GameScene.vue`.
+- Хайд обычного UI во время кликера
+  - В `GameScene.vue`: все панели/HUD/таймлайн/перформанс‑монитор скрывать по `!clicker.isActive` (то есть скрыты, когда `isActive === true`, включая отсчёт).
+- Фон/физика
+  - Звёздный фон не рисовать при активном кликере (в т.ч. отсчёт). Физика ускорена на всём периоде `isActive`.
+- Подписи пузырей
+  - В режиме кликера подписи скрыты.
+
+### Игровая логика
+- Источник пузырей: все из `skills.json` и `project.json` с оффсетом ID для проектов (+10000), а также философские для визуала. Философские кликаются как обычные (без модалок), без подписей.
+- Tough‑пузыри: требуют несколько кликов (использовать `GAME_CONFIG.TOUGH_BUBBLE_CLICKS_REQUIRED()`), дать визуальную обратную связь по клику (bounce/мигание).
+- Во время кликера: никакие обычные модалки/ачивки/XP не должны срабатывать.
+- Очередь пополнения: после попа сразу добавлять следующий из очереди, поддерживая лимит `GAME_CONFIG.MAX_BUBBLES_ON_SCREEN()`.
+- Завершение: по таймеру или раннее (если выбиты все пузыри). Бонус за оставшееся время: `GAME_CONFIG.clicker.computeTimeBonus(timeLeftMs)`.
+
+### Технические требования
+- Store: `src/stores/clicker.store.ts`
+  - Состояние: `isActive`, `isRunning`, `timeLeftMs` (расчёт через `performance.now()` + `gameEndAtMs`), `score`, `totalTargets`, `bestScore`, `countdown` (3→2→1→0/GO!).
+  - Действия: `openRules()`, `startCountdown()`, `startGame()`, `onBubblePopped()`, `finish(reason)`, `abort()`, `clearTimers()`, `resetState()`.
+  - Построение пула: `api.getBubbles()` + `api.getProjectBubbles()` (+ философские), оффсет для проектов.
+- Canvas
+  - `useCanvas.ts`: при `clicker.isActive` не выполнять обычные обновления; предоставить мост (`setBubbles`/`addBubblesToCanvas`/`removeBubbleWithEffects/...`).
+  - `CanvasUseCase.ts`:
+    - `getCurrentLevel()`: при `clicker.isActive` вернуть `GAME_CONFIG.clicker.SPEED_LEVEL`.
+    - `handleClick()`: при `clicker.isActive` — логика кликера: учёт tough‑кликов, удаление пузыря без модалок/XP/ачивок, вызов `clicker.onBubblePopped()`.
+    - `render()`: не рисовать starfield при активном кликере; скрывать подписи (`CanvasRepository.hideLabels = true`).
+  - `CanvasRepository.ts`: флаг `hideLabels` блокирует отрисовку текста.
+- Модалки
+  - `src/ui/modals/ModalManager.vue`: регистрации `clickerRules`/`clickerResults`. На «Старт»/«Ещё раз» — закрывать текущую модалку через `modalStore.closeCurrentModal()` до старта отсчёта/рестарта.
+  - Типы в `src/types/modals.ts`: `clickerResults` с данными `{ score, clicked, total, timeLeftMs, bonus, totalScore }`.
+- Конфиг
+  - `GAME_CONFIG.clicker = { DURATION_MS: 60000, SPEED_LEVEL: 5, TIME_BONUS_PER_SECOND: 2, computeTimeBonus }`.
+- I18n
+  - Строки ru/en: виджет/тултип, правила, кнопки Старт/Отмена/Ещё раз, результаты, «GO!», таймерные метки при необходимости.
+
+### Acceptance Criteria
+- Виджет открывает правила; повторный клик во время игры — аварийный выход без результатов.
+- «Старт» мгновенно закрывает правила; начинается отсчёт 3‑2‑1‑«GO!» без всплывающих «2015».
+- Во время отсчёта скрыт весь обычный UI; отключён starfield; ускорена физика.
+- Во время активной игры отображается таймер в правом верхнем углу, формат `mm:ss.t`; ≤10 сек — красный; таймер отсутствует на отсчёте.
+- Подписи пузырей скрыты. Философские присутствуют визуально, кликаются как обычные, никаких модалок.
+- Tough‑пузыри требуют несколько кликов и дают визуальную обратную связь.
+- Клики по пузырям мгновенно попают их без модалок/ачивок/XP, слоты пополняются из очереди.
+- По таймеру/раннему завершению — модалка результатов с `{ score, clicked, total, timeLeftMs, bonus, totalScore }` и кнопкой «Ещё раз», которая корректно закрывает модалку и перезапускает сценарий.
+- Аварийный выход (клик по виджету во время игры) полностью восстанавливает обычный UI, без нависающих оверлеев.
+
+### Проверка/диагностика (dev)
+- В `src/ui/shared/GameScene.vue` допускается временный `debug-info` блок без `v-if` для диагностики (удалить перед релизом).
+- Консоль не содержит ошибок; производительность без starfield стабильнее.
+
+### Уровень сложности
+- Level 3 (интеграция нескольких подсистем + UX‑полировка). 
