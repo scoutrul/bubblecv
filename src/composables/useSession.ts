@@ -33,7 +33,7 @@ export function useSession() {
         setGameCompleted: sessionStore.setGameCompleted,
         addVisitedBubble: sessionStore.addVisitedBubble,
         setCurrentYear: sessionStore.setCurrentYear
-      } as any, // Временно используем any для обхода проблем с типами
+      } as unknown as import('@/usecases/session/types').SessionSessionStore, // conforms to expected adapter shape
       levelAdapter: {
         getLevelByNumber: levelStore.getLevelByNumber
       },

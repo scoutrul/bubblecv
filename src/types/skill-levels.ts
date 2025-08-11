@@ -1,4 +1,6 @@
-import skillLevels from '../data/skill-levels.json'
+import { i18n } from '@/i18n'
+import skillLevels_ru from '@/data/skill-levels.json'
+import skillLevels_en from '@/data/skill-levels_en.json'
 
 export const SKILL_LEVELS = {
   NOVICE: 'novice',
@@ -8,12 +10,14 @@ export const SKILL_LEVELS = {
   MASTER: 'master'
 } as const
 
-export const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = {
-  [SKILL_LEVELS.NOVICE]: skillLevels[SKILL_LEVELS.NOVICE],
-  [SKILL_LEVELS.INTERMEDIATE]: skillLevels[SKILL_LEVELS.INTERMEDIATE],
-  [SKILL_LEVELS.CONFIDENT]: skillLevels[SKILL_LEVELS.CONFIDENT],
-  [SKILL_LEVELS.EXPERT]: skillLevels[SKILL_LEVELS.EXPERT],
-  [SKILL_LEVELS.MASTER]: skillLevels[SKILL_LEVELS.MASTER]
-}
+type SkillLevelDict = Record<string, string>
+const getSkillLevelLabels = (): SkillLevelDict => (i18n.locale.value === 'en' ? (skillLevels_en as SkillLevelDict) : (skillLevels_ru as SkillLevelDict))
+
+export const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = new Proxy({} as Record<SkillLevel, string>, {
+  get: (_target, prop: string) => {
+    const dict = getSkillLevelLabels()
+    return dict[prop as SkillLevel]
+  }
+})
 
 export type SkillLevel = typeof SKILL_LEVELS[keyof typeof SKILL_LEVELS]

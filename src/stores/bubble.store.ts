@@ -107,17 +107,28 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
         sessionStore.setLives(GAME_CONFIG.maxLives)
       }
 
-      // Если разблокирован крепкий пузырь, гарантируем наличие скрытых пузырей для всех лет до текущего (кроме ретро)
-      if (sessionStore.hasUnlockedFirstToughBubbleAchievement && result.mode !== GameMode.RETRO) {
+      // Добавляем скрытые пузыри для динамики:
+      // - если получена ачивка крепкого пузыря (как раньше)
+      // - а также в ретро-режиме — чтобы в годах с одним пузырём была динамика
+      const shouldAddHidden = result.mode === GameMode.RETRO || sessionStore.hasUnlockedFirstToughBubbleAchievement
+      if (shouldAddHidden) {
         const yearRange = getYearRange(bubbles.value)
         const startYear = yearRange.startYear
-        const endYear = sessionStore.currentYear
+        const endYear = result.mode === GameMode.RETRO ? yearRange.endYear : sessionStore.currentYear
         for (let year = startYear; year <= endYear; year++) {
-          const existingHidden = bubbles.value.find(b => b.isHidden && b.year === year)
           const hiddenId = -(year * 10000 + 9999)
           const isPopped = sessionStore.visitedBubbles.includes(hiddenId)
-          if (!existingHidden && !isPopped) {
-            bubbles.value.push(createHiddenBubble(year))
+          const existingHiddenUnpopped = bubbles.value.find(b => b.isHidden && b.year === year && !isPopped)
+
+          // В ретро режиме добавляем скрытый, если нет НЕПОПНУТОГО скрытого ИЛИ если в этом году только один обычный пузырь
+          const yearNormalsCount = bubbles.value.filter(b => !b.isHidden && !b.isQuestion && b.year === year).length
+          const needForMotion = result.mode === GameMode.RETRO && yearNormalsCount <= 1
+
+          if ((!existingHiddenUnpopped && !isPopped) || needForMotion) {
+            // Добавляем недостающий скрытый пузырь
+            if (!existingHiddenUnpopped && !isPopped) {
+              bubbles.value.push(createHiddenBubble(year))
+            }
           }
         }
       }

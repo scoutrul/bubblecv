@@ -109,11 +109,11 @@ export const useClickerStore = defineStore('clickerStore', () => {
     canvas.updateCanvasBubbles && canvas.updateCanvasBubbles() // ensure canvas exists
     canvas.updateCanvasBubbles && canvas.updateCanvasBubbles() // noop double-call safeguard
     // Replace scene with initial clicker set to avoid duplicates and enforce capacity
-    if ((canvas as any).setBubblesOnCanvas) {
-      ;(canvas as any).setBubblesOnCanvas(nodes)
-    } else if ((canvas as any).addBubblesToCanvas) {
+    if ((canvas as { setBubblesOnCanvas?: (nodes: BubbleNode[]) => void }).setBubblesOnCanvas) {
+      ;(canvas as { setBubblesOnCanvas?: (nodes: BubbleNode[]) => void }).setBubblesOnCanvas!(nodes)
+    } else if ((canvas as { addBubblesToCanvas?: (nodes: BubbleNode[]) => void }).addBubblesToCanvas) {
       // Fallback in case setBubblesOnCanvas is not available
-      ;(canvas as any).addBubblesToCanvas(nodes)
+      ;(canvas as { addBubblesToCanvas?: (nodes: BubbleNode[]) => void }).addBubblesToCanvas!(nodes)
     } else {
       console.warn('Canvas bridge does not expose setBubblesOnCanvas/addBubblesToCanvas; initial bubbles may not render as expected')
     }
@@ -125,15 +125,15 @@ export const useClickerStore = defineStore('clickerStore', () => {
     if (poolIndex.value >= bubblePool.value.length) return
     const nb = bubblePool.value[poolIndex.value++]
     const node = normalizedToBubbleNode(nb)
-    if ((canvas as any).addBubblesToCanvas) {
-      ;(canvas as any).addBubblesToCanvas([node])
+    if ((canvas as { addBubblesToCanvas?: (nodes: BubbleNode[]) => void }).addBubblesToCanvas) {
+      ;(canvas as { addBubblesToCanvas?: (nodes: BubbleNode[]) => void }).addBubblesToCanvas!([node])
     }
   }
 
   // Public API
   const openRules = () => {
     const modalStore = useModalStore()
-    modalStore.enqueueModal({ type: 'clickerRules' as any, data: null as any, priority: 60 })
+    modalStore.enqueueModal({ type: 'clickerRules', data: null, priority: 60 })
   }
 
   const startCountdown = async () => {
@@ -186,7 +186,9 @@ export const useClickerStore = defineStore('clickerStore', () => {
     countdownTimeouts.push(window.setTimeout(() => { countdown.value = 0 }, 3000))
     // During countdown, ensure bubble scene is empty to avoid pre-clicks
     const canvas = getCanvasBridge()
-    canvas && (canvas as any).setBubblesOnCanvas && (canvas as any).setBubblesOnCanvas([])
+    if (canvas && (canvas as { setBubblesOnCanvas?: (nodes: BubbleNode[]) => void }).setBubblesOnCanvas) {
+      ;(canvas as { setBubblesOnCanvas?: (nodes: BubbleNode[]) => void }).setBubblesOnCanvas!([])
+    }
     countdownTimeouts.push(window.setTimeout(() => { startGame() }, 3500))
   }
 
@@ -263,7 +265,7 @@ export const useClickerStore = defineStore('clickerStore', () => {
 
     const results = computeResults()
     const modalStore = useModalStore()
-    modalStore.enqueueModal({ type: 'clickerResults' as any, data: results as any, priority: 65 })
+    modalStore.enqueueModal({ type: 'clickerResults', data: results, priority: 65 })
   }
 
   const abort = () => {

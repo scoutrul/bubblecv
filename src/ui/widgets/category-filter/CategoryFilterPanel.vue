@@ -19,7 +19,7 @@
         <h4 class="categories-title">{{ t('widgets.categoryFilter.categories') }}</h4>
         <div class="categories-list">
           <div v-if="availableCategories.length === 0" class="category-placeholder">
-            <span class="text-text-muted">Загрузка категорий...</span>
+            <span class="text-text-muted">{{ t('widgets.categoryFilter.loading') }}</span>
           </div>
           <div v-else class="space-y-2">
             <CategoryFilterItem v-for="category in availableCategories" :key="category.id" :category="category"
@@ -72,7 +72,7 @@ const loadCategories = () => {
       }
     }
 
-    const factory = new CategoryFilterUseCaseFactory(mockStore as any)
+    const factory = new CategoryFilterUseCaseFactory(mockStore as unknown as import('@/usecases/category-filter/types').CategoryFilterStore)
     const getCategoriesUseCase = factory.createGetCategoriesUseCase(bubbleStore.bubbles)
     getCategoriesUseCase.execute({ bubbles: bubbleStore.bubbles })
   }

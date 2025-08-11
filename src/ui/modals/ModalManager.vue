@@ -109,6 +109,7 @@ import ClickerRulesModal from './ClickerRulesModal.vue'
 import ClickerResultsModal from './ClickerResultsModal.vue'
 import FinalCongratsModal from './FinalCongratsModal.vue'
 import { computed } from 'vue'
+import { useI18n } from '@/composables'
 import { MODAL_PRIORITIES } from '@/types/modals'
 import { useBonusStore } from '@/stores/bonus.store'
 import { useMemoirStore } from '@/stores/memoir.store'
@@ -119,6 +120,7 @@ const bonusStore = useBonusStore()
 const memoirStore = useMemoirStore()
 const { unlockedCount } = useAchievement()
 const isDev = import.meta.env.DEV
+const { t } = useI18n()
 const {
   modals,
   data,
@@ -157,8 +159,8 @@ const handleMemoirModalClose = async () => {
 const currentModal = computed(() => modalStore.currentModal)
 
 // Type-safe accessors
-const safeModals = computed(() => (modals as any).value || {} as any)
-const safeData = computed(() => (data as any).value || {} as any)
+const safeModals = computed(() => (modals?.value ?? {}) as typeof modals.value)
+const safeData = computed(() => (data?.value ?? {}) as typeof data.value)
 
 // Welcome Modal
 const showWelcome = computed(() => {
@@ -183,11 +185,12 @@ const philosophyProps = computed(() => ({
 
 // Bubble Modal
 const showBubble = computed(() => {
-  return currentModal.value?.type === 'bubble' || safeModals.value.bubble || false
+  const active = currentModal.value?.type === 'bubble' || safeModals.value.bubble || false
+  return active && Boolean(safeData.value.currentBubble)
 })
 const bubbleProps = computed(() => ({
   isOpen: showBubble.value && !modalStore.isModalClosing('bubble'),
-  bubble: safeData.value.currentBubble || null,
+  bubble: safeData.value.currentBubble!,
   allowEscapeClose: true,
   isClosing: modalStore.isModalClosing('bubble')
 }))
@@ -212,7 +215,7 @@ const levelUpProps = computed(() => {
   const props = {
     isOpen: showLevelUp.value && !modalStore.isModalClosing('levelUp'),
     level: safeData.value.levelUpData?.level || 1,
-    title: safeData.value.levelUpData?.title || 'Новый уровень',
+    title: safeData.value.levelUpData?.title || t.value('modals.levelUp.titleShort'),
     description: safeData.value.levelUpData?.description || '',
     icon: safeData.value.levelUpData?.icon || '⭐',
     currentXP: safeData.value.levelUpData?.currentXP || 0,

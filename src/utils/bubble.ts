@@ -1,9 +1,11 @@
-import {GAME_CONFIG} from '@/config'
-import type {SkillLevel} from '@/types/skill-levels'
-import type {BubbleSizes, NormalizedBubble} from '@/types/normalized'
+import { GAME_CONFIG } from '@/config'
+import type { SkillLevel } from '@/types/skill-levels'
+import type { BubbleSizes, NormalizedBubble } from '@/types/normalized'
 import type { BubbleNode } from '@/types/canvas'
 import type { Question } from '@/types/data'
-import questionsData from '@/data/questions.json'
+import { i18n } from '@/i18n'
+import questions_ru from '@/data/questions.json'
+import questions_en from '@/data/questions_en.json'
 
 export function calculateAdaptiveSizes(): { min: number; max: number } {
   return { min: 35, max: 120 }
@@ -48,15 +50,18 @@ export const getBubbleColor = (bubble: NormalizedBubble) => {
 }
 
 export const createQuestionData = (clickedBubble: BubbleNode): Question => {
+  type QuestionsFile = { questions: Question[] }
+  const getQuestionsData = (): QuestionsFile => (i18n.locale.value === 'en' ? (questions_en as QuestionsFile) : (questions_ru as QuestionsFile))
   // Если у пузыря есть questionId, используем его
   if (clickedBubble.questionId) {
-    const question = questionsData.questions.find(q => q.id === clickedBubble.questionId)
+    const question = getQuestionsData().questions.find((q: Question) => q.id === clickedBubble.questionId)
     if (question) {
       return question
     }
   }
   
   // Иначе берем случайный вопрос
-  const randomQuestion = questionsData.questions[Math.floor(Math.random() * questionsData.questions.length)]
+  const all = getQuestionsData().questions as Question[]
+  const randomQuestion = all[Math.floor(Math.random() * all.length)]
   return randomQuestion
 }

@@ -1,0 +1,64 @@
+{
+  "achievements": [
+    {
+      "id": "tough-bubble-popper",
+      "name": "Tough Breaker",
+      "description": "You broke your first tough bubble! Persistence is key.",
+      "icon": "💪"
+    },
+    {
+      "id": "secret-bubble-discoverer",
+      "name": "Secret Seeker",
+      "description": "You found and activated a hidden bubble!",
+      "icon": "🕵️"
+    },
+    {
+      "id": "year-jumper",
+      "name": "Time Traveler",
+      "description": "You jumped to the next year without popping all bubbles!",
+      "icon": "⏭️"
+    },
+    {
+      "id": "completionist",
+      "name": "Completionist",
+      "description": "You popped all available bubbles in a year!",
+      "icon": "🏆"
+    },
+    {
+      "id": "philosophy-master",
+      "name": "Philosopher",
+      "description": "Answered a philosophy question!",
+      "icon": "🤔"
+    },
+    {
+      "id": "on-the-edge",
+      "name": "On the Edge",
+      "description": "You have only one life left!",
+      "icon": "🔥"
+    },
+    {
+      "id": "bubble-explorer-10",
+      "name": "Explorer",
+      "description": "Explored 10 technology bubbles!",
+      "icon": "🔍"
+    },
+    {
+      "id": "bubble-explorer-30",
+      "name": "Tech Expert",
+      "description": "Explored 30 bubbles!",
+      "icon": "🎯"
+    },
+    {
+      "id": "bubble-explorer-50",
+      "name": "Master of All Tech",
+      "description": "Explored 50 bubbles!",
+      "icon": "🏆"
+    },
+    {
+      "id": "final-level-master",
+      "name": "Finalist",
+      "description": "Reached the maximum level!",
+      "icon": "🎖️"
+    }
+  ]
+}

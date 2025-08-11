@@ -4,8 +4,8 @@
     "reset": "Reset",
     "settings": "Settings",
     "language": "Language",
-    "loading": "Loading...",
-    "save": "Save",
+    "selectLanguage": "Select Language",
+    "apply": "Apply",
     "cancel": "Cancel",
     "confirm": "Confirm",
     "next": "Next",
@@ -30,6 +30,13 @@
     "level": "Level {level}",
     "lives": "Lives",
     "xp": "Experience"
+  },
+  "language": {
+    "names": {
+      "ru": "Русский",
+      "en": "English"
+    },
+    "restartWarning": "The game will restart with the new language"
   },
   "levels": {
     "visitor": "Visitor",
@@ -56,15 +63,29 @@
   },
   "contact": {
     "title": "Contact",
+    "messageLabel": "Your message or impression",
     "messagePlaceholder": "Share your thoughts about the project...",
+    "nameLabel": "Your name or how to address you",
     "namePlaceholder": "How should I address you?",
+    "contactLabel": "Contact for feedback",
     "contactPlaceholder": "Email, Telegram, phone or other contact method",
     "send": "Send",
     "sending": "Sending...",
     "sent": "Message sent!",
+    "successTitle": "Message sent!",
+    "successText": "Thank you for your message! I will get back to you soon.",
+    "sendAnother": "Send again",
+    "errorTitle": "Send error",
+    "tryAgain": "Try again",
     "error": "Send error"
   },
   "philosophy": {
+    "title": "Philosophy question",
+    "subtitle": "Your view on development matters for compatibility",
+    "customAnswerTitle": "Your custom answer",
+    "answerButton": "Answer (+{xp} XP)",
+    "warningTitle": "Warning:",
+    "warningText": "Wrong answers affect compatibility. If you lose all lives, the game will end.",
     "placeholder": "Share your opinion on this issue..."
   },
   "achievements": {
@@ -78,7 +99,8 @@
     "title": "Bonuses",
     "unlocked": "Unlocked",
     "locked": "Locked",
-    "placeholder": "Complete levels to unlock bonuses!"
+    "placeholder": "Complete levels to unlock bonuses!",
+    "levelLabel": "Level {level}"
   },
   "memoirs": {
     "title": "Memoirs",
@@ -110,6 +132,7 @@
     },
     "levelUp": {
       "title": "New level!",
+      "titleShort": "New level",
       "message": "Congratulations! You reached level {level}",
       "continue": "Continue",
       "newBonus": "🎁 New bonus:",
@@ -127,6 +150,9 @@
     }
   },
   "bubble": {
+    "philosophyName": "Philosophy question",
+    "hiddenName": "Hidden bubble",
+    "hiddenDescription": "This bubble is almost invisible. Find it!",
     "expertiseLevel": "Expertise level",
     "description": "Description",
     "insight": "Insight",
@@ -166,12 +192,27 @@
       "tooltip": "Filter bubbles by categories",
       "showAll": "Show All",
       "categories": "Categories",
+      "loading": "Loading categories...",
       "filtered": "Filtered",
       "noFilters": "All Categories",
       "bubbleCount": "{count} bubbles",
       "bubbleCountOne": "{count} bubble",
       "bubbleCountFew": "{count} bubbles",
       "bubbleCountMany": "{count} bubbles"
+    }
+  },
+  "gameMode": {
+    "career": {
+      "title": "Career path",
+      "description": "Developer's growth path and experience"
+    },
+    "project": {
+      "title": "Project technologies",
+      "description": "Skills and technologies required to build a similar project"
+    },
+    "retro": {
+      "title": "Retro",
+      "description": "Personal retrospective: childhood, first steps and early events"
     }
   },
   "clicker": {

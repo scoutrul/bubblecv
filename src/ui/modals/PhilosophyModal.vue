@@ -11,10 +11,10 @@
         <span class="icon-emoji">🤔</span>
       </div>
       <h2 class="header-title">
-        Философский вопрос
+        {{ t('philosophy.title') }}
       </h2>
       <p class="header-subtitle">
-        Ваш взгляд на разработку важен для понимания совместимости
+        {{ t('philosophy.subtitle') }}
       </p>
     </div>
 
@@ -50,7 +50,7 @@
       <div class="custom-answer-section">
         <div class="custom-answer-header">
           <span class="custom-answer-emoji">✍️</span>
-          <span class="custom-answer-title">Ваш вариант ответа</span>
+          <span class="custom-answer-title">{{ t('philosophy.customAnswerTitle') }}</span>
         </div>
 
         <textarea
@@ -65,7 +65,7 @@
           :disabled="!customAnswer.trim()"
           class="custom-answer-button"
         >
-          Ответить (+{{ customAnswerXP }} XP)
+          {{ t('philosophy.answerButton', { xp: customAnswerXP }) }}
         </button>
       </div>
     </div>
@@ -74,10 +74,10 @@
     <div class="warning-container">
       <div class="warning-header">
         <span>⚠️</span>
-        <span class="warning-title">Внимание:</span>
+        <span class="warning-title">{{ t('philosophy.warningTitle') }}</span>
       </div>
       <p class="warning-text">
-        Неправильные ответы влияют на совместимость. При потере всех жизней игра закончится.
+        {{ t('philosophy.warningText') }}
       </p>
     </div>
   </BaseModal>

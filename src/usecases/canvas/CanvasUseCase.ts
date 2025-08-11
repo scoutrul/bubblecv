@@ -23,6 +23,7 @@ import { addPendingBubbleRemoval } from '@/composables/useModals'
 import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
 import { usePerformanceStore } from '@/stores/performance.store'
 import { useClickerStore } from '@/stores/clicker.store'
+import { useGameMode } from '@/composables/useGameMode'
 
 // Extended canvas to store cleanup callback
 type ExtendedCanvas = HTMLCanvasElement & { _cleanupEventListeners?: () => void }
@@ -549,13 +550,16 @@ export class CanvasUseCase implements ICanvasUseCase {
         return { bubblePopped: false }
       } else {
         // Создаем floating text при каждом клике по крепкому пузырю
-        this.effectsRepository.createFloatingText({
-          x: mouseX,
-          y: mouseY,
-          text: '+ ❤️',
-          type: 'xp',
-          color: '#ef4444'
-        })
+        {
+          const { isRetroMode } = useGameMode()
+          this.effectsRepository.createFloatingText({
+            x: mouseX,
+            y: mouseY,
+            text: isRetroMode.value ? '+ ❤️' : '+1 XP',
+            type: 'xp',
+            color: isRetroMode.value ? '#ef4444' : '#22c55e'
+          })
+        }
         
         // Добавляем XP за каждый клик по крепкому пузырю
         const result = await this.useSession.gainXP(1)
@@ -615,13 +619,16 @@ export class CanvasUseCase implements ICanvasUseCase {
         }
         
         // Создаем floating text для финального взрыва
-        this.effectsRepository.createFloatingText({
-          x: bubble.x,
-          y: bubble.y,
-          text: '+ ❤️',
-          type: 'xp',
-          color: '#ef4444'
-        })
+        {
+          const { isRetroMode } = useGameMode()
+          this.effectsRepository.createFloatingText({
+            x: bubble.x,
+            y: bubble.y,
+            text: isRetroMode.value ? '+ ❤️' : `+${xpAmount} XP`,
+            type: 'xp',
+            color: isRetroMode.value ? '#ef4444' : '#22c55e'
+          })
+        }
 
         // Выдаем ачивку за скрытый пузырь (через сессию, без модалок)
         await this.useSession.handleSecretBubbleDestroyed()
@@ -648,13 +655,16 @@ export class CanvasUseCase implements ICanvasUseCase {
         }
         
         // Создаем floating text при каждом клике по скрытому пузырю
-        this.effectsRepository.createFloatingText({
-          x: mouseX,
-          y: mouseY,
-          text: '+ ❤️',
-          type: 'xp',
-          color: '#ef4444'
-        })
+        {
+          const { isRetroMode } = useGameMode()
+          this.effectsRepository.createFloatingText({
+            x: mouseX,
+            y: mouseY,
+            text: isRetroMode.value ? '+ ❤️' : `+${GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK} XP`,
+            type: 'xp',
+            color: isRetroMode.value ? '#ef4444' : '#22c55e'
+          })
+        }
         
         // Добавляем эффект отскакивания для скрытого пузыря
         this.effectsRepository.animateToughBubbleHit(bubble)

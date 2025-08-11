@@ -1,0 +1,39 @@
+{
+  "levels": [
+    {
+      "level": 1,
+      "title": "Visitor",
+      "icon": "👋",
+      "description": "First acquaintance - basic information is open",
+      "hint": "Gain XP to unlock the next level!"
+    },
+    {
+      "level": 2,
+      "title": "Interested",
+      "icon": "🤔",
+      "description": "The code you write, you like it",
+      "hint": "Continue exploring to access contacts!"
+    },
+    {
+      "level": 3,
+      "title": "Studying",
+      "icon": "📚",
+      "description": "Deep dive into the project - architecture and approaches",
+      "hint": "Study the details to understand the scale!"
+    },
+    {
+      "level": 4,
+      "title": "Partner",
+      "icon": "🤝",
+      "description": "Ready for cooperation - contacts are open",
+      "hint": "Contact me to discuss the project!"
+    },
+    {
+      "level": 5,
+      "title": "BRO",
+      "icon": "🤜🤛",
+      "description": "Master level - we're on the same wavelength! 🤝",
+      "hint": "🏆 BRO LEVEL UNLOCKED! 🏆"
+    }
+  ]
+}

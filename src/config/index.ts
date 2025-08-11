@@ -48,7 +48,7 @@ export const GAME_CONFIG = {
   } as const,
 
   xpPerExpertiseLevel: {
-    [SKILL_LEVELS.NOVICE]: 3, // 3
+    [SKILL_LEVELS.NOVICE]: 123, // 3
     [SKILL_LEVELS.INTERMEDIATE]: 5,
     [SKILL_LEVELS.CONFIDENT]: 7,
     [SKILL_LEVELS.EXPERT]: 9,

@@ -1,0 +1,589 @@
+{
+  "skills": [
+    {
+      "name": "Git",
+      "year": 2012,
+      "skillLevel": "novice",
+      "description": "You can store code in the cloud rather than on a disk",
+      "insight": "Git became the primary tool for working with code. It lets you store code in the cloud rather than on a local disk.",
+      "category": "infrastructure"
+    },
+    {
+      "name": "PHP",
+      "year": 2002,
+      "skillLevel": "novice",
+      "description": "Simple scripts, variables, loops, forms",
+      "insight": "PHP was my first server‑side language. Its simplicity and availability made it ideal for learning web development.",
+      "category": "backend"
+    },
+    {
+      "name": "MySQL",
+      "year": 2003,
+      "skillLevel": "novice",
+      "description": "Basic SELECT, INSERT, UPDATE, DELETE queries",
+      "insight": "Databases seemed complex, but simple queries opened up the world of structured data.",
+      "category": "database"
+    },
+    {
+      "name": "FTP",
+      "year": 2002,
+      "skillLevel": "novice",
+      "description": "Uploading files to a server, FileZilla, basic commands",
+      "insight": "FTP was the main way to upload websites. The protocol was simple and reliable.",
+      "category": "server"
+    },
+    {
+      "name": "Layout",
+      "year": 2002,
+      "skillLevel": "novice",
+      "description": "Table‑based layout, simple layouts, adapting for IE",
+      "insight": "Layout began with tables. Every pixel mattered, and cross‑browser compatibility was a real challenge.",
+      "category": "frontend"
+    },
+    {
+      "name": "HTML",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "Forms, attributes, frames, validation, document structure",
+      "insight": "Understanding structure and the right attributes became the foundation for future growth. HTML started to get rules.",
+      "category": "frontend"
+    },
+    {
+      "name": "HTML",
+      "year": 2010,
+      "skillLevel": "confident",
+      "description": "HTML5, semantic tags, new APIs, built‑in video",
+      "insight": "HTML matured: <article>, <section>, <nav> — now every element had a purpose.",
+      "category": "frontend"
+    },
+    {
+      "name": "HTML5",
+      "year": 2015,
+      "skillLevel": "expert",
+      "description": "Responsive markup, accessibility, ARIA interactions",
+      "insight": "Semantics without accessibility is like a house without doors. HTML became about attention to detail.",
+      "category": "frontend"
+    },
+    {
+      "name": "HTML",
+      "year": 2023,
+      "skillLevel": "master",
+      "description": "Componentized HTML, Web Components, accessibility‑first approach",
+      "insight": "HTML is the interface language between humans and machines. The cleaner it is, the better you are understood.",
+      "category": "frontend"
+    },
+    {
+      "name": "CSS",
+      "year": 2002,
+      "skillLevel": "novice",
+      "description": "Inline styles, colored fonts, borders, background",
+      "insight": "CSS first felt like magic: everything seemed to work until you opened it in Netscape Navigator.",
+      "category": "frontend"
+    },
+    {
+      "name": "Photoshop",
+      "year": 2004,
+      "skillLevel": "novice",
+      "description": "Basic tools, layers, slicing graphics for the web",
+      "insight": "Photoshop was essential for web development. Slicing layouts became part of the daily routine.",
+      "category": "design"
+    },
+    {
+      "name": "Netcat",
+      "year": 2003,
+      "skillLevel": "novice",
+      "description": "Basic network operations, connection debugging",
+      "insight": "Netcat showed how network protocols work at a low level.",
+      "category": "cms"
+    },
+    {
+      "name": "CSS",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "Cascading, specificity, positioning, float‑based layout",
+      "insight": "CSS has always been and remains the foundation of the visual front‑end. I remember IE6 bugs like battle scars. Float was both evil and salvation at the same time. It became clear that CSS is about managing complexity.",
+      "category": "frontend"
+    },
+    {
+      "name": "Layout",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "Float layout, cross‑browser support, semantic markup",
+      "insight": "Layout became more deliberate. Understanding float and clearfix opened new possibilities for layouts.",
+      "category": "frontend"
+    },
+    {
+      "name": "Netcat",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "Advanced network operations, scripts, automation",
+      "insight": "Netcat became a tool for automating and debugging network tasks.",
+      "category": "cms"
+    },
+    {
+      "name": "CSS",
+      "year": 2010,
+      "skillLevel": "confident",
+      "description": "Reset/Normalize, clearfix, layout grids, pseudo‑classes",
+      "insight": "True pain is cross‑browser compatibility. That’s where a real CSS warrior is forged.",
+      "category": "frontend"
+    },
+    {
+      "name": "CSS3",
+      "year": 2015,
+      "skillLevel": "expert",
+      "description": "Flexbox, animations, media queries, variables (preprocessors/Sass)",
+      "insight": "Flexbox brought freedom. Mixins in Sass gave the first sense that CSS is a programming language.",
+      "category": "frontend"
+    },
+    {
+      "name": "Layout",
+      "year": 2015,
+      "skillLevel": "master",
+      "description": "Modern standards, component approach, style architecture",
+      "insight": "Layout became an art. Understanding principles and tools allows building scalable solutions.",
+      "category": "frontend"
+    },
+    {
+      "name": "MODX",
+      "year": 2015,
+      "skillLevel": "intermediate",
+      "description": "Revolution, templates, snippets, plugins",
+      "insight": "MODX is a flexible CMS for developers. Full control over code and structure.",
+      "category": "cms"
+    },
+    {
+      "name": "jQuery",
+      "year": 2015,
+      "skillLevel": "confident",
+      "description": "Advanced techniques, plugins, optimization, architecture",
+      "insight": "jQuery reached maturity. Understanding the internals and best practices.",
+      "category": "frontend"
+    },
+    {
+      "name": "WordPress",
+      "year": 2015,
+      "skillLevel": "confident",
+      "description": "Theming, plugins, hooks, customization",
+      "insight": "WordPress became a professional tool. Understanding the ecosystem and architecture.",
+      "category": "cms"
+    },
+    {
+      "name": "CSS",
+      "year": 2023,
+      "skillLevel": "master",
+      "description": "CSS Grid, custom properties, Tailwind CSS, architecture and scalability",
+      "insight": "CSS has become a powerful tool. The key is to use it wisely: readable, predictable, and modular.",
+      "category": "frontend"
+    },
+    {
+      "name": "JavaScript",
+      "year": 2002,
+      "skillLevel": "novice",
+      "description": "Alerts, document.write, the simplest scripts for effects",
+      "insight": "JavaScript seemed like a toy to make things blink. Back then no one knew it would become the heart of the web.",
+      "category": "frontend"
+    },
+    {
+      "name": "JavaScript",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "DOM API, events, jQuery, simple logic and forms",
+      "insight": "With the advent of jQuery, code started to look magical. JavaScript began stepping out of the shadows.",
+      "category": "frontend"
+    },
+    {
+      "name": "JavaScript",
+      "year": 2010,
+      "skillLevel": "confident",
+      "description": "Closures, timers, AJAX, modules, homegrown patterns",
+      "insight": "Understanding closures and asynchrony — the moment JavaScript grew up.",
+      "category": "frontend"
+    },
+    {
+      "name": "JavaScript",
+      "year": 2015,
+      "skillLevel": "expert",
+      "description": "ES6+, promises, classes, import/export, Babel, SPA",
+      "insight": "With ES6, JavaScript gained structure. No longer chaos, but a powerful language with real syntax.",
+      "category": "frontend"
+    },
+    {
+      "name": "JavaScript",
+      "year": 2023,
+      "skillLevel": "master",
+      "description": "Modern JS: async/await, deep patterns, application architecture, TypeScript integration",
+      "insight": "JavaScript became a language for systems. Not just scripts, but a platform. The key is to think in architecture, not lines.",
+      "category": "frontend"
+    },
+    {
+      "name": "Photoshop",
+      "year": 2005,
+      "skillLevel": "intermediate",
+      "description": "Preparing graphics, slicing layouts, adapting design",
+      "insight": "Working at a web studio required doing a bit of everything. Graphics too.",
+      "category": "design"
+    },
+    {
+      "name": "SEO",
+      "year": 2006,
+      "skillLevel": "intermediate",
+      "description": "Content optimization, meta tags, semantics, site promotion",
+      "insight": "Back then it was the Wild West: link farms, exchanges, directories. Everything changes — principles remain.",
+      "category": "marketing"
+    },
+    {
+      "name": "PHP",
+      "year": 2007,
+      "skillLevel": "intermediate",
+      "description": "OOP, functions, working with DB, security, frameworks",
+      "insight": "PHP became more structured. OOP and frameworks showed how to write scalable code.",
+      "category": "backend"
+    },
+    {
+      "name": "WordPress",
+      "year": 2008,
+      "skillLevel": "intermediate",
+      "description": "Theming, template tuning, working with plugins",
+      "insight": "Like many freelancers, I walked the WordPress‑sites path. It was a great school for understanding PHP and CMSes.",
+      "category": "cms"
+    },
+    {
+      "name": "Layout",
+      "year": 2008,
+      "skillLevel": "confident",
+      "description": "Complex layouts, responsiveness, optimization, preprocessors",
+      "insight": "Layout became professional. Understanding principles and tools enabled building quality interfaces.",
+      "category": "frontend"
+    },
+    {
+      "name": "3D Max",
+      "year": 2008,
+      "skillLevel": "novice",
+      "description": "Basic modeling, texturing, rendering",
+      "insight": "3D modeling opened new horizons. It was my first experience with three‑dimensional graphics.",
+      "category": "3d"
+    },
+    {
+      "name": "SEO",
+      "year": 2008,
+      "skillLevel": "confident",
+      "description": "Advanced techniques, analytics, content marketing",
+      "insight": "SEO became a systematic approach. Understanding algorithms and user behavior.",
+      "category": "marketing"
+    },
+    {
+      "name": "ES5",
+      "year": 2010,
+      "skillLevel": "confident",
+      "description": "JavaScript ES5: prototypes, closures, jQuery, XHR",
+      "insight": "A transitional stage to modern JS: much was manual, but already systematic.",
+      "category": "frontend"
+    },
+    {
+      "name": "ES6+",
+      "year": 2015,
+      "skillLevel": "expert",
+      "description": "Modern JavaScript: modules, arrow functions, async/await, classes",
+      "insight": "With ES6+, JavaScript gained elegance and expressiveness.",
+      "category": "frontend"
+    },
+    {
+      "name": "Layout",
+      "year": 2010,
+      "skillLevel": "expert",
+      "description": "Modern standards, performance, accessibility",
+      "insight": "Layout reached a professional level. Focus on quality, performance, and accessibility.",
+      "category": "frontend"
+    },
+    {
+      "name": "SEO",
+      "year": 2010,
+      "skillLevel": "expert",
+      "description": "Technical SEO, site architecture, conversion optimization",
+      "insight": "SEO became a technical discipline. Understanding the link between site structure and search algorithms.",
+      "category": "marketing"
+    },
+    {
+      "name": "jQuery",
+      "year": 2010,
+      "skillLevel": "intermediate",
+      "description": "DOM manipulation, AJAX, plugins, animations",
+      "insight": "jQuery simplified working with the DOM and AJAX. Code became more readable and cross‑browser.",
+      "category": "frontend"
+    },
+    {
+      "name": "WordPress",
+      "year": 2010,
+      "skillLevel": "novice",
+      "description": "Basic setup, installation, simple themes",
+      "insight": "WordPress opened the world of CMS. Easy to use and a huge ecosystem.",
+      "category": "cms"
+    },
+    {
+      "name": "Joomla",
+      "year": 2012,
+      "skillLevel": "novice",
+      "description": "Basic setup, components, modules",
+      "insight": "Joomla showed an alternative approach to CMS. More complex, but flexible.",
+      "category": "cms"
+    },
+    {
+      "name": "Drupal",
+      "year": 2012,
+      "skillLevel": "novice",
+      "description": "Basic setup, modules, taxonomy",
+      "insight": "Drupal is the most complex of the popular CMSes. A great school for understanding architecture.",
+      "category": "cms"
+    },
+    {
+      "name": "Vue.js",
+      "year": 2016,
+      "skillLevel": "expert",
+      "description": "Component architecture, Vuex, SSR, Vue Router",
+      "insight": "Vue became my main tool. It embodies the balance between simplicity and scalability.",
+      "category": "frontend"
+    },
+    {
+      "name": "Composition API",
+      "year": 2022,
+      "skillLevel": "confident",
+      "description": "setup(), composables, provide/inject, reactive structures",
+      "insight": "Composing logic via functions made code cleaner and more modular. True reuse became clear.",
+      "category": "frontend"
+    },
+    {
+      "name": "SCSS",
+      "year": 2016,
+      "skillLevel": "confident",
+      "description": "Style organization, structure, variables, mixins (PostCSS in the stack)",
+      "insight": "Well‑structured styles make for a readable and maintainable front‑end.",
+      "category": "frontend"
+    },
+    {
+      "name": "BEM",
+      "year": 2016,
+      "skillLevel": "confident",
+      "description": "Naming blocks/elements/modifiers, modularity, reusability",
+      "insight": "BEM brings discipline to CSS naming and architecture — lowering coupling and simplifying maintenance.",
+      "category": "frontend"
+    },
+    {
+      "name": "Gulp",
+      "year": 2014,
+      "skillLevel": "intermediate",
+      "description": "Build automation, tasks, plugins, optimization",
+      "insight": "Gulp showed how to automate routine tasks. The first step toward modern development.",
+      "category": "build"
+    },
+    {
+      "name": "Webpack",
+      "year": 2014,
+      "skillLevel": "intermediate",
+      "description": "Modular bundling, loaders, plugins, optimization",
+      "insight": "Webpack changed the way code is organized. Modularity became the standard.",
+      "category": "build"
+    },
+    {
+      "name": "Bitrix",
+      "year": 2014,
+      "skillLevel": "novice",
+      "description": "Basic configuration, components, infoblocks",
+      "insight": "Bitrix is powerful but complex. A great school for understanding enterprise solutions.",
+      "category": "cms"
+    },
+    {
+      "name": "Webpack",
+      "year": 2017,
+      "skillLevel": "intermediate",
+      "description": "Configuration, builds, optimization, loaders/plugins",
+      "insight": "The build is a craft of its own. Whoever configured Webpack will understand.",
+      "category": "build"
+    },
+    {
+      "name": "Node.js",
+      "year": 2018,
+      "skillLevel": "confident",
+      "description": "Express, APIs, CLI scripts, SSR",
+      "insight": "A server in JS — powerful. Even if you later move away from it.",
+      "category": "backend"
+    },
+    {
+      "name": "Blender",
+      "year": 2018,
+      "skillLevel": "intermediate",
+      "description": "3D modeling, texturing, animation, rendering",
+      "insight": "Blender opened the world of free 3D. A powerful tool for creating visual content.",
+      "category": "3d"
+    },
+    {
+      "name": "MongoDB",
+      "year": 2019,
+      "skillLevel": "intermediate",
+      "description": "Mongoose, schemas, CRUD, indexing",
+      "insight": "Document databases are ideal for prototyping and dynamic data.",
+      "category": "database"
+    },
+    {
+      "name": "React",
+      "year": 2020,
+      "skillLevel": "intermediate",
+      "description": "Hooks, JSX, component approach, Zustand",
+      "insight": "I mastered React as a second front‑end platform. It’s good to know both sides of the front‑end force.",
+      "category": "frontend"
+    },
+    {
+      "name": "TypeScript",
+      "year": 2021,
+      "skillLevel": "confident",
+      "description": "Typing, interfaces, generics, advanced types",
+      "insight": "Types bring some pain but also protection. The larger the project, the more valuable TypeScript becomes.",
+      "category": "frontend"
+    },
+    {
+      "name": "WordPress",
+      "year": 2020,
+      "skillLevel": "expert",
+      "description": "Gutenberg, REST API, plugins, performance",
+      "insight": "WordPress evolved into a modern platform. Gutenberg and the REST API opened new possibilities.",
+      "category": "cms"
+    },
+    {
+      "name": "Canvas API",
+      "year": 2023,
+      "skillLevel": "intermediate",
+      "description": "Drawing graphics, working with geometry, animations",
+      "insight": "The canvas is pure magic and math.",
+      "category": "frontend"
+    },
+    {
+      "name": "D3.js",
+      "year": 2023,
+      "skillLevel": "intermediate",
+      "description": "Force‑directed graphs, axes, scales, data‑join, layout algorithms",
+      "insight": "D3 is powerful but demands discipline: declarativeness plus computation.",
+      "category": "frontend"
+    },
+    {
+      "name": "Visualizations",
+      "year": 2023,
+      "skillLevel": "intermediate",
+      "description": "Visualization architecture, performance, interactivity",
+      "insight": "Not only technical, but also about storytelling.",
+      "category": "frontend"
+    },
+    {
+      "name": "GSAP",
+      "year": 2024,
+      "skillLevel": "intermediate",
+      "description": "Timelines, easing, sequences, scroll‑based animations",
+      "insight": "When you need real animation, GSAP gives control that CSS does not.",
+      "category": "frontend"
+    },
+    {
+      "name": "AI/Prompt Engineering",
+      "year": 2024,
+      "skillLevel": "confident",
+      "description": "Chat architecture, code generation, interaction scenarios",
+      "insight": "I don’t just use AI. I build with it. And that is a key skill of the new era.",
+      "category": "ai"
+    },
+    {
+      "name": "React",
+      "year": 2015,
+      "skillLevel": "novice",
+      "description": "JSX, components, props/state. First experience with a reactive UI.",
+      "insight": "React opened my eyes to writing UI as functions. It felt strange and powerful at the same time.",
+      "category": "frontend"
+    },
+    {
+      "name": "Vue 2 + Vuex",
+      "year": 2017,
+      "skillLevel": "intermediate",
+      "description": "Options API, reactivity, global state, slots",
+      "insight": "After React, Vue felt more human. It finally became clear how to structure an SPA.",
+      "category": "frontend"
+    },
+    {
+      "name": "Nuxt.js",
+      "year": 2020,
+      "skillLevel": "intermediate",
+      "description": "SSR, file‑based routing, plugins, modules, Nuxt lifecycle",
+      "insight": "Nuxt gave the experience of a framework where much is decided for you — and that sped things up.",
+      "category": "framework"
+    },
+    {
+      "name": "Vue 3 + Composition API",
+      "year": 2022,
+      "skillLevel": "confident",
+      "description": "setup(), composables, provide/inject, reactive structures",
+      "insight": "Composing logic via functions made code cleaner and more modular. True reuse became clear.",
+      "category": "frontend"
+    },
+    {
+      "name": "Pinia",
+      "year": 2023,
+      "skillLevel": "confident",
+      "description": "A new store, separated logic, declarative, SSR‑friendly",
+      "insight": "Pinia showed how simple and powerful a store can be without excess.",
+      "category": "architecture"
+    },
+    {
+      "name": "Use Case Pattern",
+      "year": 2025,
+      "skillLevel": "intermediate",
+      "description": "One task — one class. Business logic encapsulated outside the UI.",
+      "insight": "It feels like every function is now in its place. The code started to breathe.",
+      "category": "architecture"
+    },
+    {
+      "name": "Clean Architecture",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "Presentation/Application/Domain/Infrastructure layers, dependencies pointing outward",
+      "insight": "Clear boundaries and independence from the UI speed up refactoring.",
+      "category": "architecture"
+    },
+    {
+      "name": "Domain‑Driven Design (DDD)",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "Domain model, ubiquitous language, contexts, aggregates",
+      "insight": "Code reflects the domain, not implementation details.",
+      "category": "architecture"
+    },
+    {
+      "name": "SOLID Principles",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "SRP, DIP, OCP — applied in production for the first time",
+      "insight": "These principles used to feel theoretical, but in this project they worked in practice.",
+      "category": "architecture"
+    },
+    {
+      "name": "Docker",
+      "year": 2017,
+      "skillLevel": "novice",
+      "description": "First containers, docker run, docker ps, basic commands",
+      "insight": "Docker brought the idea of immutable environments and separated dev/prod. The beginning of the journey.",
+      "category": "infrastructure"
+    },
+    {
+      "name": "Docker",
+      "year": 2024,
+      "skillLevel": "intermediate",
+      "description": "Dockerfile, multi‑stage, docker‑compose, image optimization",
+      "insight": "Containerization became the norm. Building and running services in unified environments.",
+      "category": "infrastructure"
+    },
+    {
+      "name": "Docker",
+      "year": 2025,
+      "skillLevel": "confident",
+      "description": "Real production pipelines, Registry, k8s integration, security",
+      "insight": "Containers are not only about running, but also about the culture of delivery. Standards and security matter.",
+      "category": "infrastructure"
+    }
+  ]
+}
+

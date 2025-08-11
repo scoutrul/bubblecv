@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :is-open="isOpen" :allow-escape-close="true" :is-closing="isClosing" @close="close"
+  <BaseModal :is-open="isOpen" :allow-escape-close="false" :is-closing="isClosing" @close="close"
     class-name="final-modal-container">
     <div ref="rootEl" class="root">
       <div class="confetti">🎉</div>
@@ -174,7 +174,7 @@ function animateTo(key: keyof typeof animated, end: number, duration = 2400) {
     const p = Math.min(1, (ts - t0) / duration)
     // easeOutCubic
     const val = Math.round(start + (end - start) * (1 - Math.pow(1 - p, 3)))
-    animated[key] = val as any
+    ;(animated as Record<string, number>)[key as string] = val
     if (p < 1) requestAnimationFrame(step)
   }
   requestAnimationFrame(step)

@@ -1,0 +1,316 @@
+{
+  "questions": [
+    {
+      "id": "test-assignments",
+      "type": "philosophy",
+      "question": "What is your attitude toward test assignments during hiring?",
+      "options": [
+        {
+          "id": "required",
+          "text": "Mandatory for all candidates — show real skills",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "case-by-case",
+          "text": "Depends on the position — yes for juniors, can be skipped for seniors",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "portfolio-first",
+          "text": "Portfolio and experience are more important than artificial tasks",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Test assignments try to simulate what you can already see in a real portfolio. Why use an imitation when you have the original?"
+    },
+    {
+      "id": "work-life-balance",
+      "type": "philosophy",
+      "question": "How do you feel about working outside of regular hours?",
+      "options": [
+        {
+          "id": "dedication",
+          "text": "True professionals work 24/7, rest is for the weak",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "urgent-only",
+          "text": "Sometimes it’s necessary — emergencies happen",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "boundaries",
+          "text": "Healthy boundaries between work and life are key to productivity",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "The best code is written by a rested brain, not at 2 a.m. after a 12-hour workday."
+    },
+    {
+      "id": "code-quality",
+      "type": "philosophy",
+      "question": "What is more important in development?",
+      "options": [
+        {
+          "id": "speed-only",
+          "text": "Development speed is key, we’ll fix quality later",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "balance",
+          "text": "A balance between speed and quality, depending on the context",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "quality-first",
+          "text": "Code quality is the foundation, speed comes with experience",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Fast bad code slows development in the long run more than slow good code."
+    },
+    {
+      "id": "agile-ceremonies",
+      "type": "philosophy",
+      "question": "What is your attitude toward Agile ceremonies?",
+      "options": [
+        {
+          "id": "more-meetings",
+          "text": "The more meetings, the better the coordination",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "necessary-evil",
+          "text": "A necessary evil, but better to minimize them",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "value-driven",
+          "text": "Only those that bring real value to the team",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "The Agile Manifesto says ‘individuals over processes’. If the process hinders people — change the process."
+    },
+    {
+      "id": "technical-debt",
+      "type": "philosophy",
+      "question": "How should technical debt be managed?",
+      "options": [
+        {
+          "id": "ignore-debt",
+          "text": "Features are more important than refactoring, debt can be ignored",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "planned-cleanup",
+          "text": "Allocate time for refactoring in every sprint",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "prevent-debt",
+          "text": "Better to prevent debt than pay it off later",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Technical debt is not a metaphor. Like financial debt, it accrues interest and can bankrupt a project."
+    },
+    {
+      "id": "learning-time",
+      "type": "philosophy",
+      "question": "Should a company allocate time for learning?",
+      "options": [
+        {
+          "id": "own-time",
+          "text": "Learning is a personal responsibility, do it in your free time",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "some-time",
+          "text": "Some time can be allocated, but not at the expense of tasks",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "invest-in-team",
+          "text": "Investing in team growth is investing in the product",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "A team that doesn’t grow, degrades. Technology doesn’t stand still, and neither should the team."
+    },
+    {
+      "id": "documentation",
+      "type": "philosophy",
+      "question": "What is the role of documentation in a project?",
+      "options": [
+        {
+          "id": "waste-of-time",
+          "text": "Spending time on documentation is a luxury, code documents itself",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "minimal-docs",
+          "text": "Minimal necessary documentation for key decisions",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "living-docs",
+          "text": "Living documentation — part of the architecture, updated along with code",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Good documentation is not code description, but an explanation of decisions. Why was this approach chosen?"
+    },
+    {
+      "id": "code-reviews",
+      "type": "philosophy",
+      "question": "How should code reviews be conducted?",
+      "options": [
+        {
+          "id": "nitpicking",
+          "text": "Point out every little thing — that’s how code becomes perfect",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "constructive",
+          "text": "Constructive criticism with explanations of alternatives",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "knowledge-sharing",
+          "text": "A tool for learning and knowledge sharing in the team",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Code review is not an exam, but a chance to share knowledge and improve the product together."
+    },
+    {
+      "id": "legacy-code",
+      "type": "philosophy",
+      "question": "What to do with legacy code?",
+      "options": [
+        {
+          "id": "rewrite-everything",
+          "text": "Rewrite everything from scratch — old code only gets in the way",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "gradual-refactoring",
+          "text": "Gradual refactoring as you work with modules",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "understand-first",
+          "text": "First understand why the code is like this, then improve it",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "Legacy code is not technical debt, it’s accumulated wisdom. The key is learning how to read it."
+    },
+    {
+      "id": "junior-mentoring",
+      "type": "philosophy",
+      "question": "What is the right way to mentor juniors?",
+      "options": [
+        {
+          "id": "sink-or-swim",
+          "text": "Give them a tough task and let them figure it out",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "step-by-step",
+          "text": "Give tasks of increasing complexity with explanations of approaches",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "teach-thinking",
+          "text": "Teach not solutions, but ways of thinking and finding answers",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "The best mentor is not the one who knows all the answers, but the one who teaches you to ask the right questions."
+    },
+    {
+      "id": "technology-choices",
+      "type": "philosophy",
+      "question": "How should technologies be chosen for a project?",
+      "options": [
+        {
+          "id": "latest-trends",
+          "text": "Always use the newest and most popular technologies",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "proven-reliable",
+          "text": "Time-tested solutions with a solid ecosystem",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "problem-driven",
+          "text": "Based on the specific problem and project constraints",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "The best technology is not the newest or most popular, but the one that solves the problem with minimal risk."
+    },
+    {
+      "id": "estimates-and-deadlines",
+      "type": "philosophy",
+      "question": "How should time estimates and deadlines be approached?",
+      "options": [
+        {
+          "id": "always-commit",
+          "text": "Always agree to deadlines — the team must be flexible",
+          "agreementLevel": 0,
+          "livesLost": 1
+        },
+        {
+          "id": "buffer-included",
+          "text": "Give realistic estimates with a buffer for the unexpected",
+          "agreementLevel": 1,
+          "livesLost": 0
+        },
+        {
+          "id": "iterative-refinement",
+          "text": "Iteratively refine estimates as you learn more about the task",
+          "agreementLevel": 2,
+          "livesLost": 0
+        }
+      ],
+      "insight": "A good estimate is not an exact number but an honest assessment of uncertainty. Planning is an ongoing process."
+    }
+  ]
+}

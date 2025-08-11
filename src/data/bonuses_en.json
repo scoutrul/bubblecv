@@ -1,0 +1,39 @@
+{
+  "bonuses": [
+    {
+      "level": 1,
+      "title": "Hero's Legend",
+      "icon": "📄",
+      "type": "text",
+      "content": "<p>👨‍💻 Your hero has 20 years in IT, with 10 years in the frontend epic.</p><p>Want to invite the hero to your quest? 📜 <a href=\"/cv/Резюме — Головачев Антон.pdf\" target=\"_blank\">Download resume (PDF)</a> — skills, missions and trophies inside.</p>"
+    },
+    {
+      "level": 2,
+      "title": "Magic Scroll of Contact",
+      "icon": "✉️",
+      "type": "form",
+      "content": "<p>Leave a short message — the magic scroll will deliver it to the hero. ⚡</p>"
+    },
+    {
+      "level": 3,
+      "title": "Book of Code Spells",
+      "icon": "💻",
+      "type": "text",
+      "content": "<p>🧠 The project's code spell lives on GitHub: <a href=\"https://github.com/scoutrul/bubblecv\" target=\"_blank\">bubblecv</a>. Architecture, tech artifacts and dev log. 200+ commits in two months — the hero didn't waste time! 🔥</p>"
+    },
+    {
+      "level": 4,
+      "title": "Portal of Contact",
+      "icon": "📱",
+      "type": "text",
+      "content": "<p>Telegram portal: <a href=\"https://t.me/antonGolova\" target=\"_blank\">@antonGolova</a> — for instant teleportation of messages.</p>"
+    },
+    {
+      "level": 5,
+      "title": "Chronicles of the Past",
+      "icon": "🕰️",
+      "type": "text",
+      "content": "<p>You unlocked the gates of time! New events available: childhood, Dendy, first computer, first websites and the legendary freelancing.</p>"
+    }
+  ]
+}

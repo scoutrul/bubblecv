@@ -2,7 +2,7 @@
   <form v-if="!success && !error" @submit.prevent="handleSubmit" class="contact-form">
     <div class="form-group">
       <label for="message" class="form-label">
-        Ваше сообщение или впечатление
+        {{ t('contact.messageLabel') }}
       </label>
       <textarea
         id="message"
@@ -16,7 +16,7 @@
 
     <div class="form-group">
       <label for="name" class="form-label">
-        Ваше имя или представьтесь
+        {{ t('contact.nameLabel') }}
       </label>
       <input
         id="name"
@@ -30,7 +30,7 @@
 
     <div class="form-group">
       <label for="contact" class="form-label">
-        Контакт для обратной связи
+        {{ t('contact.contactLabel') }}
       </label>
       <input
         id="contact"
@@ -50,24 +50,24 @@
   <!-- Сообщение об успехе -->
   <div v-else-if="success" class="status-container success-container">
     <div class="status-icon">✅</div>
-    <h3 class="status-title">Сообщение отправлено!</h3>
+    <h3 class="status-title">{{ t('contact.successTitle') }}</h3>
     <p class="status-text">
-      Спасибо за ваше сообщение! Я свяжусь с вами в ближайшее время.
+      {{ t('contact.successText') }}
     </p>
     <button @click="resetForm" class="action-button">
-      Отправить еще
+      {{ t('contact.sendAnother') }}
     </button>
   </div>
 
   <!-- Сообщение об ошибке -->
   <div v-else-if="error" class="status-container error-container">
     <div class="status-icon">❌</div>
-    <h3 class="status-title">Ошибка отправки</h3>
+    <h3 class="status-title">{{ t('contact.errorTitle') }}</h3>
     <p class="status-text">
       {{ error }}
     </p>
     <button @click="resetForm" class="action-button">
-      Попробовать снова
+      {{ t('contact.tryAgain') }}
     </button>
   </div>
 </template>

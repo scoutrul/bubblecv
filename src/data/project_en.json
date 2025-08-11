@@ -1,0 +1,173 @@
+{
+    "skills": [
+      {
+        "name": "HTML",
+        "skillLevel": "confident",
+        "description": "Interface layout, page structure.",
+        "insight": "The foundation of the visual part of a website.",
+        "category": "frontend"
+      },
+      {
+        "name": "CSS",
+        "skillLevel": "confident",
+        "description": "Styling, responsive layout, animations.",
+        "insight": "Responsible for the look and responsiveness of the interface.",
+        "category": "frontend"
+      },
+      {
+        "name": "Modern JavaScript",
+        "skillLevel": "confident",
+        "description": "ES6+ syntax, modules, asynchronicity.",
+        "insight": "Provides frontend dynamics and logic.",
+        "category": "frontend"
+      },
+      {
+        "name": "Vue 3",
+        "skillLevel": "confident",
+        "description": "UI framework: components, reactivity, composables.",
+        "insight": "Creates a modular interface architecture.",
+        "category": "frontend"
+      },
+      {
+        "name": "TypeScript",
+        "skillLevel": "confident",
+        "description": "Typing for layers: use cases, store, bubble data.",
+        "insight": "Reduces bugs and simplifies refactoring.",
+        "category": "architecture"
+      },
+      {
+        "name": "Pinia",
+        "skillLevel": "intermediate",
+        "description": "Global state: bubbles, modals, performance.",
+        "insight": "A simple and predictable state manager.",
+        "category": "architecture"
+      },
+      {
+        "name": "D3.js",
+        "skillLevel": "intermediate",
+        "description": "Bubble physics and collisions, node management.",
+        "insight": "Creates a lively, dynamic visualization.",
+        "category": "frontend"
+      },
+      {
+        "name": "Canvas API",
+        "skillLevel": "intermediate",
+        "description": "Rendering bubbles and effects on canvas.",
+        "insight": "Allows rendering hundreds of objects without FPS drops.",
+        "category": "frontend"
+      },
+      {
+        "name": "GSAP",
+        "skillLevel": "intermediate",
+        "description": "Interface and game element animations.",
+        "insight": "Adds smoothness and emotional engagement.",
+        "category": "frontend"
+      },
+      {
+        "name": "Tailwind CSS",
+        "skillLevel": "intermediate",
+        "description": "Utility-first styling and design system.",
+        "insight": "Speeds up development and maintainability.",
+        "category": "frontend"
+      },
+      {
+        "name": "i18n",
+        "skillLevel": "novice",
+        "description": "Language switching, dictionaries, interpolation.",
+        "insight": "Simple and flexible localization.",
+        "category": "frontend"
+      },
+      {
+        "name": "Vite",
+        "skillLevel": "novice",
+        "description": "Build tool and dev server with HMR.",
+        "insight": "Instant project startup and rebuild.",
+        "category": "tooling"
+      },
+      {
+        "name": "Node.js",
+        "skillLevel": "novice",
+        "description": "Server scripts, build tools.",
+        "insight": "Runs the development environment and builds.",
+        "category": "backend"
+      },
+      {
+        "name": "NPM",
+        "skillLevel": "novice",
+        "description": "Package management (NPM/Yarn/PNPM).",
+        "insight": "Quickly connects dependencies.",
+        "category": "tooling"
+      },
+      {
+        "name": "Git & GitHub",
+        "skillLevel": "confident",
+        "description": "Version control, branches, CI/CD deployment.",
+        "insight": "Speeds up development and automates releases.",
+        "category": "tooling"
+      },
+      {
+        "name": "Terminal CLI",
+        "skillLevel": "novice",
+        "description": "Working with remote servers via command line.",
+        "insight": "Essential for administration and deployment.",
+        "category": "devops"
+      },
+      {
+        "name": "VPS Setup",
+        "skillLevel": "novice",
+        "description": "Server setup and administration (domain, SSL, environment).",
+        "insight": "Ensures stable production.",
+        "category": "devops"
+      },
+      {
+        "name": "Telegram API",
+        "skillLevel": "novice",
+        "description": "Sending messages from the website form to a Telegram bot.",
+        "insight": "Provides direct communication with the user.",
+        "category": "backend"
+      },
+      {
+        "name": "Use Case Pattern",
+        "skillLevel": "intermediate",
+        "description": "Separating business logic from UI into standalone modules.",
+        "insight": "Makes code extensible and testable.",
+        "category": "architecture"
+      },
+      {
+        "name": "Clean Architecture",
+        "skillLevel": "novice",
+        "description": "Presentation/Application/Domain layers.",
+        "insight": "Reduces coupling and simplifies maintenance.",
+        "category": "architecture"
+      },
+      {
+        "name": "Domain-Driven Design",
+        "skillLevel": "novice",
+        "description": "Domain modeling: bubbles, sessions, achievements.",
+        "insight": "Code reflects the domain area.",
+        "category": "architecture"
+      },
+      {
+        "name": "SOLID",
+        "skillLevel": "novice",
+        "description": "SRP, DIP, interfaces, modularity.",
+        "insight": "Keeps code flexible and maintainable.",
+        "category": "architecture"
+      },
+      {
+        "name": "Gamification",
+        "skillLevel": "intermediate",
+        "description": "Levels, XP, achievements, bonuses.",
+        "insight": "Motivates the user to progress through the project.",
+        "category": "game"
+      },
+      {
+        "name": "AI Agents",
+        "skillLevel": "novice",
+        "description": "Code and idea generation (GPT-5, Claude Sonnet-4).",
+        "insight": "Accelerates development and design.",
+        "category": "ai"
+      }
+    ]
+  }
+  

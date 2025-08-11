@@ -13,7 +13,7 @@
         {{ bonus.title }}
       </div>
       <div class="bonus-level">
-        Уровень {{ bonus.level }}
+        {{ t('bonuses.levelLabel', { level: bonus.level }) }}
       </div>
     </div>
     
@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import type { NormalizedBonus } from '@/types/normalized'
+import { useI18n } from '@/composables'
 
 interface Props {
   bonus: NormalizedBonus
@@ -41,6 +42,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+const { t } = useI18n()
 
 const handleClick = () => {
   if (props.bonus.isUnlocked) {

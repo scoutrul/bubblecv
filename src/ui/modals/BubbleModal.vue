@@ -19,7 +19,7 @@
             </span>
           </div>
           <div>
-            <h2 class="bubble-name">{{ bubble?.name }}</h2>
+            <h2 class="bubble-name">{{ displayedName }}</h2>
           </div>
         </div>
 
@@ -49,7 +49,7 @@
         <div class="description-section">
           <h3 class="section-title">{{ t('bubble.description') }}</h3>
           <p class="description-text">
-            {{ bubble?.description }}
+            {{ displayedDescription }}
           </p>
         </div>
 
@@ -109,6 +109,19 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
 const { isRetroMode } = useGameMode()
+
+const displayedName = computed(() => {
+  if (!props.bubble) return ''
+  if (props.bubble.isQuestion) return t.value('bubble.philosophyName')
+  if (props.bubble.isHidden) return t.value('bubble.hiddenName')
+  return props.bubble.name
+})
+
+const displayedDescription = computed(() => {
+  if (!props.bubble) return ''
+  if (props.bubble.isHidden) return t.value('bubble.hiddenDescription')
+  return props.bubble.description
+})
 
 const skillLevelClass = computed(() => {
   if (!props.bubble?.skillLevel) return ''

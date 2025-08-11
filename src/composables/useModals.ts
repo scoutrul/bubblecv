@@ -305,7 +305,7 @@ const { isRetroMode } = useGameMode()
           }
 
           // Если это был крепкий пузырь и получена ачивка tough-bubble-popper, добавляем скрытые пузыри
-          const wasToughBubble = bubble && (bubble as any).isTough
+          const wasToughBubble = Boolean(bubble && bubble.isTough)
           if (wasToughBubble && sessionStore.hasUnlockedFirstToughBubbleAchievement) {
             await addHiddenBubblesAfterToughAchievement()
           }
@@ -449,6 +449,30 @@ const { isRetroMode } = useGameMode()
     } catch (e) {
       // silent
     }
+  }
+
+  // Force-complete the game: mark all final (retro) bubbles as visited and remove them from canvas, ignoring any tough mechanics
+  const forceCompleteGame = async () => {
+    const { api } = await import('@/api')
+    const { data: oldBubbles } = await api.getOldBubbles()
+    if (!oldBubbles.length) return
+
+    const canvas = getCanvasBridge()
+    for (const b of oldBubbles) {
+      if (!sessionStore.visitedBubbles.includes(b.id)) {
+                 await visitBubble(b.id)
+         // Remove visually without XP/life effects
+         if (canvas) {
+           const bubble = canvas.findBubbleById?.(b.id)
+           if (bubble) {
+             await canvas.removeBubbleWithEffects({ bubble, xpAmount: 0, isPhilosophyNegative: false, skipFloatingText: true })
+           }
+         }
+      }
+    }
+
+    // Show final modal
+    await maybeShowFinalCongrats()
   }
 
   // Новый метод для запуска цепочки событий пузыря
@@ -847,6 +871,7 @@ const { isRetroMode } = useGameMode()
     openMemoirModal,
     closeMemoirModal,
 
-    
+    // Final
+    forceCompleteGame,
   }
 }

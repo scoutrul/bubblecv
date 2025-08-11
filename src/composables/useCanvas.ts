@@ -11,7 +11,10 @@ import { CategoryFilterUseCaseFactory } from '@/usecases/category-filter'
 import type { BubbleNode } from '@/types/canvas'
 import { getYearRange } from '@/utils'
 import { GAME_CONFIG } from '@/config'
-import questionsData from '@/data/questions.json'
+import { i18n } from '@/i18n'
+import questions_ru from '@/data/questions.json'
+import questions_en from '@/data/questions_en.json'
+import type { Question } from '@/types/data'
 import { useClickerStore } from '@/stores/clicker.store'
 
 export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef: Ref<HTMLElement | null>) {
@@ -254,8 +257,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
 
     if (forceCreate || (!isProjectMode.value && Math.random() < 0.3) || (isProjectMode.value)) {
-      const questions = questionsData.questions
-      let availableQuestions = questions.filter(q => !usedQuestionIds.value.has(q.id))
+      type QuestionsFile = { questions: Question[] }
+      const questions = ((i18n.locale.value === 'en' ? questions_en : questions_ru) as QuestionsFile).questions
+      let availableQuestions = questions.filter((q: { id: string }) => !usedQuestionIds.value.has(q.id))
 
       // Если все вопросы использованы, сбрасываем список и начинаем заново (циклическое переиспользование)
       if (availableQuestions.length === 0) {

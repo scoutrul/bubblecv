@@ -16,6 +16,7 @@ import type {
 import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
 import { GAME_CONFIG } from '@/config'
 import { getYearRange } from '@/utils'
+import { getEventBridge } from '@/composables/useUi'
 
 export function useApp() {
   const bubbleStore = useBubbleStore()
@@ -47,7 +48,7 @@ export function useApp() {
         yearTransitionTrigger: session.yearTransitionTrigger
       } as AppSessionStore,
       bubbleAdapter: {
-        bubbles: bubbleStore.bubbles as any,
+        get bubbles() { return bubbleStore.bubbles as unknown as import('@/types/canvas').BubbleNode[] },
         loadBubbles: () => bubbleStore.loadBubbles(),
         addBubbles: (bubbles: NormalizedBubble[]) => bubbleStore.bubbles.push(...bubbles)
       } as AppBubbleStore,
@@ -57,7 +58,7 @@ export function useApp() {
         getLevelByNumber: (level: number) => levelStore.getLevelByNumber(level)
       } as AppLevelStore,
       achievementAdapter: {
-        achievements: [] as any,
+        achievements: [] as import('@/types/normalized').NormalizedAchievement[], // not used directly here; use cases query store
         unlockedCount: achievements.unlockedCount.value,
         unlockedAchievements: achievements.unlockedAchievements.value,
         loadAchievements: () => achievements.loadAchievements(),
@@ -138,6 +139,25 @@ export function useApp() {
 
     // Reset tough bubble counters to avoid carry-over after reset
     bubbleStore.resetToughBubbleCounters()
+
+    // Reload locale-dependent data after language change/reset
+    try {
+      await Promise.all([
+        levelStore.loadLevels(),
+        bubbleStore.loadBubbles(),
+        achievements.loadAchievements(),
+        bonuses.loadBonuses(),
+        memoirs.loadMemoirs()
+      ])
+    } catch (e) {
+      console.error('Ошибка перезагрузки данных после смены языка:', e)
+    }
+
+    // Ensure canvas reinitializes with freshly loaded data
+    const bridge = getEventBridge()
+    if (bridge) {
+      await bridge.resetCanvas()
+    }
   }
 
   // Реактивные computed для состояния игры

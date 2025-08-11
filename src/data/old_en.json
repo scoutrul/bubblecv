@@ -1,0 +1,166 @@
+{
+    "old": [
+      {
+        "name": "👶 I was born",
+        "year": 1986,
+        "description": "Born in Moscow. Everything is just beginning.",
+        "insight": "The very first event in the timeline — the start of it all.",
+        "category": "life"
+      },
+      {
+        "name": "🎮 Dendy and first games",
+        "year": 1993,
+        "description": "Got a Dendy console. First exposure to digital technology through games.",
+        "insight": "Games sparked my interest in technology and system interaction.",
+        "category": "games"
+      },
+      {
+        "name": "🏃 Roller skates",
+        "year": 1994,
+        "description": "Got my first roller skates. Skated for about 10 years, changing pairs — it was a sports passion.",
+        "insight": "Balance, endurance, and love for street sports.",
+        "category": "sport"
+      },
+      {
+        "name": "⚽ Yard football",
+        "year": 1994,
+        "description": "Constant yard matches: balls would burst and wear out, but the games never stopped.",
+        "insight": "Team spirit, excitement, and daily practice.",
+        "category": "sport"
+      },
+      {
+        "name": "🎮 Sega Mega Drive 2",
+        "year": 1995,
+        "description": "First 16-bit console. A classic and a legend: dreamed of becoming a game developer, played everything I could.",
+        "insight": "Passion for games sparked an interest in creating worlds and mechanics.",
+        "category": "games"
+      },
+      {
+        "name": "⚽ Football section 'Team-Leader'",
+        "year": 1996,
+        "description": "Trained for about 3 years: practices, discipline, first 'official' wins and losses.",
+        "insight": "Learned the importance of consistency and working for results.",
+        "category": "sport"
+      },
+      {
+        "name": "🕹️ Computer clubs",
+        "year": 1997,
+        "description": "LAN battles: StarCraft, Diablo, Counter-Strike, Quake, Heroes, and more.",
+        "insight": "Immersion in competitive games and online culture.",
+        "category": "games"
+      },
+      {
+        "name": "🖥️ First computer",
+        "year": 1999,
+        "description": "Got my first computer. Eighth grade, the beginning of my IT journey.",
+        "insight": "First experiments with programs, games, and files.",
+        "category": "hardware"
+      },
+      {
+        "name": "🚀 StarCraft",
+        "year": 2000,
+        "description": "First online game that became my lifestyle: playing since the 2000s to this day. Tournaments, clans, endless matches.",
+        "insight": "StarCraft — One Love. The game taught strategic thinking and gave me friends I’m still in touch with.",
+        "category": "games"
+      },
+      {
+        "name": "📚 Programming books",
+        "year": 2000,
+        "description": "Tried to learn Visual Basic, Delphi, 3D Max. Not everything worked out, but got basic knowledge and practice.",
+        "insight": "First steps in coding and tools: understanding logic and interfaces.",
+        "category": "education"
+      },
+      {
+        "name": "🌐 Internet and clan",
+        "year": 2001,
+        "description": "Got a modem and internet. Online games, creating a clan, wanting to make a website.",
+        "insight": "The desire to express myself online led to learning web technologies.",
+        "category": "internet"
+      },
+      {
+        "name": "🧩 Dreamweaver",
+        "year": 2001,
+        "description": "WYSIWYG editor for website layout — quick start in page creation.",
+        "insight": "Gave the feeling that web pages could be 'built' with both hands and eyes.",
+        "category": "frontend"
+      },
+      {
+        "name": "🧩 HTML and CSS",
+        "year": 2002,
+        "description": "Got familiar with HTML and CSS, made a website for my clan.",
+        "insight": "From this point, my path as a web developer began.",
+        "category": "frontend"
+      },
+      {
+        "name": "🖼️ Photoshop",
+        "year": 2002,
+        "description": "Optimizing graphics for slow internet, preparing images for the web.",
+        "insight": "Learned the value of optimization and resource weight.",
+        "category": "design"
+      },
+      {
+        "name": "📡 Hosting and FTP",
+        "year": 2003,
+        "description": "First hosting services: narod.ru, FTP clients, website transfers. Search engine Rambler.",
+        "insight": "Websites became 'alive': deployment, updates, publication.",
+        "category": "internet"
+      },
+      {
+        "name": "⚡ Flash 5",
+        "year": 2003,
+        "description": "Vector graphics and first animations — felt like outer space.",
+        "insight": "Animation revealed the link between design, code, and interaction.",
+        "category": "frontend"
+      },
+      {
+        "name": "💼 First IT job",
+        "year": 2005,
+        "description": "Worked at a web studio as a layout designer and account manager. Content filling and website support.",
+        "insight": "First commercial experience, learning internet marketing and SEO.",
+        "category": "work"
+      },
+      {
+        "name": "📈 SEO promotion",
+        "year": 2006,
+        "description": "Link ranking, semantic layout, content creation, meta tags.",
+        "insight": "Search is about structure, meaning, and quality.",
+        "category": "marketing"
+      },
+      {
+        "name": "🎸 Guitar",
+        "year": 2006,
+        "description": "Got a guitar. Since then I’ve been learning to play for 20 years — a lifetime hobby.",
+        "insight": "Playing guitar is about discipline, rhythm, and inspiration.",
+        "category": "hobby"
+      },
+      {
+        "name": "🧑‍💻 Freelance and promotion",
+        "year": 2007,
+        "description": "Went into freelance. Design, layout, website promotion. Full cycle for clients.",
+        "insight": "Independence and responsibility for the entire project result.",
+        "category": "freelance"
+      },
+      {
+        "name": "🚵 Mountain bike",
+        "year": 2008,
+        "description": "Got a MTB bike. A new passion and freedom of movement — for life.",
+        "insight": "Endurance, routes, technique, and joy of the journey.",
+        "category": "sport"
+      },
+      {
+        "name": "🃏 Online poker",
+        "year": 2009,
+        "description": "Poker career (2009–2012): combined with freelancing. Developed analytical and strategic thinking, but discipline over the long run is critical — eventually left it as an occasional hobby.",
+        "insight": "Lessons in probability, bankroll management, and self-control.",
+        "category": "hobby"
+      },
+      {
+        "name": "🏢 Return to the office",
+        "year": 2014,
+        "description": "Returned to the office, started working as a frontend developer in a team.",
+        "insight": "Consolidation of my professional path and growth as a specialist.",
+        "category": "frontend"
+      }
+    ]
+  }
+  
