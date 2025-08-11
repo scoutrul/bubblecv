@@ -7,7 +7,7 @@ import memoirs from '@/data/memoirs.json'
 import oldBubbles from '@/data/old.json'
 
 import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, NormalizedMemoir } from '@/types/normalized'
-import type { Bubble, Achievement, Bonus, Memoir } from '@/types/data'
+import type { Bubble, Achievement, Bonus, Memoir, OldBubble } from '@/types/data'
 import type { Level } from '@/types/levels'
 
 import { normalizeSkillBubble, normalizeAchievement, normalizeLevels, normalizeBonus, normalizeMemoir, normalizeOldBubble } from '@/utils'
@@ -63,7 +63,7 @@ export const api = {
 
   async getOldBubbles(): Promise<{ data: NormalizedBubble[] }> {
     const data = oldBubbles.old.map((bubble, index) =>
-      normalizeOldBubble(bubble as Bubble, -(1000 + index)) // Отрицательные ID для old bubbles
+      normalizeOldBubble(bubble as OldBubble, -(1000 + index)) // Отрицательные ID для old bubbles
     )
     return { data }
   }

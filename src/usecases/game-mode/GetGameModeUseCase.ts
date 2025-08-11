@@ -17,13 +17,18 @@ export class GetGameModeUseCase {
 
   execute(request: GetGameModeUseCaseRequest): GetGameModeUseCaseResponse {
     const { currentLevel } = request
-    const isProjectMode = currentLevel >= GAME_CONFIG.LEVEL_SWITCH_THRESHOLD
-    const mode = isProjectMode ? GameMode.PROJECT : GameMode.CAREER
+
+    let mode: GameMode = GameMode.CAREER
+    if (currentLevel >= GAME_CONFIG.RETRO_SWITCH_LEVEL) {
+      mode = GameMode.RETRO
+    } else if (currentLevel >= GAME_CONFIG.LEVEL_SWITCH_THRESHOLD) {
+      mode = GameMode.PROJECT
+    }
 
     return {
       mode,
-      isProjectMode,
-      isCareerMode: !isProjectMode
+      isProjectMode: mode === GameMode.PROJECT,
+      isCareerMode: mode === GameMode.CAREER
     }
   }
 } 

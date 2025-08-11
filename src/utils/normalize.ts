@@ -1,5 +1,5 @@
 import type { Level } from '@/types/levels'
-import type { Bubble, Achievement, Bonus, Question, Memoir } from '@/types/data'
+import type { Bubble, Achievement, Bonus, Question, Memoir, OldBubble } from '@/types/data'
 import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, NormalizedMemoir, BubbleSizes } from '@/types/normalized'
 import { XP_CALCULATOR } from '@/config'
 
@@ -93,13 +93,19 @@ export function normalizeBonus(bonus: Bonus, index: number): NormalizedBonus {
   }
 }
 
-export function normalizeOldBubble(bubble: Bubble, id: number): NormalizedBubble {
+export function normalizeOldBubble(bubble: OldBubble, id: number): NormalizedBubble {
   return {
-    ...bubble,
+    // Old bubbles have no skillLevel; assign defaults for internal rendering/scoring
+    name: bubble.name,
+    year: bubble.year,
+    skillLevel: 'intermediate',
+    description: bubble.description,
+    insight: bubble.insight,
+    category: bubble.category || 'life',
     ...DEFAULT_BUBBLE_PROPS,
     id,
-    size: getSizeBySkillLevel(bubble.skillLevel),
-    category: bubble.category || 'life'
+    isTough: false,
+    size: 'medium'
   }
 }
 

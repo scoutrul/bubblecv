@@ -6,6 +6,7 @@ import { api } from '@/api'
 import { createHiddenBubble } from '@/utils'
 import { useSessionStore } from './session.store'
 import { GameModeUseCaseFactory } from '@/usecases/game-mode'
+import { GameMode } from '@/usecases/game-mode/types'
 import { getYearRange } from '@/utils'
 
 
@@ -86,25 +87,40 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
       const result = getGameModeUseCase.execute({ currentLevel })
       
       // Загружаем данные в зависимости от режима
-      const { data } = result.isCareerMode 
-        ? await api.getBubbles()
-        : await api.getProjectBubbles()
-       bubbles.value = data
+      let data: NormalizedBubble[] = []
+      if (result.mode === GameMode.RETRO) {
+        const resp = await api.getOldBubbles()
+        data = resp.data
+      } else if (result.isCareerMode) {
+        const resp = await api.getBubbles()
+        data = resp.data
+      } else {
+        const resp = await api.getProjectBubbles()
+        data = resp.data
+      }
+      bubbles.value = data
 
-       // Если разблокирован крепкий пузырь, гарантируем наличие скрытых пузырей для всех лет до текущего
-       if (sessionStore.hasUnlockedFirstToughBubbleAchievement) {
-         const yearRange = getYearRange(bubbles.value)
-         const startYear = yearRange.startYear
-         const endYear = sessionStore.currentYear
-         for (let year = startYear; year <= endYear; year++) {
-           const existingHidden = bubbles.value.find(b => b.isHidden && b.year === year)
-           const hiddenId = -(year * 10000 + 9999)
-           const isPopped = sessionStore.visitedBubbles.includes(hiddenId)
-           if (!existingHidden && !isPopped) {
-             bubbles.value.push(createHiddenBubble(year))
-           }
-         }
-       }
+      // В ретро-режиме стартуем с самого раннего года и восстанавливаем жизни до максимума
+      if (result.mode === GameMode.RETRO) {
+        const yearRange = getYearRange(bubbles.value)
+        sessionStore.setCurrentYear(yearRange.startYear)
+        sessionStore.setLives(GAME_CONFIG.maxLives)
+      }
+
+      // Если разблокирован крепкий пузырь, гарантируем наличие скрытых пузырей для всех лет до текущего (кроме ретро)
+      if (sessionStore.hasUnlockedFirstToughBubbleAchievement && result.mode !== GameMode.RETRO) {
+        const yearRange = getYearRange(bubbles.value)
+        const startYear = yearRange.startYear
+        const endYear = sessionStore.currentYear
+        for (let year = startYear; year <= endYear; year++) {
+          const existingHidden = bubbles.value.find(b => b.isHidden && b.year === year)
+          const hiddenId = -(year * 10000 + 9999)
+          const isPopped = sessionStore.visitedBubbles.includes(hiddenId)
+          if (!existingHidden && !isPopped) {
+            bubbles.value.push(createHiddenBubble(year))
+          }
+        }
+      }
       
       // Обновляем очередь пузырей после загрузки
       updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)

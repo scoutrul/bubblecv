@@ -9,6 +9,15 @@ export interface Bubble {
   category?: string
 }
 
+// Old/retro bubble format (no skillLevel)
+export interface OldBubble {
+  name: string
+  year: number
+  description: string
+  insight?: string
+  category?: string
+}
+
 export interface Achievement {
   id: string
   name: string

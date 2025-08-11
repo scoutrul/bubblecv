@@ -24,6 +24,9 @@ import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
 import { usePerformanceStore } from '@/stores/performance.store'
 import { useClickerStore } from '@/stores/clicker.store'
 
+// Extended canvas to store cleanup callback
+type ExtendedCanvas = HTMLCanvasElement & { _cleanupEventListeners?: () => void }
+
 export class CanvasUseCase implements ICanvasUseCase {
   private canvasDomain = {
     width: 0,
@@ -215,7 +218,7 @@ export class CanvasUseCase implements ICanvasUseCase {
             color: '#22c55e'
           })
           // Accumulate XP into clicker store scoring
-          ;(clicker as any).addXp && (clicker as any).addXp(xpAmount)
+          clicker.addXp(xpAmount)
 
           const shouldPop = clicker.onBubblePopped(clickedBubble.id, !!clickedBubble.isTough)
           if (shouldPop) {
@@ -396,7 +399,7 @@ export class CanvasUseCase implements ICanvasUseCase {
     }
 
     // Очищаем обработчики событий если они есть
-    const canvas = this.canvasRepository.getContext()?.canvas as any
+    const canvas = this.canvasRepository.getContext()?.canvas as ExtendedCanvas | undefined
     if (canvas && canvas._cleanupEventListeners) {
       canvas._cleanupEventListeners()
     }
@@ -501,7 +504,7 @@ export class CanvasUseCase implements ICanvasUseCase {
     canvasRef.value.addEventListener('mouseleave', mouseLeaveHandler)
 
     // Сохраняем ссылки для очистки
-    ;(canvasRef.value as any)._cleanupEventListeners = () => {
+    ;(canvasRef.value as ExtendedCanvas)._cleanupEventListeners = () => {
       if (canvasRef.value) {
         canvasRef.value.removeEventListener('mousemove', mouseMoveHandler)
         canvasRef.value.removeEventListener('click', clickHandler)

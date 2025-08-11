@@ -8,6 +8,8 @@ export const GAME_CONFIG = {
   
   // Уровень на котором происходит переключение с карьеры на технологии проекта
   LEVEL_SWITCH_THRESHOLD: 3,
+  // Уровень, начиная с которого включается ретро-режим
+  RETRO_SWITCH_LEVEL: 5,
 
   // Максимальное количество пузырей на экране (адаптивное для мобильных устройств)
   MAX_BUBBLES_ON_SCREEN: () => isMobileDevice() ? 15 : 30,
@@ -46,7 +48,7 @@ export const GAME_CONFIG = {
   } as const,
 
   xpPerExpertiseLevel: {
-    [SKILL_LEVELS.NOVICE]: 3, // 3
+    [SKILL_LEVELS.NOVICE]: 123, // 3
     [SKILL_LEVELS.INTERMEDIATE]: 5,
     [SKILL_LEVELS.CONFIDENT]: 7,
     [SKILL_LEVELS.EXPERT]: 9,

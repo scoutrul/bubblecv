@@ -1,6 +1,7 @@
 export enum GameMode {
   CAREER = 'career',
-  PROJECT = 'project'
+  PROJECT = 'project',
+  RETRO = 'retro'
 }
 
 export interface GameModeInfo {
@@ -19,5 +20,10 @@ export const GAME_MODE_INFO: Record<GameMode, GameModeInfo> = {
     mode: GameMode.PROJECT,
     title: 'Технологии проекта',
     description: 'Навыки и технологии, необходимые для создания подобного проекта'
+  },
+  [GameMode.RETRO]: {
+    mode: GameMode.RETRO,
+    title: 'Ретро',
+    description: 'Личная ретроспектива: детство, первые шаги и ранние события'
   }
 } 

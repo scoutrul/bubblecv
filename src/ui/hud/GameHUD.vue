@@ -1,15 +1,15 @@
 <template>
   <div class="game-hud">
     <!-- Верхняя панель с адаптивной структурой -->
-    <div class="top-panel p-2 sm:p-4 flex flex-col sm:flex-row sm:items-center sm:w-full sm:gap-4">
+    <div class="top-panel">
       <!-- Жизни: слева на мобильных и десктопе -->
-      <div class="flex justify-between items-center sm:justify-start sm:order-1">
+      <div class="lives-container">
         <LivesDisplay
           :current-lives="currentLives"
           :max-lives="maxLives"
         />
         <!-- Уровень на мобильных справа -->
-        <div class="sm:hidden">
+        <div class="mobile-level">
           <LevelDisplay
             :current-level="currentLevel"
             :level-title="currentLevelTitle"
@@ -19,7 +19,7 @@
       </div>
 
       <!-- Опыт: внизу на мобильных, по центру на десктопе -->
-      <div class="mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:flex sm:justify-center sm:min-w-0">
+      <div v-if="!isRetroMode" class="xp-container">
         <XPDisplay
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Уровень: только на десктопе справа -->
-      <div class="hidden sm:block sm:order-3">
+      <div class="desktop-level">
         <LevelDisplay
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
@@ -52,8 +52,8 @@
       <!-- Bonus Widget -->
       <BonusWidget
         :unlocked-count="unlockedBonusesCount"
-        :show-bonuses="showBonusPanel"
         :unlocked-bonuses="unlockedBonuses"
+        :show-bonuses="showBonusPanel"
         @toggle="toggleBonusPanel"
         @close="closeBonusPanel"
       />
@@ -78,7 +78,7 @@ import LevelDisplay from '@/ui/hud/LevelDisplay.vue'
 import BonusWidget from '@/ui/widgets/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/widgets/achievements/AchievementsWidget.vue'
 import MemoirWidget from '@/ui/widgets/memoirs/MemoirWidget.vue'
-import { computed } from 'vue'
+import { useGameMode } from '@/composables/useGameMode'
 
 const {
   game: {
@@ -107,17 +107,15 @@ const {
   },
   memoirs: {
     unlockedCount: unlockedMemoirsCount,
-    unlockedMemoirs,
     showMemoirs: showMemoirsPanel,
     toggleMemoirs: toggleMemoirsPanel,
     closeMemoirs: closeMemoirsPanel
   }
 } = useApp()
 
-const {
-  isXPAnimating
-} = useUi()
+const { isXPAnimating } = useUi()
 
+const { isRetroMode } = useGameMode()
 </script>
 
 <style scoped>
@@ -130,8 +128,26 @@ const {
   @apply fixed top-0 left-0 right-0;
   @apply bg-gradient-to-b from-background-primary/90 to-transparent;
   @apply flex flex-col sm:flex-row sm:items-center;
+  @apply p-2 sm:p-4 sm:w-full sm:gap-4;
   z-index: 1000;
   pointer-events: auto;
+  justify-content: space-between;
+}
+
+.lives-container {
+  @apply flex justify-between items-center sm:justify-start sm:order-1;
+}
+
+.mobile-level {
+  @apply sm:hidden;
+}
+
+.xp-container {
+  @apply mt-2 sm:mt-0 sm:order-2 sm:flex-1 sm:flex sm:justify-center sm:min-w-0;
+}
+
+.desktop-level {
+  @apply hidden sm:block sm:order-3;
 }
 
 /* Контейнер виджетов */

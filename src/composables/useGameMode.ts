@@ -40,6 +40,8 @@ export function useGameMode() {
     return result.isCareerMode
   })
 
+  const isRetroMode = computed(() => currentGameMode.value === GameMode.RETRO)
+
   // Проверяем, нужно ли показать модалку перехода
   const shouldShowProjectTransitionModal = computed(() => {
     const result = shouldShowProjectTransitionModalUseCase.execute({
@@ -53,6 +55,7 @@ export function useGameMode() {
     currentGameModeInfo,
     isProjectMode,
     isCareerMode,
+    isRetroMode,
     shouldShowProjectTransitionModal,
     GameMode
   }

@@ -44,7 +44,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   )
 
   const canvasUseCase = ref<ReturnType<typeof canvasUseCaseFactory.createCanvasUseCase> | null>(null)
-  const { isProjectMode } = useGameMode()
+  const { isProjectMode, isRetroMode } = useGameMode()
 
   const updateCanvasBubbles = () => {
     // Skip normal updates during clicker mode
@@ -107,36 +107,40 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
     }
 
-    // Вычисляем сколько места осталось для философских пузырей
-    const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
+    // В ретро-режиме не добавляем философские пузыри
     const extraBubbles: BubbleNode[] = []
 
-    // Гарантированно добавляем философские пузыри (не меньше резерва)
-    const philosophyBubbles: BubbleNode[] = []
-    const maxPhilosophyToAdd = Math.min(GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX, Math.max(0, remainingSlots))
+    if (!isRetroMode.value) {
+      // Вычисляем сколько места осталось для философских пузырей
+      const remainingSlots = GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - filteredBubbles.length
+      
+      // Гарантированно добавляем философские пузыри (не меньше резерва)
+      const philosophyBubbles: BubbleNode[] = []
+      const maxPhilosophyToAdd = Math.min(GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX, Math.max(0, remainingSlots))
 
-    if (isProjectMode.value) {
-      // В режиме проекта не привязываемся к годам — заполняем слоты философии
-      for (let slot = 0; slot < maxPhilosophyToAdd; slot++) {
-        const virtualYear = GAME_CONFIG.initialYear + slot // уникальные ключи для Map
-        const philosophyBubble = createPhilosophyBubbleForYear(virtualYear, true)
-        if (philosophyBubble && !sessionStore.visitedBubbles.includes(philosophyBubble.id)) {
-          philosophyBubbles.push(philosophyBubble)
-        }
-      }
-    } else {
-      // В режиме карьеры распределяем по годам до текущего года
-      for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < maxPhilosophyToAdd; year++) {
-        const philosophyBubble = createPhilosophyBubbleForYear(year, true)
-        if (philosophyBubble) {
-          const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
-          if (!isPopped) {
+      if (isProjectMode.value) {
+        // В режиме проекта не привязываемся к годам — заполняем слоты философии
+        for (let slot = 0; slot < maxPhilosophyToAdd; slot++) {
+          const virtualYear = GAME_CONFIG.initialYear + slot // уникальные ключи для Map
+          const philosophyBubble = createPhilosophyBubbleForYear(virtualYear, true)
+          if (philosophyBubble && !sessionStore.visitedBubbles.includes(philosophyBubble.id)) {
             philosophyBubbles.push(philosophyBubble)
           }
         }
+      } else {
+        // В режиме карьеры распределяем по годам до текущего года
+        for (let year = startYear.value; year <= sessionStore.currentYear && philosophyBubbles.length < maxPhilosophyToAdd; year++) {
+          const philosophyBubble = createPhilosophyBubbleForYear(year, true)
+          if (philosophyBubble) {
+            const isPopped = sessionStore.visitedBubbles.includes(philosophyBubble.id)
+            if (!isPopped) {
+              philosophyBubbles.push(philosophyBubble)
+            }
+          }
+        }
       }
+      extraBubbles.push(...philosophyBubbles)
     }
-    extraBubbles.push(...philosophyBubbles)
 
     try {
       canvasUseCase.value.updateBubbles({ bubbles: [...filteredBubbles, ...extraBubbles] })
@@ -316,12 +320,12 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       usedQuestionIds.value.clear()
     }
 
-    // Добавляем скрытые пузыри в bubbleStore только если получена ачивка "крепыш"
-    if (sessionStore.hasUnlockedFirstToughBubbleAchievement) {
+    // Добавляем скрытые пузыри в bubbleStore только если получена ачивка "крепыш" (не для ретро)
+    if (sessionStore.hasUnlockedFirstToughBubbleAchievement && !isRetroMode.value) {
       const yearsToAdd: number[] = []
       for (let year = startYear.value; year <= newYear; year++) {
         // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
-        const existingHiddenBubble = bubbleStore.bubbles.find(b =>
+        const existingHiddenBubble = bubbleStore.bubbles.find(b => 
           b.isHidden && b.year === year
         )
 
