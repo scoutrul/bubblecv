@@ -1,109 +1,172 @@
 {
   "skills": [
     {
+      "name": "HTML",
+      "skillLevel": "confident",
+      "description": "Верстка интерфейса, структура страниц.",
+      "insight": "Основа визуальной части сайта.",
+      "category": "frontend"
+    },
+    {
+      "name": "CSS",
+      "skillLevel": "confident",
+      "description": "Стилизация, адаптивная верстка, анимации.",
+      "insight": "Отвечает за внешний вид и отзывчивость интерфейса.",
+      "category": "frontend"
+    },
+    {
+      "name": "Modern JavaScript",
+      "skillLevel": "confident",
+      "description": "ES6+ синтаксис, модули, асинхронность.",
+      "insight": "Обеспечивает динамику и логику фронтенда.",
+      "category": "frontend"
+    },
+    {
       "name": "Vue 3",
       "skillLevel": "confident",
-      "description": "Основной UI-фреймворк проекта: компоненты, реактивность, композиция логики через composables.",
-      "insight": "Vue обеспечивает читаемую архитектуру интерфейса и быстрый дев‑цикл.",
+      "description": "UI-фреймворк: компоненты, реактивность, composables.",
+      "insight": "Создает модульную архитектуру интерфейса.",
       "category": "frontend"
     },
     {
       "name": "TypeScript",
       "skillLevel": "confident",
-      "description": "Типобезопасность слоёв: use cases, store, данные пузырей/уровней/ачивок.",
-      "insight": "Типы снижают количество дефектов и ускоряют рефакторинг.",
+      "description": "Типизация слоёв: use cases, store, данные пузырей.",
+      "insight": "Снижает количество ошибок и упрощает рефакторинг.",
       "category": "architecture"
     },
     {
       "name": "Pinia",
       "skillLevel": "intermediate",
-      "description": "Глобальное состояние игры: пузыри, сессия, модальные окна, производительность.",
-      "insight": "Простой и предсказуемый store без избыточности.",
+      "description": "Глобальное состояние: пузыри, модалки, производительность.",
+      "insight": "Простой и предсказуемый state manager.",
       "category": "architecture"
     },
     {
-      "name": "D3.js (d3-force)",
+      "name": "D3.js",
       "skillLevel": "intermediate",
-      "description": "Симуляция физики и столкновений пузырей, управление узлами и силами.",
-      "insight": "d3-force даёт стабильную и настраиваемую физику для визуализаций.",
+      "description": "Физика и столкновения пузырей, управление узлами.",
+      "insight": "Создает живую, динамичную визуализацию.",
       "category": "frontend"
     },
     {
       "name": "Canvas API",
       "skillLevel": "intermediate",
-      "description": "Рендеринг пузырей и эффектов на холсте с упором на производительность.",
-      "insight": "Холст позволяет отрисовывать сотни объектов без просадок FPS.",
+      "description": "Рендеринг пузырей и эффектов на холсте.",
+      "insight": "Позволяет отрисовывать сотни объектов без просадок.",
       "category": "frontend"
     },
     {
       "name": "GSAP",
       "skillLevel": "intermediate",
-      "description": "Анимации интерфейса: переходы между годами, всплытия, эффекты усиления.",
-      "insight": "Контролируемые таймлайны и плавные эффекты повышают вовлечённость.",
+      "description": "Анимации интерфейса и игровых элементов.",
+      "insight": "Дает плавность и эмоциональную вовлеченность.",
       "category": "frontend"
     },
     {
       "name": "Tailwind CSS",
       "skillLevel": "intermediate",
-      "description": "Стилизация интерфейса и дизайн‑система через utility‑классы.",
-      "insight": "Единая типографика и отступы ускоряют разработку и поддерживаемость.",
+      "description": "Utility-first стилизация и дизайн-система.",
+      "insight": "Ускоряет разработку и поддерживаемость.",
       "category": "frontend"
     },
     {
-      "name": "i18n (custom)",
+      "name": "i18n",
       "skillLevel": "novice",
-      "description": "Переключение языков (ru/en), вложенные ключи, интерполяция строк.",
-      "insight": "Простая локализация без внешних зависимостей.",
+      "description": "Переключение языков, словари, интерполяция.",
+      "insight": "Простая и гибкая локализация.",
       "category": "frontend"
     },
     {
       "name": "Vite",
       "skillLevel": "novice",
-      "description": "Dev‑сервер, HMR и прод‑сборка проекта.",
-      "insight": "Молниеносный запуск и быстрая пересборка улучшают DX.",
+      "description": "Сборка и dev-сервер с HMR.",
+      "insight": "Мгновенный запуск и пересборка проекта.",
       "category": "tooling"
     },
     {
-      "name": "Playwright",
+      "name": "Node.js",
       "skillLevel": "novice",
-      "description": "E2E‑тесты ключевых пользовательских сценариев.",
-      "insight": "Автотесты защищают от регрессий при активных изменениях.",
-      "category": "testing"
+      "description": "Серверные скрипты, инструменты сборки.",
+      "insight": "Запускает среду разработки и билды.",
+      "category": "backend"
     },
     {
-      "name": "ESLint + Prettier",
+      "name": "NPM",
       "skillLevel": "novice",
-      "description": "Единые правила стиля, автоформатирование, контроль качества кода.",
-      "insight": "Стабильный стиль кода ускоряет ревью и снижает шум изменений.",
+      "description": "Управление пакетами (NPM/Yarn/PNPM).",
+      "insight": "Позволяет быстро подключать зависимости.",
       "category": "tooling"
+    },
+    {
+      "name": "Git & GitHub",
+      "skillLevel": "confident",
+      "description": "Контроль версий, ветки, CI/CD деплой.",
+      "insight": "Ускоряет разработку и автоматизирует выкладки.",
+      "category": "tooling"
+    },
+    {
+      "name": "Terminal CLI",
+      "skillLevel": "novice",
+      "description": "Работа с удалёнными серверами через командную строку.",
+      "insight": "Необходим для администрирования и деплоя.",
+      "category": "devops"
+    },
+    {
+      "name": "VPS Setup",
+      "skillLevel": "novice",
+      "description": "Настройка и администрирование сервера (домен, SSL, окружение).",
+      "insight": "Обеспечивает стабильный продакшен.",
+      "category": "devops"
+    },
+    {
+      "name": "Telegram API",
+      "skillLevel": "novice",
+      "description": "Отправка сообщений с формы сайта в Telegram-бота.",
+      "insight": "Обеспечивает прямую связь с пользователем.",
+      "category": "backend"
     },
     {
       "name": "Use Case Pattern",
       "skillLevel": "intermediate",
-      "description": "Изоляция бизнес‑логики от UI в отдельных классах с фабриками.",
-      "insight": "Чёткие границы делают фичи расширяемыми и тестируемыми.",
+      "description": "Изоляция бизнес-логики от UI в отдельных модулях.",
+      "insight": "Делает код расширяемым и тестируемым.",
       "category": "architecture"
     },
     {
       "name": "Clean Architecture",
       "skillLevel": "novice",
-      "description": "Слои Presentation/Application/Domain, инверсия зависимостей.",
-      "insight": "Снижение связности и упрощение рефакторинга.",
+      "description": "Слои Presentation/Application/Domain.",
+      "insight": "Снижает связность и упрощает поддержку.",
       "category": "architecture"
     },
     {
-      "name": "Domain-Driven Design (DDD)",
+      "name": "Domain-Driven Design",
       "skillLevel": "novice",
-      "description": "Моделирование домена (пузырь, сессия, ачивка), контексты и репозитории.",
-      "insight": "Код отражает предметную область, а не детали реализации.",
+      "description": "Моделирование домена: пузыри, сессии, ачивки.",
+      "insight": "Код отражает предметную область.",
       "category": "architecture"
     },
     {
-      "name": "SOLID Principles",
+      "name": "SOLID",
       "skillLevel": "novice",
-      "description": "SRP в use cases и репозиториях, DIP через фабрики и интерфейсы.",
-      "insight": "Принципы помогают держать код гибким и поддерживаемым.",
+      "description": "SRP, DIP, интерфейсы, модульность.",
+      "insight": "Держит код гибким и поддерживаемым.",
       "category": "architecture"
+    },
+    {
+      "name": "Gamification",
+      "skillLevel": "intermediate",
+      "description": "Уровни, XP, достижения, бонусы.",
+      "insight": "Мотивирует пользователя проходить проект.",
+      "category": "game"
+    },
+    {
+      "name": "AI Agents",
+      "skillLevel": "novice",
+      "description": "Генерация кода и идей (GPT-5, Claude Sonnet-4).",
+      "insight": "Ускоряет разработку и проектирование.",
+      "category": "ai"
     }
   ]
 }

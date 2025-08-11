@@ -57,7 +57,7 @@
       "category": "frontend"
     },
     {
-      "name": "HTML",
+      "name": "HTML5",
       "year": 2015,
       "skillLevel": "expert",
       "description": "Адаптивная разметка, доступность, взаимодействие с ARIA",
@@ -129,10 +129,10 @@
       "category": "frontend"
     },
     {
-      "name": "CSS",
+      "name": "CSS3",
       "year": 2015,
       "skillLevel": "expert",
-      "description": "Flexbox, анимации, media queries, переменные через препроцессоры",
+      "description": "Flexbox, анимации, media queries, переменные (препроцессоры/Sass)",
       "insight": "Flexbox подарил свободу. А миксины в Sass дали первое чувство, что CSS — это язык программирования.",
       "category": "frontend"
     },
@@ -273,11 +273,19 @@
       "category": "marketing"
     },
     {
-      "name": "JavaScript (ES5/ES6)",
+      "name": "ES5",
       "year": 2010,
       "skillLevel": "confident",
-      "description": "Прототипы, замыкания, jQuery, переход к ES6",
-      "insight": "С приходом ES6 JavaScript стал тем, чем он должен был быть с самого начала.",
+      "description": "JavaScript ES5: прототипы, замыкания, jQuery, XHR",
+      "insight": "Переходный этап к современному JS: многое вручную, но уже системно.",
+      "category": "frontend"
+    },
+    {
+      "name": "ES6+",
+      "year": 2015,
+      "skillLevel": "expert",
+      "description": "Современный JavaScript: модули, стрелочные функции, async/await, классы",
+      "insight": "С ES6+ JavaScript обрёл стройность и выразительность.",
       "category": "frontend"
     },
     {
@@ -332,16 +340,32 @@
       "name": "Vue.js",
       "year": 2016,
       "skillLevel": "expert",
-      "description": "Компонентная архитектура, Vuex, Composition API, SSR, Vue Router",
+      "description": "Компонентная архитектура, Vuex, SSR, Vue Router",
       "insight": "Vue стал моим основным инструментом. Он воплощает баланс между простотой и масштабируемостью.",
       "category": "frontend"
     },
     {
-      "name": "SCSS / PostCSS / BEM",
+      "name": "Composition API",
+      "year": 2022,
+      "skillLevel": "confident",
+      "description": "setup(), composables, provide/inject, реактивные структуры",
+      "insight": "Композиция логики через функции сделала код чище и модульнее. Осознание настоящего переиспользования.",
+      "category": "frontend"
+    },
+    {
+      "name": "SCSS",
       "year": 2016,
       "skillLevel": "confident",
-      "description": "Организация стилей, структура, переменные, миксины",
+      "description": "Организация стилей, структура, переменные, миксины (PostCSS в стеке)",
       "insight": "Хорошо структурированные стили — это читаемый и поддерживаемый фронтенд.",
+      "category": "frontend"
+    },
+    {
+      "name": "BEM",
+      "year": 2016,
+      "skillLevel": "confident",
+      "description": "Именование блоков/элементов/модификаторов, модульность, переиспользуемость",
+      "insight": "BEM даёт дисциплину именования и архитектуры CSS — это снижает связанность и упрощает поддержку.",
       "category": "frontend"
     },
     {
@@ -425,11 +449,27 @@
       "category": "cms"
     },
     {
-      "name": "Canvas / D3.js / визуализации",
+      "name": "Canvas API",
       "year": 2023,
       "skillLevel": "intermediate",
       "description": "Рисование графики, работа с геометрией, анимации",
-      "insight": "Это про чистую магию и математику. D3 — мощный, хоть и не самый дружелюбный.",
+      "insight": "Холст — про чистую магию и математику.",
+      "category": "frontend"
+    },
+    {
+      "name": "D3.js",
+      "year": 2023,
+      "skillLevel": "intermediate",
+      "description": "Силовые графы, оси, шкалы, data-join, layout-алгоритмы",
+      "insight": "D3 мощен, но требует дисциплины: декларативность + вычисления.",
+      "category": "frontend"
+    },
+    {
+      "name": "Визуализации",
+      "year": 2023,
+      "skillLevel": "intermediate",
+      "description": "Архитектура визуализаций, производительность, интерактивность",
+      "insight": "Не только технически, но и про storytelling.",
       "category": "frontend"
     },
     {
@@ -497,11 +537,19 @@
       "category": "architecture"
     },
     {
-      "name": "Clean Architecture + DDD",
+      "name": "Clean Architecture",
       "year": 2025,
       "skillLevel": "novice",
-      "description": "Слои Domain, Application, Infrastructure. Чёткое разделение зон ответственности.",
-      "insight": "Всё встало на свои места. Проект стал больше походить на систему, чем на код.",
+      "description": "Слои Presentation/Application/Domain/Infrastructure, зависимости наружу",
+      "insight": "Чёткие границы и независимость от UI ускоряют рефакторинг.",
+      "category": "architecture"
+    },
+    {
+      "name": "Domain‑Driven Design (DDD)",
+      "year": 2025,
+      "skillLevel": "novice",
+      "description": "Модель домена, Ubiquitous Language, контексты, агрегаты",
+      "insight": "Код отражает предметную область, а не детали реализации.",
       "category": "architecture"
     },
     {
