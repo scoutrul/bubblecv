@@ -13,4 +13,5 @@ export interface UserSession {
   currentYear: number
   customPhilosophyAnswers?: Record<string, string>
   allPhilosophyAnswers?: Record<string, { type: 'selected' | 'custom', answer: string, questionText: string }>
+  hasShownFinalCongrats?: boolean
 }

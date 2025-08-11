@@ -13,9 +13,12 @@ import type {
   GameOverModalData,
   BonusModalData,
   MemoirModalData,
-  ClickerResultsData
+  ClickerResultsData,
+  FinalCongratsData
 } from '@/types/modals'
 import {getEventChainCompletedHandler} from '@/composables/useModals'
+import { useSessionStore } from '@/stores/session.store'
+import { MODAL_PRIORITIES } from '@/types/modals'
 
 export const useModalStore = defineStore('modalStore', () => {
   // State - только данные
@@ -29,7 +32,8 @@ export const useModalStore = defineStore('modalStore', () => {
     bonus: false,
     memoir: false,
     clickerRules: false,
-    clickerResults: false
+    clickerResults: false,
+    finalCongrats: false
   })
 
   // Состояние анимации закрытия для каждой модалки
@@ -43,7 +47,8 @@ export const useModalStore = defineStore('modalStore', () => {
     bonus: false,
     memoir: false,
     clickerRules: false,
-    clickerResults: false
+    clickerResults: false,
+    finalCongrats: false
   })
 
   const data = reactive<ModalData>({
@@ -63,7 +68,8 @@ export const useModalStore = defineStore('modalStore', () => {
     },
     currentBonus: null,
     currentMemoir: null,
-    clickerResults: null
+    clickerResults: null,
+    finalCongrats: null
   })
 
   const pendingAchievements = ref<PendingAchievement[]>([])
@@ -83,6 +89,18 @@ export const useModalStore = defineStore('modalStore', () => {
   const hasActiveModals = computed(() =>
     modals.welcome || modals.bubble || modals.levelUp || modals.philosophy || modals.gameOver
   )
+
+  const sessionStore = useSessionStore()
+
+  const enqueueFinalCongratsIfNeeded = (closedType?: keyof ModalStates) => {
+    // sticky final modal while game is completed
+    if (!sessionStore.gameCompleted) return
+    if (closedType === 'finalCongrats') return
+    // Reuse last computed payload if available
+    const payload = data.finalCongrats
+    if (!payload) return
+    enqueueModal({ type: 'finalCongrats', data: payload, priority: MODAL_PRIORITIES.finalCongrats })
+  }
 
   // Event Chain методы
   const startEventChain = (chain: Omit<EventChain, 'id'>) => {
@@ -194,7 +212,7 @@ export const useModalStore = defineStore('modalStore', () => {
         chain.currentStep = 'levelAchievement'
         break
       case 'levelAchievement':
-        // Проверяем есть ли еще level ачивки
+        // Проверяем, есть ли еще level ачивки
         if (chain.pendingLevelAchievements.length > 0) {
           // Остаемся в levelAchievement для следующей ачивки
           processEventChain()
@@ -222,7 +240,7 @@ export const useModalStore = defineStore('modalStore', () => {
     })
   }
 
-  // Методы для работы с очередью (оставляем для совместимости)
+  // Система очередей (оставляем для совместимости)
   const enqueueModal = (modal: Omit<QueuedModal, 'id'>) => {
     const modalWithId: QueuedModal = {
       ...modal,
@@ -289,6 +307,9 @@ export const useModalStore = defineStore('modalStore', () => {
       case 'clickerResults':
         data.clickerResults = modal.data as ClickerResultsData
         break
+      case 'finalCongrats':
+        data.finalCongrats = modal.data as FinalCongratsData
+        break
     }
 
     // Открываем модалку
@@ -302,6 +323,9 @@ export const useModalStore = defineStore('modalStore', () => {
 
     modals[modalType] = false
     currentModal.value = null
+
+    // Ставим финальную модалку обратно в очередь, если нужно
+    enqueueFinalCongratsIfNeeded(modalType)
 
     // Если есть активная event chain, продолжаем её
     if (currentEventChain.value) {
@@ -332,6 +356,10 @@ export const useModalStore = defineStore('modalStore', () => {
 
   const closeModal = (key: keyof ModalStates) => {
     modals[key] = false
+    // Ставим финальную модалку обратно в очередь, если нужно
+    enqueueFinalCongratsIfNeeded(key)
+    // Обрабатываем очередь после закрытия
+    nextTick(() => processQueue())
   }
 
   // Методы для анимации закрытия модалок

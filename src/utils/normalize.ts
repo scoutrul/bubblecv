@@ -94,18 +94,22 @@ export function normalizeBonus(bonus: Bonus, index: number): NormalizedBonus {
 }
 
 export function normalizeOldBubble(bubble: OldBubble, id: number): NormalizedBubble {
+  // Рандомизируем skillLevel для визуального разнообразия в ретро
+  const levels = ['novice', 'intermediate', 'confident', 'expert', 'master'] as const
+  const randomLevel = levels[Math.abs(id) % levels.length]
+  const size = getSizeBySkillLevel(randomLevel)
   return {
-    // Old bubbles have no skillLevel; assign defaults for internal rendering/scoring
+    // Old bubbles have no skillLevel; assign randomized level for styling
     name: bubble.name,
     year: bubble.year,
-    skillLevel: 'intermediate',
+    skillLevel: randomLevel,
     description: bubble.description,
     insight: bubble.insight,
     category: bubble.category || 'life',
     ...DEFAULT_BUBBLE_PROPS,
     id,
     isTough: false,
-    size: 'medium'
+    size
   }
 }
 

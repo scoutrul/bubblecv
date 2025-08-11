@@ -94,10 +94,12 @@ const close = () => {
 </script>
 
 <style scoped>
+:deep(.final-modal-container) { /* keep style scoping compatibility */ }
 :deep(.welcome-modal-container) {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   border: 2px solid #3b82f6;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
   padding: 2rem;
 }
 

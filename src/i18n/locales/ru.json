@@ -191,5 +191,28 @@
     "statsTotal": "Итого",
     "againButton": "Ещё раз",
     "exitButton": "Выйти"
+  },
+  "final": {
+    "title": "Игра пройдена!",
+    "subtitle": "Спасибо за путешествие по ретро-вселенной",
+    "stats": {
+      "total": "Всего лопнуто баблов",
+      "byType": {
+        "normal": "Обычные",
+        "tough": "Крепкие",
+        "hidden": "Скрытые",
+        "philosophy": "Философские"
+      },
+      "totalXP": "Всего опыта",
+      "bonuses": "Открыто бонусов",
+      "achievements": "Открыто ачивок",
+      "memoirs": "Открыто мемуаров"
+    },
+    "cta": {
+      "openBonuses": "Открыть бонусы",
+      "openMemoirs": "Открыть мемуары",
+      "playClicker": "Сыграть в Clicker"
+    },
+    "footer": "BubbleMe © 2025 — Головачев Антон Александрович"
   }
 } 

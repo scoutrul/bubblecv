@@ -3,7 +3,7 @@
     <!-- Верхняя панель с адаптивной структурой -->
     <div class="top-panel">
       <!-- Жизни: слева на мобильных и десктопе -->
-      <div class="lives-container">
+      <div class="lives-container" v-if="!gameCompleted">
         <LivesDisplay
           :current-lives="currentLives"
           :max-lives="maxLives"
@@ -19,7 +19,7 @@
       </div>
 
       <!-- Опыт: внизу на мобильных, по центру на десктопе -->
-      <div v-if="!isRetroMode" class="xp-container">
+      <div v-if="!isRetroMode && !gameCompleted" class="xp-container">
         <XPDisplay
           :current-x-p="currentXP"
           :next-level-x-p="nextLevelXP"
@@ -29,7 +29,7 @@
       </div>
 
       <!-- Уровень: только на десктопе справа -->
-      <div class="desktop-level">
+      <div class="desktop-level" v-if="!gameCompleted">
         <LevelDisplay
           :current-level="currentLevel"
           :level-title="currentLevelTitle"
@@ -79,6 +79,8 @@ import BonusWidget from '@/ui/widgets/bonuses/BonusWidget.vue'
 import AchievementsWidget from '@/ui/widgets/achievements/AchievementsWidget.vue'
 import MemoirWidget from '@/ui/widgets/memoirs/MemoirWidget.vue'
 import { useGameMode } from '@/composables/useGameMode'
+import { useSessionStore } from '@/stores/session.store'
+import { computed } from 'vue'
 
 const {
   game: {
@@ -116,6 +118,8 @@ const {
 const { isXPAnimating } = useUi()
 
 const { isRetroMode } = useGameMode()
+const session = useSessionStore()
+const gameCompleted = computed(() => session.gameCompleted)
 </script>
 
 <style scoped>

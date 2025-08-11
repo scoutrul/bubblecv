@@ -15,6 +15,7 @@ import type {
   ModalModalStore 
 } from '@/usecases/modal'
 import { MODAL_PRIORITIES } from '@/types/modals'
+import { useGameMode } from '@/composables/useGameMode'
 
 let canvasBridge: CanvasBridge | null = null
 let eventChainCompletedHandler: (() => Promise<void>) | null = null
@@ -79,7 +80,8 @@ export const useModals = () => {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
   const levelStore = useLevelStore()
-  const { unlockAchievement } = useAchievement()
+  const { unlockAchievement, unlockedCount } = useAchievement()
+const { isRetroMode } = useGameMode()
   const { gainXP, losePhilosophyLife, visitBubble } = useSession()
 
   const isProcessingBubbleModal = ref(false)
@@ -128,8 +130,6 @@ export const useModals = () => {
       adapters.modalAdapter
     )
   }
-
-
 
   /**
    * Создает базовый Event Chain конфиг
@@ -288,9 +288,9 @@ export const useModals = () => {
               canvas.createFloatingText({
                 x: bubble.x,
                 y: bubble.y,
-                text: `+${removal.xpAmount} XP`,
+                text: (isRetroMode?.value ? '+ ❤️' : `+${removal.xpAmount} XP`),
                 type: 'xp',
-                color: '#22c55e'
+                color: (isRetroMode?.value ? '#ef4444' : '#22c55e')
               })
             }
             if (removal.isPhilosophyNegative) {
@@ -316,6 +316,9 @@ export const useModals = () => {
         if (canvas.updateCanvasBubbles) {
           canvas.updateCanvasBubbles()
         }
+
+        // After removals: check Retro completion and show final congrats once
+        await maybeShowFinalCongrats()
       }
     }
   }
@@ -373,6 +376,78 @@ export const useModals = () => {
           }
         })
       })
+    }
+  }
+
+  // Check retro completion and show final congrats
+  const maybeShowFinalCongrats = async () => {
+    try {
+      // Show only when no active modals and not already completed
+      if (hasActiveModals.value) return
+      if (sessionStore.gameCompleted) return
+
+      // Ensure RETRO mode by checking negative old bubble IDs presence
+      const { api } = await import('@/api')
+      const { data: oldBubbles } = await api.getOldBubbles()
+      if (!oldBubbles.length) return
+
+      const retroIds = oldBubbles.map(b => b.id)
+      const visited = sessionStore.visitedBubbles
+      const allRetroPopped = retroIds.every(id => visited.includes(id))
+      if (!allRetroPopped) return
+
+      // Aggregate stats
+      const { useBonusStore } = await import('@/stores/bonus.store')
+      const { useMemoirStore } = await import('@/stores/memoir.store')
+      const { useAchievmentStore } = await import('@/stores/achievement.store')
+      const bonusStore = useBonusStore()
+      const memoirStore = useMemoirStore()
+      const achievementStore = useAchievmentStore()
+
+      // Unlock ALL bonuses and memoirs upon game completion
+      bonusStore.bonuses.forEach(b => { b.isUnlocked = true })
+      memoirStore.memoirs.forEach(m => { m.isUnlocked = true })
+
+      // Build type index from all datasets
+      const { api: apiLocal } = await import('@/api')
+      const [skills, projects, olds] = await Promise.all([
+        apiLocal.getBubbles(),
+        apiLocal.getProjectBubbles(),
+        apiLocal.getOldBubbles()
+      ])
+
+      const projectOffset = 10000
+      const index = new Map<number, 'normal'|'tough'|'hidden'|'philosophy'>()
+      const register = (b: any) => {
+        if (b.isQuestion) { index.set(b.id, 'philosophy'); return }
+        if (b.isHidden) { index.set(b.id, 'hidden'); return }
+        if (b.isTough) { index.set(b.id, 'tough'); return }
+        index.set(b.id, 'normal')
+      }
+      skills.data.forEach(register)
+      projects.data.forEach(register)
+      olds.data.forEach(register)
+
+      const totals = { normal: 0, tough: 0, hidden: 0, philosophy: 0 }
+      for (const id of visited) {
+        const t = index.get(id)
+        if (t) totals[t]++
+      }
+
+      const payload = {
+        totalBubbles: visited.length,
+        byType: totals,
+        totalXP: sessionStore.currentXP,
+        bonusesUnlocked: bonusStore.unlockedBonuses.length,
+        achievementsUnlocked: unlockedCount.value,
+        memoirsUnlocked: memoirStore.unlockedMemoirs.length
+      }
+
+      // Mark completed and show modal
+      sessionStore.setGameCompleted(true)
+      modalStore.enqueueModal({ type: 'finalCongrats', data: payload, priority: MODAL_PRIORITIES.finalCongrats })
+    } catch (e) {
+      // silent
     }
   }
 

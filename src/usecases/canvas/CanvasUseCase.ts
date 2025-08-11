@@ -552,9 +552,9 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.effectsRepository.createFloatingText({
           x: mouseX,
           y: mouseY,
-          text: '+1 XP',
+          text: '+ ❤️',
           type: 'xp',
-          color: '#22c55e'
+          color: '#ef4444'
         })
         
         // Добавляем XP за каждый клик по крепкому пузырю
@@ -618,9 +618,9 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.effectsRepository.createFloatingText({
           x: bubble.x,
           y: bubble.y,
-          text: `+${xpAmount} XP`,
+          text: '+ ❤️',
           type: 'xp',
-          color: '#22c55e'
+          color: '#ef4444'
         })
 
         // Выдаем ачивку за скрытый пузырь (через сессию, без модалок)
@@ -651,9 +651,9 @@ export class CanvasUseCase implements ICanvasUseCase {
         this.effectsRepository.createFloatingText({
           x: mouseX,
           y: mouseY,
-          text: `+${GAME_CONFIG.HIDDEN_BUBBLE_XP_PER_CLICK} XP`,
+          text: '+ ❤️',
           type: 'xp',
-          color: '#22c55e'
+          color: '#ef4444'
         })
         
         // Добавляем эффект отскакивания для скрытого пузыря

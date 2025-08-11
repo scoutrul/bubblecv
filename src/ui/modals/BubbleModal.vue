@@ -36,7 +36,7 @@
       <!-- Content -->
       <div class="modal-content">
         <!-- Skill Level -->
-        <div class="skill-section">
+        <div v-if="!isRetroMode" class="skill-section">
           <h3 class="section-title">{{ t('bubble.expertiseLevel') }}</h3>
           <div class="skill-level">
             <div class="skill-badge" :class="skillLevelClass">
@@ -68,7 +68,8 @@
       <div class="modal-footer">
         <div class="xp-reward">
           <span class="xp-text">
-              + {{ xpReward }} XP
+              <template v-if="!isRetroMode">+ {{ xpReward }} XP</template>
+              <template v-else>+ ❤️</template>
           </span>
         </div>
         <button
@@ -91,6 +92,7 @@ import type { NormalizedBubble } from '@/types/normalized'
 import { getBubbleColor } from '@/utils'
 import { useI18n } from '@/composables'
 import { computed } from 'vue'
+import { useGameMode } from '@/composables/useGameMode'
 
 interface Props {
   isOpen: boolean
@@ -106,6 +108,7 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 const { t } = useI18n()
+const { isRetroMode } = useGameMode()
 
 const skillLevelClass = computed(() => {
   if (!props.bubble?.skillLevel) return ''
@@ -118,10 +121,6 @@ const xpReward = computed(() => {
   // Используем централизованную логику для расчета XP
   return XP_CALCULATOR.getBubbleXP(props.bubble.skillLevel)
 })
-
-
-
-
 </script>
 
 <style scoped>

@@ -6,7 +6,7 @@
     <!-- UI элементы с шейк-эффектом -->
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
       <!-- Виджеты в верхней правой части экрана -->
-      <div class="right-top-widgets-container" v-if="!clickerActive">
+      <div class="right-top-widgets-container" v-if="!clickerActive && !gameCompleted">
         <CategoryFilterWidget />
       </div>
 
@@ -22,9 +22,9 @@
         <ResetButton @handle-reset="resetGame" />
       </div>
 
-      <TimelineSlider v-if="!clickerActive" :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
+      <TimelineSlider v-if="!clickerActive && !gameCompleted" :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
         @update:currentYear="updateCurrentYear" class="timeline" />
-      <GameHUD v-if="!clickerActive" class="game-hud" />
+      <GameHUD v-if="!clickerActive && !gameCompleted" class="game-hud" />
 
       <!-- Анимация смены года и отсчёт кликера -->
       <YearTransition
@@ -67,6 +67,7 @@ import { computed } from 'vue'
 import { useApp } from '@/composables'
 import { useUiEventStore } from '@/stores'
 import { useClickerStore } from '@/stores/clicker.store'
+import { useSessionStore } from '@/stores/session.store'
 
 const {
   resetGame,
@@ -75,10 +76,12 @@ const {
 
 const uiEventStore = useUiEventStore()
 const clicker = useClickerStore()
+const session = useSessionStore()
 
 const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
 const clickerActive = computed(() => clicker.isActive)
 const showClickerTimer = computed(() => clicker.isRunning)
+const gameCompleted = computed(() => session.gameCompleted)
 
 const timerText = computed(() => {
   const { minutes, seconds, tenths } = clicker.timeLeftSecTenths

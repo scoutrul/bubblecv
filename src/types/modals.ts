@@ -83,8 +83,18 @@ export interface ClickerResultsData {
   totalScore: number
 }
 
+// New: Final congrats modal data
+export interface FinalCongratsData {
+  totalBubbles: number
+  byType: { normal: number; tough: number; hidden: number; philosophy: number }
+  totalXP: number
+  bonusesUnlocked: number
+  achievementsUnlocked: number
+  memoirsUnlocked: number
+}
+
 // Новые интерфейсы для системы очередей
-export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir' | 'clickerRules' | 'clickerResults'
+export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir' | 'clickerRules' | 'clickerResults' | 'finalCongrats'
 
 export type ModalDataUnion = 
   | { type: 'welcome'; data: null }
@@ -97,6 +107,7 @@ export type ModalDataUnion =
   | { type: 'gameOver'; data: GameOverModalData }
   | { type: 'clickerRules'; data: null }
   | { type: 'clickerResults'; data: ClickerResultsData }
+  | { type: 'finalCongrats'; data: FinalCongratsData }
 
 export interface QueuedModal {
   id: string
@@ -115,7 +126,8 @@ export const MODAL_PRIORITIES = {
   bonus: 40,
   memoir: 30,
   clickerRules: 60,
-  clickerResults: 65
+  clickerResults: 65,
+  finalCongrats: 85
 } as const
 
 // Обновленные интерфейсы для Event Chains
@@ -146,6 +158,7 @@ export interface ModalData {
   currentBonus: NormalizedBonus | null
   currentMemoir: NormalizedMemoir | null
   clickerResults: ClickerResultsData | null
+  finalCongrats: FinalCongratsData | null
 }
 
 export interface ModalStates {
@@ -159,4 +172,5 @@ export interface ModalStates {
   memoir: boolean
   clickerRules: boolean
   clickerResults: boolean
+  finalCongrats: boolean
 }

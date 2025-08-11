@@ -191,5 +191,28 @@
     "statsTotal": "Total",
     "againButton": "Again",
     "exitButton": "Exit"
+  },
+  "final": {
+    "title": "Game completed!",
+    "subtitle": "Thank you for the retro journey",
+    "stats": {
+      "total": "Total bubbles popped",
+      "byType": {
+        "normal": "Normal",
+        "tough": "Tough",
+        "hidden": "Hidden",
+        "philosophy": "Philosophy"
+      },
+      "totalXP": "Total XP",
+      "bonuses": "Bonuses unlocked",
+      "achievements": "Achievements unlocked",
+      "memoirs": "Memoirs unlocked"
+    },
+    "cta": {
+      "openBonuses": "Open bonuses",
+      "openMemoirs": "Open memoirs",
+      "playClicker": "Play Clicker"
+    },
+    "footer": "BubbleMe © 2025 — Golovachev Anton Alexanderovich"
   }
 } 

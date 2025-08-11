@@ -76,6 +76,20 @@
       @close="() => { startClosingModal('clickerResults'); modalStore.closeCurrentModal(); }"
     />
 
+    <!-- Final Congrats Modal -->
+    <FinalCongratsModal
+      v-if="showFinalCongrats || modalStore.isModalClosing('finalCongrats')"
+      :isOpen="showFinalCongrats && !modalStore.isModalClosing('finalCongrats')"
+      :data="finalCongratsData"
+      :isClosing="modalStore.isModalClosing('finalCongrats')"
+      @close="() => { startClosingModal('finalCongrats'); modalStore.closeCurrentModal(); }"
+    />
+
+    <!-- DEV: Debug button to open Final Congrats modal -->
+    <div v-if="isDev" class="fixed bottom-3 right-3 z-[9999]">
+      <button class="px-3 py-2 rounded bg-amber-500 text-black font-bold shadow" @click="openFinalCongratsDebug">Open Final (debug)</button>
+    </div>
+
 
   </div>
 </template>
@@ -93,9 +107,18 @@ import BonusModal from './BonusModal.vue'
 import MemoirModal from './MemoirModal.vue'
 import ClickerRulesModal from './ClickerRulesModal.vue'
 import ClickerResultsModal from './ClickerResultsModal.vue'
+import FinalCongratsModal from './FinalCongratsModal.vue'
 import { computed } from 'vue'
+import { MODAL_PRIORITIES } from '@/types/modals'
+import { useBonusStore } from '@/stores/bonus.store'
+import { useMemoirStore } from '@/stores/memoir.store'
+import { useAchievement } from '@/composables/useAchievement'
 
 const modalStore = useModalStore()
+const bonusStore = useBonusStore()
+const memoirStore = useMemoirStore()
+const { unlockedCount } = useAchievement()
+const isDev = import.meta.env.DEV
 const {
   modals,
   data,
@@ -240,6 +263,26 @@ const showClickerRules = computed(() => currentModal.value?.type === 'clickerRul
 const showClickerResults = computed(() => currentModal.value?.type === 'clickerResults' || safeModals.value.clickerResults || false)
 const clickerResultsData = computed(() => safeData.value.clickerResults || null)
 
+// Final Congrats
+const showFinalCongrats = computed(() => currentModal.value?.type === 'finalCongrats' || safeModals.value.finalCongrats || false)
+const finalCongratsData = computed(() => safeData.value.finalCongrats || null)
+
+// DEV helper
+const openFinalCongratsDebug = () => {
+  // Unlock all bonuses and memoirs for debug testing
+  bonusStore.bonuses.forEach(b => { b.isUnlocked = true })
+  memoirStore.memoirs.forEach(m => { m.isUnlocked = true })
+
+  const payload = {
+    totalBubbles: 123,
+    byType: { normal: 80, tough: 10, hidden: 20, philosophy: 13 },
+    totalXP: 4567,
+    bonusesUnlocked: bonusStore.unlockedBonuses.length,
+    achievementsUnlocked: unlockedCount.value,
+    memoirsUnlocked: memoirStore.unlockedMemoirs.length
+  }
+  modalStore.enqueueModal({ type: 'finalCongrats', data: payload, priority: MODAL_PRIORITIES.finalCongrats })
+}
 
 </script>
 

@@ -16,6 +16,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
   const lives = computed(() => session.value?.lives || GAME_CONFIG.maxLives)
   const visitedBubbles = computed(() => session.value?.visitedBubbles || [])
   const gameCompleted = computed(() => session.value?.gameCompleted || false)
+  const hasShownFinalCongrats = computed(() => session.value?.hasShownFinalCongrats || false)
   const hasUnlockedFirstToughBubbleAchievement = computed(() => 
     session.value?.hasUnlockedFirstToughBubbleAchievement || false
   )
@@ -77,6 +78,12 @@ export const useSessionStore = defineStore('sessionStore', () => {
     }
   }
 
+  const markFinalCongratsShown = () => {
+    if (session.value) {
+      session.value.hasShownFinalCongrats = true
+    }
+  }
+
   const addVisitedBubble = (bubbleId: number) => {
     if (session.value && !session.value.visitedBubbles.includes(bubbleId)) {
       session.value.visitedBubbles.push(bubbleId)
@@ -118,6 +125,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     lives,
     visitedBubbles,
     gameCompleted,
+    hasShownFinalCongrats,
     xpProgress,
     nextLevelXP,
     hasUnlockedFirstToughBubbleAchievement,
@@ -129,6 +137,7 @@ export const useSessionStore = defineStore('sessionStore', () => {
     setLevel,
     setLives,
     setGameCompleted,
+    markFinalCongratsShown,
     addVisitedBubble,
     setCurrentYear,
     setHasDestroyedToughBubble,
