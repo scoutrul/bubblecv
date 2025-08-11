@@ -37,7 +37,10 @@ export class InitializeAppUseCase {
 
       await this.sessionStore.startSession({ lives })
 
-      // this.modalStore.openWelcome() // TODO DEV
+      // Открываем Welcome только не в dev-режиме
+      if (typeof import.meta !== 'undefined' && !import.meta.env.DEV) {
+        this.modalStore.openWelcome()
+      }
 
       return {
         success: true,

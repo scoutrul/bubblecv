@@ -34,10 +34,10 @@ export const GAME_CONFIG = {
 
   levelRequirements: {
     1: 0,
-    2: 50,
-    3: 100,
-    4: 150,
-    5: 200
+    2: 100,
+    3: 200,
+    4: 250,
+    5: 350
   } as const,
 
   achievementXP: {
@@ -48,7 +48,7 @@ export const GAME_CONFIG = {
   } as const,
 
   xpPerExpertiseLevel: {
-    [SKILL_LEVELS.NOVICE]: 123, // 3
+    [SKILL_LEVELS.NOVICE]: 3, // 3
     [SKILL_LEVELS.INTERMEDIATE]: 5,
     [SKILL_LEVELS.CONFIDENT]: 7,
     [SKILL_LEVELS.EXPERT]: 9,
