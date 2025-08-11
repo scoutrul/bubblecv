@@ -51,6 +51,9 @@ export class CanvasRepository implements ICanvasRepository {
   private performanceLevel = 0 // 0 - полная производительность, 1 - оптимизированная, 2 - минимальная
   private optimizationCheckInterval = 0
 
+  // Clicker support: hide labels when enabled
+  public hideLabels: boolean = false
+
   constructor(canvasRef: Ref<HTMLCanvasElement | null>) {
     this.canvas = canvasRef.value
   }
@@ -235,6 +238,11 @@ export class CanvasRepository implements ICanvasRepository {
   }
 
   drawText(bubble: BubbleNode): void {
+    // Hide labels in clicker mode
+    if (this.hideLabels) {
+      return
+    }
+
     if (bubble.isQuestion || bubble.isHidden) {
       return
     }

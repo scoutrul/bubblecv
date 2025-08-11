@@ -19,6 +19,17 @@ export const GAME_CONFIG = {
   HIDDEN_BUBBLE_CLICKS_REQUIRED: () => Math.floor(Math.random() * 6) + 3, // 3-8 кликов
   HIDDEN_BUBBLE_XP_PER_CLICK: 2, // XP за каждый клик по скрытому пузырю
 
+  // Clicker mode configuration
+  clicker: {
+    DURATION_MS: 60000,
+    SPEED_LEVEL: 5,
+    TIME_BONUS_PER_SECOND: 2,
+    computeTimeBonus: (timeLeftMs: number) => {
+      const secondsLeft = Math.ceil(Math.max(0, timeLeftMs) / 1000)
+      return secondsLeft * (GAME_CONFIG.clicker.TIME_BONUS_PER_SECOND)
+    }
+  },
+
   levelRequirements: {
     1: 0,
     2: 50,

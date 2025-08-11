@@ -59,6 +59,23 @@
       @close="handleMemoirModalClose"
     />
 
+    <!-- Clicker Rules Modal -->
+    <ClickerRulesModal
+      v-if="showClickerRules || modalStore.isModalClosing('clickerRules')"
+      :isOpen="showClickerRules && !modalStore.isModalClosing('clickerRules')"
+      :isClosing="modalStore.isModalClosing('clickerRules')"
+      @close="() => { startClosingModal('clickerRules'); modalStore.closeCurrentModal(); }"
+    />
+
+    <!-- Clicker Results Modal -->
+    <ClickerResultsModal
+      v-if="showClickerResults || modalStore.isModalClosing('clickerResults')"
+      :isOpen="showClickerResults && !modalStore.isModalClosing('clickerResults')"
+      :data="clickerResultsData"
+      :isClosing="modalStore.isModalClosing('clickerResults')"
+      @close="() => { startClosingModal('clickerResults'); }"
+    />
+
 
   </div>
 </template>
@@ -74,6 +91,8 @@ import LevelUpModal from './LevelUpModal.vue'
 import AchievementModal from './AchievementModal.vue'
 import BonusModal from './BonusModal.vue'
 import MemoirModal from './MemoirModal.vue'
+import ClickerRulesModal from './ClickerRulesModal.vue'
+import ClickerResultsModal from './ClickerResultsModal.vue'
 import { computed } from 'vue'
 
 const modalStore = useModalStore()
@@ -214,6 +233,12 @@ const memoirProps = computed(() => ({
   allowEscapeClose: true,
   isClosing: modalStore.isModalClosing('memoir')
 }))
+
+// Clicker Rules
+const showClickerRules = computed(() => currentModal.value?.type === 'clickerRules' || safeModals.value.clickerRules || false)
+// Clicker Results
+const showClickerResults = computed(() => currentModal.value?.type === 'clickerResults' || safeModals.value.clickerResults || false)
+const clickerResultsData = computed(() => safeData.value.clickerResults || null)
 
 
 </script>

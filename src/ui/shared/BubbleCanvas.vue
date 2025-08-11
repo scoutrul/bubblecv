@@ -26,7 +26,9 @@ const {
   updateCanvasBubbles,
   removeBubbleWithEffects,
   findBubbleById,
-  createFloatingText
+  createFloatingText,
+  addBubblesToCanvas,
+  setBubblesOnCanvas
 } = useCanvas(canvasRef, containerRef)
 
 onMounted(() => {
@@ -39,7 +41,12 @@ onMounted(() => {
     removeBubbleWithEffects,
     findBubbleById,
     createFloatingText,
-    updateCanvasBubbles
+    updateCanvasBubbles,
+    // bridge for clicker mode
+    // @ts-ignore expose helper for clicker store
+    addBubblesToCanvas,
+    // @ts-ignore expose helper for clicker store
+    setBubblesOnCanvas
   })
 })
 </script>

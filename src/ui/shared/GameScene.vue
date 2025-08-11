@@ -6,28 +6,47 @@
     <!-- UI элементы с шейк-эффектом -->
     <div class="ui-layer" :class="{ 'util-shake-game-scene': isGameSceneShaking }">
       <!-- Виджеты в верхней правой части экрана -->
-      <div class="right-top-widgets-container">
+      <div class="right-top-widgets-container" v-if="!clickerActive">
         <CategoryFilterWidget />
       </div>
 
+      <!-- Виджеты верхнего левого угла -->
+      <div class="left-top-widgets-container">
+        <ClickerWidget />
+      </div>
+
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
-      <div class="left-widgets-container">
+      <div class="left-widgets-container" v-if="!clickerActive">
         <SettingsWidget />
         <LanguageWidget />
         <ResetButton @handle-reset="resetGame" />
       </div>
 
-      <TimelineSlider :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
+      <TimelineSlider v-if="!clickerActive" :currentYear="currentYear" :start-year="startYear" :end-year="endYear"
         @update:currentYear="updateCurrentYear" class="timeline" />
-      <GameHUD class="game-hud" />
+      <GameHUD v-if="!clickerActive" class="game-hud" />
 
-      <!-- Анимация смены года -->
+      <!-- Анимация смены года и отсчёт кликера -->
       <YearTransition
+        v-if="!clickerActive"
         :year="currentYear"
+        :dimBackground="false"
+      />
+      <YearTransition
+        v-if="countdownOverlayVisible"
+        :year="0"
+        :text="countdownText"
+        :animateOnMount="false"
+        :dimBackground="true"
       />
 
+      <!-- Таймер кликера -->
+      <div v-if="showClickerTimer" class="clicker-timer" :class="{ danger: isTimerDanger }">
+        {{ timerText }}
+      </div>
+
       <!-- Монитор производительности -->
-      <PerformanceMonitor />
+      <PerformanceMonitor v-if="!clickerActive" />
     </div>
   </div>
 </template>
@@ -42,10 +61,12 @@ import YearTransition from '@/ui/shared/YearTransition.vue'
 import PerformanceMonitor from '@/ui/widgets/performance/PerformanceMonitor.vue'
 import SettingsWidget from '@/ui/widgets/performance/SettingsWidget.vue'
 import CategoryFilterWidget from '@/ui/widgets/category-filter/CategoryFilterWidget.vue'
+import ClickerWidget from '@/ui/widgets/clicker/ClickerWidget.vue'
 
 import { computed } from 'vue'
 import { useApp } from '@/composables'
 import { useUiEventStore } from '@/stores'
+import { useClickerStore } from '@/stores/clicker.store'
 
 const {
   resetGame,
@@ -53,8 +74,26 @@ const {
 } = useApp()
 
 const uiEventStore = useUiEventStore()
+const clicker = useClickerStore()
 
 const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
+const clickerActive = computed(() => clicker.isActive)
+const showClickerTimer = computed(() => clicker.isRunning)
+
+const timerText = computed(() => {
+  const { minutes, seconds, tenths } = clicker.timeLeftSecTenths
+  const mm = String(minutes).padStart(2, '0')
+  const ss = String(seconds).padStart(2, '0')
+  return `${mm}:${ss}.${tenths}`
+})
+
+const isTimerDanger = computed(() => clicker.timeLeftSecTenths.minutes === 0 && clicker.timeLeftSecTenths.seconds <= 10)
+
+const countdownOverlayVisible = computed(() => clicker.isActive && !clicker.isRunning && clicker.countdown !== null)
+const countdownText = computed(() => {
+  if (clicker.countdown === null) return ''
+  return clicker.countdown === 0 ? 'GO!' : String(clicker.countdown)
+})
 </script>
 
 <style scoped>
@@ -91,12 +130,31 @@ const isGameSceneShaking = computed(() => uiEventStore.gameSceneShake)
   z-index: 10000;
 }
 
+/* Верхний левый контейнер виджетов */
+.left-top-widgets-container {
+  @apply fixed top-16 left-2 sm:left-4;
+  @apply flex flex-col gap-4;
+  @apply pointer-events-auto;
+  z-index: 10000;
+}
+
 /* Левый контейнер виджетов - высокий приоритет */
 .left-widgets-container {
   @apply fixed bottom-4 left-2 sm:left-4;
   @apply flex flex-col gap-4;
   @apply pointer-events-auto;
   z-index: 10000;
+}
+
+/* Clicker timer */
+.clicker-timer {
+  @apply fixed top-4 right-4 text-2xl font-mono font-semibold px-3 py-1 rounded-md pointer-events-none;
+  @apply bg-background-secondary/60 text-text-primary border border-border backdrop-blur-md;
+  z-index: 10001;
+}
+
+.clicker-timer.danger {
+  @apply text-red-500 border-red-500;
 }
 
 /* Адаптивные стили для мобильных устройств */

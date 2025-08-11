@@ -22,6 +22,7 @@ import type { BubbleNode } from '@/types/canvas'
 import { addPendingBubbleRemoval } from '@/composables/useModals'
 import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
 import { usePerformanceStore } from '@/stores/performance.store'
+import { useClickerStore } from '@/stores/clicker.store'
 
 export class CanvasUseCase implements ICanvasUseCase {
   private canvasDomain = {
@@ -47,8 +48,12 @@ export class CanvasUseCase implements ICanvasUseCase {
   private isDragging = false
   private hoveredBubble: BubbleNode | null = null
 
-  // Получаем текущий уровень игрока
+  // Получаем текущий уровень игрока (ускоряем при активном кликере)
   private getCurrentLevel(): number {
+    const clicker = useClickerStore()
+    if (clicker.isActive) {
+      return GAME_CONFIG.clicker.SPEED_LEVEL
+    }
     return this.sessionStore.session?.currentLevel || 1
   }
 
@@ -178,6 +183,57 @@ export class CanvasUseCase implements ICanvasUseCase {
       const mouseY = event.clientY - rect.top
 
       const clickedBubble = this.bubbleManagerRepository.findBubbleUnderCursor(mouseX, mouseY, nodes)
+
+      const clicker = useClickerStore()
+      // Block all interactions during countdown (active but not running)
+      if (clicker.isActive && !clicker.isRunning) {
+        return { success: true }
+      }
+      if (clicker.isActive && clicker.isRunning) {
+        // Clicker mode: instant pop, no XP/modals, with tough gating and bounce
+        if (clickedBubble) {
+          if (clickedBubble.isTough) {
+            // Visual feedback on each tough click
+            this.effectsRepository.animateToughBubbleHit(clickedBubble)
+            const currentLevel = this.getCurrentLevel()
+            const jump = await this.effectsRepository.calculateBubbleJump(mouseX, mouseY, clickedBubble, 1, currentLevel)
+            if (jump.vx !== 0 || jump.vy !== 0) {
+              clickedBubble.vx = jump.vx
+              clickedBubble.vy = jump.vy
+            }
+            clickedBubble.x += jump.x
+            clickedBubble.y += jump.y
+          }
+
+          const shouldPop = clicker.onBubblePopped(clickedBubble.id, !!clickedBubble.isTough)
+          if (shouldPop) {
+            await this.explodeBubble({
+              bubble: clickedBubble,
+              nodes: this.canvasDomain.nodes,
+              width: this.canvasDomain.width,
+              height: this.canvasDomain.height
+            })
+          }
+        } else {
+          // Optional: small explosion on empty space (feedback)
+          const currentLevel = this.getCurrentLevel()
+          const { PHYSICS_CALCULATOR } = await import('@/config')
+          const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
+          const explosionRadius = Math.min(width, height) * explosionPhysics.explosionRadiusMultiplier
+          const explosionStrength = explosionPhysics.explosionStrengthBase
+          this.physicsRepository.explodeFromPoint({
+            clickX: mouseX,
+            clickY: mouseY,
+            explosionRadius,
+            explosionStrength,
+            nodes: this.canvasDomain.nodes,
+            width,
+            height
+          }, currentLevel)
+        }
+
+        return { success: true }
+      }
 
       if (clickedBubble && !clickedBubble.isVisited) {
         const result = await this.processBubbleClick(clickedBubble, mouseX, mouseY, this.canvasDomain.nodes, width, height)
@@ -353,31 +409,42 @@ export class CanvasUseCase implements ICanvasUseCase {
     const context = this.canvasRepository.getContext()
     if (!context) return
 
+    const clicker = useClickerStore()
+
     // Применяем тряску
     if (shakeOffset.x !== 0 || shakeOffset.y !== 0) {
       context.save()
       context.translate(shakeOffset.x, shakeOffset.y)
     }
 
-    // Рисуем звездное поле
-    this.canvasRepository.drawStarfield()
+    // Прячем звезды и подписи в режиме кликера
+    if (!clicker.isActive) {
+      // Рисуем звездное поле
+      this.canvasRepository.drawStarfield()
+      this.canvasRepository.hideLabels = false
+    } else {
+      this.canvasRepository.hideLabels = true
+    }
 
-    // Отрисовываем пузыри
-    this.canvasDomain.nodes.forEach((bubble, index) => {
-      if (!bubble.isHovered) {
-        this.canvasRepository.drawBubble(bubble)
-        this.canvasRepository.drawText(bubble)
-      }
-    })
+    // Во время отсчёта в кликере не рисуем пузыри вовсе — сцена пустая
+    if (!(clicker.isActive && !clicker.isRunning)) {
+      // Отрисовываем пузыри
+      this.canvasDomain.nodes.forEach((bubble, index) => {
+        if (!bubble.isHovered) {
+          this.canvasRepository.drawBubble(bubble)
+          this.canvasRepository.drawText(bubble)
+        }
+      })
 
-    // Отрисовываем ховер пузырь поверх остальных
-    this.canvasDomain.nodes.forEach(bubble => {
-      if (bubble.isHovered) {
-        this.canvasRepository.drawBubble(bubble)
-        this.canvasRepository.drawText(bubble)
-        this.effectsRepository.drawHoverEffect(context, bubble)
-      }
-    })
+      // Отрисовываем ховер пузырь поверх остальных
+      this.canvasDomain.nodes.forEach(bubble => {
+        if (bubble.isHovered) {
+          this.canvasRepository.drawBubble(bubble)
+          this.canvasRepository.drawText(bubble)
+          this.effectsRepository.drawHoverEffect(context, bubble)
+        }
+      })
+    }
 
     // Отрисовываем эффекты через EffectsRepository
     this.effectsRepository.drawFloatingTexts(context)
@@ -391,9 +458,8 @@ export class CanvasUseCase implements ICanvasUseCase {
 
   animate(): void {
     this.updateBubbleStates()
-    if (this.canvasDomain.nodes.length > 0) {
-      this.render()
-    }
+    // Всегда рендерим, чтобы убирать предыдущий кадр даже при пустой сцене (например, во время отсчёта)
+    this.render()
     this.canvasDomain.animationId = requestAnimationFrame(() => this.animate())
   }
 
@@ -591,7 +657,6 @@ export class CanvasUseCase implements ICanvasUseCase {
         return { bubblePopped: false }
       }
     }
-
 
     if (bubble.isQuestion) {
       // Открываем философский модал

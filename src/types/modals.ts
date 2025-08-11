@@ -22,6 +22,9 @@ export interface CanvasBridge {
   findBubbleById: (bubbleId: number) => BubbleNode | undefined
   createFloatingText: (params: { x: number; y: number; text: string; type: 'xp' | 'life'; color?: string }) => void
   updateCanvasBubbles?: () => void
+  // Optional bridge for clicker to add/replace nodes directly
+  addBubblesToCanvas?: (newBubbles: BubbleNode[]) => void
+  setBubblesOnCanvas?: (newBubbles: BubbleNode[]) => void
 }
 
 export interface LevelUpData {
@@ -71,8 +74,17 @@ export interface GameOverModalData {
   finalScore: number
 }
 
+export interface ClickerResultsData {
+  score: number
+  clicked: number
+  total: number
+  timeLeftMs: number
+  bonus: number
+  totalScore: number
+}
+
 // Новые интерфейсы для системы очередей
-export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir'
+export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir' | 'clickerRules' | 'clickerResults'
 
 export type ModalDataUnion = 
   | { type: 'welcome'; data: null }
@@ -83,6 +95,8 @@ export type ModalDataUnion =
   | { type: 'memoir'; data: MemoirModalData }
   | { type: 'levelUp'; data: LevelUpData }
   | { type: 'gameOver'; data: GameOverModalData }
+  | { type: 'clickerRules'; data: null }
+  | { type: 'clickerResults'; data: ClickerResultsData }
 
 export interface QueuedModal {
   id: string
@@ -99,7 +113,9 @@ export const MODAL_PRIORITIES = {
   philosophy: 60,
   bubble: 50,
   bonus: 40,
-  memoir: 30
+  memoir: 30,
+  clickerRules: 60,
+  clickerResults: 65
 } as const
 
 // Обновленные интерфейсы для Event Chains
@@ -129,6 +145,7 @@ export interface ModalData {
   levelUpData: LevelUpData
   currentBonus: NormalizedBonus | null
   currentMemoir: NormalizedMemoir | null
+  clickerResults: ClickerResultsData | null
 }
 
 export interface ModalStates {
@@ -140,4 +157,6 @@ export interface ModalStates {
   achievement: boolean
   bonus: boolean
   memoir: boolean
+  clickerRules: boolean
+  clickerResults: boolean
 }

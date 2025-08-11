@@ -173,5 +173,23 @@
       "bubbleCountFew": "{count} bubbles",
       "bubbleCountMany": "{count} bubbles"
     }
+  },
+  "clicker": {
+    "startTooltip": "Clicker Mode: rules",
+    "abortTooltip": "Abort Clicker Mode",
+    "rulesTitle": "Clicker Mode — Rules",
+    "rulesDescription": "Pop as many bubbles as you can in 60 seconds. Labels are hidden, starfield is off, physics is faster.",
+    "ruleInstantPop": "Click — instant pop (no modals/XP)",
+    "ruleTimer": "60s timer with tenths visible top-right",
+    "ruleTough": "Tough bubbles require multiple clicks",
+    "ruleAbort": "Click the widget again to abort",
+    "startButton": "Start",
+    "resultsTitle": "Clicker Results",
+    "statsClicked": "Bubbles popped",
+    "statsScore": "Score",
+    "statsBonus": "Time bonus",
+    "statsTotal": "Total",
+    "againButton": "Again",
+    "exitButton": "Exit"
   }
 } 

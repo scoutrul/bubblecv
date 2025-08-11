@@ -12,10 +12,12 @@ import type { BubbleNode } from '@/types/canvas'
 import { getYearRange } from '@/utils'
 import { GAME_CONFIG } from '@/config'
 import questionsData from '@/data/questions.json'
+import { useClickerStore } from '@/stores/clicker.store'
 
 export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef: Ref<HTMLElement | null>) {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
+  const clickerStore = useClickerStore()
 
   const sessionComposable = useSession()
   const { updateCurrentYear } = sessionComposable
@@ -45,6 +47,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const { isProjectMode } = useGameMode()
 
   const updateCanvasBubbles = () => {
+    // Skip normal updates during clicker mode
+    if (clickerStore.isActive) return
+
     if (!canvasUseCase.value || !canvasRef.value) return
 
     const normalCapacity = Math.max(0, GAME_CONFIG.MAX_BUBBLES_ON_SCREEN() - GAME_CONFIG.PHILOSOPHY_BUBBLES_ON_SCREEN_MAX)
@@ -156,6 +161,15 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
   }
 
+  const setBubblesOnCanvas = (newBubbles: BubbleNode[]) => {
+    if (!canvasUseCase.value || !canvasRef.value) return
+    try {
+      canvasUseCase.value.updateBubbles({ bubbles: newBubbles })
+    } catch (error) {
+      console.error('Error setting bubbles on canvas:', error)
+    }
+  }
+
   // Unified watcher for all bubble updates (avoid deep reactivity to prevent physics reset on minor property changes)
   watch([
     () => bubbleStore.bubbles.length, // react on additions/removals/reloads only
@@ -166,6 +180,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     () => bubbleStore.hasActiveCategoryFilters
   ], () => {
     nextTick(() => {
+      if (clickerStore.isActive) return
       updateCanvasBubbles()
       // Обновляем очередь пузырей при изменении данных
       bubbleStore.updateBubbleQueue(sessionStore.currentYear, sessionStore.visitedBubbles)
@@ -175,12 +190,14 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   // Additional watcher specifically for category filter changes to ensure immediate updates
   watch(() => bubbleStore.selectedCategories.slice(), () => {
     nextTick(() => {
+      if (clickerStore.isActive) return
       updateCanvasBubbles()
     })
   }, { flush: 'post' })
 
   watch(() => bubbleStore.hasActiveCategoryFilters, () => {
     nextTick(() => {
+      if (clickerStore.isActive) return
       updateCanvasBubbles()
     })
   }, { flush: 'post' })
@@ -189,6 +206,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   watch(() => sessionStore.visitedBubbles.slice(), () => {
     if (isProjectMode.value) {
       nextTick(() => {
+        if (clickerStore.isActive) return
         updateCanvasBubbles()
       })
     }
@@ -214,6 +232,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     updateCurrentYear(GAME_CONFIG.initialYear)
     await nextTick()
     setTimeout(() => {
+      if (clickerStore.isActive) return
       updateCanvasBubbles()
     }, 100)
   }
@@ -320,7 +339,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     }
 
     // Единое обновление пузырей (учитывает фильтры категорий и лимиты)
-    updateCanvasBubbles()
+    if (!clickerStore.isActive) {
+      updateCanvasBubbles()
+    }
 
     // Проверяем нужно ли перейти к следующему году
     const currentNodes = canvasUseCase.value.getCurrentBubbles?.() || []
@@ -357,6 +378,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
             // Обновляем пузыри с небольшой задержкой
             setTimeout(() => {
+              if (clickerStore.isActive) return
               updateCanvasBubbles()
             }, 50)
           } else {
@@ -399,7 +421,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
 
         // Принудительно вызываем resize для переинициализации
         if (containerRef.value) {
-          const rect = containerRef.value.getBoundingClientRect()
           const event = new Event('resize')
           window.dispatchEvent(event)
         }
@@ -442,6 +463,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       if (canvasUseCase.value) {
         canvasUseCase.value.createFloatingText(params)
       }
-    }
+    },
+    setBubblesOnCanvas
   }
 }

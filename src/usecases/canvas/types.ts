@@ -156,6 +156,7 @@ export interface CanvasRepository {
   updateCanvasSize(width: number, height: number): void
   getPerformanceInfo(): { fps: number; performanceLevel: number; starCount: number; activeNodes: number }
   getStarCounts(): { deepBg: number; center: number; bg: number; fg: number }
+  hideLabels?: boolean
 }
 
 export interface PhysicsRepository {

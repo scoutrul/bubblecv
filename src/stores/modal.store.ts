@@ -12,7 +12,8 @@ import type {
   PhilosophyModalData,
   GameOverModalData,
   BonusModalData,
-  MemoirModalData
+  MemoirModalData,
+  ClickerResultsData
 } from '@/types/modals'
 import {getEventChainCompletedHandler} from '@/composables/useModals'
 
@@ -26,7 +27,9 @@ export const useModalStore = defineStore('modalStore', () => {
     gameOver: false,
     achievement: false,
     bonus: false,
-    memoir: false
+    memoir: false,
+    clickerRules: false,
+    clickerResults: false
   })
 
   // Состояние анимации закрытия для каждой модалки
@@ -38,7 +41,9 @@ export const useModalStore = defineStore('modalStore', () => {
     gameOver: false,
     achievement: false,
     bonus: false,
-    memoir: false
+    memoir: false,
+    clickerRules: false,
+    clickerResults: false
   })
 
   const data = reactive<ModalData>({
@@ -57,7 +62,8 @@ export const useModalStore = defineStore('modalStore', () => {
       xpRequired: 0
     },
     currentBonus: null,
-    currentMemoir: null
+    currentMemoir: null,
+    clickerResults: null
   })
 
   const pendingAchievements = ref<PendingAchievement[]>([])
@@ -276,6 +282,12 @@ export const useModalStore = defineStore('modalStore', () => {
         break
       case 'memoir':
         data.currentMemoir = (modal.data as MemoirModalData)?.memoir || null
+        break
+      case 'clickerRules':
+        // no data to set
+        break
+      case 'clickerResults':
+        data.clickerResults = modal.data as ClickerResultsData
         break
     }
 
