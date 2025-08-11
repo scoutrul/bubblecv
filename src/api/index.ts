@@ -29,12 +29,13 @@ export const api = {
   },
 
   async getProjectBubbles(): Promise<{ data: NormalizedBubble[] }> {
+    const projectOffset = 10000 // avoid ID collisions with career bubbles
     const data = project.skills.map((bubble, index) => {
       const bubbleWithDefaultYear = {
         ...bubble,
         year: (bubble as any).year ?? GAME_CONFIG.initialYear,
       }
-      return normalizeSkillBubble(bubbleWithDefaultYear as Bubble, index)
+      return normalizeSkillBubble(bubbleWithDefaultYear as Bubble, index + projectOffset)
     })
     return { data }
   },
