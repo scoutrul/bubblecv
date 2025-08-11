@@ -205,6 +205,18 @@ export class CanvasUseCase implements ICanvasUseCase {
             clickedBubble.y += jump.y
           }
 
+          // Compute XP like in normal mode, but do not affect session; show floating text
+          const xpAmount = XP_CALCULATOR.getBubbleXP(clickedBubble.skillLevel)
+          this.effectsRepository.createFloatingText({
+            x: clickedBubble.x,
+            y: clickedBubble.y,
+            text: `+${xpAmount} XP`,
+            type: 'xp',
+            color: '#22c55e'
+          })
+          // Accumulate XP into clicker store scoring
+          ;(clicker as any).addXp && (clicker as any).addXp(xpAmount)
+
           const shouldPop = clicker.onBubblePopped(clickedBubble.id, !!clickedBubble.isTough)
           if (shouldPop) {
             await this.explodeBubble({

@@ -32,6 +32,7 @@ export const useClickerStore = defineStore('clickerStore', () => {
   const clicked = ref(0)
   const totalTargets = ref(0)
   const bestScore = ref(0)
+  const xpScore = ref(0)
 
   // Bubble pool management
   const bubblePool = ref<NormalizedBubble[]>([])
@@ -79,17 +80,21 @@ export const useClickerStore = defineStore('clickerStore', () => {
   }
 
   const computeResults = (): ClickerResultsData => {
-    const bonus = GAME_CONFIG.clicker.computeTimeBonus(timeLeftMs.value)
-    const rawScore = score.value
-    const totalScore = rawScore + bonus
+    // Base score is accumulated XP (visual-only during clicker)
+    const rawXp = xpScore.value
+    // Time multiplier grows linearly with remaining time (up to +100% if finished instantly)
+    const duration = GAME_CONFIG.clicker.DURATION_MS
+    const multiplier = 1 + Math.max(0, timeLeftMs.value) / duration
+    const totalScore = Math.round(rawXp * multiplier)
+    const bonusAmount = Math.max(0, totalScore - rawXp)
     // update best
     if (totalScore > bestScore.value) bestScore.value = totalScore
     return {
-      score: rawScore,
+      score: rawXp,
       clicked: clicked.value,
       total: totalTargets.value,
       timeLeftMs: timeLeftMs.value,
-      bonus,
+      bonus: bonusAmount,
       totalScore
     }
   }
@@ -225,6 +230,11 @@ export const useClickerStore = defineStore('clickerStore', () => {
     return true
   }
 
+  const addXp = (amount: number) => {
+    if (!isActive.value) return
+    xpScore.value += Math.max(0, Math.round(amount))
+  }
+
   const finish = (reason: ClickerFinishReason) => {
     stopRaf()
     clearCountdown()
@@ -303,6 +313,7 @@ export const useClickerStore = defineStore('clickerStore', () => {
     finish,
     abort,
     clearTimers,
-    resetState
+    resetState,
+    addXp
   }
 })

@@ -73,7 +73,7 @@
       :isOpen="showClickerResults && !modalStore.isModalClosing('clickerResults')"
       :data="clickerResultsData"
       :isClosing="modalStore.isModalClosing('clickerResults')"
-      @close="() => { startClosingModal('clickerResults'); }"
+      @close="() => { startClosingModal('clickerResults'); modalStore.closeCurrentModal(); }"
     />
 
 
