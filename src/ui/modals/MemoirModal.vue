@@ -135,7 +135,7 @@ const close = () => {
   background: var(--background-secondary);
   border: 1px solid var(--border);
   border-radius: 0.75rem;
-  padding: 2rem;
+  @apply p-0 sm:p-4;
   width: 100%;
   max-width: 40rem;
   max-height: 90vh;

@@ -115,7 +115,7 @@ onUnmounted(() => {
 
 /* Стили для скроллируемой области */
 .modal-content {
-  @apply flex-1 py-6 mt-4 mx-[-6px] px-[20px];
+  @apply flex-1 py-4 sm:py-6 mt-4 mx-[-6px] px-[20px];
   @apply overflow-y-auto overflow-x-hidden;
 }
 

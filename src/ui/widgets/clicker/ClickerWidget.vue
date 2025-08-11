@@ -50,7 +50,7 @@ const handleClick = () => {
   @apply transition-all duration-300;
   @apply hover:scale-110;
   @apply active:scale-95;
-  font-size: xx-large;
+  @apply text-sm sm:text-2xl;
 }
 
 .clicker-button:hover {

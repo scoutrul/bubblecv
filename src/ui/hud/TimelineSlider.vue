@@ -189,7 +189,7 @@ const { t } = useI18n()
 <style scoped>
 .timeline-slider {
   @apply w-full;
-  @apply absolute bottom-4 left-1/2 transform -translate-x-1/2;
+  @apply absolute bottom-4 max-[450px]:left-[3rem] min-[450px]:left-1/2 min-[450px]:-translate-x-1/2;
   @apply bg-background-glass backdrop-blur-md rounded-lg;
   @apply border border-border p-2 sm:p-3;
   width: calc(100vw - 6rem);
@@ -223,7 +223,8 @@ const { t } = useI18n()
 }
 
 .navigation-compact {
-  @apply flex items-center gap-0.5;
+  @apply hidden min-[450px]:flex;
+  @apply items-center gap-0.5;
 }
 
 .nav-button-compact {
@@ -265,6 +266,7 @@ const { t } = useI18n()
 
 .year-label-side {
   @apply text-xs text-text-muted font-medium min-w-8 text-center;
+  @apply hidden min-[450px]:flex;
 }
 
 .year-slider {

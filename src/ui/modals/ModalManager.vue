@@ -85,10 +85,7 @@
       @close="() => { startClosingModal('finalCongrats'); modalStore.closeCurrentModal(); }"
     />
 
-    <!-- DEV: Debug button to open Final Congrats modal -->
-    <div v-if="isDev" class="fixed bottom-3 right-3 z-[9999]">
-      <button class="px-3 py-2 rounded bg-amber-500 text-black font-bold shadow" @click="openFinalCongratsDebug">Open Final (debug)</button>
-    </div>
+
 
 
   </div>

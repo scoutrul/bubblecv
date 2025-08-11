@@ -100,7 +100,7 @@ const close = () => {
   border: 2px solid #3b82f6;
   width: 100%;
   max-width: 600px;
-  padding: 2rem;
+  @apply p-0 sm:p-4;
 }
 
 /* Vue Transition классы */

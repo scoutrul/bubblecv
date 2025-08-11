@@ -77,7 +77,8 @@ const visitedBubblesCount = computed(() => visitedBubbles.value.length)
 <style scoped>
 :deep(.game-over-modal-container) {
   @apply bg-background-primary border border-border rounded-lg shadow-xl;
-  @apply p-6 max-w-lg w-full mx-4;
+  @apply max-w-lg w-full mx-4;
+  @apply p-0 sm:p-6;
   @apply transform transition-all duration-300;
   @apply text-center relative;
 }

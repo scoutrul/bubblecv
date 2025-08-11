@@ -141,7 +141,7 @@ const { t } = useI18n()
 :deep(.philosophy-modal-container) {
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   border: 2px solid #8b5cf6;
-  padding: 2rem;
+  @apply p-0 sm:p-8;
   max-width: 800px;
 }
 

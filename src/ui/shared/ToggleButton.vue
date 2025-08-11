@@ -239,7 +239,7 @@ onUnmounted(() => {
 }
 
 .panel-wrapper.right {
-  @apply absolute top-0 right-[4rem];
+  @apply absolute top-0 right-1 sm:right-[4rem];
   @apply w-72 sm:w-80;
   @apply z-[100000];
   max-height: calc(100vh - 8rem);

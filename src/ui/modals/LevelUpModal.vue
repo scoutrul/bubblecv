@@ -116,7 +116,6 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<Emits>()
 
-
 const { getUnlockedBonusForLevel, unlockBonusForLevel, openBonusModal } = useBonuses()
 const { getUnlockedMemoirForLevel, unlockMemoirForLevel } = useMemoirs()
 const { t } = useI18n()
@@ -183,7 +182,7 @@ const close = () => {
 <style>
 .level-up-modal-container {
   border-radius: 0.75rem;
-  padding: 2rem;
+  @apply p-0 sm:p-4;
   width: 100%;
   max-width: 28rem;
   max-height: 90vh;
@@ -254,7 +253,6 @@ const close = () => {
   font-size: 1.25rem;
   font-weight: bold;
   color: var(--text-primary);
-  white-space: nowrap;
 }
 
 .level-description {

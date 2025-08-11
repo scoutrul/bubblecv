@@ -147,9 +147,6 @@ const { openBonusModal } = useBonuses()
 
 const rootEl = ref<HTMLElement | null>(null)
 
-const unlockedBonusesList = computed(() => bonusStore.unlockedBonuses)
-const unlockedMemoirsList = computed(() => memoirStore.unlockedMemoirs)
-
 // Полные списки для финала (после тотального unlock)
 const allBonusesList = computed(() => bonusStore.bonuses)
 const allMemoirsList = computed(() => memoirStore.memoirs)
@@ -251,7 +248,7 @@ const openMemoirDirect = async (m: NormalizedMemoir) => {
   background: radial-gradient(120% 120% at 0% 0%, #f59e0b22 0%, #111827 50%), linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
   border: 2px solid #fbbf24;
   width: max-content;
-  padding: 2rem;
+  @apply p-0 sm:p-8;
   color: #fff7ed;
 }
 
@@ -312,7 +309,11 @@ const openMemoirDirect = async (m: NormalizedMemoir) => {
 }
 
 .lists {
-  @apply grid grid-cols-2 gap-4 my-4
+  @apply gap-4 my-4 flex flex-wrap
+}
+
+.list-block {
+  @apply flex-1
 }
 
 .list {

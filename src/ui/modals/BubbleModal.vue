@@ -60,8 +60,6 @@
             {{ bubble?.insight }}
           </p>
         </div>
-        
-
       </div>
 
       <!-- Footer -->
@@ -198,7 +196,7 @@ const xpReward = computed(() => {
 }
 
 .modal-content {
-  @apply p-6 space-y-6;
+  @apply space-y-6;
 }
 
 .section-title {
@@ -247,14 +245,6 @@ const xpReward = computed(() => {
 
 .insight-text {
   @apply text-text-secondary leading-relaxed italic;
-}
-
-.timeline-info {
-  @apply flex items-center gap-3;
-}
-
-.timeline-start {
-  @apply text-sm font-medium text-text-primary;
 }
 
 .modal-footer {
