@@ -5,7 +5,6 @@
         @click="handleClick"
         class="clicker-button"
         :class="{ 'is-active': isActive }"
-        :title="tooltipText"
       >
         🕹️
       </button>

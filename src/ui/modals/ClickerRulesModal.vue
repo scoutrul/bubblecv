@@ -4,7 +4,7 @@
       <h2 class="modal-title">{{ t('clicker.rulesTitle') }}</h2>
     </div>
     <div class="modal-body">
-      <p class="mb-4">{{ t('clicker.rulesDescription') }}</p>
+      <p class="mb-4" v-html="t('clicker.rulesDescription')"></p>
       <ul class="list-disc pl-6 space-y-1 text-sm">
         <li>{{ t('clicker.ruleInstantPop') }}</li>
         <li>{{ t('clicker.ruleTimer') }}</li>
@@ -51,4 +51,6 @@ const onStart = () => {
 .btn { @apply px-4 py-2 rounded-lg; }
 .btn-primary { @apply bg-primary text-white hover:opacity-90; }
 .btn-secondary { @apply bg-background-secondary text-text-primary border border-border hover:opacity-90; }
+
+.xp-reward { @apply text-green-500 font-semibold; }
 </style>

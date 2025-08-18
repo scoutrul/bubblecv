@@ -14,7 +14,7 @@
         { 'tooltip--visible': isVisible }
       ]"
     >
-      {{ text }}
+      <span v-html="text"></span>
     </div>
   </div>
 </template>
@@ -139,5 +139,9 @@ onUnmounted(() => {
   .tooltip--bottom {
     @apply mt-2;
   }
+}
+
+.xp-reward {
+  @apply text-green-500 font-semibold;
 }
 </style> 

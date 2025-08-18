@@ -83,6 +83,10 @@
 
 /* Утилиты */
 @layer utilities {
+  .xp-reward {
+    @apply text-green-500 font-semibold;
+  }
+
   .text-gradient-primary {
     background: linear-gradient(45deg, theme('colors.primary.DEFAULT'), theme('colors.secondary.DEFAULT'));
     -webkit-background-clip: text;

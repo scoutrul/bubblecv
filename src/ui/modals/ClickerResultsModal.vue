@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import BaseModal from '@/ui/shared/BaseModal.vue'
 import { useClickerStore } from '@/stores'
-import { useI18n } from '@/composables'
+import { useI18n, useSession } from '@/composables'
 
 interface Props {
   isOpen: boolean
@@ -38,15 +38,21 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const clicker = useClickerStore()
 const { t } = useI18n()
+const { gainXP } = useSession()
 
-const onClose = () => emit('close')
-const onRestart = () => {
+const onClose = async () => {
   emit('close')
+  await gainXP(50)
+}
+const onRestart = async () => {
+  emit('close')
+  await gainXP(50)
   clicker.startCountdown()
 }
 
-const onExit = () => {
+const onExit = async () => {
   emit('close')
+  await gainXP(50)
   clicker.resetState()
 }
 </script>
