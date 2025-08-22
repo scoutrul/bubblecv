@@ -95,4 +95,3 @@ export const api = {
   }
 }
 
-export { askOpenAI } from './openai'
