@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { useBubbleStore, useSessionStore, useLevelStore } from '@/stores/'
+import { useBubbleStore, useSessionStore, useLevelsStore } from '@/stores/'
 import { useAchievement, useSession, useBonuses, useMemoirs } from '@/composables/'
 import { useModals } from '@/composables/useModals'
 import { getTranslatedLevelTitleByOriginal } from '@/utils/level-translations'
@@ -21,7 +21,7 @@ import { getEventBridge } from '@/composables/useUi'
 export function useApp() {
   const bubbleStore = useBubbleStore()
   const sessionStore = useSessionStore()
-  const levelStore = useLevelStore()
+  const levelStore = useLevelsStore()
   const achievements = useAchievement()
   const bonuses = useBonuses()
   const memoirs = useMemoirs()

@@ -1,9 +1,9 @@
 import { computed, ref } from 'vue'
-import { useLevelStore, useSessionStore, useUiEventStore } from '@/stores'
+import { useLevelsStore, useSessionStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useBonuses } from '@/composables/useBonuses'
 import { useMemoirs } from '@/composables/useMemoirs'
-import { GAME_CONFIG, maxGameLevel } from '@/config'
+import { GAME_CONFIG } from '@/config'
 import { getEventBridge } from '@/composables/useUi'
 import { SessionUseCaseFactory } from '@/usecases/session'
 import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
@@ -12,8 +12,7 @@ import type { GainXPResult } from '@/usecases/session'
 
 export function useSession() {
   const sessionStore = useSessionStore()
-  const uiEventStore = useUiEventStore()
-  const levelStore = useLevelStore()
+  const levelStore = useLevelsStore()
   const { unlockAchievement, resetAchievements } = useAchievement()
   const { unlockBonusForLevel, resetBonuses } = useBonuses()
   const { unlockMemoirForLevel, resetMemoirs } = useMemoirs()

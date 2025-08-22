@@ -3,7 +3,7 @@ import type { NormalizedBubble } from '@/types/normalized'
 import { api } from '@/api'
 import { getYearRange } from '@/utils'
 import { getTranslatedLevelTitle } from '@/utils/level-translations'
-import { useLevelStore } from '@/stores/levels.store'
+import { useLevelsStore } from '@/stores/levels.store'
 
 export class AppRepositoryImpl implements IAppRepository {
   async getOldBubbles(): Promise<NormalizedBubble[]> {
@@ -21,7 +21,7 @@ export class AppRepositoryImpl implements IAppRepository {
   }
 
   getFirstLevelData(): { title: string; icon: string } {
-    const levelStore = useLevelStore()
+    const levelStore = useLevelsStore()
     const firstLevel = levelStore.getLevelByNumber(1)
     
     return {

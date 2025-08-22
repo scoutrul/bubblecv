@@ -13,6 +13,7 @@
       <!-- Виджеты верхнего левого угла -->
       <div class="left-top-widgets-container">
         <ClickerWidget />
+        <ChatWidget />
       </div>
 
       <!-- Виджеты настроек и сброса - размещаем выше таймлайна -->
@@ -62,6 +63,7 @@ import PerformanceMonitor from '@/ui/widgets/performance/PerformanceMonitor.vue'
 import SettingsWidget from '@/ui/widgets/performance/SettingsWidget.vue'
 import CategoryFilterWidget from '@/ui/widgets/category-filter/CategoryFilterWidget.vue'
 import ClickerWidget from '@/ui/widgets/clicker/ClickerWidget.vue'
+import ChatWidget from '@/ui/widgets/chatbot/ChatWidget.vue'
 
 import { computed } from 'vue'
 import { useApp } from '@/composables'

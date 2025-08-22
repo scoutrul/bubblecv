@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { useSessionStore, useModalStore, useLevelStore } from '@/stores'
+import { useSessionStore, useModalStore, useLevelsStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useSession } from '@/composables/useSession'
 import { XP_CALCULATOR } from '@/config'
@@ -79,7 +79,7 @@ export const addPendingBubbleRemoval = (removal: PendingBubbleRemoval, requiresM
 export const useModals = () => {
   const sessionStore = useSessionStore()
   const modalStore = useModalStore()
-  const levelStore = useLevelStore()
+  const levelStore = useLevelsStore()
   const { unlockAchievement, unlockedCount } = useAchievement()
 const { isRetroMode } = useGameMode()
   const { gainXP, losePhilosophyLife, visitBubble } = useSession()

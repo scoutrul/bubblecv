@@ -18,13 +18,13 @@
     "timeTravelTooltip": "This shows a selection of my technical skills from the beginning of my career as a developer in IT or on the internet."
   },
   "game": {
-    "resetTitle": "Reset progress and start over",
-    "resetTooltip": "Reset game",
-    "performanceTitle": "Performance monitoring",
-    "performanceTooltip": "Monitoring",
-    "level": "Level {level}",
-    "lives": "Lives",
-    "xp": "Experience"
+    "performanceTitle": "Performance Settings",
+    "performanceTooltip": "Performance and graphics quality settings",
+    "resetTooltip": "Reset game progress",
+    "resetConfirm": "Are you sure you want to reset all progress? This action cannot be undone.",
+    "resetSuccess": "Progress reset!",
+    "languageTooltip": "Change language",
+    "categoryFilterTooltip": "Filter by skill categories"
   },
   "hud": {
     "level": "Level {level}",
@@ -255,5 +255,22 @@
       "playClicker": "Play Clicker"
     },
     "footer": "BubbleMe © 2025 — Golovachev Anton Alexanderovich"
+  },
+  "chat": {
+    "title": "Chat Bot",
+    "widgetTitle": "Open chat bot",
+    "widgetTooltip": "Ask questions about resume, experience or projects",
+    "emptyState": "Ask a question and I'll help you learn more about the author and his projects",
+    "user": "You",
+    "assistant": "Assistant",
+    "placeholder": "Enter your question...",
+    "send": "Send",
+    "presets": {
+      "resume": "Author's Resume",
+      "about": "About Author",
+      "tech": "Author's Technologies",
+      "projects": "Author's Projects"
+    },
+    "error": "An error occurred"
   }
 } 

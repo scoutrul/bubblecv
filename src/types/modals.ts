@@ -93,8 +93,13 @@ export interface FinalCongratsData {
   memoirsUnlocked: number
 }
 
+// Chat modal data
+export interface ChatModalData {
+  // No specific data needed for chat modal
+}
+
 // Новые интерфейсы для системы очередей
-export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir' | 'clickerRules' | 'clickerResults' | 'finalCongrats'
+export type ModalType = 'welcome' | 'bubble' | 'levelUp' | 'philosophy' | 'gameOver' | 'achievement' | 'bonus' | 'memoir' | 'clickerRules' | 'clickerResults' | 'finalCongrats' | 'chat'
 
 export type ModalDataUnion = 
   | { type: 'welcome'; data: null }
@@ -108,6 +113,7 @@ export type ModalDataUnion =
   | { type: 'clickerRules'; data: null }
   | { type: 'clickerResults'; data: ClickerResultsData }
   | { type: 'finalCongrats'; data: FinalCongratsData }
+  | { type: 'chat'; data: ChatModalData }
 
 export interface QueuedModal {
   id: string
@@ -127,7 +133,8 @@ export const MODAL_PRIORITIES = {
   memoir: 30,
   clickerRules: 60,
   clickerResults: 65,
-  finalCongrats: 85
+  finalCongrats: 85,
+  chat: 20
 } as const
 
 // Обновленные интерфейсы для Event Chains
@@ -173,4 +180,5 @@ export interface ModalStates {
   clickerRules: boolean
   clickerResults: boolean
   finalCongrats: boolean
+  chat: boolean
 }

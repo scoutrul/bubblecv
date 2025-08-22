@@ -8,7 +8,10 @@ declare module '*.vue' {
 
 interface ImportMetaEnv {
   readonly VITE_APP_TITLE: string
-  readonly VITE_DEBUG: string
+  readonly VITE_OPENAI_API_KEY: string
+  readonly VITE_TELEGRAM_PROXY_URL: string
+  readonly VITE_TELEGRAM_BOT_TOKEN: string
+  readonly VITE_TELEGRAM_CHAT_ID: string
 }
 
 interface ImportMeta {

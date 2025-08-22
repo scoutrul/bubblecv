@@ -33,7 +33,8 @@ export const useModalStore = defineStore('modalStore', () => {
     memoir: false,
     clickerRules: false,
     clickerResults: false,
-    finalCongrats: false
+    finalCongrats: false,
+    chat: false
   })
 
   // Состояние анимации закрытия для каждой модалки
@@ -48,7 +49,8 @@ export const useModalStore = defineStore('modalStore', () => {
     memoir: false,
     clickerRules: false,
     clickerResults: false,
-    finalCongrats: false
+    finalCongrats: false,
+    chat: false
   })
 
   const data = reactive<ModalData>({
@@ -87,7 +89,14 @@ export const useModalStore = defineStore('modalStore', () => {
   )
 
   const hasActiveModals = computed(() =>
-    modals.welcome || modals.bubble || modals.levelUp || modals.philosophy || modals.gameOver
+    modals.welcome ||
+    modals.bubble ||
+    modals.levelUp ||
+    modals.philosophy ||
+    modals.gameOver ||
+    modals.achievement ||
+    modals.bonus ||
+    modals.chat
   )
 
   const sessionStore = useSessionStore()
@@ -309,6 +318,9 @@ export const useModalStore = defineStore('modalStore', () => {
         break
       case 'finalCongrats':
         data.finalCongrats = modal.data as FinalCongratsData
+        break
+      case 'chat':
+        // no specific data needed for chat
         break
     }
 

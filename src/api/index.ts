@@ -94,3 +94,5 @@ export const api = {
     return { data: q.questions || [] }
   }
 }
+
+export { askOpenAI } from './openai'

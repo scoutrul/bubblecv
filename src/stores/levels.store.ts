@@ -5,7 +5,7 @@ import type { NormalizedLevel } from '@/types/normalized'
 
 import { api } from '@/api'
 
-export const useLevelStore = defineStore('levelStore', () => {
+export const useLevelsStore = defineStore('levelsStore', () => {
   const levels = ref<NormalizedLevel[]>([])
   const currentLevel = ref(1)
   const isLoading = ref(true)

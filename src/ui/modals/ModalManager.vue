@@ -85,8 +85,13 @@
       @close="() => { startClosingModal('finalCongrats'); modalStore.closeCurrentModal(); }"
     />
 
-
-
+    <!-- Chat Bot Modal -->
+    <ChatBotModal
+      v-if="showChat || modalStore.isModalClosing('chat')"
+      :isOpen="showChat && !modalStore.isModalClosing('chat')"
+      :isClosing="modalStore.isModalClosing('chat')"
+      @close="() => { startClosingModal('chat'); modalStore.closeCurrentModal(); }"
+    />
 
   </div>
 </template>
@@ -105,6 +110,7 @@ import MemoirModal from './MemoirModal.vue'
 import ClickerRulesModal from './ClickerRulesModal.vue'
 import ClickerResultsModal from './ClickerResultsModal.vue'
 import FinalCongratsModal from './FinalCongratsModal.vue'
+import ChatBotModal from './ChatBotModal.vue'
 import { computed } from 'vue'
 import { useI18n } from '@/composables'
 import { MODAL_PRIORITIES } from '@/types/modals'
@@ -266,6 +272,9 @@ const clickerResultsData = computed(() => safeData.value.clickerResults || null)
 // Final Congrats
 const showFinalCongrats = computed(() => currentModal.value?.type === 'finalCongrats' || safeModals.value.finalCongrats || false)
 const finalCongratsData = computed(() => safeData.value.finalCongrats || null)
+
+// Chat Bot
+const showChat = computed(() => currentModal.value?.type === 'chat' || safeModals.value.chat || false)
 
 // DEV helper
 const openFinalCongratsDebug = () => {
