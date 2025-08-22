@@ -20,7 +20,8 @@ import type {
 } from './types'
 import type { BubbleNode } from '@/types/canvas'
 import { addPendingBubbleRemoval } from '@/composables/useModals'
-import { XP_CALCULATOR, GAME_CONFIG } from '@/config'
+import { GAME_CONFIG } from '@/config'
+import { XP_CALCULATOR } from '@/utils/'
 import { usePerformanceStore } from '@/stores/performance.store'
 import { useClickerStore } from '@/stores/clicker.store'
 import { useGameMode } from '@/composables/useGameMode'
@@ -154,7 +155,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         currentHoveredBubble.isHovered = true
 
         const currentLevel = this.getCurrentLevel()
-        const { PHYSICS_CALCULATOR } = await import('@/config')
+        const { PHYSICS_CALCULATOR } = await import('@/utils/')
         const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
         
         // Дополнительная проверка после асинхронной операции
@@ -233,7 +234,7 @@ export class CanvasUseCase implements ICanvasUseCase {
         } else {
           // Optional: small explosion on empty space (feedback)
           const currentLevel = this.getCurrentLevel()
-          const { PHYSICS_CALCULATOR } = await import('@/config')
+          const { PHYSICS_CALCULATOR } = await import('@/utils/')
           const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
           const explosionRadius = Math.min(width, height) * explosionPhysics.explosionRadiusMultiplier
           const explosionStrength = explosionPhysics.explosionStrengthBase
@@ -257,7 +258,7 @@ export class CanvasUseCase implements ICanvasUseCase {
       } else if (!clickedBubble) {
         // Клик в пустое место - создаем взрыв
         const currentLevel = this.getCurrentLevel()
-        const { PHYSICS_CALCULATOR } = await import('@/config')
+        const { PHYSICS_CALCULATOR } = await import('@/utils/')
         const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
         
         const explosionRadius = Math.min(width, height) * explosionPhysics.explosionRadiusMultiplier
@@ -297,7 +298,7 @@ export class CanvasUseCase implements ICanvasUseCase {
 
       // СРАЗУ выполняем физический взрыв (синхронно)
       const currentLevel = this.getCurrentLevel()
-      const { PHYSICS_CALCULATOR } = await import('@/config')
+      const { PHYSICS_CALCULATOR } = await import('@/utils/')
       const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(currentLevel)
       
       const explosionRadius = (bubble.baseRadius || 20) * explosionPhysics.bubbleExplosionRadiusMultiplier

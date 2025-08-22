@@ -215,6 +215,3 @@ export const GAME_CONFIG = {
 } as const
 
 export const maxGameLevel = Object.keys(GAME_CONFIG.levelRequirements).length
-
-// Реэкспортируем утилиты для удобства
-export { XP_CALCULATOR, PHYSICS_CALCULATOR } from '@/utils'

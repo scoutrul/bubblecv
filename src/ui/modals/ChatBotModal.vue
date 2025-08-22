@@ -80,6 +80,7 @@
             class="chat-input"
             :disabled="isLoading"
             maxlength="1000"
+            ref="messageInput"
           />
           <button 
             type="submit" 
@@ -120,6 +121,7 @@ const chatStore = useChatStore()
 const { t } = useI18n()
 
 const inputMessage = ref('')
+const messageInput = ref<HTMLInputElement | null>(null)
 const messagesContainer = ref<HTMLDivElement>()
 
 const messages = computed(() => chatStore.messages)
@@ -154,37 +156,44 @@ const formatTime = (timestamp: number) => {
 }
 
 const formatMessageContent = (content: string) => {
-  // Проверяем, не содержит ли контент уже HTML теги
+  // Если уже есть HTML-ссылки, не трогаем их, только переносы строк
   if (content.includes('<a href=') || content.includes('<a ')) {
-    // Если уже есть HTML, просто добавляем переносы строк
     return content.replace(/\n/g, '<br>')
   }
-  
-  // Если HTML нет, обрабатываем ссылки
+
   let processedContent = content
-  
-  // Обрабатываем markdown ссылки [текст](ссылка)
+
+  // 1) Markdown-ссылки [текст](ссылка)
   processedContent = processedContent.replace(
     /\[([^\]]+)\]\(([^)]+)\)/g,
     '<a href="$2" target="_blank" rel="noopener noreferrer" class="message-link">$1</a>'
   )
-  
-  // Обрабатываем HTTP ссылки
-  processedContent = processedContent.replace(
-    /(https?:\/\/[^\s]+)/g, 
-    '<a href="$1" target="_blank" rel="noopener noreferrer" class="message-link">$1</a>'
-  )
-  
-  // Обрабатываем ссылку на резюме (только если еще не обработана)
+
+  // 2) Если после markdown уже появились <a>, не заменяем обычные URL, чтобы не испортить href
+  if (!processedContent.includes('<a ')) {
+    // Обычные http/https URL
+    processedContent = processedContent.replace(
+      /(https?:\/\/[^\s]+)/g,
+      '<a href="$1" target="_blank" rel="noopener noreferrer" class="message-link">$1</a>'
+    )
+  }
+
+  // 3) Специальный случай: имя файла резюме
   if (!processedContent.includes('/cv/')) {
     processedContent = processedContent.replace(
       /(Резюме — Головачев Антон\.pdf)/g,
       '<a href="/cv/$1" target="_blank" rel="noopener noreferrer" class="message-link">$1</a>'
     )
   }
-  
-  // Добавляем переносы строк
+
+  // Переносы строк
   return processedContent.replace(/\n/g, '<br>')
+}
+
+const focusInput = () => {
+  nextTick(() => {
+    messageInput.value?.focus()
+  })
 }
 
 const scrollToBottom = () => {
@@ -208,6 +217,8 @@ watch(isLoading, (newLoading) => {
   if (!newLoading) {
     // Скроллим после завершения загрузки с увеличенной задержкой
     setTimeout(scrollToBottom, 200)
+    // Фокус на инпут после завершения ответа бота
+    setTimeout(focusInput, 220)
   }
 })
 
@@ -220,6 +231,7 @@ watch(() => props.isOpen, (isOpen) => {
       if (messagesContainer.value) {
         messagesContainer.value.scrollTop = 0
       }
+      focusInput()
     })
   }
 })
@@ -231,6 +243,8 @@ watch(() => messages.value.length, (newLength, oldLength) => {
     if (lastMessage.role === 'assistant') {
       // Скроллим к ответу бота с задержкой
       setTimeout(scrollToBottom, 100)
+      // И фокусируем инпут
+      setTimeout(focusInput, 120)
     }
   }
 })
@@ -238,6 +252,7 @@ watch(() => messages.value.length, (newLength, oldLength) => {
 onMounted(() => {
   if (props.isOpen) {
     chatStore.startNewSession()
+    focusInput()
   }
 })
 </script>
@@ -298,6 +313,7 @@ onMounted(() => {
 
 .message-content {
   @apply max-w-[80%] p-3 rounded-lg;
+  @apply min-w-[140px];
 }
 
 .message-user .message-content {

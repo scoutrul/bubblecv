@@ -86,7 +86,7 @@
 <script setup lang="ts">
 import type { Question } from '@/types/data'
 import BaseModal from '@/ui/shared/BaseModal.vue'
-import { XP_CALCULATOR } from '@/config'
+import { XP_CALCULATOR } from '@/utils/'
 import { computed, ref } from 'vue'
 import { useI18n } from '@/composables'
 

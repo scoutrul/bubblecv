@@ -1,7 +1,7 @@
 import type { Level } from '@/types/levels'
 import type { Bubble, Achievement, Bonus, Question, Memoir, OldBubble } from '@/types/data'
 import type { NormalizedBubble, NormalizedAchievement, NormalizedLevel, NormalizedBonus, NormalizedMemoir, BubbleSizes } from '@/types/normalized'
-import { XP_CALCULATOR } from '@/config'
+import { XP_CALCULATOR } from '@/utils/'
 
 // Значения по умолчанию для пузыря
 const DEFAULT_BUBBLE_PROPS = {
