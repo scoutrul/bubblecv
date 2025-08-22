@@ -1,6 +1,6 @@
 <template>
   <ToolTip :text="t('chat.widgetTooltip')" position="right">
-    <div class="chat-widget">
+    <div v-if="!isClickerActive" class="chat-widget">
       <button
         @click="openChatModal"
         class="chat-button"
@@ -16,7 +16,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a 2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
         </svg>
       </button>
     </div>
@@ -27,9 +27,13 @@
 import { useModalStore } from '@/stores/modal.store'
 import { useI18n } from '@/composables'
 import ToolTip from '@/ui/shared/ToolTip.vue'
+import { useClickerStore } from '@/stores/clicker.store'
+import { computed } from 'vue'
 
 const modalStore = useModalStore()
 const { t } = useI18n()
+const clickerStore = useClickerStore()
+const isClickerActive = computed(() => clickerStore.isActive)
 
 const openChatModal = () => {
   modalStore.enqueueModal({

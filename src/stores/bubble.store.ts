@@ -24,7 +24,6 @@ export const useBubbleStore = defineStore('bubbleStore', () => {
   const sessionStore = useSessionStore()
   watch(() => sessionStore.currentLevel, (newLevel, oldLevel) => {
     if (newLevel !== oldLevel) {
-      console.log(`🔄 Уровень изменился с ${oldLevel} на ${newLevel}, перезагружаем баблы...`)
       loadBubbles()
     }
   })

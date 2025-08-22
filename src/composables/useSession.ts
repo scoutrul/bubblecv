@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useLevelsStore, useSessionStore } from '@/stores'
 import { useAchievement } from '@/composables/useAchievement'
 import { useBonuses } from '@/composables/useBonuses'
@@ -6,8 +6,7 @@ import { useMemoirs } from '@/composables/useMemoirs'
 import { GAME_CONFIG } from '@/config'
 import { getEventBridge } from '@/composables/useUi'
 import { SessionUseCaseFactory } from '@/usecases/session'
-import type { NormalizedBubble, NormalizedAchievement } from '@/types/normalized'
-import type { LevelUpData } from '@/types/modals'
+import type { NormalizedBubble } from '@/types/normalized'
 import type { GainXPResult } from '@/usecases/session'
 
 export function useSession() {
@@ -67,7 +66,6 @@ export function useSession() {
           } else {
             // Если bridge еще не установлен, игнорируем сброс canvas
             // Это может произойти при инициализации приложения
-            console.warn('Canvas bridge not available for reset')
           }
         }
       },

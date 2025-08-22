@@ -38,7 +38,7 @@ export async function sendChatTranscript(payload: ChatTranscriptPayload): Promis
       })
       return
     } catch (e) {
-      console.warn('Telemetry proxy send failed, fallback to Telegram', e)
+      // silent
     }
   }
 
@@ -58,6 +58,6 @@ export async function sendChatTranscript(payload: ChatTranscriptPayload): Promis
       })
     })
   } catch (e) {
-    console.warn('Telegram send failed', e)
+    // silent
   }
 }

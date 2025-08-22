@@ -11,7 +11,6 @@ export class AppRepositoryImpl implements IAppRepository {
       const { data: oldBubbles } = await api.getOldBubbles()
       return oldBubbles
     } catch (error) {
-      console.error('❌ Ошибка загрузки старых пузырей:', error)
       return []
     }
   }

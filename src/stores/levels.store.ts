@@ -17,7 +17,7 @@ export const useLevelsStore = defineStore('levelsStore', () => {
       const { data } = await api.getLevels()
       levels.value = data
     } catch (err) {
-      console.error('❌ Ошибка загрузки уровней:', err)
+      // silent
     } finally {
       isLoading.value = false
     }

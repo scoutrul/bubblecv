@@ -370,9 +370,8 @@ const { isRetroMode } = useGameMode()
           const canvasBridge = getCanvasBridge()
           if (canvasBridge && canvasBridge.updateCanvasBubbles) {
             canvasBridge.updateCanvasBubbles()
-            console.log(`🎯 Добавлено ${yearsToAdd.length} скрытых пузырей после пробития первого крепкого пузыря (годы: ${startYear}-${currentYear})`)
           } else {
-            console.warn('Canvas bridge not available for updating bubbles')
+            // silent
           }
         })
       })
@@ -577,9 +576,6 @@ const { isRetroMode } = useGameMode()
     xpRequired: number
     isProjectTransition?: boolean
   }) => {
-    // Временный отладочный лог
-    console.log('🚀 useModals openLevelUpModal called with:', { level, payload })
-    
     // Level Up Modal теперь работает только через Event Chain
     const levelData = levelStore.getLevelByNumber(level)
 
@@ -751,13 +747,6 @@ const { isRetroMode } = useGameMode()
   }
 
   const closeAchievementModal = async () => {
-    // Отладочный лог
-    console.log('🔒 closeAchievementModal:', {
-      hasAchievement: !!modalStore.data.achievement,
-      hasEventChain: !!modalStore.currentEventChain,
-      currentStep: modalStore.currentEventChain?.currentStep,
-      hasPendingLevelUp: !!modalStore.currentEventChain?.pendingLevelUp
-    })
 
     // Начисляем XP за ачивку только если НЕТ активного Event Chain
     // (XP уже начислен в ProcessAchievementEventChainUseCase)

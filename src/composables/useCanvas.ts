@@ -50,8 +50,11 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
   const { isProjectMode, isRetroMode } = useGameMode()
 
   const updateCanvasBubbles = () => {
-    // Skip normal updates during clicker mode
-    if (clickerStore.isActive) return
+    // Skip normal updates during clicker mode, но разрешаем первичную отрисовку, если узлов нет
+    if (clickerStore.isActive) {
+      const existing = canvasUseCase.value?.getCurrentBubbles?.() || []
+      if (existing.length > 0) return
+    }
 
     if (!canvasUseCase.value || !canvasRef.value) return
 
@@ -107,10 +110,9 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
         isProjectMode.value
       )
 
-
     }
 
-    // В ретро-режиме не добавляем философские пузыри
+  // В ретро-режиме не добавляем философские пузыри
     const extraBubbles: BubbleNode[] = []
 
     if (!isRetroMode.value) {
@@ -145,10 +147,12 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       extraBubbles.push(...philosophyBubbles)
     }
 
+    const finalBubbles = [...filteredBubbles, ...extraBubbles]
+
     try {
-      canvasUseCase.value.updateBubbles({ bubbles: [...filteredBubbles, ...extraBubbles] })
+      canvasUseCase.value.updateBubbles({ bubbles: finalBubbles })
     } catch (error) {
-      console.error('Error updating bubbles:', error)
+      // swallow
     }
   }
 
@@ -164,7 +168,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     try {
       canvasUseCase.value.updateBubbles({ bubbles: updatedBubbles })
     } catch (error) {
-      console.error('Error adding bubbles to canvas:', error)
+      // swallow
     }
   }
 
@@ -173,7 +177,7 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     try {
       canvasUseCase.value.updateBubbles({ bubbles: newBubbles })
     } catch (error) {
-      console.error('Error setting bubbles on canvas:', error)
+      // swallow
     }
   }
 
@@ -299,7 +303,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       const nextBubble = bubbleStore.getNextBubbleFromQueue()
       if (nextBubble) {
         const bubbleNode = normalizedToBubbleNode(nextBubble)
-        console.log(`➕ Добавляем следующий пузырь из очереди: ${nextBubble.name} (${nextBubble.year}) - приоритет: ${nextBubble.year === sessionStore.currentYear ? 'текущий год' : 'предыдущий год'}`)
         addBubblesToCanvas([bubbleNode])
       }
 
@@ -307,14 +310,13 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       const currentNodes = canvasUseCase.value.getCurrentBubbles?.() || []
       checkBubblesAndAdvance(currentNodes)
     } catch (error) {
-      console.error('Error removing bubble:', error)
+      // swallow
     }
   }
 
   watch(() => sessionStore.currentYear, async (newYear) => {
 
     if (bubbleStore.isLoading || !canvasUseCase.value) {
-      console.log('⚠️ Пропускаем обновление: bubbleStore загружается или canvasUseCase не готов')
       return
     }
 
@@ -425,8 +427,6 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
     // Обработчик для Vite HMR (Hot Module Replacement)
     if (import.meta.hot) {
       import.meta.hot.accept(() => {
-        console.log('🔄 Hot reload detected - reinitializing canvas...')
-
         // Принудительно вызываем resize для переинициализации
         if (containerRef.value) {
           const event = new Event('resize')

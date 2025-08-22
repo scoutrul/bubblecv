@@ -88,7 +88,7 @@ export class BubbleManagerRepository implements IBubbleManagerRepository {
     const canvasCenter = { x: width / 2, y: height / 2 }
     
     // Получаем параметры физики для текущего уровня
-    const { PHYSICS_CALCULATOR } = await import('@/config')
+    const { PHYSICS_CALCULATOR } = await import('@/utils/')
     const physics = PHYSICS_CALCULATOR.getBubblePhysics(level)
 
     nodes.forEach((bubble, index) => {

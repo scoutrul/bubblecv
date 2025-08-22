@@ -15,7 +15,7 @@ export class PhysicsRepository implements IPhysicsRepository {
 
     // Инициализируем PHYSICS_CALCULATOR один раз
     if (!this.physicsCalculator) {
-      const { PHYSICS_CALCULATOR } = await import('@/config')
+      const { PHYSICS_CALCULATOR } = await import('@/utils/')
       this.physicsCalculator = PHYSICS_CALCULATOR
     }
     const simulationPhysics = this.physicsCalculator.getSimulationPhysics(level)

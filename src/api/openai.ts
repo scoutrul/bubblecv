@@ -25,6 +25,7 @@ export async function askOpenAI(question: string): Promise<string> {
 - Желаемая оплата: 1800 ₽/час или от 280 000 ₽/мес.
 - Контакты: email — antongolova@gmail.com, Telegram — @antonGolova
 - Резюме: [Резюме — Головачев Антон.pdf](/cv/Резюме — Головачев Антон.pdf)
+- GitHub: [github.com/scoutrul/bubblecv](https://github.com/scoutrul/bubblecv)
 
 🛠 НАВЫКИ:
 HTML5, CSS3/SCSS/Tailwind, JS/TS, Vue 2/3, Nuxt, Pinia/Vuex, React, Svelte, Node.js, Express, MongoDB, GraphQL/Apollo, REST API, JWT, i18n, Vite, Webpack, Storybook, Vuetify.
@@ -82,7 +83,7 @@ HTML5, CSS3/SCSS/Tailwind, JS/TS, Vue 2/3, Nuxt, Pinia/Vuex, React, Svelte, Node
       const context = await buildChatContext()
       systemPrompt += formatContextForPrompt(context)
     } catch (error) {
-      console.warn('Failed to load dynamic context, using static only:', error)
+      // silent
     }
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
