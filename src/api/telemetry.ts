@@ -22,27 +22,11 @@ function makeText(payload: ChatTranscriptPayload): string {
 }
 
 export async function sendChatTranscript(payload: ChatTranscriptPayload): Promise<void> {
-  const proxyUrl = import.meta.env.VITE_TELEGRAM_PROXY_URL
   const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN
   const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID
 
   const text = makeText(payload)
 
-  // 1) Отправка на прокси, если есть
-  if (proxyUrl) {
-    try {
-      await fetch(proxyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      return
-    } catch (e) {
-      // silent
-    }
-  }
-
-  // 2) Прямая отправка в Telegram
   if (!botToken || !chatId) return
 
   const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`
