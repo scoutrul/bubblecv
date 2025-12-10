@@ -108,7 +108,8 @@ export class EffectsRepository implements IEffectsRepository {
     const strengthFactor = Math.min(distanceToCenter / (bubble.radius || 20), 1)
 
     // Базовая сила отскакивания
-    const { PHYSICS_CALCULATOR } = await import('@/config')
+    // Берем калькулятор физики из utils, иначе undefined при импорте из config
+    const { PHYSICS_CALCULATOR } = await import('@/utils/')
     const explosionPhysics = PHYSICS_CALCULATOR.getExplosionPhysics(level)
     const levelMultiplier = PHYSICS_CALCULATOR.getLevelMultiplier(level)
 
