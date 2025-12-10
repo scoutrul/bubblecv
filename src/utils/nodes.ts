@@ -60,12 +60,10 @@ export const getBubblesToRender = (
     ? bubbles.filter(b => !b.isHidden && !b.isQuestion && !b.isPopped && !visited.includes(b.id))
     : getBubblesUpToYear(bubbles, currentYear, visited)
   
-  // Добавляем скрытые пузыри из bubbleStore только если получена ачивка "крепыш"
-  const hiddenBubbles = hasUnlockedFirstToughBubbleAchievement 
-    ? bubbles
-        .filter(b => b.isHidden && b.year <= currentYear && !visited.includes(b.id))
-        .map(normalizedToBubbleNode)
-    : []
+  // Добавляем скрытые пузыри, если они есть и не были посещены
+  const hiddenBubbles = bubbles
+    .filter(b => b.isHidden && !b.isPopped && (!isProjectMode ? b.year <= currentYear : true) && !visited.includes(b.id))
+    .map(normalizedToBubbleNode)
   
   // Объединяем все пузыри и сортируем
   const allBubbles = [

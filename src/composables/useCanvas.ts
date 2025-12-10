@@ -326,26 +326,24 @@ export function useCanvas(canvasRef: Ref<HTMLCanvasElement | null>, containerRef
       usedQuestionIds.value.clear()
     }
 
-    // Добавляем скрытые пузыри в bubbleStore только если получена ачивка "крепыш" (не для ретро)
-    if (sessionStore.hasUnlockedFirstToughBubbleAchievement && !isRetroMode.value) {
-      const yearsToAdd: number[] = []
-      for (let year = startYear.value; year <= newYear; year++) {
-        // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
-        const existingHiddenBubble = bubbleStore.bubbles.find(b => 
-          b.isHidden && b.year === year
-        )
+    // Добавляем скрытые пузыри в bubbleStore при продвижении по годам
+    const yearsToAdd: number[] = []
+    for (let year = startYear.value; year <= newYear; year++) {
+      // Проверяем, есть ли уже скрытый пузырь для этого года в bubbleStore
+      const existingHiddenBubble = bubbleStore.bubbles.find(b => 
+        b.isHidden && b.year === year
+      )
 
-        // Проверяем, не был ли этот пузырь уже лопнут
-        const isPopped = sessionStore.visitedBubbles.includes(-(year * 10000 + 9999))
+      // Проверяем, не был ли этот пузырь уже лопнут
+      const isPopped = sessionStore.visitedBubbles.includes(-(year * 10000 + 9999))
 
-        if (!existingHiddenBubble && !isPopped) {
-          yearsToAdd.push(year)
-        }
+      if (!existingHiddenBubble && !isPopped) {
+        yearsToAdd.push(year)
       }
+    }
 
-      if (yearsToAdd.length > 0) {
-        bubbleStore.addHiddenBubbles(yearsToAdd)
-      }
+    if (yearsToAdd.length > 0) {
+      bubbleStore.addHiddenBubbles(yearsToAdd)
     }
 
     // Единое обновление пузырей (учитывает фильтры категорий и лимиты)
